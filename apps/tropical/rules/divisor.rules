@@ -73,40 +73,40 @@ user_function divisorByValue {
 # @return fan::PolyhedralFan The intersection of both fans (whose support is equal to the support of fan). The 
 # resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, 
 # the tropical weight of the refinement is also computed
-user_function intersect_complete_fan {
-    my ($fan,$refine) = @_;
-    
-    #Check that ambient dimensions coincide
-    if($fan->AMBIENT_DIM != $refine->AMBIENT_DIM) {
-	die "Can't intersect fans of different ambient dimension";
-    }
-    #Skip computation for a zero-dimensional fan
-    if($fan->DIM == 0) {
-      return $fan;
-    }
-    
-    #Compute maximal cones of intersection only by intersecting maximal cones
-    # of both fans
-    my $raymatrix = new Matrix<Rational>(0,$fan->AMBIENT_DIM);
-    my @maximalCones = ();
-    my @tropicalWeights = ();
-    
-    for my $fanConeIndex (0 .. $fan->MAXIMAL_CONES->rows() -1) {
-      for my $refineConeIndex (0 .. $refine->MAXIMAL_CONES->rows() -1) {
-	  my $fanCone = $fan->cone($fanConeIndex);
-	  my $refineCone = $refine->cone($refineConeIndex);
-	  my $intersection = polytope::intersection( $fanCone, $refineCone);
-	  if($intersection->DIM == $fan->DIM) {
-	    $raymatrix = $raymatrix / $intersection->RAYS;
-	    my $rayset = new Set<Int>( $raymatrix->rows() - $intersection->N_RAYS .. $raymatrix->rows()-1);
-	    @maximalCones = (@maximalCones, $rayset);
-	    
-	  }
-      }
-    }
-  
-
-    
-    #return new fan::PolyhedralFan( INPUT_RAYS=> $raymatrix, INPUT_CONES=> \@maximalCones);
-    
-}
+# user_function intersect_complete_fan {
+#     my ($fan,$refine) = @_;
+#     
+#     #Check that ambient dimensions coincide
+#     if($fan->AMBIENT_DIM != $refine->AMBIENT_DIM) {
+# 	die "Can't intersect fans of different ambient dimension";
+#     }
+#     #Skip computation for a zero-dimensional fan
+#     if($fan->DIM == 0) {
+#       return $fan;
+#     }
+#     
+#     #Compute maximal cones of intersection only by intersecting maximal cones
+#     # of both fans
+#     my $raymatrix = new Matrix<Rational>(0,$fan->AMBIENT_DIM);
+#     my @maximalCones = ();
+#     my @tropicalWeights = ();
+#     
+#     for my $fanConeIndex (0 .. $fan->MAXIMAL_CONES->rows() -1) {
+#       for my $refineConeIndex (0 .. $refine->MAXIMAL_CONES->rows() -1) {
+# 	  my $fanCone = $fan->cone($fanConeIndex);
+# 	  my $refineCone = $refine->cone($refineConeIndex);
+# 	  my $intersection = polytope::intersection( $fanCone, $refineCone);
+# 	  if($intersection->DIM == $fan->DIM) {
+# 	    $raymatrix = $raymatrix / $intersection->RAYS;
+# 	    my $rayset = new Set<Int>( $raymatrix->rows() - $intersection->N_RAYS .. $raymatrix->rows()-1);
+# 	    @maximalCones = (@maximalCones, $rayset);
+# 	    
+# 	  }
+#       }
+#     }
+#   
+# 
+#     
+#     #return new fan::PolyhedralFan( INPUT_RAYS=> $raymatrix, INPUT_CONES=> \@maximalCones);
+#     
+# }

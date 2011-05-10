@@ -11,7 +11,7 @@ declare $timingMapCreation = new Map<Int,<Map<Int,String> > >();
 declare $timingMapBalancing = new Map<Int,<Map<Int,String> > >();
 
 #Benchmark parameters
-my $maximalN = 10;
+my $maximalN = 15;
 
 my $t0;
 my $t1;
@@ -40,7 +40,10 @@ for(my $n = 2; $n <= $maximalN; $n++) {
     print "Done.\n";
     print "Checking balancing...\n";
     $t0 = Benchmark->new;
-    $f->IS_BALANCED;
+    my $b = $f->IS_BALANCED;
+    if(!$b) {
+      die "Error: L^",$n,"_",$k, " not balanced.\n";
+    }
     $t1 = Benchmark->new;
     $s = timediff($t1,$t0);
     #$timingMapBalancing->{$n}->{$k} = $s;
