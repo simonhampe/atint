@@ -1,0 +1,9 @@
+package atint::dolog;
+
+sub dbglog {
+  print @_;  
+}
+
+sub dbgtrace {
+  print @_;
+}

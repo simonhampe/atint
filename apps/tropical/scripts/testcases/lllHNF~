@@ -1,0 +1,47 @@
+use application "common";
+use application "tropical";
+use Benchmark qw(:all);
+
+my $tries = 500;
+my $maxint = 1000000000;
+my $dim = 10;
+
+print ("Creating $tries random $dim x $dim matrices with entries in 0.. ($maxint-1)\n");
+
+#Create $tries random matrices for testing the LLL HNF algorithm
+my $rows = randomInteger(new Integer(20), new Integer($tries));
+my $cols = randomInteger(new Integer(20), new Integer($tries));
+my $U = new Matrix<Integer>();
+my $R = new Matrix<Integer>();
+my $k = new Integer();
+my $m = new Matrix<Integer>($dim,$dim);
+
+my $t0all = Benchmark->new;
+for(my $i = 0; $i < $tries; $i++) {  
+  my $entries = randomInteger(new Integer($maxint), new Integer($dim * $dim));
+  for(my $r = 0; $r < $dim; $r++) {
+    for(my $c = 0; $c < $dim; $c++) {
+      $m->row($r)->[$c] = $entries->[$c + $r * $dim];
+    }
+  }
+  print ("Testing matrix $i of $tries\n");
+ 
+  my $t0 = Benchmark->new;
+  $R = lllHNF($m,$U,$k);
+  my $t1 = Benchmark->new;
+  print ("lllHNF done after ", timestr(timediff($t1,$t0)),"\n");
+  
+  #$t0 = Benchmark->new;
+  #znormaltransform($m,$k);
+  #$t1 = Benchmark->new;
+  #print ("Cohn's algorithm done after ", timestr(timediff($t1,$t0)),"\n");
+
+  my $d = det($U);
+  $d = $d * $d;
+  if( ($R != $U * $m) ||  ($d != 1)) {
+    print ("Error: R = $R, U = $U, m = $m\n");
+  }
+}
+my $tendall = Benchmark->new;
+print "Overall time: ", timestr(timediff($tendall,$t0all),"\n");
+print "Last matrix was \n", $m, "\n";

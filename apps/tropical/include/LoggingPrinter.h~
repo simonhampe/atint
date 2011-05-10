@@ -1,0 +1,59 @@
+#include "polymake/client.h"
+
+#ifndef ATINT_LOGGING_PRINTER_H
+#define ATINT_LOGGING_PRINTER_H
+
+/**
+ This class defines a logger that can be turned on or off in the following way: Put "using atint::donotlog::dbglog;" or "using atint::dolog::dbglog" or "using atint::dotrace::dbglog"
+ depending on what you want in the corresponding scope, then log with the command "dbglog <<...<<endl;"
+*/
+
+namespace polymake { namespace tropical {
+
+/**
+ @brief A dummy streambuffer class that does absolutely nothing. Used for deactivating logging.
+*/
+class DummyBuffer : public std::streambuf{
+    
+};
+
+static DummyBuffer dummybf;
+static std::ostream dbgstream(&dummybf);
+
+
+}}
+
+namespace atint {
+  
+  namespace donotlog{
+    /**
+      @brief A logger printer that outputs nothing
+    */
+    static pm::PlainPrinter<> dbglog(polymake::tropical::dbgstream); 
+    /**
+      @brief A logger printer that outputs nothing
+    */
+    static pm::PlainPrinter<> dbgtrace(polymake::tropical::dbgstream);
+  }
+  namespace dolog{
+    /**
+      @brief A logger printer, that prints to pm::cout
+    */
+    static pm::PlainPrinter<> dbglog(pm::cout);
+    /**
+      @brief A logger printer that outputs nothing
+    */
+    static pm::PlainPrinter<> dbgtrace(polymake::tropical::dbgstream);
+  }
+  namespace dotrace{
+    /**
+      @brief A logger printer, that prints to pm::cout
+    */
+    static pm::PlainPrinter<> dbglog(pm::cout);
+    /**
+      @brief A logger printer that prints to pm::cout
+    */
+    static pm::PlainPrinter<> dbgtrace(pm::cout);
+  }
+}
+#endif

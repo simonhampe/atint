@@ -1,0 +1,31 @@
+use application "common";
+use application "fan";
+use application "tropical";
+use Benchmark qw(:all);
+
+#my $ambient = 5;
+#my $maximal = 3;
+#my $tries = 500;
+
+#print ("Creating $tries simplicial cone pairs in ambient dimension $ambient with dim sigma = $maximal...\n");
+
+#$m = new Matrix<Integer>(0,$ambient);
+
+print "Creating L21\n";
+my $l21 = new fan::PolyhedralFan(INPUT_RAYS=>[[1,1],[0,-1],[-1,0]],INPUT_CONES=>[[0],[1],[2]],TROPICAL_WEIGHTS=>[1,1,1]);
+print "Computing normal vectors:\n";
+print $l21->LATTICE_NORMALS, "\n";
+print "Is it balanced...?\n";
+print $l21->IS_BALANCED,"\n";
+
+#print "Creating L32\n";
+#my $l32 = new fan::PolyhedralFan(INPUT_RAYS=>[[-1,0,0],[0,-1,0],[0,0,-1],[1,1,1]],INPUT_CONES=>[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],TROPICAL_WEIGHTS=>[1,1,1,1,1,1]);
+#print "Computing normal vectors:\n";
+#print $l32->LATTICE_NORMALS, "\n";
+#print "Is it balanced...?\n";
+#print $l32->IS_BALANCED,"\n";
+
+#print "Creating cones with large entries...\n";
+#my $tau = new polytope::Cone(INPUT_RAYS=>[[21,34,238293,233232],[34349,23239,344,0],[67,239,2000001,12]]);
+#my $sigma = new polytope::Cone(INPUT_RAYS=>[[21,34,238293,233232],[34349,23239,344,0],[67,239,2000001,12],[1,34606,12903,0]]);
+#print latticeNormalByCone($tau,$sigma);

@@ -1,0 +1,112 @@
+USE fan polytope
+
+# @category Tropical geometry
+# Takes as input a tropical fan / tropical variety and an array of rational values. The array length should coincide 
+# with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational
+# function, where each value has been assigned to the rays given by $fan->RAYS and to the generators given by $fan->LINEALITY_SPACE  
+# (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. 
+# The function will then compute the corresponding Weil divisor and return it as a 
+# tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does.
+user_function divisorByValue {
+  my ($fan,@values) = @_;
+  
+  my $noofrays = $fan->USES_HOMOGENEOUS_C? $fan->CMPLX_RAYS->rows() : $fan->RAYS->rows();
+  #If $fan only consists of the lineality space, the divisor is empty
+  if($noofrays == 0) {
+    return new fan::PolyhedralFan();
+  }
+  
+  #Append zero values if necessary
+  my $size = scalar(@values);
+  if($size < $noofrays + $fan->LINEALITY_DIM) {
+    for my $zindex ($size .. $noofrays + $fan->LINEALITY_DIM -1) {
+      @values = (@values,0);
+    }
+  }
+  #Erase superfluous values if necessary
+  while(scalar(@values) > $noofrays + $fan->LINEALITY_DIM) {
+    pop(@values);
+  }
+  
+  #Create function vector
+  my $functionVector = new Vector<Rational>(@values);
+  
+  my @newcones = ();
+  my @newweights = ();
+  
+  #Go through each facet and compute its weight. Only add it if the weight is nonzero
+  my %lattice_map = %{$fan->LATTICE_NORMALS};
+  for my $co (0 .. $fan->CODIM_1_FACES->rows() -1) {
+    #First add up values of normalvectors
+    my $coweight = 0;
+    #The set of lattice normals relative to fct
+    my %co_map = %{$lattice_map{$co}};
+    #The set of maximal cones adjacent to fct
+    my @adjacent_cones = keys(%co_map);
+    
+    for my $mc (@adjacent_cones) {
+      $coweight += ($fan->TROPICAL_WEIGHTS->[$mc]) * ($fan->LATTICE_NORMAL_FCT_VECTOR->{$co}->{$mc} * $functionVector);
+    }
+    #Now substract the value of the sum of the normal vectors
+    $coweight -= ($fan->LATTICE_NORMAL_SUM_FCT_VECTOR->row($co) * $functionVector);
+    
+    if($coweight != 0) {
+      @newcones = (@newcones, $fan->CODIM_1_FACES->row($co));
+      @newweights = (@newweights, $coweight);
+    }
+    
+  }
+  
+  #Return result
+  return $fan->USES_HOMOGENEOUS_C? 
+	  new fan::PolyhedralFan(INPUT_HOM_RAYS=>$fan->RAYS, INPUT_CONES=>\@newcones, TROPICAL_WEIGHTS=>\@newweights, 
+				LINEALITY_SPACE=>$fan->LINEALITY_SPACE) :
+	  new fan::PolyhedralFan(INPUT_RAYS=>$fan->RAYS, INPUT_CONES=>\@newcones, TROPICAL_WEIGHTS=>\@newweights,
+				 LINEALITY_SPACE=>$fan->LINEALITY_SPACE); ## FIXME: Use INPUT_LINEALITY?
+}
+
+# @category Polyhedral geometry
+# This takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is
+# complete (i.e. its support is the whole ambient space) to compute the  intersection correctly.
+# @param fan::PolyhedralFan fan An arbitrary polyhedral fan
+# @param fan::PolyhedralFan refine A complete polyhedral fan
+# @return fan::PolyhedralFan The intersection of both fans (whose support is equal to the support of fan). The 
+# resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, 
+# the tropical weight of the refinement is also computed
+user_function intersect_complete_fan {
+    my ($fan,$refine) = @_;
+    
+    #Check that ambient dimensions coincide
+    if($fan->AMBIENT_DIM != $refine->AMBIENT_DIM) {
+	die "Can't intersect fans of different ambient dimension";
+    }
+    #Skip computation for a zero-dimensional fan
+    if($fan->DIM == 0) {
+      return $fan;
+    }
+    
+    #Compute maximal cones of intersection only by intersecting maximal cones
+    # of both fans
+    my $raymatrix = new Matrix<Rational>(0,$fan->AMBIENT_DIM);
+    my @maximalCones = ();
+    my @tropicalWeights = ();
+    
+    for my $fanConeIndex (0 .. $fan->MAXIMAL_CONES->rows() -1) {
+      for my $refineConeIndex (0 .. $refine->MAXIMAL_CONES->rows() -1) {
+	  my $fanCone = $fan->cone($fanConeIndex);
+	  my $refineCone = $refine->cone($refineConeIndex);
+	  my $intersection = polytope::intersection( $fanCone, $refineCone);
+	  if($intersection->DIM == $fan->DIM) {
+	    $raymatrix = $raymatrix / $intersection->RAYS;
+	    my $rayset = new Set<Int>( $raymatrix->rows() - $intersection->N_RAYS .. $raymatrix->rows()-1);
+	    @maximalCones = (@maximalCones, $rayset);
+	    
+	  }
+      }
+    }
+  
+
+    
+    #return new fan::PolyhedralFan( INPUT_RAYS=> $raymatrix, INPUT_CONES=> \@maximalCones);
+    
+}
