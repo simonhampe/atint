@@ -41,8 +41,8 @@ namespace polymake { namespace tropical {
       
       for(int i = 1; i <= n; i++) {
 	  Vector<Rational> ei(unit_vector<Rational>(n,i-1));
-	  rayMatrix = rayMatrix / ei;
-	  e0 = e0 - ei;
+	  rayMatrix = rayMatrix / -ei;
+	  e0 = e0 + ei;
       }
       rayMatrix = rayMatrix / e0;
       
@@ -56,7 +56,7 @@ namespace polymake { namespace tropical {
       for(int i = 0; i < weights.size(); i++) {
 	  weights[i] = 1;
       }
-      
+            
       perl::Object fan("fan::PolyhedralFan");
 	fan.take("RAYS") << rayMatrix;
 	fan.take("MAXIMAL_CONES") << kSets;

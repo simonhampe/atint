@@ -1,3 +1,5 @@
+IMPORT polytope 
+
 INCLUDE
   divisor.rules
   

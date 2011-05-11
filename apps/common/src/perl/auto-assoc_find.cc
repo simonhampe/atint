@@ -29,7 +29,6 @@ namespace polymake { namespace common {
       WrapperReturn( pm::perl::find_element(arg0.get<T0>(), arg1.get<T1>()) );
    };
 
-   FunctionInstance4perl(assoc_find_X_X, perl::Canned< const Map< int, Vector< Integer > > >, int);
    FunctionInstance4perl(assoc_find_X_X, perl::Canned< const Map< int, Vector< Rational > > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

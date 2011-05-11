@@ -1,3 +1,5 @@
+IMPORT polytope (intersection)
+
 INCLUDE
   divisor.rules
-  specialfans.rules
+  

@@ -21,6 +21,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
 #include "polymake/linalg.h"
+#include "polymake/Set.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    Class4perl("Polymake::common::Vector__Vector__Integer", Vector< Vector< Integer > >);
@@ -37,6 +38,6 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Binary_mul, perl::Canned< const Wary< pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational>&>, pm::Series<int, true>, void> > >, int);
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > >);
    OperatorInstance4perl(Binary_add, perl::Canned< const Wary< pm::SameElementVector<pm::Integer> > >, perl::Canned< const Vector< Rational > >);
-   OperatorInstance4perl(Binary_mul, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const Vector< Rational > >);
+   Class4perl("Polymake::common::Vector__Set__Int", Vector< Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
