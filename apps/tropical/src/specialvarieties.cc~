@@ -56,9 +56,7 @@ namespace polymake { namespace tropical {
       for(int i = 0; i < weights.size(); i++) {
 	  weights[i] = 1;
       }
-      
-      
-      
+            
       perl::Object fan("fan::PolyhedralFan");
 	fan.take("RAYS") << rayMatrix;
 	fan.take("MAXIMAL_CONES") << kSets;

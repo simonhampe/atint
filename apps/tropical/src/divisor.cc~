@@ -16,18 +16,24 @@ namespace polymake { namespace tropical {
     //Documentation see header
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
       
+      Integer fanAmbientDim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace both when possible
+      Integer compAmbientDim = completeFan.CallPolymakeMethod("ambient_dim_fix");
+      
       //First check that ambient dimensions coincide
-      if(fan.give("AMBIENT_DIM") != completeFan.give("AMBIENT_DIM")) {
+      if(fanAmbientDim != compAmbientDim) {
+	dbgtrace << "Fan ambient dim is " << fanAmbientDim << endl;
+	dbgtrace << "Complete fan ambient dim is " << compAmbientDim << endl;
+	
 	throw std::runtime_error("Cannot intersect fans in different ambient dimension.");
       }
-      Integer ambientDimension = fan.give("AMBIENT_DIM");
+      
       
       //If fan is zero-dimensional it is just a point, so it has no maximal cones.
       //But since no refinement is necessary anyway, we just return fan
       //if(fan.give("DIM") == 0) return fan;
       
       //Prepare containers for new values
-      Matrix<Rational> rays(0,fan.give("AMBIENT_DIM"));
+      Matrix<Rational> rays(0,fanAmbientDim);
       Matrix<Rational> linealitySpace;
 	bool computedLineality = false;
       Vector<Set<int> > maximalCones;
@@ -45,9 +51,7 @@ namespace polymake { namespace tropical {
 	}
       IncidenceMatrix<> fanMaximals = fan.give("MAXIMAL_CONES");
       IncidenceMatrix<> compMaximals = completeFan.give("MAXIMAL_CONES");
-      Integer fanDimension = (fan.give("DIM") == 0) ? 0 : fan.give("DIM"); 
-	    //FIXME: This should not be necessary. But if DIM == 0, it returns somethin not compatible with Integer
-            //TODO: Actually, this will be false if I have only lineality space
+      Integer fanDimension = fan.CallPolymakeMethod("dim_fix"); //FIXME: Replace this when possible
             
       //If the complete fan is only a lineality space, it is the whole space, so we return fan
       if(compMaximals.rows() == 0) {
@@ -72,14 +76,15 @@ namespace polymake { namespace tropical {
 	    perl::Object tcone("polytope::Cone<Rational>");
 	    perl::Object ccone("polytope::Cone<Rational>");
 	      tcone.take("RAYS") << (fanHasOnlyLineality? 
-				Matrix<Rational>(1,ambientDimension) : //Have to give it a ray to tell polymake about the ambient dimension
+				Matrix<Rational>(1,fanAmbientDim) : 
 				fanOldrays.minor(fanMaximals.row(tindex),All));
+				//Have to give it a ray to tell polymake about the ambient dimension
 	      ccone.take("RAYS") << compOldrays.minor(compMaximals.row(cindex),All);
 	      tcone.take("LINEALITY_SPACE") << fan.give("LINEALITY_SPACE");
 	      ccone.take("LINEALITY_SPACE") << completeFan.give("LINEALITY_SPACE");
 
 	    perl::Object inter = CallPolymakeFunction("intersection",tcone,ccone);
-	    Integer coneDimension = inter.give("CONE_DIM");//TODO: MIght break if theres only linspace
+	    Integer coneDimension = inter.give("CONE_DIM");
 	    
 	    dbgtrace << "Cone dimension is " << coneDimension << endl;
 	    

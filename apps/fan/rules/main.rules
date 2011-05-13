@@ -6,6 +6,9 @@ object PolyhedralFan {
   
 	# @category Tropical properties
 	# Vector of (integer) weights for maximal cones. Indices refer to (the rows of) [[MAXIMAL_CONES]]
+	# If, however, the fan only consists of a lineality space, specifying the weight of this single maximal
+	# cone is only necessary, if you want to compute refinements of this fan later on (e.g. for computing
+	# divisors of rational functions)
 	property TROPICAL_WEIGHTS : Vector<Scalar>;
 
 	# @category Tropical properties
@@ -441,6 +444,40 @@ object PolyhedralFan {
 	}
 	
 	## METHODS #################################################################
+	
+	# @category Basic properties
+	# This computes the dimension of the fan in the following way: If the fan has rays, it simply
+	# calls DIM, otherwise it returns LINEALITY_DIM.
+	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'dimension 0'
+	# (Actually, if we didn't give any ray, not even [0,..0], it will break and start filling up the RAM)
+	# So we should delete this function when this is fixed.
+	user_method dim_fix {
+	  my $this = shift;
+	  my $ir = $this->lookup("INPUT_RAYS");
+	  if(defined($this->lookup("RAYS"))) {
+	    if($this->RAYS->rows() > 0) {
+	      return $this-DIM;
+	    }
+	  }
+	  return $this->LINEALITY_DIM;
+	}
+	
+	# @category Basic properties
+	# This computes the ambient dimension in the following way: If the fan has rays, it simply
+	# calls AMBIENT_DIM, otherwise it returns LINEALITY_SPACE->cols().
+	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'ambient dimension 0'
+	# (if I give INPUT_RAYS=>[])
+	# So we should delete this function when this is fixed.
+	user_method ambient_dim_fix {
+	  my $this = shift;
+	  my $ir = $this->lookup("INPUT_RAYS");
+	  if(defined($ir)) {
+	    if($ir->cols() == 0) {
+	      return $this->LINEALITY_SPACE->cols();
+	    }
+	  }
+	  return $this->AMBIENT_DIM;
+	}
 	
 	# @category Tropical methods
 	# Convenience method, returns LATTICE_NORMALS->[i]->[j]
