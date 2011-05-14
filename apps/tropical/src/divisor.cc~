@@ -9,9 +9,9 @@
 
 namespace polymake { namespace tropical {
 
-    //using namespace atint::donotlog;
+    using namespace atint::donotlog;
     //using namespace atint::dolog;
-    using namespace atint::dotrace;
+    //using namespace atint::dotrace;
     
     //Documentation see header
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {

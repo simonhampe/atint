@@ -1,3 +1,23 @@
+/*
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ Boston, MA  02110-1301, USA.
+ 
+ ---
+ Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+ */
+
 #include "polymake/client.h"
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
@@ -167,7 +187,7 @@ namespace polymake { namespace tropical {
     
  UserFunction4perl("# @category Linear algebra"
                   "# Computes a row HNF of an integer matrix A"
-                  "# It returns the normal form and stores the unimodular transformation matrix and the kernel dimension in"
+                  "# It returns the normal form and stores the unimodular transformation matrix and the kernel dimension  of the transposed matrix in"
                   "# the last two parameters. The algorithm is the LLL-based HNF alg. by Havas, Majevski, Matthews"
                   "# @param Matrix matrix the matrix for which the transformation is computed"
                   "# @param Matrix tfmatrix The matrix that will contain the transformation matrix"

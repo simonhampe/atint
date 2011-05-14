@@ -10,6 +10,7 @@
  * S runs over all k-element subsets of {0,..,n}.
  * @param n The ambient dimension of the fan.
  * @param k The dimension of the fan (should be smaller equal n, otherwise an error is thrown).
+ * If k is zero, this creates the fan consisiting of the origin in R^n
  * @return A PolyhedralFan object representing L^n_k
  */
 perl::Object tropical_lnk(const int &n, const int &k);

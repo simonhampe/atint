@@ -1,0 +1,83 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file provides convenience methods for creation of special tropical varieties
+########################################################################
+
+USE fan
+
+# @category Tropical geometry
+# Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
+# @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan).
+# If you already know that your rows are a basis, call linear_space_by_basis instead.
+# @param int weight The weight of the linear space (1, if none is given)
+# @return fan::PolyhedralFan The resulting fan object
+user_function linear_space_by_matrix {
+  my ($matrix,$weight) = @_;
+  
+  $matrix = $matrix->minor(basis_rows($matrix),All);
+  
+  if(!defined($weight)) {
+      $weight = 1;
+  }
+  my @weightarray = ($weight);
+  
+  return new fan::PolyhedralFan(INPUT_RAYS=>[],INPUT_CONES=>[],LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
+  
+}
+
+# @category Tropical geometry
+# Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
+# @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan) and
+# which are assumed to be linearly independent. If you are not sure of this, call linear_space_by_matrix instead.
+# @param int weight The weight of the linear space (1, if none is given)
+# @return fan::PolyhedralFan The resulting fan object
+user_function linear_space_by_basis {
+  my ($matrix,$weight) = @_;
+  
+  if(!defined($weight)) {
+      $weight = 1;
+  }
+  my @weightarray = ($weight);
+  
+  return new fan::PolyhedralFan(INPUT_RAYS=>[],INPUT_CONES=>[],LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
+}
+
+# @category Tropical geometry
+# Creates the tropical variety R^n as a single lineality space with a given weight 
+# @param int n The dimension of the linear space
+# @param int weight The weight of the linear space (1, if none is given)
+# @return fan::PolyhedralFan The resulting fan object
+user_function linear_nspace {
+  my ($n,$weight) = @_;
+  
+  if(!defined($weight)) {
+      $weight = 1;
+  }
+  my @weightarray = ($weight);
+  
+  my $m = new Matrix<Rational>(unit_matrix($n));
+  
+  return new fan::PolyhedralFan(
+    INPUT_RAYS=>[],
+    INPUT_CONES=>[],
+    LINEALITY_SPACE=> $m,
+    TROPICAL_WEIGHTS=>\@weightarray);
+  
+}

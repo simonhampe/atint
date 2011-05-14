@@ -1,0 +1,178 @@
+#######################################################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file creates a data type for piecewise linear functions on R^n. They are created simply by providing 
+# the property STRING. The function is then parsed from this string. Every such function is supposed to be 
+# of the form max(f_1,..,f_k) or min(f_1,...,f_k), where each f_i is an affine linear function from R^n to R.
+# The syntax for STRING in pseudo-regex is the following (after deleting any whitespace): 
+# "(min|max)\((SUM)+(,SUM)*\)"
+# where SUM = "(TERM)+(\+(TERM))*"
+# where TERM = (RAT)|(RAT[:alpha:][^\+,\)]*)
+# where RAT is any string that can be parsed to a polymake Rational and does not contain any letters.
+# To make this more comprehensible: STRING takes anything of the form min(...) or max(...), where ... is a comma-separated
+# list of strings of the form a + bx + cy + ... , where a,b,c are rational numbers and x,y are variables. Any 
+# string that starts with a letter and does not contain "+" or "," can be a variable. Such a sum can contain
+# several such terms for the same variable and they need not be in any order. 
+# If no DOMAIN is given, PLFunction will recognize the dimension of the domain from the number of variables and will 
+# assign the variables to the standard basis vectors by sorting them alphabetically. Hence, if you give for example
+# "min(3x+y+4,2+4z)",this will generate the piecewise linear function 
+# f: R^3->R, (x_1,x_2,x_3) -> min(3x_1 + x_2 + 4, 4x_3 + 2)
+# Note that ANY whitespace is ignored.
+########################################################################################################
+
+object PLFunction {
+  
+  ## PROPERTIES ###################################################################################################
+  
+  # The syntax for STRING in pseudo-regex is the following (after deleting any whitespace): 
+  # "(min|max)\((SUM)+(,SUM)*\)"
+  # where SUM = "(TERM)+(\+(TERM))*"
+  # where TERM = (RAT)|(RAT[:alpha:][^\+,\)]*)
+  # where RAT is any string that can be parsed to a polymake Rational and does not contain any letters.
+  # To make this more comprehensible: STRING takes anything of the form min(...) or max(...), 
+  # where ... is a comma-separated list of strings of the form a + bx + cy + ... , where a,b,c are rational 
+  # numbers and x,y are variables. Any string that starts with a letter and does not contain "+" or "," can be 
+  # a variable. Such a sum can contain several such terms for the same variable and they need not be in any order.
+  # If no DOMAIN is given, PLFunction will recognize the dimension of the domain from the number of variables and will
+  # assign the variables to the standard basis vectors by sorting them alphabetically. Hence, if you give for example
+  # "min(3x+y+4,2+4z)",this will generate the piecewise linear function 
+  # f: R^3->R, (x_1,x_2,x_3) -> min(3x_1 + x_2 + 4, 4x_3 + 2)
+  # Note that ANY whitespace is ignored.
+  property STRING : String;
+  
+  # This will give a nice string representation of the function, where all variables are of the form 'x_i',
+  # i = 1,..,DOMAIN. There are no redundancies and terms are sorted in ascending alphabetic order of their variable,
+  # with the constant term at the end
+  property STANDARD_FORM : String;
+  
+  # Indicates whether this function uses min (TRUE) or max (FALSE)
+  property USES_MIN : Bool;
+  
+  # The dimension n of the domain R^n of the function. If not specified, it will be equal to the number of
+  # distinct variables.
+  property DOMAIN : Int;
+  
+  # A matrix of the linear coefficients of the functions. Each row corresponds to a linear function within
+  # the min or max and the entry in column j is the coefficient of variable x_j
+  property LINEAR_COEFFICIENTS : Matrix<Scalar>;
+  
+  # A vector of the constant coefficients of the function. The i-th entry is the constant term of the function 
+  # represented by the i-th row of [[LINEAR_COEFFICIENTS]].
+  property CONSTANT_COEFFICIENTS : Vector<Scalar>;
+  
+  ## RULES ###################################################################################################
+  
+  rule USES_MIN, LINEAR_COEFFICIENTS, CONSTANT_COEFFICIENTS, DOMAIN : STRING {
+      #Make a copy of [[STRING]] for parsing
+      my $string = $this->STRING;
+      $string =~ s/\s+//g; #Remove any whitespace before parsing
+      
+      #First separate min/max from the list of the functions (without brackets)
+      my @separator = ($string =~ /^(max|min)\((.+)\)$/i);
+      if(scalar(@separator) == 2) {
+	my $minmax = $separator[0];
+	my @functionlist = split(/,/,$separator[1]);
+	print "Function list is ", join(",",@functionlist),"\n";
+	if($minmax =~ /^min$/i) {
+	  $this->USES_MIN = TRUE;
+	}
+	else {
+	  $this->USES_MIN = FALSE;
+	}
+	
+	# Since we don't know the number of variables in general, we store the variables in a map first
+	my @coeffmap = (); #array of hash references. Index corresponds to index of function in @functionlist. Hash maps variables to coefficients
+	my @constants = (); #array of Rationals, index corresponds to index of function in @functionlist. 
+	my @variables = (); #List of variables, might be redundant at first
+	
+	#Now parse every single function by splitting at "+"
+	for my $index (0 .. scalar(@functionlist)) {
+	  %functionCoeffMap = ();
+	  %coeffmap[$index] = \%functionCoeffMap;
+	  $constants[$index] = 0;
+	  my @termlist = split(/\+/,$functionlist[$index]);
+	  
+	  #Parse every single term
+	  for my $term (@termlist) {
+	    my @termsep = ($term =~ /^([^a-zA-Z\*])\*?([a-zA-Z]+.*)?$/);
+	    if(scalar(@termsep) == 2) {
+	      print "Divided term into ", $1, " and ", $2,"\n";
+	      my $coeff = new Rational($termsep[0]);
+	      my $variable = $termsep[1];
+	      
+	      #If there is no variable, add this to the constant coeff of the function
+	      if($variable eq "") {
+		$constants[$index] += $coeff;
+	      }
+	      #Otherwise add the variable and add up the corr. coefficients
+	      else {
+		@variables = (@variables,$variable);
+		if(defined($coeffmap[$index]{$variable})) {
+		  $coeffmap->{$index}->{$variable} = $coeffmap->{$index}->{$variable} + $coeff;
+		}
+		else {
+		  $coeffmap->{$index}->{$variable}  = $coeff;
+		}
+	      }
+	    }
+	    else {
+	      die "Invalid term: " + $term;
+	    }
+	  }#End iterate terms
+	}#End iterate functions
+	
+# 	#Now that we have all variables, sort them and put all coefficients into a matrix/vector
+	$this->CONSTANT_COEFFICIENTS = new Vector<Rational>(@constants);
+	my @sortedVariables = sort(@{$variables});
+	my $coeffmatrix = new Matrix<Rational>(0,scalar(@sortedVariables));
+	for my $index (0 .. scalar(@functionlist)) {
+	  my $row = new Vector<Rational>(0);
+	  for my $var (@sortedVariables) {
+	    if(defined($coeffmap->{$index}->{$var})) {
+	      $row = $row | $coeffmap->{$index}->{$var};
+	    }
+	    else {
+	      $row = $row | 0;
+	    }
+	  }
+	  $coeffmatrix = $coeffmatrix / $row;
+	}
+	$this->LINEAR_COEFFICIENTS = $coeffmatrix;
+	#Read off the domain from the variables, if it isn't defined yet. Otherwise
+	# check that the number of variables isn't greater
+	if(!(defined($this->DOMAIN))) {
+	  $this->DOMAIN = $coeffmatrix->cols();
+	}
+	else {
+	  if($this->DOMAIN < $coeffmatrix->cols()) {
+	    die "Number of variables, $coeffmatrix->cols(), exceeds given ambient dimension, $this->DOMAIN";
+	  }
+	}
+      }
+      else {
+	die "Invalid syntax for piecewise linear function.";
+      }
+      
+  }
+  
+  ## METHODS #################################################################################################
+  
+  ## FUNCTIONS ###################################################################################################
+  
+}

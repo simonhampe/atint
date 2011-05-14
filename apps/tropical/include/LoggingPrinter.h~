@@ -4,8 +4,7 @@
 #define ATINT_LOGGING_PRINTER_H
 
 /**
- This class defines a logger that can be turned on or off in the following way: Put "using atint::donotlog::dbglog;" or "using atint::dolog::dbglog" or "using atint::dotrace::dbglog"
- depending on what you want in the corresponding scope, then log with the command "dbglog <<...<<endl;"
+ @brief This class defines a logger that can be turned on or off in the following way: Put "using namespace xxx;" in your code and replace xxx with atint::donotlog, atint::dolog, atint::dotrace, depending on what you want. Under donotlog, all  calls to dbglog or dbgtrace have no effect. Unter dolog, only dbglog produces output and under dbgtrace, both commands produce output (to pm::cout). The commands are used as cout, i.e. dbglog << ... and dbgtrace << ...
 */
 
 namespace polymake { namespace tropical {

@@ -8,9 +8,9 @@
 
 namespace polymake { namespace tropical { 
 	
-      //using namespace atint::donotlog;
+      using namespace atint::donotlog;
       //using namespace atint::dolog;
-      using namespace atint::dotrace;
+      //using namespace atint::dotrace;
   
 	/*
 		Wrapper for the GMP's gcdext method. 

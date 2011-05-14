@@ -1,3 +1,26 @@
+#######################################################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file extends the polyhedral fan of polymake to a tropical variety by assigning weights to the maximal cones
+# and by allowing the fan to be interpreted as a polyhedral complex by intersecting it at x0 = 1
+########################################################################################################
+
 USE tropical 
 
 object PolyhedralFan {
@@ -456,7 +479,7 @@ object PolyhedralFan {
 	  my $ir = $this->lookup("INPUT_RAYS");
 	  if(defined($this->lookup("RAYS"))) {
 	    if($this->RAYS->rows() > 0) {
-	      return $this-DIM;
+	      return $this->DIM;
 	    }
 	  }
 	  return $this->LINEALITY_DIM;

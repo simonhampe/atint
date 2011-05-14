@@ -47,5 +47,10 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new, Map< int, Map< int, std::string > >);
    OperatorInstance4perl(Binary_brk, perl::Canned< Map< int, Map< int, std::string > > >, int);
    OperatorInstance4perl(Binary_brk, perl::Canned< Map< int, std::string > >, int);
+   Class4perl("Polymake::common::Map_A_String_I_Rational_Z", Map< std::string, Rational >);
+   Class4perl("Polymake::common::Map_A_Int_I_Map_A_String_I_Rational_Z_Z", Map< int, Map< std::string, Rational > >);
+   FunctionInstance4perl(new, Map< int, Map< std::string, Rational > >);
+   FunctionInstance4perl(new, Map< std::string, Rational >);
+   OperatorInstance4perl(Binary_brk, perl::Canned< Map< int, Map< std::string, Rational > > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
