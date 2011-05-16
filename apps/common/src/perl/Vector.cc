@@ -39,5 +39,12 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > >);
    OperatorInstance4perl(Binary_add, perl::Canned< const Wary< pm::SameElementVector<pm::Integer> > >, perl::Canned< const Vector< Rational > >);
    Class4perl("Polymake::common::Vector__Set__Int", Vector< Set< int > >);
+   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const Rational >);
+   OperatorInstance4perl(Binary__or, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::SingleElementVector<pm::Rational const&> > >, int);
+   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, int);
+   OperatorInstance4perl(Binary__or, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::SingleElementVector<pm::Rational> > >, int);
+   OperatorInstance4perl(Binary__or, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::SingleElementVector<pm::Rational const&> > >, perl::Canned< const Rational >);
+   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const Rational >);
+   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< Vector< Rational > > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
