@@ -121,7 +121,7 @@ namespace polymake { namespace tropical {
 	}*/
 
 	/*
-		Takes a rational nxm matrix and multiplies each row with an integer such that it becomes 
+		Takes a rational nxm matrix and multiplies each row with a minimal integer such that it becomes 
 		a primitive vector in Z^m 
 	*/
 	Matrix<Integer> makePrimitiveInteger(const Matrix<Rational> &m) {

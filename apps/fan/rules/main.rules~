@@ -177,7 +177,7 @@ object PolyhedralFan {
 	  
 	  #First we construct the set of all facets
 	  my @mInc = @{$this->MAXIMAL_CONES_INCIDENCES};
-	  my $s = new Set<Set<Int>>(); #We use a set to check for doubles
+	  #my $s = new Set<Set<Int>>(); #We use a set to check for doubles
 	  my @facetArray;		#but we actually plug in the array to fix the order
 				      #so that we have compatibility with the in-max-cones matrix
 	  my @fIncones;
@@ -311,8 +311,6 @@ object PolyhedralFan {
 	      my %fct_map = %{$lattice_map{$fct}};
 	      #The set of maximal cones adjacent to fct
 	      my @adjacent_cones = keys(%fct_map);
-	      
-	      
 	      
 	      #Compute representation of normal vector
 	      for(my $mc = 0; $mc < scalar(@adjacent_cones); $mc ++) {
@@ -605,7 +603,41 @@ object PolyhedralFan {
 	  
 	  #Note that the correct dimension of this vector is assured by the fact that we put the lineality
 	  #space coefficients at the end.
-	  return new Vector<Rational>(@repVector); 
+	  return new Vector<Rational>(\@repVector);  
+	}
+	
+	# @category Polyhedral geometry
+	# Transforms the fan into homogeneous coordinates
+	# @return If this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
+	# by the following matrix: One affine ray [1,0,...0] and then [0,ray] for any ray of the original fan. [[MAXIMAL_CONES]]
+	# all get the additional affine ray and [[TROPICAL WEIGHTS]] is simply copied
+	user_method homogenize {
+	  my $this = shift;
+	  if($this->USES_HOMOGENEOUS_C) {
+	    return $this;
+	  }
+	  
+	  #Create the new ray matrix
+	  my $rayMatrix = new Matrix<Rational>(0,$this->AMBIENT_DIM +1);
+	  #Add the remaining rays with a zero at front
+	  my $origRays = (zero_vector<Rational>($this->RAYS->rows())) | $this->RAYS;
+	  $rayMatrix = $rayMatrix / $origRays;
+	  #Add the affine ray
+	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->AMBIENT_DIM));
+	  $rayMatrix = (new Matrix<Rational>($rayMatrix)) / $affineRay;
+	  my $affineIndex = $rayMatrix->rows()-1;
+	  
+	  #Now add the last ray to each maximal cone
+	  my @mcones = @{$this->MAXIMAL_CONES};
+	  for my $set (@mcones) {
+	    $set = $set + $affineIndex;
+	  }
+	  
+	  my @weight = @{$this->TROPICAL_WEIGHTS};
+	  
+	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@mcones,TROPICAL_WEIGHTS=>\@weight,
+				   USES_HOMOGENEOUS_C=>TRUE);
+	  
 	  
 	}
 }

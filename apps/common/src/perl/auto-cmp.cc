@@ -17,12 +17,14 @@
 
 #include "polymake/client.h"
 #include "polymake/Rational.h"
-#include "polymake/Vector.h"
-#include "polymake/Integer.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   OperatorInstance4perl(Binary_mul, perl::Canned< const Rational >, perl::Canned< const Vector< Integer > >);
-   OperatorInstance4perl(assign, Rational, perl::Canned< const Vector< Integer > >);
-   OperatorInstance4perl(assign, Rational, perl::Canned< const Vector< Rational > >);
+   template <typename T0, typename T1>
+   FunctionInterface4perl( cmp_X_f1, T0,T1 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( arg0.get<T0>().compare(arg1.get<T1>()) );
+   };
+
+   FunctionInstance4perl(cmp_X_f1, perl::Canned< const Rational >, perl::Canned< const Rational >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
