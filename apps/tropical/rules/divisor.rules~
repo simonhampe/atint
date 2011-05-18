@@ -26,7 +26,7 @@ USE fan polytope
 # @category Tropical geometry
 # Takes as input a tropical fan / tropical variety and an array of rational values. The array length should coincide 
 # with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational
-# function, where each value has been assigned to the rays given by $fan->RAYS and to the generators given by $fan->LINEALITY_SPACE  
+# function, where each value has been assigned to the rays given by $fan->CMPLX_RAYS and to the generators given by $fan->LINEALITY_SPACE  
 # (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. 
 # The function will then compute the corresponding Weil divisor and return it as a 
 # tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does.
@@ -146,6 +146,8 @@ user_function divisorByPLF {
       @values = (@values,$rayvalue);
     }
   }
+  
+  print "Values: ", join(",",@values),"\n";
   
   return divisorByValue($fan,@values);
 }
