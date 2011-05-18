@@ -148,7 +148,5 @@ user_function divisorByPLF {
     }
   }
   
-  print "Values: ", join(",",@values),"\n";
-  
   return divisorByValue($fan,@values);
 }

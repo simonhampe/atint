@@ -52,6 +52,8 @@ object PolyhedralFan {
 	# A list of lattice normal vectors. They are associated to the faces and maximal cones in the following 
 	# way: For face i and adjacent maximal cone j, the element [[LATTICE_NORMALS]]->{i}->{j} is the corresp.
 	# lattice normal vector. There is a convenience method lattice_normal(i,j)
+	# If [[USES_HOMOGENEOUS_C]] is TRUE, this actually computes a lattice normal of the cone (face i)\cap {x0 =1} wrt the
+	# cone (maximal cone j) \cap {x0=1} to ensure that the normal is of the form (0,...)
 	property LATTICE_NORMALS : Map<Int,Map<Int,Vector<Integer>>>; 
 	
 	# @category Tropical geometry
@@ -63,7 +65,7 @@ object PolyhedralFan {
 	# consisting of the rays of [[MAXIMAL_CONES]]->row(j) and the generators 
 	# of the lineality space. It then inserts the coefficients of the representation at the right position. 
 	# If the fan uses homog. coordinates, however, we use a different generating system (and indices refer to CMPLX_RAYS)
-	# <r_0, (r_i-r_0)_i>0, s_j, l_k>, where r_0 is the ray of the maximal cone 
+	# <(r_i-r_0)_i>0, s_j, l_k>, where r_0 is the ray of the maximal cone 
 	# with the lowest index in [[CMPLX_RAYS]], such that it fulfills x0 = 1, r_i are the remaining rays with x0 = 1, ordered
 	# according to their index in [[CMPLX_RAYS]], s_j are the rays of the cone with x0 = 0 and l_k are the lineality space 
 	# generators. We will then store the coefficients a_i of (r_i - r_0) at the index of r_i, then - sum(a_i) at 
@@ -228,6 +230,10 @@ object PolyhedralFan {
 	  
 	  my $latticemap = new Map<Int,Map<Int,Vector<Integer>>>();
 	  
+	  #This equation is added to all cone matrices (and stands for intersecting with x0 = 1) to ensure that
+	  # the actual lattice normal is of the form (0,...)
+	  my $intereq = new Vector<Rational>(unit_vector<Rational>($this->AMBIENT_DIM,0));
+	  
 	  for(my $i = 0; $i < $this->CODIM_1_FACES->rows(); $i++) {
 	      my $facetRays = $this->RAYS->minor($this->CODIM_1_FACES->row($i),All);
 	      #If facet is just the origin, we have to insert a zero vector of appropriate dimension,
@@ -244,10 +250,10 @@ object PolyhedralFan {
 	  
 	  #Now compute lattice normals
 	  for( my $facet = 0; $facet < scalar(@facetCones); $facet++) {
-	      my $facetmatrix =  $facetCones[$facet]->LINEAR_SPAN;
+	      my $facetmatrix =  ($facetCones[$facet]->LINEAR_SPAN) / $intereq ;
 	      for( my $maxcone = 0; $maxcone < $this->CODIM_1_IN_MAXIMAL_CONES->cols(); $maxcone++)  {
 		  if($this->CODIM_1_IN_MAXIMAL_CONES->($facet,$maxcone)) {
-		      my $maxmatrix = $maximalCones[$maxcone]->LINEAR_SPAN;
+		      my $maxmatrix = ($maximalCones[$maxcone]->LINEAR_SPAN) / $intereq;
 		      my $additionalRay = @{$this->MAXIMAL_CONES->row($maxcone) - $this->CODIM_1_FACES->row($facet)}[0];
 		      $additionalRay = new Vector<Rational>($this->RAYS->row($additionalRay));
 		      $latticemap->{$facet}->{$maxcone} = 

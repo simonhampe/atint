@@ -22,6 +22,7 @@
 #include "polymake/Array.h"
 #include "polymake/linalg.h"
 #include "polymake/Integer.h"
+#include "polymake/Set.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -46,5 +47,6 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Unary_neg, perl::Canned< const Wary< pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> > >);
    OperatorInstance4perl(Binary_mul, perl::Canned< const Wary< Matrix< Rational > > >, perl::Canned< const pm::VectorChain<pm::IndexedSlice<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&, pm::Array<int, void> const&, void> const&, pm::SingleElementVector<pm::Rational> > >);
    FunctionInstance4perl(new_X, Matrix< Rational >, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Integer> const&, pm::SingleRow<pm::Vector<pm::Integer> const&> > const&, pm::SingleRow<pm::Vector<pm::Integer> const&> > const&, pm::SingleRow<pm::Vector<pm::Integer> const&> > >);
+   FunctionInstance4perl(new_X, Matrix< Rational >, perl::Canned< const pm::RowChain<pm::Matrix<pm::Rational> const&, pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::Set<int, pm::operations::cmp> const&, pm::all_selector const&> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
