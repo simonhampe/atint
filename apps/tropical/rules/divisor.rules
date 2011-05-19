@@ -99,7 +99,6 @@ user_function divisorByValue {
 # @param PLFunction A function whose DOMAIN should be equal to the affine coordinate space of the variety, i.e. AMBIENT_DIM-1, if the
 # variety uses homogeneous coordinates, AMBIENT_DIM otherwise.
 # @return The corresponding divisor as a tropical variety in homogeneous coordinates.
-# FIXME: Values for lin space
 user_function divisorByPLF {
   my ($fan,$function) = @_;
   
@@ -146,6 +145,11 @@ user_function divisorByPLF {
       }
       @values = (@values,$rayvalue);
     }
+  }
+  
+  #Finally we add the values of the lineality space
+  for my $index (0 .. $fan->LINEALITY_SPACE->rows()-1) {
+    @values = (@values, $function->valueAt($fan->LINEALITY_SPACE->row($index)));
   }
   
   return divisorByValue($fan,@values);

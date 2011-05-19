@@ -246,14 +246,7 @@ namespace polymake { namespace tropical {
 	  return latticeB;
 	}
 	
-	/**
-	  @brief Takes a vector v and a matrix with column dimension equal to the dimension of v. Assuming that v is in the row span of the matrix, it computes one(!) possible representation of v in these generators. It does this by performing a standard (partial) gaussian reduction algorithm
-	  @param v The vector supposed to be contained in the row span of the generators
-	  @param generators  A set of row vectors whose linear span should contain v
-	  @return A vector (a1,..,an) such that v = (a1,...,an) * generators. It returns a vector of dimension 0, if
-	  v is not in the span of the generators. An error is thrown if the dimensions of v and the generators mismatch
-	  
-	*/
+	
 	Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Rational> &generators) {
 	  Vector<Rational> solution(generators.rows());
 	  //Copy arguments

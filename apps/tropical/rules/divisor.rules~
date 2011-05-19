@@ -148,7 +148,10 @@ user_function divisorByPLF {
     }
   }
   
-  print "Values: ", join(",",@values),"\n";
+  #Finally we add the values of the lineality space
+  for my $index (0 .. $fan->LINEALITY_SPACE->rows()-1) {
+    @values = (@values, $function->valueAt($fan->LINEALITY_SPACE->row($index)));
+  }
   
   return divisorByValue($fan,@values);
 }

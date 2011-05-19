@@ -11,7 +11,7 @@ declare $timingMapCreation = new Map<Int,<Map<Int,String> > >();
 declare $timingMapBalancing = new Map<Int,<Map<Int,String> > >();
 
 #Benchmark parameters
-my $maximalN = 15;
+my $maximalN = 10;
 
 my $t0;
 my $t1;

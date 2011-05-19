@@ -143,12 +143,13 @@ object PolyhedralFan {
 	    $this->USES_HOMOGENEOUS_C = FALSE;
 	}
 	weight 0.4;
-	
+		
 	rule USES_HOMOGENEOUS_C : INPUT_HOM_RAYS | INPUT_HOM_LINEALITY {
 	    $this->USES_HOMOGENEOUS_C = TRUE;
 	}
 	weight 0.1;
 	
+	#------------------------------------------------------------------------#
 	
 	rule INPUT_RAYS : INPUT_HOM_RAYS {
 	    #Normalize rays first
@@ -164,6 +165,8 @@ object PolyhedralFan {
 	    $this->INPUT_RAYS = $m;
 	}
 	
+	#------------------------------------------------------------------------#
+	
 	## !!!!!!!!!!!!! FIXME: This should probably be INPUT_LINEALITY, but as long as polymake doesn't actually use that property, it makes no sense to do that
 	rule LINEALITY_SPACE : INPUT_HOM_LINEALITY {
 	    #Just check if all the first entries are 0
@@ -175,126 +178,22 @@ object PolyhedralFan {
 	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
 	}
 	
+	#------------------------------------------------------------------------#
+	
 	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES_INCIDENCES, USES_HOMOGENEOUS_C {
-	  
-	  #First we construct the set of all facets
-	  my @mInc = @{$this->MAXIMAL_CONES_INCIDENCES};
-	  #my $s = new Set<Set<Int>>(); #We use a set to check for doubles
-	  my @facetArray;		#but we actually plug in the array to fix the order
-				      #so that we have compatibility with the in-max-cones matrix
-	  my @fIncones;
-	   								
-	  for(my $maxCone = 0; $maxCone < scalar(@mInc); $maxCone++) {
-	      my $fcts = $mInc[$maxCone];
-	      for(my $facet = 0; $facet < $fcts->rows(); $facet++) {
-		  my $facetToCheck = $fcts->row($facet);
-		  # If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
-		  # More precisely: Check if at least one of its rays has x0-coord != 0
-		  if($this->USES_HOMOGENEOUS_C) {
-		      my $raysfirstcol = ($this->RAYS->minor($facetToCheck,All))->col(0);
-		      if($raysfirstcol == zero_vector<Rational>($raysfirstcol->dim)) {
-			next;
-		      }		    
-		  }
-		  my $fcIndex = -1;
-		  #Check if we already have this facet and remember its index
-		  for(my $existing = 0; $existing < scalar(@facetArray); $existing++) {
-		    if($facetArray[$existing] == $facetToCheck) {
-			$fcIndex = $existing;
-			last;
-		    }
-		  }
-		  #Add the facet if necessary and add its max-cone incidence
-		  if($fcIndex == -1) {
-		      @facetArray = (@facetArray, $facetToCheck);
-		      $fIncones[scalar(@facetArray)-1] = new Set<Int>($maxCone);
-		  }
-		  else {
-		      $fIncones[$fcIndex] = $fIncones[$fcIndex] + new Set<Int>($maxCone);
-		  }
-	      }
-	  }	  
-	  
-	  #Now each row of element of @facetArray is a facet. We transform this into an incidence matrix
-	  $this->CODIM_1_FACES = new IncidenceMatrix(@facetArray);
-	  #Similarly for the max-cones incidence
-	  $this->CODIM_1_IN_MAXIMAL_CONES = new IncidenceMatrix(@fIncones);
+	  computeCodimensionOne($this);
 	}
 	
 	#------------------------------------------------------------------------#
 	  
 	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES{
-	  #Create all the cones
-	  my @facetCones;
-	  my @maximalCones;
-	  
-	  my $latticemap = new Map<Int,Map<Int,Vector<Integer>>>();
-	  
-	  #This equation is added to all cone matrices (and stands for intersecting with x0 = 1) to ensure that
-	  # the actual lattice normal is of the form (0,...)
-	  my $intereq = new Vector<Rational>(unit_vector<Rational>($this->AMBIENT_DIM,0));
-	  
-	  for(my $i = 0; $i < $this->CODIM_1_FACES->rows(); $i++) {
-	      my $facetRays = $this->RAYS->minor($this->CODIM_1_FACES->row($i),All);
-	      #If facet is just the origin, we have to insert a zero vector of appropriate dimension,
-	      #otherwise it will be interpreted as a cone in 0-dim. space.
-	      @facetCones = (@facetCones, 
-			     $facetRays->rows() > 0 ? new polytope::Cone<Rational>(RAYS=>$facetRays)
-						  : new polytope::Cone<Rational>(INPUT_RAYS=>zero_vector($this->AMBIENT_DIM)));
-	      $latticemap->{$i} = new Map<Int,Vector<Integer>>();
-	  }
-	  for(my $i = 0; $i < $this->MAXIMAL_CONES->rows(); $i++) {
-	      @maximalCones = (@maximalCones, new polytope::Cone<Rational>(
-				RAYS=>($this->RAYS->minor($this->MAXIMAL_CONES->row($i),All))));
-	  }
-	  
-	  #Now compute lattice normals
-	  for( my $facet = 0; $facet < scalar(@facetCones); $facet++) {
-	      my $facetmatrix =  ($facetCones[$facet]->LINEAR_SPAN) / $intereq ;
-	      for( my $maxcone = 0; $maxcone < $this->CODIM_1_IN_MAXIMAL_CONES->cols(); $maxcone++)  {
-		  if($this->CODIM_1_IN_MAXIMAL_CONES->($facet,$maxcone)) {
-		      my $maxmatrix = ($maximalCones[$maxcone]->LINEAR_SPAN) / $intereq;
-		      my $additionalRay = @{$this->MAXIMAL_CONES->row($maxcone) - $this->CODIM_1_FACES->row($facet)}[0];
-		      $additionalRay = new Vector<Rational>($this->RAYS->row($additionalRay));
-		      $latticemap->{$facet}->{$maxcone} = 
-			    tropical::latticeNormal($facetmatrix,$maxmatrix,$additionalRay);
-		  }
-	      }
-	  }
-	  $this->LATTICE_NORMALS = $latticemap;
+	  computeLatticeNormals($this);
 	}
 	
 	#------------------------------------------------------------------------#
 	
-	rule IS_BALANCED : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, TROPICAL_WEIGHTS, LATTICE_NORMALS {
-	    #Iterate over all facets
-	    my $isb = 1;
-	    my %lattice_map = %{$this->LATTICE_NORMALS};
-	    #The set of lattice normals relative to fct
-	    
-	    
-	    
-	    for(my $facet = 0; $facet < $this->CODIM_1_FACES->rows(); $facet++) {
-		my %fct_map = %{$lattice_map{$facet}};
-		#The set of maximal cones adjacent to fct
-		my @adjacent_cones = keys(%fct_map);
-		my $result = new Vector<Integer>($this->AMBIENT_DIM);
-		for( my $mc = 0; $mc < scalar(@adjacent_cones); $mc++)  {
-		  my $maxcone = $adjacent_cones[$mc];
-		  if($this->CODIM_1_IN_MAXIMAL_CONES->($facet,$maxcone)) {
-		      $result += ($this->TROPICAL_WEIGHTS->[$maxcone]) * $this->lattice_normal($facet,$maxcone);
-		  }
-		}
-		my $vtau = new Matrix<Rational>($this->RAYS->minor($this->CODIM_1_FACES->row($facet),All));
-		$result = new Matrix<Rational>($result);
-		my $r = rank($vtau);
-		if (rank( $vtau / $result) > $r) {
-		  $isb = 0;
-		  last;
-		}
-	    }
-	    
-	    $this->IS_BALANCED = $isb;
+	rule IS_BALANCED : CODIM_1_FACES, LATTICE_NORMAL_SUM{
+	  computeIfBalanced($this);
 	}
 	
 	#------------------------------------------------------------------------#
@@ -335,7 +234,6 @@ object PolyhedralFan {
 			($this->USES_HOMOGENEOUS_C? $this->CMPLX_CODIM_1_FACES : $this->CODIM_1_FACES)->[$fct],
 			$normalsum);
 	      $summatrix = $summatrix / $rep;
-	      
 	  }
 	  
 	  #Set fan properties
@@ -347,22 +245,7 @@ object PolyhedralFan {
 	#------------------------------------------------------------------------#
 	
 	rule LATTICE_NORMAL_SUM : LATTICE_NORMALS, TROPICAL_WEIGHTS {
-	    my $m = new Matrix<Integer>(0,$this->AMBIENT_DIM);
-	    my %lattice_map = %{$this->LATTICE_NORMALS};
-	    
-	    for(my $fct = 0; $fct < $this->CODIM_1_FACES->rows(); $fct++) {
-		#The set of lattice normals relative to fct
-		my %fct_map = %{$lattice_map{$fct}};
-		#The set of maximal cones adjacent to fct
-		my @adjacent_cones = keys(%fct_map);
-		my $normalsum = zero_vector<Integer>($this->AMBIENT_DIM);
-		for(my $mc = 0; $mc < scalar(@adjacent_cones); $mc ++) {
-		    $normalsum = $normalsum + ($this->LATTICE_NORMALS->{$fct}->{$adjacent_cones[$mc]} * $this->TROPICAL_WEIGHTS->[$adjacent_cones[$mc]]);
-		}
- 		$m = $m / new Vector<Integer>($normalsum);
-	    }
-	    
-	    $this->LATTICE_NORMAL_SUM = $m;
+	    computeLatticeNormalSum($this);
 	}
 	
 	#------------------------------------------------------------------------#
@@ -564,11 +447,14 @@ object PolyhedralFan {
 	      }
 	    }
 	  }
-	  $m = $m / $this->LINEALITY_SPACE;
+	  if($this->LINEALITY_DIM > 0) {
+	    $m = $m / $this->LINEALITY_SPACE;
+	  }
 	  #If there were no row indices, i.e. m = 0-space, just enter a zero row
 	  if(scalar(@rowIndices) == 0) {
 	      $m = new Matrix<Rational>(zero_vector<Rational>($this->AMBIENT_DIM));
 	  }
+	    
 	  
 	  #print "v = ", $v, "\nm = \n", $m,"\n";
 	  
@@ -635,13 +521,14 @@ object PolyhedralFan {
 	  
 	  #Now add the last ray to each maximal cone
 	  my @mcones = @{$this->MAXIMAL_CONES};
+	  my @newmcones = ();
 	  for my $set (@mcones) {
-	    $set = $set + $affineIndex;
+	    @newmcones = (@newmcones, $set + $affineIndex);
 	  }
 	  
 	  my @weight = @{$this->TROPICAL_WEIGHTS};
 	  
-	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@mcones,TROPICAL_WEIGHTS=>\@weight,
+	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
 				   USES_HOMOGENEOUS_C=>TRUE);
 	  
 	  

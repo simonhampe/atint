@@ -23,6 +23,8 @@
 #ifndef ATINT_DIVISOR_H
 #define ATINT_DIVISOR_H
 
+namespace polymake { namespace tropical {
+
 /**
 @brief Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete (i.e. its support is the whole ambient space) to compute the intersection correctly.
 @param fan An arbitrary polyhedral fan
@@ -32,5 +34,8 @@ resulting fan uses homogeneous coordinates if and only fan does. If fan has a pr
 the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned.
 */
 perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan);
+
+
+}}
 
 #endif
