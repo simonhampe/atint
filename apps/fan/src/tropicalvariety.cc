@@ -321,11 +321,11 @@ namespace polymake { namespace fan{
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
     
   
-    Matrix<Rational> rays = uses_homog? fan.give("RAYS") : fan.give("CMPLX_RAYS");
+    Matrix<Rational> rays = (!uses_homog)? fan.give("RAYS") : fan.give("CMPLX_RAYS");
     Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
     Matrix<Rational> normalsums = fan.give("LATTICE_NORMAL_SUM");
-    IncidenceMatrix<> codimOneCones = uses_homog? fan.give("CODIM_1_FACES") : fan.give("CMPLX_CODIM_1_FACES");
-    IncidenceMatrix<> maximalCones = uses_homog? fan.give("MAXIMAL_CONES") : fan.give("CMPLX_MAXIMAL_CONES");
+    IncidenceMatrix<> codimOneCones = (!uses_homog)? fan.give("CODIM_1_FACES") : fan.give("CMPLX_CODIM_1_FACES");
+    IncidenceMatrix<> maximalCones = (!uses_homog)? fan.give("MAXIMAL_CONES") : fan.give("CMPLX_MAXIMAL_CONES");
     IncidenceMatrix<> coneIncidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
     
     
