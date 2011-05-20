@@ -1,0 +1,1 @@
+$div = divisorByPLF(tropical_lnk(3,2), new PLFunction(INPUT_STRING=>"max(3x+4,x-y-z,z+3+y)"));

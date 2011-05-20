@@ -11,7 +11,8 @@ declare $timingMapCreation = new Map<Int,<Map<Int,String> > >();
 declare $timingMapBalancing = new Map<Int,<Map<Int,String> > >();
 
 #Benchmark parameters
-my $maximalN = 8;
+my $minimalN = 11
+my $maximalN = 20;
 
 my $t0;
 my $t1;
@@ -23,7 +24,7 @@ $initfan->IS_BALANCED;
 
 open (RESULT, ">lnkBenchmarkResults.csv");
 
-for(my $n = 2; $n <= $maximalN; $n++) {
+for(my $n = $minimalN; $n <= $maximalN; $n++) {
   print RESULT $n;
   print RESULT ";";
   for(my $k = 1; $k <= $n; $k ++) {

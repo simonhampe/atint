@@ -32,9 +32,9 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 
 namespace polymake { namespace fan{ 
   
-  //using namespace atint::donotlog;
+  using namespace atint::donotlog;
   //using namespace atint::dolog;
-  using namespace atint::dotrace;
+  //using namespace atint::dotrace;
   
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
@@ -94,7 +94,7 @@ namespace polymake { namespace fan{
   
   /**
    @brief Takes a polyhedral fan and computes a map of lattice normals. The corresponding property in the fan is set automatically.
-   @param fan::PolyhedralFan A polyhedral fan, extended by atint to a tropical variety",
+   @param fan::PolyhedralFan A polyhedral fan, extended by atint to a tropical variety
    */	  
   void computeLatticeNormals(perl::Object fan) {
     
@@ -156,6 +156,10 @@ namespace polymake { namespace fan{
     fan.take("LATTICE_NORMALS") << latticeNormals;
   }
 
+  /**
+  @brief Takes a polyhedral fan and computes the weighted sum of the lattice normals at each codimension one face. Sets the corresponding property LATTICE_NORMAL_SUM automatically.
+  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  */
   void computeLatticeNormalSum(perl::Object fan) {
     //Extract all necessary properties
      Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
@@ -183,12 +187,19 @@ namespace polymake { namespace fan{
      
   }
 
+  /**
+  @brief Takes a polyhedral fan and computes whether the fan is balanced as a weighted polyhedral complex. Sets the corresponding property IS_BALANCED automatically.
+  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  */
   void computeIfBalanced(perl::Object fan) {
     //Extract all necessary properties
+    int ambient_dim = fan.give("AMBIENT_DIM");
     Matrix<Rational> summatrix = fan.give("LATTICE_NORMAL_SUM");
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     Matrix<Rational> rays = fan.give("RAYS");
-    Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
+    Matrix<Rational> linspace = fan.exists("LINEALITY_SPACE")? 
+				  fan.give("LINEALITY_SPACE") :
+				  Matrix<Rational>(0,ambient_dim);
     
     //Now iterate over all codim one cones
     for(int facet = 0; facet < codimOneCones.rows(); facet++) {
@@ -202,7 +213,302 @@ namespace polymake { namespace fan{
     
     fan.take("IS_BALANCED") << true; 
   }
+    
+  /**
+  @brief  This method takes a set of row indices for [[RAYS]] (or [[CMPLX_RAYS]] in the homogeneous case) and a vector that is supposed to be in the span of these row vectors and the lineality space (or their affine space, see description of [[LATTICE_NORMAL_FCT_VECTOR]]). It then computes the corresponding represenation in these vectors
+  @param s a set of row indices of [[RAYS]] (or [[CMPLX_RAYS]])
+  @param v a vector supposed to lie in the span (or affine span) of [[RAYS]] (or [[CMPLX_RAYS]]) + [[LINEALITY_SPACE]]
+  @param ambient_dim The ambient dimension of the fan
+  @param uses_homog Whether the fan uses homogeneous coordinates
+  @param rays The matrix of [[RAYS]] or [[CMPLX_RAYS]]
+  @param linealitySpace A matrix of generators of the lineality space
+  @param lineality_dim The dimension of the lineality space
+  @return A vector of length [[N_RAYS]] + [[LINEALITY_DIM]] (or [[CMPLX_RAYS]]->rows() + [[LINEALITY_DIM]] in the homogeneous case) with linear coefficients of a representation in the generators chosen via s. The last elements always refer to the lineality space.
+  */
+  Vector<Rational> functionRepresentationVector(const Set<int> &rayIndices, const Vector<Rational> &v,
+						int ambient_dim, bool uses_homog, 
+						const Matrix<Rational> &rays,
+						const Matrix<Rational> &linealitySpace,
+						int lineality_dim) {
+    dbgtrace << "Starting representation computation" << endl;
+    //Put ray indices in fixed order
+    Array<int> fixedIndices(rayIndices);
+    //Matrix of generators
+    Matrix<Rational> m(0,ambient_dim);
+    //First affine ray (not used in non-homog. coords)
+    Vector<Rational> baseray;
+    int baseRayIndex = -1; //Index of baseray in fixedIndices
+    
+    //Compute matrix of generators
+    if(!uses_homog) {
+      m = m / rays.minor(rayIndices,All);
+    }
+    else {
+      for(int r = 0; r < fixedIndices.size(); r++) {
+	Vector<Rational> rayVector = rays.row(fixedIndices[r]);
+	//Add all directional rays as is
+	if(rayVector[0] == 0) {
+	  m = m / rayVector;
+	}
+	//Use relative differences in the homog. case
+	else {
+	  if(baseRayIndex == -1) {
+	    baseray = rayVector;
+	    baseRayIndex = r;
+	  }
+	  else {
+	    m = m / (rayVector - baseray);
+	  }
+	}
+      }
+    }
+    if(lineality_dim > 0) {
+      m = m / linealitySpace;
+    }
+    
+    //If there were no row indices, i.e. m = 0-space, just enter a zero row
+    if(m.rows() == 0) {
+      m = m / zero_vector<Rational>(ambient_dim);
+    }
+    
+    dbgtrace << "Generator matrix is " << m << endl;
+    dbgtrace << "Vector is " << v << endl;
+    
+    //Now compute the representation
+    Vector<Rational> repv = tropical::linearRepresentation(v,m);
+    
+    dbgtrace << "Representation vector: " << repv << endl;
+    
+    if(repv.dim() == 0) {
+      throw std::runtime_error("Error: vector not in linear span of generators");
+    }
+    
+    //Insert coefficients at correct places
+    Vector<Rational> result(lineality_dim + rays.rows());
+    for(int r = 0; r < fixedIndices.size(); r++) {
+      if(r != baseRayIndex) {
+	//If a ray came after the baseray, its matrix row index is one lower then its array index.
+	int matrixindex = (baseRayIndex == -1)? r : (r > baseRayIndex? r-1 : r);
+	result[fixedIndices[r]] = repv[matrixindex];
+	dbgtrace << "Inserting " << repv[matrixindex] << " at " << fixedIndices[r] << endl;
+	//if this is an affine ray, substract its coefficient at the baseray
+	if(rays(fixedIndices[r],0) != 0) {
+	  result[fixedIndices[baseRayIndex]] -= repv[matrixindex];
+	}
+      }
+    }
+    
+    dbgtrace << "Result vector is " << result << endl;
+    
+    //Insert linspace coefficients at the end
+    for(int lingen = 0; lingen < lineality_dim; lingen++) {
+      result[rays.rows() + lingen] = repv[fixedIndices.size() + lingen];
+    }
+    dbgtrace << "Done." << endl;
+    return result;    
+  }
+  
+  
+  /**
+  @brief Takes a polyhedral fan and computes the function vectors for the lattice normals (and their sums). Sets the corresponding properties LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR automatically.
+  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  */
+  void computeFunctionVectors(perl::Object fan) {
+    //Extract properties from the fan
+    int ambient_dim = fan.give("AMBIENT_DIM");
+    int lineality_dim = fan.give("LINEALITY_DIM");
+    Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
+    bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+    
+  
+    Matrix<Rational> rays = uses_homog? fan.give("RAYS") : fan.give("CMPLX_RAYS");
+    Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
+    Matrix<Rational> normalsums = fan.give("LATTICE_NORMAL_SUM");
+    IncidenceMatrix<> codimOneCones = uses_homog? fan.give("CODIM_1_FACES") : fan.give("CMPLX_CODIM_1_FACES");
+    IncidenceMatrix<> maximalCones = uses_homog? fan.give("MAXIMAL_CONES") : fan.give("CMPLX_MAXIMAL_CONES");
+    IncidenceMatrix<> coneIncidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
+    
+    
+    //Result variables
+    Map<int, Map<int, Vector<Rational> > > summap;
+    Matrix<Rational> summatrix;
+    
+    //Iterate over all codim 1 faces
+    for(int fct = 0; fct < codimOneCones.rows(); fct++) {
+      summap[fct] = Map<int, Vector<Rational> >();
+      
+      Set<int> adjacentCones = coneIncidences.row(fct);
+      for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+	Vector<Rational> normalvector((latticeNormals[fct])[*mc]);
+	//Compute the representation of the normal vector
+	(summap[fct])[*mc]= functionRepresentationVector(maximalCones.row(*mc),normalvector,
+				  ambient_dim, uses_homog, rays, linealitySpace, lineality_dim);
+      }
+      
+      //Now compute the representation of the sum of the normals
+      summatrix = summatrix / functionRepresentationVector(codimOneCones.row(fct), normalsums.row(fct),
+				  ambient_dim, uses_homog, rays, linealitySpace, lineality_dim);
+    }
+    
+    //Set fan properties
+    fan.take("LATTICE_NORMAL_FCT_VECTOR") << summap;
+    fan.take("LATTICE_NORMAL_SUM_FCT_VECTOR") << summatrix; 
+  }
 
+  /**
+    @brief Takes a polyhedral fan and computes the ray data of the corresponding polyhedral complex. Sets the corresponding properties CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES automatically.
+    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  */
+  void computeComplexData(perl::Object fan) {
+    //Extract properties of fan
+    bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+    
+    if(!uses_homog) {
+      fan.take("CMPLX_RAYS") << fan.give("RAYS");
+      fan.take("CMPLX_MAXIMAL_CONES") << fan.give("MAXIMAL_CONES");
+      fan.take("CMPLX_CODIM_1_FACES") << fan.give("CODIM_1_FACES");
+      return;
+    }
+    
+    Matrix<Rational> rays = fan.give("RAYS");
+    int ambient_dim = fan.give("AMBIENT_DIM");
+    IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    IncidenceMatrix<> facet_incidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
+      facet_incidences = T(facet_incidences);
+      
+    //Result variables
+    Matrix<Rational> cmplxrays(0,ambient_dim);
+    Vector<Set<int> > maxcones(maximalCones.rows());
+    Vector<Set<int> > codimone(codimOneCones.rows());
+    
+    dbgtrace << "Dividing rays..." << endl;
+    
+    //Divide the set of rays into those with x0 != 0 and those with x0 = 0
+    Set<int> affineRays;
+    Set<int> directionalRays;
+    Map<int,int> newAffineIndices; //This maps the old ray indices to the new ones in cmplxrays
+    for(int r = 0; r < rays.rows(); r++) {
+      if(rays.row(r)[0] == 0) {
+	directionalRays = directionalRays + r;
+      }
+      else {
+	affineRays = affineRays + r;
+	cmplxrays = cmplxrays / rays.row(r);
+	newAffineIndices[r] = cmplxrays.rows()-1;
+      }
+    }
+    
+    dbgtrace << "Affine rays: " << affineRays << ", directional rays: " << directionalRays << endl;
+    
+    //Insert the indices of the new affine rays for each cone
+    for(int co = 0; co < codimOneCones.rows(); co++) {
+      Set<int> corays = codimOneCones.row(co) * affineRays;
+      codimone[co] = Set<int>();
+      for(Entire<Set<int> >::iterator e = entire( corays); !e.at_end(); ++e) {
+	codimone[co] = codimone[co] + newAffineIndices[*e];
+      }
+    }
+    for(int mc = 0; mc < maximalCones.rows(); mc++) {
+      Set<int> mcrays = maximalCones.row(mc) * affineRays;
+      maxcones[mc] = Set<int>();
+      for(Entire<Set<int> >::iterator e = entire( mcrays); !e.at_end(); ++e) {
+	maxcones[mc] = maxcones[mc] + newAffineIndices[*e];
+      }
+    }
+    
+    dbgtrace << "Added affine rays to cones" << endl;
+    
+    //Now we go through the directional rays and compute the connected component for each one
+    for(Entire<Set<int> >::iterator r = entire(directionalRays); !r.at_end(); ++r) {
+      
+      dbgtrace << "Computing components of ray " << *r << endl;
+      
+      //List of connected components of this ray, each element is a component
+      //containing the indices of the maximal cones
+      Vector<Set<int> > connectedComponents;
+      //The inverse of the component matrix, i.e. maps cone indices to row indices of connectedComponents
+      Map<int,int> inverseMap;
+      
+      //Compute the set of maximal cones containing r
+      Set<int> rcones;
+      for(int mc = 0; mc < maximalCones.rows(); mc++) {
+	if(maximalCones.row(mc).contains(*r)) {
+	  rcones = rcones + mc;
+	}
+      }
+      
+      dbgtrace << "Computed set of cones containing r:" << rcones << endl;
+      
+      //For each such maximal cone, compute its component (if it hasnt been computed yet).
+      for(Entire<Set<int> >::iterator mc = entire(rcones); !mc.at_end(); ++mc) {
+	if(!inverseMap.exists(*mc)) {
+	  dbgtrace << "Creating new component" << endl;
+	  //Create new component
+	  Set<int> newset; newset = newset + *mc;
+	  connectedComponents = connectedComponents | newset;
+	  inverseMap[*mc] = connectedComponents.dim()-1;
+	  
+	  //Do a breadth-first search for all other cones in the component
+	  std::list<int> queue;
+	    queue.push_back(*mc);
+	    //Semantics: Elements in that queue have been added but their neighbours might not
+	    dbgtrace << "Calculating component" << endl;
+	  while(queue.size() != 0) {
+	    int node = queue.front(); //Take the first element and find its neighbours
+	      queue.pop_front();
+	    for(Entire<Set<int> >::iterator othercone = entire(rcones); !othercone.at_end(); othercone++) {
+	      //We only want 'homeless' cones
+	      if(!inverseMap.exists(*othercone)) {
+		//This checks whether both cones share a ray with x0=1
+		if((maximalCones.row(node) * maximalCones.row(*othercone) * affineRays).size() > 0) {
+		    //Add this cone to the component
+		    connectedComponents[connectedComponents.dim()-1] += *othercone;
+		    inverseMap[*othercone] = connectedComponents.dim()-1;
+		    queue.push_back(*othercone);
+		}
+	      }
+	    }
+	  }
+	  
+	}
+      } //END computation of connected components
+      
+      dbgtrace << "Connected components:\n" << connectedComponents << endl;
+      
+      //Now add r once for each connected component to the appropriate cones
+      for(int cc = 0; cc < connectedComponents.dim(); cc++) {
+	cmplxrays = cmplxrays / rays.row(*r);
+	int rowindex = cmplxrays.rows()-1;
+	Set<int> ccset = connectedComponents[cc];
+	dbgtrace << "Inserting for component " << cc+1 << endl;
+	for(Entire<Set<int> >::iterator mc = entire(ccset); !mc.at_end(); ++mc) {
+	  maxcones[*mc] = maxcones[*mc] + rowindex;
+	  //For each facet of mc that contains r, add rowindex
+	  Set<int> fcset;
+	  //If there are maximal cones not intersecting x0 = 1, they have no facets
+	  //in facet_incidences, hence the following check
+	  if(*mc < facet_incidences.rows()) {
+	    fcset = facet_incidences.row(*mc);
+	  }
+	  for(Entire<Set<int> >::iterator fct = entire(fcset); !fct.at_end(); ++fct) {
+	    if(codimOneCones.row(*fct).contains(*r)) {
+	      codimone[*fct] = codimone[*fct] + rowindex;
+	    }
+	  }
+	}
+      }
+      
+    }//END iterate over all rays
+    
+    dbgtrace << "Done computing rays, inserting values..." << endl;
+    
+    //Insert values
+    fan.take("CMPLX_RAYS") << cmplxrays;
+    fan.take("CMPLX_MAXIMAL_CONES") << maxcones;
+    fan.take("CMPLX_CODIM_1_FACES") << codimone;
+    
+  }
   
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
@@ -213,5 +519,9 @@ Function4perl(&computeLatticeNormals, "computeLatticeNormals(fan::PolyhedralFan)
 Function4perl(&computeLatticeNormalSum, "computeLatticeNormalSum(fan::PolyhedralFan)");
 
 Function4perl(&computeIfBalanced, "computeIfBalanced(fan::PolyhedralFan)");
+
+Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
+
+Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
   
 }}

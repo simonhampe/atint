@@ -177,7 +177,8 @@ object PolyhedralFan {
 	    }
 	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
 	}
-	
+	weight 0.02;
+
 	#------------------------------------------------------------------------#
 	
 	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES_INCIDENCES, USES_HOMOGENEOUS_C {
@@ -186,7 +187,7 @@ object PolyhedralFan {
 	
 	#------------------------------------------------------------------------#
 	  
-	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES{
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE {
 	  computeLatticeNormals($this);
 	}
 	
@@ -194,81 +195,12 @@ object PolyhedralFan {
 	
 	rule IS_BALANCED : CODIM_1_FACES, LATTICE_NORMAL_SUM{
 	  computeIfBalanced($this);
-	  # 	    
-#Iterate over all facets
-# 	    my $isb = 1;
-# 	    my %lattice_map = %{$this->LATTICE_NORMALS};
-# 	    #The set of lattice normals relative to fct
-# 	    
-# 	    
-# 	    
-# 	    for(my $facet = 0; $facet < $this->CODIM_1_FACES->rows(); $facet++) {
-# 		my %fct_map = %{$lattice_map{$facet}};
-# 		#The set of maximal cones adjacent to fct
-# 		my @adjacent_cones = keys(%fct_map);
-# 		my $result = new Vector<Integer>($this->AMBIENT_DIM);
-# 		for( my $mc = 0; $mc < scalar(@adjacent_cones); $mc++)  {
-# 		  my $maxcone = $adjacent_cones[$mc];
-# 		  if($this->CODIM_1_IN_MAXIMAL_CONES->($facet,$maxcone)) {
-# 		      $result += ($this->TROPICAL_WEIGHTS->[$maxcone]) * $this->lattice_normal($facet,$maxcone);
-# 		  }
-# 		}
-# 		my $vtau = new Matrix<Rational>($this->RAYS->minor($this->CODIM_1_FACES->row($facet),All));
-# 		$result = new Matrix<Rational>($result);
-# 		my $r = rank($vtau);
-# 		if (rank( $vtau / $result) > $r) {
-# 		  $isb = 0;
-# 		  last;
-# 		}
-# 	    }
-# 	    
-# 	    $this->IS_BALANCED = $isb;
 	}
 	
 	#------------------------------------------------------------------------#
 	
-	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES {
-	  
-	  my $n_gens = ($this->USES_HOMOGENEOUS_C? $this->N_RAYS : $this->CMPLX_RAYS->rows()) + $this->LINEALITY_DIM;
-	  my $summatrix = new Matrix<Rational>(0,$n_gens);
-	  my $summap = new Map<Int,Map<Int,Vector<Rational>>>();
-	  my %lattice_map = %{$this->LATTICE_NORMALS};
-	  
-	  #Iterate over all codim 1 faces
-	  
-	  for(my $fct = 0; $fct < $this->CODIM_1_FACES->rows(); $fct++) {
-	      my $maxmap = new Map<Int,Vector<Rational>>();
-	      
-	      #Iterate over adjacent maximal cones
-	      
-	      #The set of lattice normals relative to fct
-	      my %fct_map = %{$lattice_map{$fct}};
-	      #The set of maximal cones adjacent to fct
-	      my @adjacent_cones = keys(%fct_map);
-	      
-	      #Compute representation of normal vector
-	      for(my $mc = 0; $mc < scalar(@adjacent_cones); $mc ++) {
-		my $normalvector = $this->LATTICE_NORMALS->{$fct}->{$adjacent_cones[$mc]};
-		#print "For facet ", $fct, " and maxcone ", $adjacent_cones[$mc], "\n";
-		my $rep = $this->functionRepresentationVector(
-		($this->USES_HOMOGENEOUS_C? $this->CMPLX_MAXIMAL_CONES : $this->MAXIMAL_CONES)->[$adjacent_cones[$mc]],$normalvector);
-		$maxmap->{$adjacent_cones[$mc]} = $rep;
-	      }
-	      
-	      $summap->{$fct} = $maxmap;
-	      
-	      #Now compute the represetation of the sum of the normals
-	      my $normalsum = $this->LATTICE_NORMAL_SUM->row($fct);
-	      my $rep = $this->functionRepresentationVector(
-			($this->USES_HOMOGENEOUS_C? $this->CMPLX_CODIM_1_FACES : $this->CODIM_1_FACES)->[$fct],
-			$normalsum);
-	      $summatrix = $summatrix / $rep;
-	  }
-	  
-	  #Set fan properties
-	  $this->LATTICE_NORMAL_FCT_VECTOR = $summap;
-	  $this->LATTICE_NORMAL_SUM_FCT_VECTOR = $summatrix;
-	  
+	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_SPACE, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES {
+	  computeFunctionVectors($this);
 	}
 	
 	#------------------------------------------------------------------------#
@@ -280,106 +212,7 @@ object PolyhedralFan {
 	#------------------------------------------------------------------------#
 	
 	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES {
-	  if(!($this->USES_HOMOGENEOUS_C)) {
-	    $this->CMPLX_RAYS = $this->RAYS;
-	    $this->CMPLX_MAXIMAL_CONES = $this->MAXIMAL_CONES;
-	    $this->CMPLX_CODIM_1_FACES = $this->CODIM_1_FACES;
-	  }
-	  else {
-	    #Prepare variables
-	    my $cmplxrays = new Matrix<Rational>(0,$this->AMBIENT_DIM);
-	    my @codimone = ();
-	    my @maxcones = ();
-	    
-	    #First we divide the set of rays into those with x0 != 0 and those with x0 = 0
-	    my $affineRays = new Set<Int>();
-	    my $directionalRays = new Set<Int>();
-	    for(my $r = 0; $r < $this->RAYS->rows(); $r++) {
-	      if($this->RAYS->row($r)->[0] == 0) {
-		$directionalRays += $r;
-	      }
-	      else {
-		$affineRays += $r;
-	      }
-	    }
-	    
-	    #Now we prepare the new maximal cones and codimension one cones by simply copying all the rows with x0 = 1
-	   
-	    $cmplxrays = $cmplxrays / $this->RAYS->minor($affineRays,All);
-	   
-	    for(my $co = 0; $co < $this->CODIM_1_FACES->rows(); $co++) {
-	      $codimone[$co] = $this->CODIM_1_FACES->row($co) * $affineRays; #Intersect rays of cone with directional rays
-	    }
-	    for(my $mc = 0; $mc < $this->MAXIMAL_CONES->rows(); $mc++) {
-	      $maxcones[$mc] = $this->MAXIMAL_CONES->row($mc) * $affineRays;
-	    }
-	    
-	    #Now we go through the directional rays and compute the corresponding connected components for each one
-	    for my $r (@{$directionalRays}) {
-	      
-	      my @connectedComponents = (); #Array of set of indices of maximal cones
-	      my @conesInComponents = (); #Array of indices of connected components, element i = component of maximal cone i
-		
-	      #Compute the set of maximal cones containing $r
-	      my @rcones = (); #Array of indices of maximal cones
-	      for my $mc ( 0 .. ($this->MAXIMAL_CONES->rows()-1) ) {
-		if($this->MAXIMAL_CONES->row($mc)->contains($r)) {
-		  @rcones = (@rcones,$mc);
-		}
-	      }
-	      
-	      for my $cic (@rcones) { $conesInComponents[$cic] = -1;}
-	      
-	      #For each maximal cone compute its component (it it hasn't been computed yet) 
-	      for my $mc ( @rcones ) {
-		if($conesInComponents[$mc] == -1) { #If the cones is not yet in a connected component, compute it
-		  #Create new component
-		  my $newindex = scalar(@connectedComponents);
-		  $connectedComponents[$newindex] = new Set<Int>($mc);
-		  $conesInComponents[$mc] = $newindex;
-		  #Breadth-first search for all other elements in the component
-		  my @queue = ($mc); #Semantics: Elements in that queue have been added but their neighbours might not
-		  while(scalar(@queue) != 0) {
-		    #print "Queue is now ", join(",",@queue),"\n";
-		    my $node = shift(@queue); #Take the first element and find its neighbours
-		    for my $othercone (@rcones) {
-			if($conesInComponents[$othercone] == -1) { #We only want homeless cones ;)
-			    #This checks whether both cones share a ray with x0 = 1
-			    if( ($this->MAXIMAL_CONES->row($node) * $this->MAXIMAL_CONES->row($othercone) * $affineRays)->size() > 0) {
-			      $connectedComponents[$newindex] += $othercone;
-			      $conesInComponents[$othercone] = $newindex;
-			      @queue = (@queue,$othercone);
-			      
-			    }
-			}
-		    }
-		  }
-		}
-	      }
-	      
-	      # Now add $r once for each connected component to the appropriate cones
-	      for my $cc (@connectedComponents) {
-		$cmplxrays = $cmplxrays / $this->RAYS->row($r);
-		my $rowindex = $cmplxrays->rows()-1;
-		for my $mc (@{$cc}) {
-		  $maxcones[$mc] = $maxcones[$mc] + $rowindex;
-		  #For each facet of $mc that contains $r, add $rowindex
-		  for my $fct (@{transpose($this->CODIM_1_IN_MAXIMAL_CONES)->row($mc)}) {
-		    if($this->CODIM_1_FACES->row($fct)->contains($r)) {
-		      $codimone[$fct] = $codimone[$fct] + $rowindex;
-		    }
-		  }
-		}
-	      }
-	      
-	    }
-	    
-	    #Insert values
-	    $this->CMPLX_RAYS = $cmplxrays;
-	    $this->CMPLX_MAXIMAL_CONES = new IncidenceMatrix(@maxcones);
-	    $this->CMPLX_CODIM_1_FACES = new IncidenceMatrix(@codimone);
-	  
-	  }
+	  computeComplexData($this);
 	}
 	
 	## METHODS #################################################################
@@ -431,102 +264,6 @@ object PolyhedralFan {
 	    return $this->LATTICE_NORMALS->{$i}->{$j};
 	}
 	
-	# @category Linear algebra
-	# This method takes a set of row indices for [[RAYS]] (or [[CMPLX_RAYS]] in the homogeneous case) and a vector that is supposed to be 
-	# in the span of these row vectors and the lineality space (or their affine space, see description of [[LATTICE_NORMAL_FCT_VECTOR]]). 
-	# It then computes the corresponding represenation in these vectors
-	# @param Set s A set of row indices of [[RAYS]]
-	# @param Vector v A vector supposed to lie in the span (or affine span) of RAYS + LINEALITY_SPACE
-	# @return A vector of length N_RAYS + LINEALITY_DIM (or [[CMPLX_RAYS->rows()]] + LINEALITY_DIM in the homog. case) 
-	# with linear coefficients of a representation in the generators chosen via s (The last elements always refer to the lineality space).
-	user_method functionRepresentationVector {
-	  my ($this,$r,$v) = @_;
-	  my @rowIndices = @{$r};
-	  $v = new Vector<Rational>($v);
-	  #Matrix of generators 
-	  my $m = new Matrix<Rational>(0,$this->AMBIENT_DIM);
-	  #First ray with x0 = 1 (not used if we use nonhomog. coords)
-	  #The index refers to thw row index in $m
-	  my $basepoint = -1;
-	  
-	  #Compute matrix of generators
-	  for(my $ray = 0; $ray < scalar(@rowIndices); $ray++) {
-	    my $rayVector = $this->USES_HOMOGENEOUS_C ?   $this->CMPLX_RAYS->row($rowIndices[$ray]) :
-							  $this->RAYS->row($rowIndices[$ray]);
-	    #Ensure that $rayVector has the right dimension if it is just the empty vector
-	    #(it might come from the zero point)
-	    if($rayVector->dim() == 0) {
-	      $rayVector = new Vector<Rational>(zero_vector<Rational>($this->AMBIENT_DIM));
-	    }
-	    if($rayVector->[0] == 0) { #Add all x0 = 0-vectors as is
-	      $m = $m / $rayVector;
-	    }
-	    else {		#Otherwise use relative differences if we are in the homog. case
-	      if(!($this->USES_HOMOGENEOUS_C)) { 
-		$m = $m / $rayVector;
-	      }
-	      else {
-		if($basepoint == -1) { 
-		    $basepoint = $ray;
-		    $m = $m / $rayVector;
-		} 
-		else {
-		  $m = $m / ( $rayVector - $m->row($basepoint));
-		}
-	      }
-	    }
-	  }
-	  if($this->LINEALITY_DIM > 0) {
-	    $m = $m / $this->LINEALITY_SPACE;
-	  }
-	  #If there were no row indices, i.e. m = 0-space, just enter a zero row
-	  if(scalar(@rowIndices) == 0) {
-	      $m = new Matrix<Rational>(zero_vector<Rational>($this->AMBIENT_DIM));
-	  }
-	    
-	  
-	  #print "v = ", $v, "\nm = \n", $m,"\n";
-	  
-	  #Now compute the representation
-	  my $repv = tropical::linearRepresentation($v,$m);
-	  
-	  #print "r = ", $repv, "\n";
-	  
-	  my @rep = @{$repv};
-	  if(scalar(@rep) == 0) {
-	    die "Error: vector not in linear span of generators";
-	  }
-	  
-	  #Insert coefficients at correct place
-	  my $size = $this->LINEALITY_DIM + ($this->USES_HOMOGENEOUS_C? $this->CMPLX_RAYS->rows() : $this->N_RAYS);
-	  my @repVector;
-	    for(my $index = 0; $index < $size; $index++) {
-	      $repVector[$index] = 0;
-	    }
-	  my $minussum = 0;
-	  for( my $ray = 0; $ray < scalar(@rowIndices); $ray++) { #Insert all values for non-basepoint x0=1-rays and all x0=0-rays
-	    if($ray != $basepoint) {
-	      my $rayVector = $this->USES_HOMOGENEOUS_C ?   $this->CMPLX_RAYS->row($rowIndices[$ray]) :
-							  $this->RAYS->row($rowIndices[$ray]);
-	      $repVector[$rowIndices[$ray]] = $rep[$ray];
-	      if($rayVector->[0] != 0) {
-		$minussum -= $rep[$ray];
-	      }
-	    }
-	  }
-	  
-	  if($basepoint != -1) {
-	    $repVector[$rowIndices[$basepoint]] = $minussum; #In the homogeneous case store the negative sum of all x0=1-coeffs at basepoint
-	  }
-	  for( my $lingen = 0; $lingen < $this->LINEALITY_DIM; $lingen++) { #Insert lin space coeffs at the end
-	    $repVector[$this->N_RAYS + $lingen] = $rep[scalar(@rowIndices) + $lingen];
-	  }
-	  
-	  #Note that the correct dimension of this vector is assured by the fact that we put the lineality
-	  #space coefficients at the end.
-	  return new Vector<Rational>(\@repVector);  
-	}
-	
 	# @category Polyhedral geometry
 	# Transforms the fan into homogeneous coordinates
 	# @return If this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
@@ -559,7 +296,5 @@ object PolyhedralFan {
 	  
 	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
 				   USES_HOMOGENEOUS_C=>TRUE);
-	  
-	  
 	}
 }
