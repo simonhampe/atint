@@ -36,6 +36,59 @@ USE fan polytope
 user_function divisorByValue {
   my ($fan,@values) = @_;
   return divisorByValueVector($fan,new Vector<Rational>(@values));
+#   my $noofrays = $fan->USES_HOMOGENEOUS_C? $fan->CMPLX_RAYS->rows() : $fan->RAYS->rows();
+#   #If $fan only consists of the lineality space, the divisor is empty
+#   if($noofrays == 0) {
+#     return new fan::PolyhedralFan();
+#   }
+#   
+#   #Append zero values if necessary
+#   my $size = scalar(@values);
+#   if($size < $noofrays + $fan->LINEALITY_DIM) {
+#     for my $zindex ($size .. $noofrays + $fan->LINEALITY_DIM -1) {
+#       @values = (@values,0);
+#     }
+#   }
+#   #Erase superfluous values if necessary
+#   while(scalar(@values) > $noofrays + $fan->LINEALITY_DIM) {
+#     pop(@values);
+#   }
+#   
+#   #Create function vector
+#   my $functionVector = new Vector<Rational>(\@values);
+#   
+#   my @newcones = ();
+#   my @newweights = ();
+#   
+#   #Go through each facet and compute its weight. Only add it if the weight is nonzero
+#   my %lattice_map = %{$fan->LATTICE_NORMALS};
+#   for my $co (0 .. $fan->CODIM_1_FACES->rows() -1) {
+#     #First add up values of normalvectors
+#     my $coweight = 0;
+#     #The set of lattice normals relative to fct
+#     my %co_map = %{$lattice_map{$co}};
+#     #The set of maximal cones adjacent to fct
+#     my @adjacent_cones = keys(%co_map);
+#     
+#     for my $mc (@adjacent_cones) {
+#       $coweight += ($fan->TROPICAL_WEIGHTS->[$mc]) * ($fan->LATTICE_NORMAL_FCT_VECTOR->{$co}->{$mc} * $functionVector);
+#     }
+#     #Now substract the value of the sum of the normal vectors
+#     $coweight -= ($fan->LATTICE_NORMAL_SUM_FCT_VECTOR->row($co) * $functionVector);
+#     
+#     if($coweight != 0) {
+#       @newcones = (@newcones, $fan->CODIM_1_FACES->row($co));# FIXME: Error: might need CMPLX...
+#       @newweights = (@newweights, $coweight);
+#     }
+#     
+#   }
+#   
+#   #Return result
+#   return $fan->USES_HOMOGENEOUS_C? 
+# 	  new fan::PolyhedralFan(INPUT_HOM_RAYS=>$fan->RAYS, INPUT_CONES=>\@newcones, TROPICAL_WEIGHTS=>\@newweights, 
+# 				LINEALITY_SPACE=>$fan->LINEALITY_SPACE) :
+# 	  new fan::PolyhedralFan(INPUT_RAYS=>$fan->RAYS, INPUT_CONES=>\@newcones, TROPICAL_WEIGHTS=>\@newweights,
+# 				 LINEALITY_SPACE=>$fan->LINEALITY_SPACE); ## FIXME: Use INPUT_LINEALITY?
 }
 
 # @category Tropical geometry

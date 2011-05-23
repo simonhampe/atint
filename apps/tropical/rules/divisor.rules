@@ -35,60 +35,7 @@ USE fan polytope
 # @return The divisor of the function defined by values on the given fan, as a tropical variety.
 user_function divisorByValue {
   my ($fan,@values) = @_;
-  
-  my $noofrays = $fan->USES_HOMOGENEOUS_C? $fan->CMPLX_RAYS->rows() : $fan->RAYS->rows();
-  #If $fan only consists of the lineality space, the divisor is empty
-  if($noofrays == 0) {
-    return new fan::PolyhedralFan();
-  }
-  
-  #Append zero values if necessary
-  my $size = scalar(@values);
-  if($size < $noofrays + $fan->LINEALITY_DIM) {
-    for my $zindex ($size .. $noofrays + $fan->LINEALITY_DIM -1) {
-      @values = (@values,0);
-    }
-  }
-  #Erase superfluous values if necessary
-  while(scalar(@values) > $noofrays + $fan->LINEALITY_DIM) {
-    pop(@values);
-  }
-  
-  #Create function vector
-  my $functionVector = new Vector<Rational>(\@values);
-  
-  my @newcones = ();
-  my @newweights = ();
-  
-  #Go through each facet and compute its weight. Only add it if the weight is nonzero
-  my %lattice_map = %{$fan->LATTICE_NORMALS};
-  for my $co (0 .. $fan->CODIM_1_FACES->rows() -1) {
-    #First add up values of normalvectors
-    my $coweight = 0;
-    #The set of lattice normals relative to fct
-    my %co_map = %{$lattice_map{$co}};
-    #The set of maximal cones adjacent to fct
-    my @adjacent_cones = keys(%co_map);
-    
-    for my $mc (@adjacent_cones) {
-      $coweight += ($fan->TROPICAL_WEIGHTS->[$mc]) * ($fan->LATTICE_NORMAL_FCT_VECTOR->{$co}->{$mc} * $functionVector);
-    }
-    #Now substract the value of the sum of the normal vectors
-    $coweight -= ($fan->LATTICE_NORMAL_SUM_FCT_VECTOR->row($co) * $functionVector);
-    
-    if($coweight != 0) {
-      @newcones = (@newcones, $fan->CODIM_1_FACES->row($co));
-      @newweights = (@newweights, $coweight);
-    }
-    
-  }
-  
-  #Return result
-  return $fan->USES_HOMOGENEOUS_C? 
-	  new fan::PolyhedralFan(INPUT_HOM_RAYS=>$fan->RAYS, INPUT_CONES=>\@newcones, TROPICAL_WEIGHTS=>\@newweights, 
-				LINEALITY_SPACE=>$fan->LINEALITY_SPACE) :
-	  new fan::PolyhedralFan(INPUT_RAYS=>$fan->RAYS, INPUT_CONES=>\@newcones, TROPICAL_WEIGHTS=>\@newweights,
-				 LINEALITY_SPACE=>$fan->LINEALITY_SPACE); ## FIXME: Use INPUT_LINEALITY?
+  return divisorByValueVector($fan,new Vector<Rational>(@values));
 }
 
 # @category Tropical geometry
@@ -99,58 +46,58 @@ user_function divisorByValue {
 # @param PLFunction A function whose DOMAIN should be equal to the affine coordinate space of the variety, i.e. AMBIENT_DIM-1, if the
 # variety uses homogeneous coordinates, AMBIENT_DIM otherwise.
 # @return The corresponding divisor as a tropical variety in homogeneous coordinates.
-user_function divisorByPLF {
-  my ($fan,$function) = @_;
-  
-  #First, refine the (homogenized) fan along the linearity domains of the function
-  $fan = $fan->homogenize;
-  $fan = intersect_complete_fan($fan,$function->linearityDomains);
-  
-  #Now compute the function values
-  my $crays = $fan->CMPLX_RAYS;
-  my @mcones = @{$fan->CMPLX_MAXIMAL_CONES};
-  my @values = ();
-  #First we divide the set of rays into those with x0 != 0 and those with x0 = 0
-  my $affineRays = new Set<Int>();
-  my $directionalRays = new Set<Int>();
-  for(my $r = 0; $r < $crays->rows(); $r++) {
-    if($crays->row($r)->[0] == 0) {
-      $directionalRays += $r;
-    }
-    else {
-      $affineRays += $r;
-    }
-  }
-  
-  for my $index (0 .. $crays->rows()-1) {
-    #If it is an affine ray, simple compute the function value at that point
-    if($crays->row($index)->[0] == 1) {
-      @values = (@values,$function->valueAt($crays->row($index)));
-    }
-    # Otherwise find an affine ray that shares a maximal cone with this ray (if there is none, set the value to 0, it
-    # doesn't matter anyway)
-    else {
-      my $rayvalue = new Rational(0);
-      for my $mc (@mcones) {
-	if($mc->contains($index)) {
-	  my $sharedRays = $mc * $affineRays;
-	  if($sharedRays->size() > 0) {
-	    #If we have found such an affine ray, compute the value of affine + direction and substract the value of the affine ray
-	    # and stop searching
-	    my $sray = $sharedRays->[0];
-	    $rayvalue = $function->valueAt($crays->row($sray) + $crays->row($index)) - $function->valueAt($crays->row($sray));
-	    last;
-	  }
-	}
-      }
-      @values = (@values,$rayvalue);
-    }
-  }
-  
-  #Finally we add the values of the lineality space
-  for my $index (0 .. $fan->LINEALITY_SPACE->rows()-1) {
-    @values = (@values, $function->valueAt($fan->LINEALITY_SPACE->row($index)));
-  }
-  
-  return divisorByValue($fan,@values);
-}
+# user_function divisorByPLF {
+#   my ($fan,$function) = @_;
+#   
+#   #First, refine the (homogenized) fan along the linearity domains of the function
+#   $fan = $fan->homogenize;
+#   $fan = intersect_complete_fan($fan,$function->linearityDomains);
+#   
+#   #Now compute the function values
+#   my $crays = $fan->CMPLX_RAYS;
+#   my @mcones = @{$fan->CMPLX_MAXIMAL_CONES};
+#   my @values = ();
+#   #First we divide the set of rays into those with x0 != 0 and those with x0 = 0
+#   my $affineRays = new Set<Int>();
+#   my $directionalRays = new Set<Int>();
+#   for(my $r = 0; $r < $crays->rows(); $r++) {
+#     if($crays->row($r)->[0] == 0) {
+#       $directionalRays += $r;
+#     }
+#     else {
+#       $affineRays += $r;
+#     }
+#   }
+#   
+#   for my $index (0 .. $crays->rows()-1) {
+#     #If it is an affine ray, simple compute the function value at that point
+#     if($crays->row($index)->[0] == 1) {
+#       @values = (@values,$function->valueAt($crays->row($index)));
+#     }
+#     # Otherwise find an affine ray that shares a maximal cone with this ray (if there is none, set the value to 0, it
+#     # doesn't matter anyway)
+#     else {
+#       my $rayvalue = new Rational(0);
+#       for my $mc (@mcones) {
+# 	if($mc->contains($index)) {
+# 	  my $sharedRays = $mc * $affineRays;
+# 	  if($sharedRays->size() > 0) {
+# 	    #If we have found such an affine ray, compute the value of affine + direction and substract the value of the affine ray
+# 	    # and stop searching
+# 	    my $sray = $sharedRays->[0];
+# 	    $rayvalue = $function->valueAt($crays->row($sray) + $crays->row($index)) - $function->valueAt($crays->row($sray));
+# 	    last;
+# 	  }
+# 	}
+#       }
+#       @values = (@values,$rayvalue);
+#     }
+#   }
+#   
+#   #Finally we add the values of the lineality space
+#   for my $index (0 .. $fan->LINEALITY_SPACE->rows()-1) {
+#     @values = (@values, $function->valueAt($fan->LINEALITY_SPACE->row($index)));
+#   }
+#   
+#   return divisorByValue($fan,@values);
+# }

@@ -19,13 +19,15 @@
  */
 
 #include "polymake/client.h"
-#include "polymake/tropical/LoggingPrinter.h"
+#include "polymake/Rational.h"
 #include "polymake/Set.h"
 #include "polymake/Matrix.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Vector.h"
-#include "polymake/Rational.h"
 #include "polymake/Array.h"
+#include "polymake/tropical/divisor.h"
+#include "polymake/tropical/LoggingPrinter.h"
+
 
 namespace polymake { namespace tropical {
 
@@ -190,6 +192,75 @@ namespace polymake { namespace tropical {
       
     }
     
+    perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values) {
+      //Extract properties
+      bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+      Matrix<Rational> rays = uses_homog? fan.give("CMPLX_RAYS") : fan.give("RAYS");
+      int lineality_dim = fan.give("LINEALITY_DIM");
+      Matrix<Rational> lineality_space = fan.give("LINEALITY_SPACE");
+      Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
+      IncidenceMatrix<> codimOneCones = uses_homog? fan.give("CMPLX_CODIM_1_FACES") : fan.give("CODIM_1_FACES");
+      IncidenceMatrix<> coneIncidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
+      Array<Integer> tropicalWeights = fan.give("TROPICAL_WEIGHTS");
+      Map<int, Map<int, Vector<Rational> > > lnFunctionVector = fan.give("LATTICE_NORMAL_FCT_VECTOR");
+      Matrix<Rational> lsumFunctionVector = fan.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
+      
+      //If the fan only consists of the lineality space, the divisor is empty
+      int noOfRays = rays.rows();
+      if(noOfRays == 0) {
+	return perl::Object("fan::PolyhedralFan");
+      }
+      
+      //Append zero values, if necessary
+      while(values.dim() < noOfRays + lineality_dim) {
+	values = values | 0;
+      }
+      
+      //Slice away superfluous values
+      if(values.dim() > noOfRays + lineality_dim) {
+	values = values.slice(0,noOfRays + lineality_dim);
+      }
+      
+      //Result variables
+      Vector<Set<int> > newcones;
+      Vector<Integer> newweights;
+      
+      //Go through each facet and compute its weight. Only add it, if the weight is nonzero
+      for(int co = 0; co < codimOneCones.rows(); co++) {
+	Integer coweight(0);
+	Set<int> adjacentCones = coneIncidences.row(co);
+	for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+	  coweight = coweight + tropicalWeights[*mc] * (lnFunctionVector[co])[*mc] * values;
+	}
+	//Now substract the value of the lattice normal sum
+	coweight = coweight - lsumFunctionVector.row(co) * values;
+	
+	if(coweight != 0) {
+	    newcones = newcones | codimOneCones.row(co);
+	    newweights = newweights | coweight;
+	}
+      }
+      
+      //Return result
+      perl::Object result("fan::PolyhedralFan");
+	if(uses_homog) {
+	    result.take("INPUT_HOM_RAYS") << rays;
+	}
+	else {
+	    result.take("INPUT_RAYS") << rays;
+	}
+	result.take("INPUT_CONES") << newcones;
+	result.take("TROPICAL_WEIGHTS") << newweights;
+	result.take("LINEALITY_SPACE") << lineality_space; 
+      
+      return result;
+    }
+    
+    perl::Object divisorByPLF(perl::Object fan, perl::Object) {
+      
+    }
+// ------------------------- PERL WRAPPERS ---------------------------------------------------
+    
     UserFunction4perl("# @category Tropical geometry"
 		      "# Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete "
 		      "# (i.e. its support is the whole ambient space) to compute the intersection correctly."
@@ -200,5 +271,18 @@ namespace polymake { namespace tropical {
 		      "# the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned." ,
 		      &intersect_complete_fan,"intersect_complete_fan(fan::PolyhedralFan, fan::PolyhedralFan)");
     
+    Function4perl(&divisorByValueVector,"divisorByValueVector(fan::PolyhedralFan, Vector<Rational>)");  
+    
+    UserFunction4perl("# @category Tropical geometry"
+		      "# Computes the divisor of a PLFunction on a given tropical variety. "
+		      "# The result will be in homogeneous coordinates, whether the tropical variety uses them "
+		      "# or not. The function should be given on the affine coordinates of the variety, NOT the "
+		      "# homogeneous ones."
+		      "# @param fan::PolyhedralFan fan A tropical variety, on which the divisor is computed"
+		      "# @param PLFunction A function whose DOMAIN should be equal to the affine coordinate "
+		      "# space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, "
+		      "# AMBIENT_DIM otherwise. "
+		      "# @return The corresponding divisor as a tropical variety in homogeneous coordinates.",
+		      &divisorByPLF, "divisorByPLF(fan::PolyhedralFan, PLFunction)");
 }
 }

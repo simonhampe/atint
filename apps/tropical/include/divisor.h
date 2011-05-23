@@ -19,6 +19,7 @@
  */
 
 #include "polymake/client.h"
+#include "polymake/Array.h"
 
 #ifndef ATINT_DIVISOR_H
 #define ATINT_DIVISOR_H
@@ -34,6 +35,22 @@ resulting fan uses homogeneous coordinates if and only fan does. If fan has a pr
 the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned.
 */
 perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan);
+
+/**
+  @brief Takes  as input a tropical fan / tropical variety and an array of rational values. The array length should coincide with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational function, where each value has been assigned to the rays given by $fan->CMPLX_RAYS and to the generators given by $fan->LINEALITY_SPACE (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. The function will then compute the corresponding Weil divisor and return it as a tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does. 
+  @param fan::PolyhedralFan A tropical variety on which the divisor is computed.
+  @param Vector<Rational> values An array of rational values that define an integer affine map on the fan. 
+  @return The divisor of the function defined by values on the given fan, as a tropical variety.
+*/
+perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values);
+
+/**
+  @brief Computes the divisor of a PLFunction on a given tropical variety. The result will be in homogeneous coordinates, whether the tropical variety uses them or not. The function should be given on the affine coordinates of the variety, NOT the homogeneous ones.
+  @param fan::PolyhedralFan fan A tropical variety, on which the divisor is computed
+  @param PLFunction A function whose DOMAIN should be equal to the affine coordinate space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, AMBIENT_DIM otherwise.
+  @return The corresponding divisor as a tropical variety in homogeneous coordinates.
+*/
+perl::Object divisorByPLF(perl::Object fan, perl::Object);
 
 
 }}
