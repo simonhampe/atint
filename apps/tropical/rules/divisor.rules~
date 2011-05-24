@@ -99,5 +99,7 @@ user_function divisorByPLF {
     @values = (@values, $function->valueAt($fan->LINEALITY_SPACE->row($index)));
   }
   
+  print "Values = ", join(",",@values);
+  
   return divisorByValue($fan,@values);
 }
