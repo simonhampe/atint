@@ -350,7 +350,7 @@ object PLFunction {
     
     #The constant coefficients correspond to the homogenizing coordinate in a tropical variety, so we place it at the front
     my $pointmatrix = $this->CONSTANT_COEFFICIENTS | $this->LINEAR_COEFFICIENTS;
-    if($this->USES_MIN) {
+    if(!($this->USES_MIN)) {
       $pointmatrix = - $pointmatrix;
     }
     
