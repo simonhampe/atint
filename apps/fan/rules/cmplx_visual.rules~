@@ -1,0 +1,115 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file defines the visualization of a weighted polyhedral complex
+# (defined as an extension to fan::PolyhedranFan). 
+########################################################################
+
+package Visual::PolyhedralComplex;
+# use Polymake::Struct (
+#   [ '@ISA' => 'Container' ],
+#    '$PolyhedralComplex',
+# );
+
+object PolyhedralFan {
+  
+  user_method CMPLX_VISUAL(%Visual::Polygons::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
+    my ($this,$decor,$cutoff_decor)=@_;
+    if(!$this->USES_HOMOGENEOUS_C) {
+	$this->VISUAL(@_);
+	return;
+    }
+   
+   $cutoff_decor=$cutoff_decor->{CutOff};
+   my $cutoff_decor3d=$cutoff_decor;
+   my $cutoff_decor2d=$cutoff_decor;
+   unless (is_hash($cutoff_decor)) {
+     $cutoff_decor3d={ FacetColor => $cutoff_decor };
+     $cutoff_decor2d={ EdgeColor => $cutoff_decor };
+   }
+   #my $d=$this->RAYS->cols;
+   my $rays= $this->RAYS;#normalized(convert_to<Float>($this->RAYS));
+   #my $zero=new Vector<Float>($d);
+   #my $origin=new Polytope<Float>(VERTICES => [(1|$zero)]);
+   my @cells_visual; #= ( $origin->VISUAL($decor) );
+   my $lineality = $this->LINEALITY_SPACE;#normalized(convert_to<Float>($this->LINEALITY_SPACE));
+      
+   foreach (@{$this->MAXIMAL_CONES}) {
+      my $cone=$_;
+      #my $all_ones=ones_vector<Float>($cone->size()+1);
+      #my $v=$all_ones | ($rays->minor($cone,All) / $zero);
+      
+      
+      #Create polytope to represent cone
+      my $v = new Matrix<Rational>(0,$this->AMBIENT_DIM);
+      my $zeroRays = new Matrix<Rational>(0,$this->AMBIENT_DIM);
+      
+      
+      for my $r (@{$cone}) {
+	#Directional rays will be added to all affine rays
+	my $row = new Vector<Rational>($rays->row($r));
+	if($this->RAYS->row($r)->[0] == 0) {
+	    $zeroRays = $zeroRays / $row;
+	}
+	else {
+	   $v = $v / $row;
+	}
+	
+      }
+      
+      #Now add all lineality generators twice (once for each sign)
+      for(my $r = 0; $r < $lineality->rows(); $r++) {
+	$zeroRays = $zeroRays / $lineality->row($r);
+	$zeroRays = $zeroRays / -$lineality->row($r);
+      }
+      my $noOfAffine = $v->rows();
+      for(my $aff = 0; $aff < $noOfAffine; $aff++) {
+	for(my $ze = 0; $ze < $zeroRays->rows(); $ze++) {
+	    my $sum = new Vector<Rational>($v->row($aff) + $zeroRays->row($ze));
+	    $v = $v / $sum;
+	}
+      }
+
+      my $p=new polytope::Polytope<Float>(POINTS =>normalized(convert_to<Float>($v)));
+      
+      push @cells_visual, (my $pv=$p->VISUAL( $decor ));
+      my (@cutoff_attrs);
+      my $dim=$p->DIM;
+      if ($dim==3) {
+       while (my @kv=each %$cutoff_decor3d) {
+	  my ($attr, $value)=@kv;
+	  push @cutoff_attrs, $attr, sub { $p->FACETS->[shift]->[0] ? $value : undef };
+       }
+     }
+      #else {if ($dim==2) {
+       # while (my @kv=each %$cutoff_decor2d) {
+	#  my ($attr, $value)=@kv;
+	 # push @cutoff_attrs, $attr, sub { $p->FACETS->[shift]->[0] ? $value : undef };
+        #}
+      #}}
+      if($dim > 0) { $pv->basis_solid->merge(@cutoff_attrs);}
+   }
+   
+   visualize(new Visual::PolyhedralFan( Name => $this->name,
+					PolyhedralFan => $this,
+					@cells_visual));
+  }
+  precondition : AMBIENT_DIM { $this->AMBIENT_DIM<=4 }
+  
+}

@@ -236,7 +236,8 @@ namespace polymake { namespace tropical {
 	result.take("INPUT_CONES") << newcones;
 	result.take("TROPICAL_WEIGHTS") << newweights;
 	result.take("LINEALITY_SPACE") << lineality_space; 
-      
+	//FIXME: Why do I need this? It seems, INPUT_RAYS does not get computed properly otherwise
+	result.give("INPUT_RAYS");
       return result;
     }
     
