@@ -53,5 +53,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(rows_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > >);
    FunctionInstance4perl(rows_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::Matrix<double> const&, pm::SingleRow<pm::Vector<double> const&> > const&, pm::SingleRow<pm::Vector<double> const&> > >);
    FunctionInstance4perl(rows_f1, perl::Canned< const pm::RowChain<pm::Matrix<double> const&, pm::SingleRow<pm::Vector<double> const&> > >);
+   FunctionInstance4perl(rows_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

@@ -32,8 +32,9 @@ object PolyhedralFan {
   # Quick and dirty visualization rule obtained from copying the fan visualization and changing geometry
   user_method CMPLX_VISUAL(%Visual::Polygons::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
     my ($this,$decor,$cutoff_decor)=@_;
-    if(!$this->USES_HOMOGENEOUS_C) {
-	$this->VISUAL(@_);
+    if(!($this->USES_HOMOGENEOUS_C)) {
+	my @arg = @_; shift(@arg);
+	$this->VISUAL(@arg);
 	return;
     }
    
@@ -44,6 +45,9 @@ object PolyhedralFan {
      $cutoff_decor3d={ FacetColor => $cutoff_decor };
      $cutoff_decor2d={ EdgeColor => $cutoff_decor };
    }
+   
+   $$decor{VertexLabels} = "hidden";
+   
    #my $d=$this->RAYS->cols;
    my $rays= $this->RAYS;#normalized(convert_to<Float>($this->RAYS));
    #my $zero=new Vector<Float>($d);
@@ -76,8 +80,9 @@ object PolyhedralFan {
       
       #Now add all lineality generators twice (once for each sign)
       for(my $r = 0; $r < $lineality->rows(); $r++) {
-	$zeroRays = $zeroRays / $lineality->row($r);
-	$zeroRays = $zeroRays / -$lineality->row($r);
+	my $lr = new Vector<Rational>($lineality->row($r));
+	$zeroRays = $zeroRays / $lr;
+	$zeroRays = $zeroRays / (-$lr);
       }
       my $noOfAffine = $v->rows();
       for(my $aff = 0; $aff < $noOfAffine; $aff++) {
@@ -86,7 +91,7 @@ object PolyhedralFan {
 	    $v = $v / $sum;
 	}
       }
-
+     
       my $p=new polytope::Polytope<Float>(POINTS =>normalized(convert_to<Float>($v)));
       
       push @cells_visual, (my $pv=$p->VISUAL( $decor ));
@@ -111,6 +116,6 @@ object PolyhedralFan {
 					PolyhedralFan => $this,
 					@cells_visual));
   }
-  precondition : AMBIENT_DIM { $this->AMBIENT_DIM<=4 }
+  precondition : AMBIENT_DIM { $this->ambient_dim_fix<=4 }# FIXME
   
 }

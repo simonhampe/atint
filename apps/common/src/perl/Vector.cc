@@ -66,5 +66,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, Vector< double >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<double>&>, pm::Series<int, true>, void> >);
    OperatorInstance4perl(Binary_add, perl::Canned< const Wary< pm::ContainerUnion<pm::cons<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<double> const&>, pm::Series<int, true>, void>, pm::Vector<double> const&>, void> > >, perl::Canned< const pm::ContainerUnion<pm::cons<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<double> const&>, pm::Series<int, true>, void>, pm::Vector<double> const&>, void> >);
    FunctionInstance4perl(new_X, Vector< double >, perl::Canned< const Vector< double > >);
+   OperatorInstance4perl(Binary_add, perl::Canned< const Wary< pm::ContainerUnion<pm::cons<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void>, pm::Vector<pm::Rational> const&>, void> > >, perl::Canned< const pm::ContainerUnion<pm::cons<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void>, pm::Vector<pm::Rational> const&>, void> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

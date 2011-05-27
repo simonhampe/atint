@@ -31,9 +31,9 @@
 
 namespace polymake { namespace tropical {
 
-    using namespace atint::donotlog;
+    //using namespace atint::donotlog;
     //using namespace atint::dolog;
-    //using namespace atint::dotrace;
+    using namespace atint::dotrace;
     
     //Documentation see header
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
@@ -72,7 +72,7 @@ namespace polymake { namespace tropical {
       Vector<Set<int> > newCones;
       Set<Set<int> > newConeSet;//This is kept to check for doubles. It has the same content as maximalCones
       Matrix<Rational> newLineality(0,ambient_dim);
-	bool computedLineality = true;
+	bool computedLineality = false;
       Vector<Integer> newWeights;
       
       
@@ -195,6 +195,8 @@ namespace polymake { namespace tropical {
 	return perl::Object("fan::PolyhedralFan");
       }
       
+      dbgtrace << "Making sure values have right length" << endl;
+      
       //Append zero values, if necessary
       while(values.dim() < noOfRays + lineality_dim) {
 	values = values | 0;
@@ -205,18 +207,25 @@ namespace polymake { namespace tropical {
 	values = values.slice(0,noOfRays + lineality_dim);
       }
       
+      dbgtrace << "Done." << endl;
+      
       //Result variables
       Vector<Set<int> > newcones;
       Vector<Integer> newweights;
       
+      dbgtrace << "Computing facet weights" << endl;
+      
       //Go through each facet and compute its weight. Only add it, if the weight is nonzero
       for(int co = 0; co < codimOneCones.rows(); co++) {
+	dbgtrace << "Codim 1 face " << co << endl;
 	Integer coweight(0);
 	Set<int> adjacentCones = coneIncidences.row(co);
 	for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+	  dbgtrace << "Maximal cone " << *mc << endl;
 	  coweight = coweight + tropicalWeights[*mc] * (lnFunctionVector[co])[*mc] * values;
 	}
 	//Now substract the value of the lattice normal sum
+	dbgtrace << "Substracting sum" << endl;
 	coweight = coweight - lsumFunctionVector.row(co) * values;
 	
 	if(coweight != 0) {
@@ -224,6 +233,8 @@ namespace polymake { namespace tropical {
 	    newweights = newweights | coweight;
 	}
       }
+      
+      dbgtrace << "Done\n" << endl;
       
       //Return result
       perl::Object result("fan::PolyhedralFan");

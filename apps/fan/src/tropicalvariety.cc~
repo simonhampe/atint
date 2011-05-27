@@ -32,9 +32,9 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 
 namespace polymake { namespace fan{ 
   
-  using namespace atint::donotlog;
+  //using namespace atint::donotlog;
   //using namespace atint::dolog;
-  //using namespace atint::dotrace;
+  using namespace atint::dotrace;
   
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
@@ -301,8 +301,9 @@ namespace polymake { namespace fan{
     dbgtrace << "Result vector is " << result << endl;
     
     //Insert linspace coefficients at the end
+    int repvSize = repv.dim();
     for(int lingen = 0; lingen < lineality_dim; lingen++) {
-      result[rays.rows() + lingen] = repv[fixedIndices.size() + lingen];
+     result[rays.rows() + lingen] = repv[repvSize - lineality_dim + lingen];
     }
     dbgtrace << "Done." << endl;
     return result;    
@@ -335,10 +336,12 @@ namespace polymake { namespace fan{
     
     //Iterate over all codim 1 faces
     for(int fct = 0; fct < codimOneCones.rows(); fct++) {
+      dbgtrace << "Facet: " << fct << endl;
       summap[fct] = Map<int, Vector<Rational> >();
       
       Set<int> adjacentCones = coneIncidences.row(fct);
       for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+	dbgtrace << "Maxcone " << *mc << endl;
 	Vector<Rational> normalvector((latticeNormals[fct])[*mc]);
 	//Compute the representation of the normal vector
 	(summap[fct])[*mc]= functionRepresentationVector(maximalCones.row(*mc),normalvector,
@@ -371,7 +374,7 @@ namespace polymake { namespace fan{
     }
     
     Matrix<Rational> rays = fan.give("RAYS");
-    int ambient_dim = fan.give("AMBIENT_DIM");
+    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     IncidenceMatrix<> facet_incidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");

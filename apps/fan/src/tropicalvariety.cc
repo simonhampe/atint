@@ -301,8 +301,9 @@ namespace polymake { namespace fan{
     dbgtrace << "Result vector is " << result << endl;
     
     //Insert linspace coefficients at the end
+    int repvSize = repv.dim();
     for(int lingen = 0; lingen < lineality_dim; lingen++) {
-      result[rays.rows() + lingen] = repv[fixedIndices.size() + lingen];
+     result[rays.rows() + lingen] = repv[repvSize - lineality_dim + lingen];
     }
     dbgtrace << "Done." << endl;
     return result;    
@@ -335,10 +336,12 @@ namespace polymake { namespace fan{
     
     //Iterate over all codim 1 faces
     for(int fct = 0; fct < codimOneCones.rows(); fct++) {
+      dbgtrace << "Facet: " << fct << endl;
       summap[fct] = Map<int, Vector<Rational> >();
       
       Set<int> adjacentCones = coneIncidences.row(fct);
       for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+	dbgtrace << "Maxcone " << *mc << endl;
 	Vector<Rational> normalvector((latticeNormals[fct])[*mc]);
 	//Compute the representation of the normal vector
 	(summap[fct])[*mc]= functionRepresentationVector(maximalCones.row(*mc),normalvector,

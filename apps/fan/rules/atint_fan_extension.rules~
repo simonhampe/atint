@@ -143,16 +143,17 @@ object PolyhedralFan {
 	rule USES_HOMOGENEOUS_C : INPUT_RAYS | INPUT_LINEALITY {
 	    $this->USES_HOMOGENEOUS_C = FALSE;
 	}
-	weight 0.4;
+	weight 0.2;
 		
 	rule USES_HOMOGENEOUS_C : INPUT_HOM_RAYS | INPUT_HOM_LINEALITY {
 	    $this->USES_HOMOGENEOUS_C = TRUE;
 	}
-	weight 0.3;
+	weight 0.1;
 	
 	rule USES_HOMOGENEOUS_C : RAYS {
 	  $this->USES_HOMOGENEOUS_C = FALSE;
 	}
+	weight 0.3;
 	
 	#------------------------------------------------------------------------#
 	
@@ -281,12 +282,12 @@ object PolyhedralFan {
 	  }
 	  
 	  #Create the new ray matrix
-	  my $rayMatrix = new Matrix<Rational>(0,$this->AMBIENT_DIM +1);
+	  my $rayMatrix = new Matrix<Rational>(0,$this->ambient_dim_fix +1); # FIXME
 	  #Add the remaining rays with a zero at front
 	  my $origRays = (zero_vector<Rational>($this->RAYS->rows())) | $this->RAYS;
 	  $rayMatrix = $rayMatrix / $origRays;
 	  #Add the affine ray
-	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->ambient_dim_fix));
+	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->ambient_dim_fix)); # FIXME
 	  $rayMatrix = (new Matrix<Rational>($rayMatrix)) / $affineRay;
 	  my $affineIndex = $rayMatrix->rows()-1;
 	  
@@ -296,10 +297,14 @@ object PolyhedralFan {
 	  for my $set (@mcones) {
 	    @newmcones = (@newmcones, $set + $affineIndex);
 	  }
+	  #If there are no maximal cones (because the fan is only lineality space),we add a maximal cone
+	  # with just the origin
+	  my $aSet = new Set<Int>(); $aSet = $aSet + $affineIndex;
+	  @newmcones = (@newmcones, $aSet);
 	  
 	  my @weight = @{$this->TROPICAL_WEIGHTS};
 	  
 	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
-				   USES_HOMOGENEOUS_C=>TRUE);
+				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE);
 	}
 }
