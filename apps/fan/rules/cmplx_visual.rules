@@ -46,15 +46,18 @@ object PolyhedralFan {
      $cutoff_decor2d={ EdgeColor => $cutoff_decor };
    }
    
-   $$decor{VertexLabels} = "hidden";
-   
    #my $d=$this->RAYS->cols;
    my $rays= $this->RAYS;#normalized(convert_to<Float>($this->RAYS));
    #my $zero=new Vector<Float>($d);
    #my $origin=new Polytope<Float>(VERTICES => [(1|$zero)]);
    my @cells_visual; #= ( $origin->VISUAL($decor) );
    my $lineality = $this->LINEALITY_SPACE;#normalized(convert_to<Float>($this->LINEALITY_SPACE));
-      
+   
+   #Create a point configurations for the centers of the cells to be labelled with the weights
+   my $centermatrix = new Matrix<Rational>(0,$this->ambient_dim_fix);
+   my @centerlabels = ();
+   
+   my $index = 0;
    foreach (@{$this->MAXIMAL_CONES}) {
       my $cone=$_;
       #my $all_ones=ones_vector<Float>($cone->size()+1);
@@ -62,10 +65,9 @@ object PolyhedralFan {
       
       
       #Create polytope to represent cone
-      my $v = new Matrix<Rational>(0,$this->AMBIENT_DIM);
-      my $zeroRays = new Matrix<Rational>(0,$this->AMBIENT_DIM);
-      
-      
+      my $v = new Matrix<Rational>(0,$this->ambient_dim_fix);
+      my $zeroRays = new Matrix<Rational>(0,$this->ambient_dim_fix);
+           
       for my $r (@{$cone}) {
 	#Directional rays will be added to all affine rays
 	my $row = new Vector<Rational>($rays->row($r));
@@ -78,6 +80,8 @@ object PolyhedralFan {
 	
       }
       
+      
+      
       #Now add all lineality generators twice (once for each sign)
       for(my $r = 0; $r < $lineality->rows(); $r++) {
 	my $lr = new Vector<Rational>($lineality->row($r));
@@ -87,12 +91,28 @@ object PolyhedralFan {
       my $noOfAffine = $v->rows();
       for(my $aff = 0; $aff < $noOfAffine; $aff++) {
 	for(my $ze = 0; $ze < $zeroRays->rows(); $ze++) {
-	    my $sum = new Vector<Rational>($v->row($aff) + $zeroRays->row($ze));
+	    my $sum = new Vector<Rational>($v->row($aff) + 5* ($zeroRays->row($ze)));
 	    $v = $v / $sum;
 	}
       }
-     
-      my $p=new polytope::Polytope<Float>(POINTS =>normalized(convert_to<Float>($v)));
+      
+      my $prepoly = new polytope::Polytope<Rational>(POINTS => $v);
+      #Create labels vertices
+      my @labels = ();
+      my $vtx = $prepoly->VERTICES;
+      for(my $row = 0; $row < $vtx->rows(); $row++) {
+	  @labels = (@labels,"(".$vtx->row($row).")");
+      }
+      my $cvector = new Vector<Rational>($prepoly->VERTEX_BARYCENTER);
+      $centermatrix = $centermatrix / $cvector;
+      @centerlabels = (@centerlabels, "#$index : ".($this->TROPICAL_WEIGHTS->[$index]));
+      
+      my $p=new polytope::Polytope<Float>(VERTICES=>normalized(convert_to<Float>($prepoly->VERTICES)),
+					  VERTEX_LABELS=>\@labels);
+      
+      
+      
+	
       
       push @cells_visual, (my $pv=$p->VISUAL( $decor ));
       my (@cutoff_attrs);
@@ -110,7 +130,11 @@ object PolyhedralFan {
         #}
       #}}
       if($dim > 0) { $pv->basis_solid->merge(@cutoff_attrs);}
+      $index++;
    }
+   
+   $centerpoly = new polytope::PointConfiguration(POINTS=>$centermatrix, LABELS=>\@centerlabels);
+   push @cells_visual, $centerpoly->VISUAL( $decor );
    
    visualize(new Visual::PolyhedralFan( Name => $this->name,
 					PolyhedralFan => $this,
