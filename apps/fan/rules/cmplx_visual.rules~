@@ -21,22 +21,51 @@
 # (defined as an extension to fan::PolyhedranFan). 
 ########################################################################
 
-package Visual::PolyhedralComplex;
+package Visual::WeightedComplex;
 # use Polymake::Struct (
 #   [ '@ISA' => 'Container' ],
 #    '$PolyhedralComplex',
 # );
 
+# require Visual;
+# require Visual::PointSet;
+# require Visual::Wire;
+# require Visual::Polygon;
+
+options %Visual::WeightedComplex::decorations=(
+    %Visual::Polygons::decorations,
+      
+    # Flexible<Rational> length of the directional rays
+    DirScale => 1,
+    
+    # String if set to "hidden", the labels indicating the weights are hidden
+    WeightLabels => enum("hidden"),
+  
+);
+
 object PolyhedralFan {
   
+  
+
+  
   # Quick and dirty visualization rule obtained from copying the fan visualization and changing geometry
-  user_method CMPLX_VISUAL(%Visual::Polygons::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
+  user_method CMPLX_VISUAL(%Visual::WeightedComplex::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
     my ($this,$decor,$cutoff_decor)=@_;
-    if(!($this->USES_HOMOGENEOUS_C)) {
-	my @arg = @_; shift(@arg);
-	$this->VISUAL(@arg);
-	return;
+    
+   #Extract self-definded values and delete them
+   
+   my $dirScale = 1;
+   if(defined($$decor{"DirScale"})) {
+    $dirScale = $$decor{"DirScale"};
+   }
+   delete($$decor{"DirScale"});
+   my $showWeights = "";
+   if(defined($$decor{"WeightLabels"})) {
+    if($$decor{"WeightLabels"} eq "hidden") {
+      $showWeights = "hidden";
     }
+   }
+   delete($$decor{"WeightLabels"});
    
    $cutoff_decor=$cutoff_decor->{CutOff};
    my $cutoff_decor3d=$cutoff_decor;
@@ -46,12 +75,19 @@ object PolyhedralFan {
      $cutoff_decor2d={ EdgeColor => $cutoff_decor };
    }
    
-   #my $d=$this->RAYS->cols;
+   #Set some default values
+   if(!defined($$decor{"FacetTransparency"})) {
+    $$decor{"FacetTransparency"} = 1;
+   }
+   
    my $rays= $this->RAYS;#normalized(convert_to<Float>($this->RAYS));
-   #my $zero=new Vector<Float>($d);
-   #my $origin=new Polytope<Float>(VERTICES => [(1|$zero)]);
-   my @cells_visual; #= ( $origin->VISUAL($decor) );
-   my $lineality = $this->LINEALITY_SPACE;#normalized(convert_to<Float>($this->LINEALITY_SPACE));
+   if(!$this->USES_HOMOGENEOUS_C) {
+    $rays = (zero_vector<Rational>($rays->rows())) | $rays;
+   }
+   my $origin = new Vector<Rational>($this->ambient_dim_fix);# FIXME
+   $origin = (1 | $origin);
+   my @cells_visual; 
+   my $lineality = $this->LINEALITY_SPACE;
    
    #Create a point configurations for the centers of the cells to be labelled with the weights
    my $centermatrix = new Matrix<Rational>(0,$this->ambient_dim_fix);
@@ -77,7 +113,10 @@ object PolyhedralFan {
 	else {
 	   $v = $v / $row;
 	}
-	
+      }
+      
+      if(!$this->USES_HOMOGENEOUS_C) {
+	$v = $v / $origin;
       }
       
       
@@ -91,7 +130,7 @@ object PolyhedralFan {
       my $noOfAffine = $v->rows();
       for(my $aff = 0; $aff < $noOfAffine; $aff++) {
 	for(my $ze = 0; $ze < $zeroRays->rows(); $ze++) {
-	    my $sum = new Vector<Rational>($v->row($aff) + 5* ($zeroRays->row($ze)));
+	    my $sum = new Vector<Rational>($v->row($aff) + $dirScale * ($zeroRays->row($ze)));
 	    $v = $v / $sum;
 	}
       }
@@ -103,9 +142,11 @@ object PolyhedralFan {
       for(my $row = 0; $row < $vtx->rows(); $row++) {
 	  @labels = (@labels,"(".$vtx->row($row).")");
       }
-      my $cvector = new Vector<Rational>($prepoly->VERTEX_BARYCENTER);
-      $centermatrix = $centermatrix / $cvector;
-      @centerlabels = (@centerlabels, "#$index : ".($this->TROPICAL_WEIGHTS->[$index]));
+      if(! $showWeights eq "hidden") {
+	my $cvector = new Vector<Rational>($prepoly->VERTEX_BARYCENTER);
+	$centermatrix = new Matrix<Rational>($centermatrix / $cvector);
+	@centerlabels = (@centerlabels, "#$index : ".($this->TROPICAL_WEIGHTS->[$index]));
+      }
       
       my $p=new polytope::Polytope<Float>(VERTICES=>normalized(convert_to<Float>($prepoly->VERTICES)),
 					  VERTEX_LABELS=>\@labels);
@@ -133,8 +174,12 @@ object PolyhedralFan {
       $index++;
    }
    
-   $centerpoly = new polytope::PointConfiguration(POINTS=>$centermatrix, LABELS=>\@centerlabels);
-   push @cells_visual, $centerpoly->VISUAL( $decor );
+   if(!($showWeights eq "hidden")) {
+    my $centerpoly = new polytope::PointConfiguration(POINTS=>$centermatrix, LABELS=>\@centerlabels);
+    push @cells_visual, $centerpoly->VISUAL(FacetStyle=>"hidden",EdgeStyle=>"hidden");
+   }
+   
+   
    
    visualize(new Visual::PolyhedralFan( Name => $this->name,
 					PolyhedralFan => $this,

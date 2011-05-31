@@ -513,6 +513,70 @@ namespace polymake { namespace fan{
     
   }
   
+  /**
+   @brief Computes the data necessary to visualize the polyhedral complex. Will be called by CMPLX_VISUAL.
+   @param fan The weighted polyhedral complex
+   @param scale The scaling factor for the directional rays that are added to the affine rays
+   @param showWeights Whether the weights of the cells should be displayed in the center
+   @param polytopes A reference to a vector that will be filled with the polytopes representing the complex.
+   For each cell of the complex, there is a polytope obtained by adding all directional rays (with a scaling factor) to all
+   affine rays.
+   @param weightPoints A refernce to a polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true
+  */
+  void computeVisualPolyhedra(const perl::Object &fan, const Rational &scale, bool showWeights, 
+			      Vector<perl::Object> &polytopes, perl::Object &weightPoints) {
+    //Extract values
+    bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix");
+      if(!uses_homog) {
+	ambient_dim++;
+      }
+    Matrix<Rational> rays = fan.give("RAYS");
+    Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    
+    //First separate affine and directional rays
+    Set<int> affineRays;
+    Set<int> directionalRays;
+    for(int r = 0; r < rays.rows(); r++) {
+      if(uses_homog) {
+	if(rays.row(r)[0] == 0) {
+	  directionalRays = directionalRays + r;
+	}
+	else {
+	  affineRays = affineRays + r;
+	}
+      }
+      else { //if fan is really a fan, all rays are directional and added to the origin
+	directionalRays = directionalRays + r;
+      }
+    }
+    
+    //In the non-homog. case we need the origin as affine point 
+    if(!uses_homog) {
+      Vector<Rational> origin = 1 | zero_vector<Rational>(ambient_dim-1);
+      rays = rays / origin;
+      affineRays = affineRays + (rays.rows()-1);
+    }
+        
+    
+    //Create a polytope for each cone
+    for(int mc = 0; mc < maximalCones.rows(); mc++) {
+      Matrix<Rational> v(0,ambient_dim);
+      
+      Set<int> maxAffine = maximalCones.row(mc) * affineRays;
+      Set<int> maxDirectional = maximalCones.row(mc) * directionalRays;
+      
+      for(Entire<Set<int> >::iterator aRay = entire(maxAffine); !aRay.at_end(); ++aRay) {
+	
+      }
+      
+    }
+    
+    polytopes = polytopes | perl::Object("polytope::Polytope");
+    
+  }
+  
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 Function4perl(&computeCodimensionOne,"computeCodimensionOne(fan::PolyhedralFan)");
@@ -526,5 +590,7 @@ Function4perl(&computeIfBalanced, "computeIfBalanced(fan::PolyhedralFan)");
 Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
 
 Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
+
+Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $, $, polytope::PointConfiguration)");
   
 }}
