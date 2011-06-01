@@ -21,5 +21,17 @@ namespace polymake { namespace fan {
    }
    FunctionWrapperInstance4perl( void (perl::Object, pm::Array<pm::Matrix<pm::Rational>, void>, pm::Array<pm::Matrix<pm::Rational>, void>) );
 
+   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object const&, pm::Rational const&, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      IndirectWrapperReturnVoid( arg0, arg1.get< perl::TryCanned< const Rational > >(), arg2 );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object const&, pm::Rational const&, bool) );
+
+   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object const&, pm::Rational const&, bool, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
+      IndirectWrapperReturnVoid( arg0, arg1.get< perl::TryCanned< const Rational > >(), arg2, arg3 );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object const&, pm::Rational const&, bool, bool) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

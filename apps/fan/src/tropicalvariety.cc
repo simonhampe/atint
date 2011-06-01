@@ -23,6 +23,7 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 
 #include "polymake/client.h"
 #include "polymake/Rational.h"
+#include "polymake/AccurateFloat.h"
 #include "polymake/Matrix.h"
 #include "polymake/Vector.h"
 #include "polymake/linalg.h"
@@ -518,15 +519,20 @@ namespace polymake { namespace fan{
    @param fan The weighted polyhedral complex
    @param scale The scaling factor for the directional rays that are added to the affine rays
    @param showWeights Whether the weights of the cells should be displayed in the center
-   @param polytopes A reference to a vector that will be filled with the polytopes representing the complex.
+   @return A perl array containg:
+   1) A vector that will be filled with the (float type) polytopes representing the complex.
    For each cell of the complex, there is a polytope obtained by adding all directional rays (with a scaling factor) to all
    affine rays.
-   @param weightPoints A refernce to a polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true
+   2)  A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true.
   */
-  void computeVisualPolyhedra(const perl::Object &fan, const Rational &scale, bool showWeights, 
-			      Vector<perl::Object> &polytopes, perl::Object &weightPoints) {
+  perl::ListReturn computeVisualPolyhedra(const perl::Object &fan, const Rational &scale, bool showWeights) { 
     //Extract values
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+    bool weightsExist = fan.exists("TROPICAL_WEIGHTS");
+    Array<Integer> weights;
+      if(weightsExist) {
+	weights = fan.give("TROPICAL_WEIGHTS");
+      }
     int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix");
       if(!uses_homog) {
 	ambient_dim++;
@@ -534,6 +540,8 @@ namespace polymake { namespace fan{
     Matrix<Rational> rays = fan.give("RAYS");
     Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    
+    dbgtrace << "Extracted values" << endl;
     
     //First separate affine and directional rays
     Set<int> affineRays;
@@ -552,29 +560,76 @@ namespace polymake { namespace fan{
       }
     }
     
-    //In the non-homog. case we need the origin as affine point 
+    dbgtrace << "Separated rays" << endl;
+    
+    //In the non-homog. case we need the origin as affine point and an additional zero in front of all rays
     if(!uses_homog) {
+      rays = zero_vector<Rational>(rays.rows()) | rays;
       Vector<Rational> origin = 1 | zero_vector<Rational>(ambient_dim-1);
-      rays = rays / origin;
-      affineRays = affineRays + (rays.rows()-1);
+      rays = rays / origin;      
     }
         
     
     //Create a polytope for each cone
+    perl::ListReturn result;
+    
+    //This will contain the cell centers with the weight labels
+    perl::Object weightCenters("polytope::PointConfiguration");
+    Matrix<Rational> centermatrix(0,ambient_dim);
+    Vector<std::string> centerlabels;
+      
     for(int mc = 0; mc < maximalCones.rows(); mc++) {
+      
+      dbgtrace << "Computing geometry for cone " << mc << endl;
+      
+      //First, create a point matrix by adding all directional rays to all affine rays
       Matrix<Rational> v(0,ambient_dim);
       
       Set<int> maxAffine = maximalCones.row(mc) * affineRays;
+	if(!uses_homog) {
+	    maxAffine = maxAffine + rays.rows()-1; //Add the origin
+	}
       Set<int> maxDirectional = maximalCones.row(mc) * directionalRays;
       
       for(Entire<Set<int> >::iterator aRay = entire(maxAffine); !aRay.at_end(); ++aRay) {
-	
+	v = v / rays.row(*aRay);
+	for(Entire<Set<int> >::iterator dRay = entire(maxDirectional); !dRay.at_end(); ++dRay) {
+	    v = v / (rays.row(*aRay) + scale * rays.row(*dRay));
+	}
       }
+      
+      //Then create a rational polytope for labelling
+      perl::Object ratPolytope("polytope::Polytope<Rational>");
+	ratPolytope.take("POINTS") << v;
+      
+      result << ratPolytope;
+            
+      //If necessary, compute centers and label with weights
+      if(showWeights && weightsExist) {
+	Vector<Rational> center = ratPolytope.give("VERTEX_BARYCENTER");
+	centermatrix = centermatrix / center;
+	std::ostringstream wlabel;
+	wlabel << "# " << mc << ": " << weights[mc];
+	centerlabels = centerlabels | wlabel.str();
+      }      
+      
+      
+      dbgtrace << "Done." << endl;
       
     }
     
-    polytopes = polytopes | perl::Object("polytope::Polytope");
+    if(showWeights && weightsExist) {
+      dbgtrace << "Computed weight labels, inserting them" << endl;
+      weightCenters.take("POINTS") << centermatrix;
+      weightCenters.take("LABELS") << centerlabels;
+      dbgtrace << "Done" << endl;
+    }
     
+    result << weightCenters;
+     
+    dbgtrace << "Done." << endl;
+      
+    return result;
   }
   
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
@@ -591,6 +646,6 @@ Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
 
 Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
 
-Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $, $, polytope::PointConfiguration)");
+Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $)");
   
 }}
