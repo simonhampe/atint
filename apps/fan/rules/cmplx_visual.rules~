@@ -43,94 +43,141 @@ options %Visual::WeightedComplex::decorations=(
 				
     # String If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
     CoordLabels => enum("show"),
+				
+    # String If set to "pinned", the weight labels are computed in such a way that they stick to the cells when the complex
+    # is exploded. Note that this is expensive and significantly increases computation time.
+   # WeightLabelStyle => "",
   
 );
 
 object PolyhedralFan {
   
   
-  # Quick and dirty visualization rule obtained from copying the fan visualization and changing geometry
+  # @category Visualization
+  # Displays a weighted polyhedral complex in ambient dimension up to 3 (4 in homog. coordinates) by visualizing all its
+  # cells in the following way: For each cell, every directional ray is added to every affine ray (which is only the origin
+  # in the non-homog. case) and the resulting polytope is displayed. The visualization has the following options:
+  # DirScale: A rational number with which the directional rays are multiplied before added to the affine rays
+  # WeightLabels:  if set to "hidden", the labels indicating the weights are hidden 
+  # CoordLabels: If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
   user_method CMPLX_VISUAL(%Visual::WeightedComplex::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
     my ($this,$decor,$cutoff_decor)=@_;
     
     my $fanDim = $this->USES_HOMOGENEOUS_C ? ($this->dim_fix -1) : $this->dim_fix; # FIXME
-   #Extract self-definded values and delete them
-   
-   my $dirScale = 1;
-   if(defined($$decor{"DirScale"})) {
-    $dirScale = $$decor{"DirScale"};
-   }
-   delete($$decor{"DirScale"});
-   my $showWeights = 1;
-   if(defined($$decor{"WeightLabels"})) {
-    if($$decor{"WeightLabels"} eq "hidden") {
-      $showWeights = 0;
-    }
-   }
-   delete($$decor{"WeightLabels"});
-   my $showCoordinates = 0;
-   if(defined($$decor{"CoordLabels"})) {
-    if($$decor{"CoordLabels"} eq "show") {
-      $showCoordinates = 1;
-    }
-   }
-   delete($$decor{"CoordLabels"});
-   if($showCoordinates == 0) {
-    $$decor{"VertexLabels"} = "hidden";
-   }
-   
-   $cutoff_decor=$cutoff_decor->{CutOff};
-   my $cutoff_decor3d=$cutoff_decor;
-   my $cutoff_decor2d=$cutoff_decor;
-   unless (is_hash($cutoff_decor)) {
-     $cutoff_decor3d={ FacetColor => $cutoff_decor };
-     $cutoff_decor2d={ EdgeColor => $cutoff_decor };
-   }
-   
-   #Set some default values
-   if(!defined($$decor{"FacetTransparency"}) && $fanDim >= 2 ) {
-    $$decor{"FacetTransparency"} = 1;
-   }
-   
-   #Compute geometry
-   my @result = computeVisualPolyhedra($this,new Rational($dirScale), $showWeights);
-   my $weightCenters = pop(@result);
-      
-   #Compute visualizations
-      
-   my @cells_visual;
-   for my $cell (@result) {
-    #Compute coordinate labels if necessary
-    if($showCoordinates != 0) {
-	#Create labels for vertices
-	my @labels = ();
-	my $vtx = $cell->VERTICES;
-	for(my $row = 0; $row < $vtx->rows(); $row++) {
-	    @labels = (@labels,"(".$vtx->row($row).")");
-	}
-	$cell->VERTEX_LABELS = \@labels;
-    }
     
-    push @cells_visual, ($cell->VISUAL( $decor ));
-    
-    #my (@cutoff_attrs);
-    #my $dim=$cell->DIM;
-#     if ($dim==3) {
-#        while (my @kv=each %$cutoff_decor3d) {
-# 	  my ($attr, $value)=@kv;
-# 	  push @cutoff_attrs, $attr, sub { $cell->FACETS->[shift]->[0] ? $value : undef };
-#        }
+    #Extract self-definded values and delete them
+   
+    my $dirScale = 1;
+    if(defined($$decor{"DirScale"})) {
+      $dirScale = $$decor{"DirScale"};
+    }
+    delete($$decor{"DirScale"});
+    my $showWeights = 1;
+    if(defined($$decor{"WeightLabels"})) {
+      if($$decor{"WeightLabels"} eq "hidden") {
+	$showWeights = 0;
+      }
+    }
+    delete($$decor{"WeightLabels"});
+    my $showCoordinates = 0;
+    if(defined($$decor{"CoordLabels"})) {
+      if($$decor{"CoordLabels"} eq "show") {
+	$showCoordinates = 1;
+      }
+    }
+    delete($$decor{"CoordLabels"});
+    if($showCoordinates == 0) {
+      $$decor{"VertexLabels"} = "hidden";
+    }
+#     my $pinLabels = 0;
+#     if(defined($$decor{"WeightLabelStyle"})) {
+#       if($$decor{"WeightLabelStyle"} eq "pinned") {
+# 	$pinLabels = 1;
+#       }
 #     }
-#     if($dim > 0) { $pv->basis_solid->merge(@cutoff_attrs);}
-   }
-   
-   if($showWeights != 0) {
-    push @cells_visual, $weightCenters->VISUAL(FacetStyle=>"hidden",EdgeStyle=>"hidden",VertexColor=>'black');
-   }
-   
-   visualize(new Visual::PolyhedralFan( Name => $this->name,
-					PolyhedralFan => $this,
-					@cells_visual));
+#     delete($$decor{"WeightLabelStyle"});
+    
+    #print "Options are:\nShow weights: ",$showWeights,"\nShow Coords: ",$showCoordinates,"pin labels: ",$pinLabels,"\n";
+    
+    $cutoff_decor=$cutoff_decor->{CutOff};
+    my $cutoff_decor3d=$cutoff_decor;
+    my $cutoff_decor2d=$cutoff_decor;
+    unless (is_hash($cutoff_decor)) {
+      $cutoff_decor3d={ FacetColor => $cutoff_decor };
+      $cutoff_decor2d={ EdgeColor => $cutoff_decor };
+    }
+    
+    #Set some default values
+    if(!defined($$decor{"FacetTransparency"}) && $fanDim >= 2 ) {
+      $$decor{"FacetTransparency"} = 1;
+    }
+    
+    
+    #Compute geometry
+    my @result = computeVisualPolyhedra($this->homogenize,new Rational($dirScale),$showWeights);
+    my $weightCenters = pop(@result);
+#     my $weightPoints;
+#     if($showWeights != 0) {
+#       $weightPoints = $weightCenters->POINTS;
+#     }
+    #Compute visualizations
+    
+    my @cells_visual;
+    #my $index = 0;
+    for my $cell (@result) {
+      #$cell->VERTEX_LABELS = ();
+      #Compute coordinate labels if necessary
+      if($showCoordinates != 0) {
+	  #Create labels for vertices
+	  my @labels = ();
+	  my $vtx = $cell->VERTICES;
+	  for(my $row = 0; $row < $vtx->rows(); $row++) {
+	      my $coords = $this->USES_HOMOGENEOUS_C? 
+				$vtx->row($row)->slice(1,$vtx->cols()-1) :
+				$vtx->row($row);
+	      @labels = (@labels,"(".$coords.")");
+	  }
+	  $cell->VERTEX_LABELS = \@labels;
+      }
+      
+      push @cells_visual, ($cell->VISUAL( $decor ));
+      
+      #my (@cutoff_attrs);
+      #my $dim=$cell->DIM;
+  #     if ($dim==3) {
+  #        while (my @kv=each %$cutoff_decor3d) {
+  # 	  my ($attr, $value)=@kv;
+  # 	  push @cutoff_attrs, $attr, sub { $cell->FACETS->[shift]->[0] ? $value : undef };
+  #        }
+  #     }
+  #     if($dim > 0) { $pv->basis_solid->merge(@cutoff_attrs);}
+      
+# 	if($showWeights != 0 && $pinLabels != 0) {
+# 	  my $pvector = new Vector<Rational>($weightPoints->row($index));
+# 	  my $pmatrix =  $pvector / $cell->VERTICES;
+# 	  my $plabel = "#$index: ".$this->TROPICAL_WEIGHTS->[$index];
+# 	  my @labelarray = ($plabel,@{$cell->VERTEX_LABELS});
+# 	  
+# 	  my $pinnedCenters = new polytope::PointConfiguration(POINTS=>$pmatrix, 
+# 							    LABELS=>\@labelarray);
+# 	  push @cells_visual, $pinnedCenters->VISUAL(PointColor=>sub {my $i = shift; $i == 0? 'black' : 'red';});
+# 	}
+# 	else {
+# 	  push @cells_visual, ($cell->VISUAL( $decor ));
+# 	}
+# 	$index++;
+    }
+    
+    if($showWeights != 0) {
+      push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
+    }
+    
+    
+    
+    visualize(new Visual::PolyhedralFan( Name => $this->name,
+					  PolyhedralFan => $this,
+					  @cells_visual));
+					
   }
   precondition : AMBIENT_DIM { $this->ambient_dim_fix<=4 }# FIXME
   

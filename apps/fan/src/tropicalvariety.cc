@@ -516,27 +516,23 @@ namespace polymake { namespace fan{
   
   /**
    @brief Computes the data necessary to visualize the polyhedral complex. Will be called by CMPLX_VISUAL.
-   @param fan The weighted polyhedral complex
+   @param fan The weighted polyhedral complex (in homogeneous coordinates!)
    @param scale The scaling factor for the directional rays that are added to the affine rays
    @param showWeights Whether the weights of the cells should be displayed in the center
    @return A perl array containg:
-   1) A vector that will be filled with the (float type) polytopes representing the complex.
+   A list of rational polytopes representing the complex.
    For each cell of the complex, there is a polytope obtained by adding all directional rays (with a scaling factor) to all
    affine rays.
    2)  A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true.
   */
   perl::ListReturn computeVisualPolyhedra(const perl::Object &fan, const Rational &scale, bool showWeights) { 
     //Extract values
-    bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
     bool weightsExist = fan.exists("TROPICAL_WEIGHTS");
     Array<Integer> weights;
       if(weightsExist) {
 	weights = fan.give("TROPICAL_WEIGHTS");
       }
     int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix");
-      if(!uses_homog) {
-	ambient_dim++;
-      }
     Matrix<Rational> rays = fan.give("RAYS");
     Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
@@ -547,28 +543,15 @@ namespace polymake { namespace fan{
     Set<int> affineRays;
     Set<int> directionalRays;
     for(int r = 0; r < rays.rows(); r++) {
-      if(uses_homog) {
-	if(rays.row(r)[0] == 0) {
-	  directionalRays = directionalRays + r;
-	}
-	else {
-	  affineRays = affineRays + r;
-	}
-      }
-      else { //if fan is really a fan, all rays are directional and added to the origin
+      if(rays.row(r)[0] == 0) {
 	directionalRays = directionalRays + r;
+      }
+      else {
+	affineRays = affineRays + r;
       }
     }
     
     dbgtrace << "Separated rays" << endl;
-    
-    //In the non-homog. case we need the origin as affine point and an additional zero in front of all rays
-    if(!uses_homog) {
-      rays = zero_vector<Rational>(rays.rows()) | rays;
-      Vector<Rational> origin = 1 | zero_vector<Rational>(ambient_dim-1);
-      rays = rays / origin;      
-    }
-        
     
     //Create a polytope for each cone
     perl::ListReturn result;
@@ -586,9 +569,6 @@ namespace polymake { namespace fan{
       Matrix<Rational> v(0,ambient_dim);
       
       Set<int> maxAffine = maximalCones.row(mc) * affineRays;
-	if(!uses_homog) {
-	    maxAffine = maxAffine + rays.rows()-1; //Add the origin
-	}
       Set<int> maxDirectional = maximalCones.row(mc) * directionalRays;
       
       for(Entire<Set<int> >::iterator aRay = entire(maxAffine); !aRay.at_end(); ++aRay) {
@@ -599,6 +579,7 @@ namespace polymake { namespace fan{
       }
       
       //Then create a rational polytope for labelling
+      dbgtrace << "Points " << v << endl;
       perl::Object ratPolytope("polytope::Polytope<Rational>");
 	ratPolytope.take("POINTS") << v;
       

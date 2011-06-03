@@ -299,8 +299,10 @@ object PolyhedralFan {
 	  }
 	  #If there are no maximal cones (because the fan is only lineality space),we add a maximal cone
 	  # with just the origin
-	  my $aSet = new Set<Int>(); $aSet = $aSet + $affineIndex;
-	  @newmcones = (@newmcones, $aSet);
+	  if(scalar(@newmcones) == 0) {
+	    my $aSet = new Set<Int>(); $aSet = $aSet + $affineIndex;
+	    @newmcones = (@newmcones, $aSet);
+	  }
 	  
 	  my @weight = @{$this->TROPICAL_WEIGHTS};
 	  
