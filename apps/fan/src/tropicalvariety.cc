@@ -208,6 +208,7 @@ namespace polymake { namespace fan{
       int r = rank(vtau);
       if(rank(vtau/ (summatrix.row(facet))) > r) {
 	fan.take("IS_BALANCED") << false;
+	dbgtrace << "Not balanced at codimension one face no. " << facet << endl;
 	return;
       }
     }

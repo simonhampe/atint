@@ -151,13 +151,12 @@ namespace polymake { namespace tropical {
 		    for(int i = newRays.rows() - remainingRows.size(); i < newRays.rows(); i++) {
 		      newMaximalCone += i;
 		    }
+		    newCones = newCones | newMaximalCone;
+		    newConeSet += newMaximalCone;
+		    if(weightsExist) {
+			newWeights = newWeights | weights[fanIndex];
+		    }
 		}
-		newCones = newCones | newMaximalCone;
-		newConeSet += newMaximalCone;
-		if(weightsExist) {
-		    newWeights = newWeights | weights[fanIndex];
-		}
-		
 	    }//End check intersection cone
 	    
 	   

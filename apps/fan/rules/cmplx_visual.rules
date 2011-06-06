@@ -116,6 +116,7 @@ object PolyhedralFan {
     #Compute geometry
     my @result = computeVisualPolyhedra($this->homogenize,new Rational($dirScale),$showWeights);
     my $weightCenters = pop(@result);
+    
 #     my $weightPoints;
 #     if($showWeights != 0) {
 #       $weightPoints = $weightCenters->POINTS;

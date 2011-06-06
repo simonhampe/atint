@@ -57,9 +57,9 @@ object PolyhedralFan {
   # Displays a weighted polyhedral complex in ambient dimension up to 3 (4 in homog. coordinates) by visualizing all its
   # cells in the following way: For each cell, every directional ray is added to every affine ray (which is only the origin
   # in the non-homog. case) and the resulting polytope is displayed. The visualization has the following options:
-  # DirScale: A rational number with which the directional rays are multiplied before added to the affine rays
-  # WeightLabels:  if set to "hidden", the labels indicating the weights are hidden 
-  # CoordLabels: If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
+  # * DirScale: A rational number with which the directional rays are multiplied before added to the affine rays
+  # * WeightLabels:  if set to "hidden", the labels indicating the weights are hidden 
+  # * CoordLabels: If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
   user_method CMPLX_VISUAL(%Visual::WeightedComplex::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
     my ($this,$decor,$cutoff_decor)=@_;
     
@@ -116,6 +116,7 @@ object PolyhedralFan {
     #Compute geometry
     my @result = computeVisualPolyhedra($this->homogenize,new Rational($dirScale),$showWeights);
     my $weightCenters = pop(@result);
+    print "bla\n";
 #     my $weightPoints;
 #     if($showWeights != 0) {
 #       $weightPoints = $weightCenters->POINTS;

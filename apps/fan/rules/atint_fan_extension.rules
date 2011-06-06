@@ -304,7 +304,7 @@ object PolyhedralFan {
 	    @newmcones = (@newmcones, $aSet);
 	  }
 	  
-	  my @weight = @{$this->TROPICAL_WEIGHTS};
+	  my @weight = defined($this->lookup("TROPICAL_WEIGHTS"))? @{$this->TROPICAL_WEIGHTS} : ();
 	  
 	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
 				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE);

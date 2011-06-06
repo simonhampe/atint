@@ -360,7 +360,10 @@ object PLFunction {
     $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
     
     my $newt = new Polytope<Rational>(POINTS=>$pointmatrix);
-    return fan::normal_fan($newt);
+    my $fan = fan::normal_fan($newt);
+      my $raymatrix = $fan->RAYS;
+      my @cones = @{$fan->MAXIMAL_CONES};
+    return new fan::PolyhedralFan(RAYS=>$raymatrix,INPUT_CONES=>\@cones,USES_HOMOGENEOUS_C=>TRUE);
   }
   
   # @category Tropical geometry

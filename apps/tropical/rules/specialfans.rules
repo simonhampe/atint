@@ -20,7 +20,7 @@
 # This file provides convenience methods for creation of special tropical varieties
 ########################################################################
 
-USE fan
+USE fan matroid
 
 # @category Tropical geometry
 # Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
@@ -79,5 +79,9 @@ user_function linear_nspace {
     INPUT_CONES=>[],
     LINEALITY_SPACE=> $m,
     TROPICAL_WEIGHTS=>\@weightarray);
+  
+}
+
+user_function bergman_fan {
   
 }
