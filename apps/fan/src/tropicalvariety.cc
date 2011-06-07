@@ -577,6 +577,10 @@ namespace polymake { namespace fan{
 	for(Entire<Set<int> >::iterator dRay = entire(maxDirectional); !dRay.at_end(); ++dRay) {
 	    v = v / (rays.row(*aRay) + scale * rays.row(*dRay));
 	}
+	for(int linrow = 0; linrow < linealitySpace.rows(); linrow++) {
+	    v = v / (rays.row(*aRay) + scale * linealitySpace.row(linrow));
+	    v = v / (rays.row(*aRay) - scale * linealitySpace.row(linrow));
+	}
       }
       
       //Then create a rational polytope for labelling
@@ -629,5 +633,5 @@ Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
 Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
 
 Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $)");
-  
+
 }}

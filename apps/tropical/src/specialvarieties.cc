@@ -26,6 +26,7 @@
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
 #include "polymake/Array.h"
+#include "polymake/IncidenceMatrix.h"
 
 
 namespace polymake { namespace tropical {
@@ -87,6 +88,83 @@ namespace polymake { namespace tropical {
       
     }
     
+//     //Documentation see specialvarieties.h
+//     perl::Object bergman_fan_via_polytope(perl::Object polytope, int rank, bool modOutLineality = false, int projectionCoordinate = 0) {
+//       //Extract values
+//       //perl::Object polytope = matroid.give("POLYTOPE");
+//       Matrix<Rational> vertices = polytope.give("VERTICES");
+//       Matrix<Rational> polyFacets = polytope.give("FACETS");
+//       IncidenceMatrix<> polyFVertices = polytope.give("FACETS_THRU_VERTICES");
+//       //int rank = matroid.give("RANK");
+//       int ambient_dim = vertices.cols();
+//       
+//       //Create a fan from the polytope and compute n-rank-skeleton
+//       Vector<Set<int> > cones;
+// 	cones = cones | sequence(0,vertices.rows());
+//       perl::Object polyfan("fan::PolyhedralFan");
+// 	polyfan.take("INPUT_HOM_RAYS") << vertices;
+// 	polyfan.take("INPUT_CONES") << cones;
+//       perl::Object skeleton = CallPolymakeFunction("skeleton_complex",polyfan,ambient_dim - rank);
+//       
+//       //Extract values from skeleton
+//       IncidenceMatrix<> maximalCones = skeleton.give("MAXIMAL_CONES");
+//       Matrix<Rational> skeletonRays = skeleton.give("RAYS");
+//             
+//       //Compute a list of those n-rank-dimensional faces whose vertices cover [n]
+//       // and a list of their vertices
+//       Vector<Set<int> > listOfFacets;
+//       Set<int> facetVertices;
+//       for(int mc = 0; mc < maximalCones.rows(); mc++) {
+// 	Vector<Rational> v(ambient_dim);
+// 	Set<int> mconeRays = maximalCones.row(mc);
+// 	for(Entire<Set<int> >::iterator mrays = entire(mconeRays); !mrays.at_end(); ++mrays) {
+// 	    v = v + skeletonRays.row(*mrays);
+// 	}
+// 	//Check if the vector has a zero component
+// 	bool hasZero = false;
+// 	for(int c = 0; c < v.dim(); c++) {
+// 	   if(v[c] == 0) {
+// 	      hasZero = true;
+// 	      break;
+// 	   }
+// 	}
+// 	if(!hasZero) {
+// 	    listOfFacets = listOfFacets | maximalCones.row(mc);
+// 	    facetVertices = facetVertices + maximalCones.row(mc);
+// 	}
+//       }
+// 
+//       //Now compute normal cones for these faces
+//       Matrix<Rational> bergmanRays(0,ambient_dim);
+//       Vector<Set<int> > bergmanCones;
+//       Vector<Integer> bergmanWeights = ones_vector<Integer>(listOfFacets.dim());
+//       Matrix<Rational> bergmanLineality = polytope.give("LINEAR_SPAN");
+// 	bergmanLineality = bergmanLineality.minor(All, ~scalar2set(0)).top();
+// 	
+//       
+//       for(int face = 0; face < listOfFacets.dim(); face++) {
+// 	//Intersect the set of rays of each vertex of the face
+// 	Set<int> raySet = sequence(0,polyFacets.rows());
+// 	for(Entire<Set<int> >::iterator vertex = entire(listOfFacets[face]); !vertex.at_end(); ++vertex) {
+// 	    raySet = raySet * polyFVertices.row(*vertex);
+// 	}
+// 	//Make a cone out of this
+// 	bergmanRays = bergmanRays / polyFacets.minor(raySet,~scalar2set(0));
+// 	bergmanCones = bergmanCones | sequence(bergmanRays.rows()- raySet.size(), raySet.size());
+//       }
+//       
+//       // TODO: Mod out lineality
+//       
+//       //Create the fan
+//       perl::Object fan("fan::PolyhedralFan");
+// 	fan.take("INPUT_RAYS") << bergmanRays;
+// 	fan.take("INPUT_CONES") << bergmanCones;
+// 	fan.take("LINEALITY_SPACE") << bergmanLineality;
+// 	fan.take("TROPICAL_WEIGHTS") << bergmanWeights;
+//       
+//       return fan;
+//     }
+    
     UserFunction4perl("# @category Tropical geometry"
 		      "# Creates the linear tropical space L^n_k. This tropical fan is defined in the following way: "
 		      "# As rays we take -e_i,i=1,...,n, where e_i is the i-th standard basis vector of R^n and "
@@ -97,5 +175,15 @@ namespace polymake { namespace tropical {
 		      "# @return fan::PolyhedralFan A PolyhedralFan object representing L^n_k",
 		      &tropical_lnk,"tropical_lnk($,$)");       
     
+//     UserFunction4perl("# @category Tropical geometry"
+// 		      "# Creates the bergman fan of a given matroid fan."
+// 		      "# @param matroid::Matroid m A matroid"
+// 		      "# @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the "
+// 		      "# fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE"
+// 		      "# @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is 0."
+// 		      "# @return fan::PolyhedralFan The bergman fan of the matroid, possibly with the lineality space divided out",
+// 		      &bergman_fan,"bergman_fan($;$=0,$=0)");
+
+  //Function4perl(&bergman_fan_via_polytope,"bergman_fan_via_polytope(polytope::Polytope,$;$=0,$=0)");
 }
 }

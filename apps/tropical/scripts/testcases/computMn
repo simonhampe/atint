@@ -1,0 +1,30 @@
+# This script creates the tropical moduli space M5 and M6 and measures the time it takes to do that
+
+use application "common";
+use application "tropical";
+use application "fan";
+use application "matroid";
+use Benchmark qw(:all);
+
+#Do it once for wrapping
+print "Initializing\n";
+declare $testmatroid = matroid::uniform_matroid(2,3)
+declare $testfan = bergman_fan($testmatroid);
+
+for(my $n = 5; $n <= 6; $n++) {
+  print "Computing M",$n,"\n";
+
+  my $timestart = Benchmark->new;
+
+  my @adj = ();
+  for(my $i = 0; $i < $n-1; $i++) {
+    @adj = (@adj,sequence(0,$n-1) - $i);
+  }
+  my $g = new graph::Graph(N_NODES=>$n-1,ADJACENCY=>\@adj);
+  my $m = matroid::matroid_from_graph($g);
+  bergman_fan($m);
+
+  
+
+  my $timeend = Benchmark->new;
+}

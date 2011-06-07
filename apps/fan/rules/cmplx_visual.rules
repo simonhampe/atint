@@ -78,6 +78,9 @@ object PolyhedralFan {
 	$showWeights = 0;
       }
     }
+    if(!defined($this->lookup("TROPICAL_WEIGHTS"))) {
+      $showWeights = 0;
+    }
     delete($$decor{"WeightLabels"});
     my $showCoordinates = 0;
     if(defined($$decor{"CoordLabels"})) {

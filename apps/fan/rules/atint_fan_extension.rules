@@ -184,7 +184,8 @@ object PolyhedralFan {
 	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
 	}
 	weight 0.02;
-
+	
+	
 	#------------------------------------------------------------------------#
 	
 	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES_INCIDENCES, USES_HOMOGENEOUS_C {
@@ -231,8 +232,7 @@ object PolyhedralFan {
 	# So we should delete this function when this is fixed.
 	user_method dim_fix {
 	  my $this = shift;
-	  my $ir = $this->lookup("INPUT_RAYS");
-	  if(defined($this->lookup("RAYS"))) {
+	  if(defined($this->lookup("INPUT_RAYS")) || defined($this->lookup("INPUT_HOM_RAYS")) || defined($this->lookup("RAYS"))) {
 	    if($this->RAYS->rows() > 0) {
 	      return $this->DIM;
 	    }

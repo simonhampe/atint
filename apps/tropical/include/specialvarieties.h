@@ -35,4 +35,14 @@
  */
 perl::Object tropical_lnk(const int &n, const int &k);
 
+/**
+@brief Creates the bergman fan of a given matroid fan.
+@param matroid::Matroid m A matroid
+@param bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
+@param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is 0.
+@return fan::PolyhedralFan The bergman fan of the matroid, possibly with the lineality space divided out
+*/
+// perl::Object bergman_fan_via_polytope(perl::Object polytope, int rank, bool modOutLineality = false, int projectionCoordinate = 0);
+
 #endif

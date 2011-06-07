@@ -18,7 +18,9 @@
 #  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
 #####################################################################
 
-IMPORT polytope 
+IMPORT polytope fan
+
+declare object PLFunction<Scalar=Rational [ typechecks::is_ordered_field(Scalar) ]>;
 
 INCLUDE
   divisor.rules

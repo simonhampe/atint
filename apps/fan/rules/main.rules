@@ -23,4 +23,5 @@
 INCLUDE
   atint_fan_extension.rules
   cmplx_visual.rules
+  basic_operations.rules
 

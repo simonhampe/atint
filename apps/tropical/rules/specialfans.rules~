@@ -82,6 +82,68 @@ user_function linear_nspace {
   
 }
 
-user_function bergman_fan($matroid, $modOutLineality = TRUE) {
+# @category Tropical geometry
+# Creates the bergman fan of a given matroid fan.
+# @param matroid::Matroid m A matroid
+# @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+# fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
+# @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is 0.
+user_function bergman_fan {
+  my ($matroid, $modOutLineality, $projectionCoordinate) = @_;
   
+  #Set default values if necessary
+  $modOutLineality = FALSE unless defined($modOutLineality);
+  $projectionCoordinate = 0 unless defined($projectionCoordinate);
+  
+  #Get matroid polytope and make it a fan to compute the n-rank-skeleton
+  my $poly = $matroid->POLYTOPE;
+    my $ambient_dim = $poly->AMBIENT_DIM;
+    my $raymatrix = $poly->VERTICES;
+    my @cones = (sequence(0,$raymatrix->rows()));
+  my $polyfan = new fan::PolyhedralFan(RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,USES_HOMOGENEOUS_C=>TRUE);
+  my $skeleton = fan::skeleton_complex( $polyfan, $ambient_dim - $matroid->RANK+1);#+1 because of homog. coords
+  
+  #Compute a list of those n-rank-dimensional faces whose vertices cover [n]
+  my @listOfFacets = ();
+  for my $mc (@{$skeleton->MAXIMAL_CONES}) {
+    my $v = new Vector<Rational>($ambient_dim+1);
+    for my $vindex (@{$mc}) {
+      $v = $v + $skeleton->RAYS->row($vindex);
+    }
+    #Check if the vector has a zero component
+    my $hasZero = FALSE;
+    for(my $i = 1; $i < $v->dim(); $i++) {
+      if($v->[$i] == 0) {
+	$hasZero = TRUE;
+	last;
+      }
+    }
+    if($hasZero == FALSE) {
+      @listOfFacets = (@listOfFacets,$mc);
+    }
+  }
+  
+  #Now compute normal cones for these faces
+  my $bergmanRays = new Matrix<Rational>(0,$ambient_dim);
+  my @bergmanCones = ();
+  my @bergmanWeights = ();
+  my $bergmanLineality = $poly->LINEAR_SPAN;
+    $bergmanLineality = $bergmanLineality->minor(All,~scalar2set(0));
+    
+  #For each face: Intersect the set of normal rays of each vertex of the face
+  for(my $face = 0; $face < scalar(@listOfFacets); $face++) {
+    my $raySet = sequence(0,$poly->FACETS->rows());
+    for my $vertex (@{$listOfFacets[$face]}) {
+	$raySet = $raySet * $poly->FACETS_THRU_VERTICES->row($vertex);
+    }
+    #Make this a cone
+    my $additionalRays = new Matrix<Rational>($poly->FACETS->minor($raySet, ~scalar2set(0)));
+    $bergmanRays = $bergmanRays / $additionalRays;
+    @bergmanCones = (@bergmanCones, sequence($bergmanRays->rows() - $raySet->size(), $raySet->size()));
+    @bergmanWeights = (@bergmanWeights,1);
+  }
+  
+  # TODO: Mod out lineality
+    
+  return new fan::PolyhedralFan(INPUT_RAYS=>$bergmanRays, INPUT_CONES=>\@bergmanCones,TROPICAL_WEIGHTS=>\@bergmanWeights, LINEALITY_SPACE=>$bergmanLineality);
 }
