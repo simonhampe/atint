@@ -33,19 +33,15 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 
 namespace polymake { namespace fan{ 
   
-  using namespace atint::donotlog;
+  //using namespace atint::donotlog;
   //using namespace atint::dolog;
-  //using namespace atint::dotrace;
+  using namespace atint::dotrace;
   
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
     @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeCodimensionOne(perl::Object fan) {
-    //First we have to check for the special case that there is only one maximal cone
-    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
-    
-    
     //First we construct the set of all facets 
     Array<IncidenceMatrix<> > maximal_cone_incidence = fan.give("MAXIMAL_CONES_INCIDENCES");
     

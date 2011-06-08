@@ -20,10 +20,11 @@
 
 IMPORT polytope 
 
-declare object PLFunction<Scalar=Rational [ typechecks::is_ordered_field(Scalar) ]>;
+declare object MinMaxFunction<Scalar=Rational [ typechecks::is_ordered_field(Scalar) ]>;
 
 INCLUDE
   divisor.rules
   specialfans.rules
-  plfunction.rules
+  minmaxfunction.rules
+  #plfunction.rules
   

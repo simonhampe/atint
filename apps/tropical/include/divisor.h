@@ -45,9 +45,9 @@ perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan);
 perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values);
 
 /**
-  @brief Computes the divisor of a PLFunction on a given tropical variety. The result will be in homogeneous coordinates, whether the tropical variety uses them or not. The function should be given on the affine coordinates of the variety, NOT the homogeneous ones.
+  @brief Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be in homogeneous coordinates, whether the tropical variety uses them or not. The function should be given on the affine coordinates of the variety, NOT the homogeneous ones.
   @param fan::PolyhedralFan fan A tropical variety, on which the divisor is computed
-  @param PLFunction A function whose DOMAIN should be equal to the affine coordinate space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, AMBIENT_DIM otherwise.
+  @param MinMaxFunction A function whose DOMAIN should be equal to the affine coordinate space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, AMBIENT_DIM otherwise.
   @return The corresponding divisor as a tropical variety in homogeneous coordinates.
 */
 perl::Object divisorByPLF(perl::Object fan, perl::Object);
