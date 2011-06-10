@@ -31,9 +31,9 @@
 
 namespace polymake { namespace tropical {
 
-    //using namespace atint::donotlog;
+    using namespace atint::donotlog;
     //using namespace atint::dolog;
-    using namespace atint::dotrace;
+    //using namespace atint::dotrace;
     
     //Documentation: see specialvarieties.h
     perl::Object tropical_lnk(const int n, const int k) {
@@ -91,7 +91,7 @@ namespace polymake { namespace tropical {
     }
     
     //Documentation see specialvarieties.h
-    perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_poly, bool modOutLineality) {
+    perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_poly, bool modOutLineality, int projectionCoordinate) {
       //Extract values
       IncidenceMatrix<> maximalCones = fan_skeleton.give("MAXIMAL_CONES");
       Matrix<Rational> facets = matroid_poly.give("FACETS");
@@ -131,10 +131,11 @@ namespace polymake { namespace tropical {
 	Set<int> raySet = sequence(0,facets.rows());
 	dbgtrace << "Starting with " << raySet << endl;
 	Set<int> faceSet = listOfFacets[face];
-	dbgtrace << "Face has vertices "
+	dbgtrace << "Face has vertices " << faceSet << endl;
 	for(Entire<Set<int> >::iterator vertex = entire(faceSet); !vertex.at_end(); ++vertex) {
 	  raySet = raySet * facetsThruVertices.row(*vertex);
 	}
+	dbgtrace << "Remaining rays : " << raySet << endl; 
 	//Make this a cone
 	bergmanCones = bergmanCones | raySet;
       }
@@ -144,13 +145,26 @@ namespace polymake { namespace tropical {
       dbgtrace << "Weights are: " << bergmanWeights << endl;
       dbgtrace << "Lineality is: " << bergmanLineality << endl;
       
-      //TODO: Mod out lineality
+      Matrix<Rational> bergmanRays = facets.minor(All,~scalar2set(0));
+      if(modOutLineality) {
+	//Create the projection matrix
+	Matrix<Rational> projectionMatrix = unit_matrix<Rational>(bergmanRays.cols()-1);
+	
+	//Insert a -1's- vector at the right position
+	projectionMatrix = projectionMatrix.minor(sequence(0,projectionCoordinate),All) / 
+			   (- ones_vector<Rational>(projectionMatrix.cols())) /
+			   projectionMatrix.minor(sequence(projectionCoordinate,projectionMatrix.rows() -projectionCoordinate-1),All);
+	
+	dbgtrace << "Projection matrix is " << projectionMatrix << endl;
+			   
+	bergmanRays = bergmanRays * projectionMatrix;
+      }
       
       perl::Object result("fan::PolyhedralFan");
-	result.take("INPUT_RAYS") << facets.minor(All,~scalar2set(0));
+	result.take("INPUT_RAYS") << bergmanRays;
 	result.take("INPUT_CONES") << bergmanCones;
 	result.take("TROPICAL_WEIGHTS") << bergmanWeights;
-	result.take("LINEALITY_SPACE") << bergmanLineality;
+	if(!modOutLineality) { result.take("LINEALITY_SPACE") << bergmanLineality;}
 	
       return result;
     }
@@ -165,7 +179,7 @@ namespace polymake { namespace tropical {
 		      "# @return fan::PolyhedralFan A PolyhedralFan object representing L^n_k",
 		      &tropical_lnk,"tropical_lnk($,$)");       
 		      
-    Function4perl(&computeBergmanFan,"computeBergmanFan(fan::PolyhedralFan, polytope::Polytope,$)");
+    Function4perl(&computeBergmanFan,"computeBergmanFan(fan::PolyhedralFan, polytope::Polytope,$,$)");
     
 //     UserFunction4perl("# @category Tropical geometry"
 // 		      "# Creates the bergman fan of a given matroid fan."

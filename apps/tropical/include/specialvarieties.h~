@@ -42,8 +42,6 @@ perl::Object tropical_lnk(const int &n, const int &k);
 @param bool true, if the lineality space should be divided out.
 @return fan::PolyhedralFan The bergman fan of the matroid, possibly with the lineality space divided out
 */
-perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_poly, bool modOutLineality) {
-  
-}
+perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_poly, bool modOutLineality);
 
 #endif
