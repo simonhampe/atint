@@ -30,9 +30,9 @@ This file provides c++ realizations of basic operations on polyhedral complexes
 
 namespace polymake { namespace fan{ 
   
-  using namespace atint::donotlog;
+  //using namespace atint::donotlog;
   //using namespace atint::dolog;
-  //using namespace atint::dotrace;
+  using namespace atint::dotrace;
   
   perl::Object product_complex(Array<perl::Object> complexes) {
     //This will contain the sets describing the maximal cones
@@ -50,8 +50,11 @@ namespace polymake { namespace fan{
     bool product_uses_homog = false;
     bool product_has_weights = false;
       
+    dbgtrace << "Starting to create product" << endl;
+    
     //Iterate over all complexes, each step creates the product of the first i complexes
     for(int i = 0; i < complexes.size(); i++) {
+      dbgtrace << "Considering factor " << i << endl;
       //Extract properties
       bool uses_homog = complexes[i].give("USES_HOMOGENEOUS_C");
       bool uses_weights = false;
@@ -64,6 +67,8 @@ namespace polymake { namespace fan{
 	product_has_weights = true;
 	preweights = complexes[i].give("TROPICAL_WEIGHTS");
       }
+      
+      dbgtrace << "Computing rays" << endl;
       
       //Compute new rays and lineality space
       int additionalColumns = uses_homog ? prerays.cols() -1 : prerays.cols();
@@ -90,6 +95,9 @@ namespace polymake { namespace fan{
       //Step 4: Glue together
       rayMatrix = rayMatrix / prerays;
       linMatrix = linMatrix / prelin;
+      
+      dbgtrace << "New rays are : " << rayMatrix << endl;
+      dbgtrace << "New lineality space is : " << linMatrix << endl;
       
       //Compute new cone sets 
       //Step 1: Replace each set by the set shifted by the currentNumberOfRays
@@ -121,7 +129,13 @@ namespace polymake { namespace fan{
 	product_has_weights = true;
 	weights = weightReplacer;
       }
+      
+      dbgtrace << "New cones are : " << maximalCones << endl;
+      if(product_has_weights) {
+	dbgtrace << "New weights are: " << weights << endl;
+      }
     }
+       
     
     perl::Object result("fan::PolyhedralFan");
       result.take("RAYS") << rayMatrix;

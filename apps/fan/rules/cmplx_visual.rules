@@ -183,6 +183,6 @@ object PolyhedralFan {
 					  @cells_visual));
 					
   }
-  precondition : AMBIENT_DIM { $this->ambient_dim_fix<=4 }# FIXME
+  precondition : FAN_AMBIENT_DIM { $this->ambient_dim_fix<=4 }# FIXME
   
 }

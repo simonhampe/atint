@@ -90,7 +90,7 @@ user_function linear_nspace {
 user_function tropical_mn {
   my ($n,$preserve) = @_;
   
-  $preserve = FALSE unless defined($preserve);
+  $preserve = 0 unless defined($preserve);
   
   #Create the complete graph on n-1 nodes
   my @adj = ();
