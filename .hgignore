@@ -1,3 +1,4 @@
 relre:.*Makefile
 relre:build\..*
 glob:.project
+relre:.*~

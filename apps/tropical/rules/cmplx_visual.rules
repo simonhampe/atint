@@ -35,18 +35,18 @@ package Visual::WeightedComplex;
 options %Visual::WeightedComplex::decorations=(
     %Visual::Polygons::decorations,
       
-#     # Flexible<Rational> length of the directional rays
-#     DirScale => 1,
-#     
-#     # String if set to "hidden", the labels indicating the weights are hidden
-#     WeightLabels => enum("hidden"),
-# 				
-#     # String If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
-#     CoordLabels => enum("show"),
-# 				
-#     # String If set to "pinned", the weight labels are computed in such a way that they stick to the cells when the complex
-#     # is exploded. Note that this is expensive and significantly increases computation time.
-#    # WeightLabelStyle => "",
+    # Flexible<Rational> length of the directional rays
+    DirScale => 1,
+    
+    # String if set to "hidden", the labels indicating the weights are hidden
+    WeightLabels => enum("hidden"),
+				
+    # String If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
+    CoordLabels => enum("show"),
+				
+    # String If set to "pinned", the weight labels are computed in such a way that they stick to the cells when the complex
+    # is exploded. Note that this is expensive and significantly increases computation time.
+   # WeightLabelStyle => "",
   
 );
 
