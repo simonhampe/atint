@@ -112,7 +112,7 @@ namespace polymake { namespace fan{
 	    //If one of them has weights, add them
 	    if(product_has_weights || uses_weights) {
 	      weightReplacer = weightReplacer | ( (product_has_weights? weights[old] : Integer(0)) +
-						   (uses_weights? preweights[n] : Integer(0)));
+						   (uses_weights? preweights[n] : 0));
 	    }
 	}
       }
