@@ -19,8 +19,10 @@
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
+#include "polymake/linalg.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    OperatorInstance4perl(Binary_add, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> >);
+   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::SameElementVector<pm::Rational> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

@@ -8,8 +8,8 @@ use Benchmark qw(:all);
 
 #Do it once for wrapping
 print "Initializing\n";
-declare $testmatroid = matroid::uniform_matroid(2,3)
-declare $testfan = bergman_fan($testmatroid);
+declare $testmatroid = matroid::uniform_matroid(2,3);
+declare $testfan = tropical::bergman_fan($testmatroid);
 
 for(my $n = 5; $n <= 6; $n++) {
   print "Computing M",$n,"\n";
@@ -22,9 +22,11 @@ for(my $n = 5; $n <= 6; $n++) {
   }
   my $g = new graph::Graph(N_NODES=>$n-1,ADJACENCY=>\@adj);
   my $m = matroid::matroid_from_graph($g);
-  bergman_fan($m);
+  tropical::bergman_fan($m);
 
   
 
   my $timeend = Benchmark->new;
+  my $t = timediff($timeend,$timestart);
+  print "Time for n = ", $n, ": ", timestr($t),"\n";
 }

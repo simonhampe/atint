@@ -62,5 +62,5 @@ user_function skeleton_complex {
 # @param complexes A list of fan::PolyhedralFan objects
 # @return the cartesian product of the complexes. If any of the complexes use homogeneous coordinates, so does the result. If any of the complexex carries weights, the result carries the sum of the weights of its factors (Complexes without weights are treated as complexes with weight 0).
 user_function product_complex {
-  return compute_product_complexe(@_);
+  return compute_product_complex(@_);
 }
