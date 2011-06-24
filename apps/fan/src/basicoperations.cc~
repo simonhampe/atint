@@ -96,10 +96,10 @@ namespace polymake { namespace fan{
       // if it uses homogeneous coords, otherwise just prepend
       if(uses_homog) {
 	if(prerays.rows() > 0) {
-	  prerays = prerays.col(0) | Matrix<Rational>(prerays.rows(), product_ambient_dim -1) | prerays;
+	  prerays = prerays.col(0) | Matrix<Rational>(prerays.rows(), product_ambient_dim -1) | prerays.minor(All, ~scalar2set(0));
 	}
 	if(prelin.rows() > 0) {
-	  prelin = prelin.col(0) | Matrix<Rational>(prelin.rows(), product_ambient_dim -1) | prelin;
+	  prelin = prelin.col(0) | Matrix<Rational>(prelin.rows(), product_ambient_dim -1) | prelin.minor(All,~scalar2set(0));
 	}
       }
       else {
