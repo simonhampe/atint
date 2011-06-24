@@ -50,7 +50,7 @@ user_function skeleton_complex {
     $codimfan = new PolyhedralFan(RAYS=>$raymatrix, MAXIMAL_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$fan->USES_HOMOGENEOUS_C);
   }
   else {
-    $codimfan = $fan->USES_HOMOGENEOUS_C? # FIXME Either move this to tropical or make fan-compatible
+    $codimfan = $fan->USES_HOMOGENEOUS_C? 
 		    new PolyhedralFan(INPUT_HOM_RAYS=>$raymatrix, INPUT_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE)
 		    : new PolyhedralFan(INPUT_RAYS=>$raymatrix, INPUT_CONES=>\@cones ,LINEALITY_SPACE=>$fan->LINEALITY_SPACE);
   }
