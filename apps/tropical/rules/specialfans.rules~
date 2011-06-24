@@ -90,7 +90,7 @@ user_function linear_nspace {
 user_function tropical_mn {
   my ($n,$preserve) = @_;
   
-  $preserve = FALSE unless defined($preserve);
+  $preserve = 0 unless defined($preserve);
   
   #Create the complete graph on n-1 nodes
   my @adj = ();
@@ -124,4 +124,28 @@ user_function bergman_fan {
   my $skeleton = fan::skeleton_complex( $polyfan, $ambient_dim - $matroid->RANK+1,TRUE);#+1 because of homog. coords
   
   return computeBergmanFan($skeleton, $poly,$modOutLineality? 1 : 0, $projectionCoordinate);
+}
+
+# @category Tropical geometry
+# Creates a divisor of a random MinMaxFunction (in n-space) with integer coefficients.
+# By default this uses maximum for the function. It returns an array containing the function created and its
+# divisor in n-space.
+# @param int ambient_dim The ambient dimension of the divisor
+# @param int equations The number of equations to use
+# @param int upperCoeffBound The upper bound  of the coefficients (All coefficients are positive)
+user_function random_minmaxdivisor {
+  my ($ambient_dim, $equations, $upperCoeffBound) = @_;
+  $upperCoeffBound = new Integer($upperCoeffBound);
+  
+  # Create function matrix
+  my $m = new Matrix<Rational>(0,$ambient_dim+1);
+  for(my $i = 0; $i < $equations; $i++) {
+    my @r = randomInteger($upperCoeffBound,$ambient_dim+1);
+    $m = $m / new Vector<Rational>(@r);
+  }
+  
+  my $f = new MinMaxFunction(FUNCTION_MATRIX=>$m,USES_MIN=>0);
+  my $div = divisorByPLF(linear_nspace($ambient_dim),$f);
+  
+  return ($f,$div);
 }

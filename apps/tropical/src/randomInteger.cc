@@ -45,9 +45,9 @@ namespace polymake { namespace tropical {
                   "# Note that this algorithm is not optimal for real randomness:"
                   "# If you change the range parameter and then change it back, you will"
                   "# usually get the exact same sequence"
-                  "# @param Integer max_arg The upper bound for the random integers"
-                  "# @param Integer n The number of integers to be created"
+                  "# @param int max_arg The upper bound for the random integers"
+                  "# @param int n The number of integers to be created"
                   "# @return Array<Integer>",
-                  &randomInteger,"randomInteger(Integer, Integer)");                  
+                  &randomInteger,"randomInteger($, $)");                  
   
 }}

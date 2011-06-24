@@ -242,6 +242,13 @@ object MinMaxFunction {
 	die "Invalid syntax for piecewise linear function.";
       }
   }#End rule LINEAR_COEFFICIENTS, CONSTANT_COEFFICIENTS, USES_MIN
+  weight 0.1;
+  
+  rule CONSTANT_COEFFICIENTS, LINEAR_COEFFICIENTS : FUNCTION_MATRIX {
+    $this->CONSTANT_COEFFICIENTS = $this->FUNCTION_MATRIX->col($this->FUNCTION_MATRIX->cols()-1);
+    $this->LINEAR_COEFFICIENTS = $this->FUNCTION_MATRIX->minor(All, ~scalar2set($this->FUNCTION_MATRIX->cols()-1));
+  }
+  weight 0.2;
   
   rule DOMAIN : LINEAR_COEFFICIENTS {
     $this->DOMAIN = $this->LINEAR_COEFFICIENTS->cols();
