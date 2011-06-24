@@ -18,13 +18,19 @@
 #  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
 #####################################################################
 
-IMPORT polytope 
+IMPORT polytope fan
 
+#A rational function, defined as the minimum/maximum of some affine linear functions
 declare object MinMaxFunction<Scalar=Rational [ typechecks::is_ordered_field(Scalar) ]>;
+
+#A weighted polyhedral complex
+declare object WeightedComplex<Scalar=Rational [ typechecks::is_ordered_field(Scalar) ]> : PolyhedralFan<Scalar>;
 
 INCLUDE
   divisor.rules
   specialfans.rules
   minmaxfunction.rules
-  #plfunction.rules
+  WeightedComplex.rules
+  #cmplx_visual.rules
+  
   
