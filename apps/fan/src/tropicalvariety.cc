@@ -94,6 +94,35 @@ namespace polymake { namespace fan{
   }
   
   /**
+    @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically. This function differs from the function computeCodimensionOne in that it does not use the property MAXIMAL_CONES_INCICDENCES, but uses the FACETS_THRU_VERTICES property of polytope::Cone (which seems to make everything a lot faster)
+    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+    @param Array<perl::Object> cones An array of polytope::Cone objects (whose RAYS_IN_FACETS should have been precomputed) that represent the maximal cones of fan (s.t. the i-th cone is the i-th maximal cone)
+  */
+  computeCodimensionOneViaCones(perl::Object fan, Array<perl::Object> cones) {
+    
+    //Extract needed properties
+    Matrix<Rational> rays = fan.give("RAYS");
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES_INCICDENCES");
+    
+    //This will contain the set of the codim-1-cones (for checking against doubles)
+    Set<Set<int> > setOfFacets;
+    //This will contain the array of codim-1-cones, which we use to construct the incidence matrix
+    Vector<Set<int> > arrayOfFacets;
+    //This will define the codim-1-maximal-cone incidence matrix
+    Vector<Set<int> > facetsInCones;
+    
+    //Iterate through all cone objects
+    for(int i = 0; i < cones.size(); i++) {
+      //Retrieve the facets of the cone
+      IncidenceMatrix<> raysInFacets = cones[i].give("RAYS_IN_FACETS");
+      //Map the ray indices back to the original ray indices
+      
+      
+    }
+    
+  }
+  
+  /**
    @brief Takes a polyhedral fan and computes a map of lattice normals. The corresponding property in the fan is set automatically.
    @param fan::PolyhedralFan A polyhedral fan, extended by atint to a tropical variety
    */	  

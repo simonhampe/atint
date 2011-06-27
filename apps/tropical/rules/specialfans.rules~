@@ -119,7 +119,7 @@ user_function bergman_fan {
   my $poly = $matroid->POLYTOPE;
     my $ambient_dim = $poly->AMBIENT_DIM;
     my $raymatrix = $poly->VERTICES;
-    my @cones = (sequence(0,$raymatrix->rows()));
+    my @cones = (sequence(0,$raymatrix->rows()-1));
   my $polyfan = new fan::PolyhedralFan(RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,USES_HOMOGENEOUS_C=>TRUE);
   my $skeleton = fan::skeleton_complex( $polyfan, $ambient_dim - $matroid->RANK+1,TRUE);#+1 because of homog. coords
   
@@ -141,7 +141,7 @@ user_function random_minmaxdivisor {
   my $m = new Matrix<Rational>(0,$ambient_dim+1);
   for(my $i = 0; $i < $equations; $i++) {
     my @r = randomInteger($upperCoeffBound,$ambient_dim+1);
-    $m = $m / new Vector<Rational>(@r);
+    $m = new Matrix<Rational>($m / new Vector<Rational>(@r));
   }
   
   my $f = new MinMaxFunction(FUNCTION_MATRIX=>$m,USES_MIN=>0);

@@ -31,9 +31,9 @@
 
 namespace polymake { namespace tropical {
 
-    using namespace atint::donotlog;
+    //using namespace atint::donotlog;
     //using namespace atint::dolog;
-    //using namespace atint::dotrace;
+    using namespace atint::dotrace;
     
     //Documentation: see specialvarieties.h
     perl::Object tropical_lnk(const int n, const int k) {
