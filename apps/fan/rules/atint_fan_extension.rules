@@ -188,8 +188,15 @@ object PolyhedralFan {
 	
 	#------------------------------------------------------------------------#
 	
-	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES_INCIDENCES, USES_HOMOGENEOUS_C {
-	  computeCodimensionOne($this);
+	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C {
+	  #computeCodimensionOne($this);
+	  my @cones = ();
+	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
+	    my $cone = new Cone<Rational>(RAYS=>$this->RAYS->minor($this->MAXIMAL_CONES->row($c),All));
+	    $cone->RAYS_IN_FACETS;
+	    @cones = (@cones,$cone);
+	  }
+	  computeCodimensionOneViaCones($this,@cones);
 	}
 	
 	#------------------------------------------------------------------------#
