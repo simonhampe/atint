@@ -152,7 +152,7 @@ namespace polymake { namespace fan{
 	  pdirIndices[*prays] = newRays.rows()-1;
 	}
 	for(Entire<Set<int> >::iterator crays = entire(complex_directional); !crays.at_end(); crays++) {
-	  newRays = newRays / (product_zero | prerays.rows(*crays));
+	  newRays = newRays / (product_zero | prerays.row(*crays));
 	  cdirIndices[*crays] = newRays.rows()-1;
 	}
 	

@@ -27,6 +27,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Array.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/Graph.h"
 
 
 namespace polymake { namespace tropical {
@@ -99,6 +100,8 @@ namespace polymake { namespace tropical {
       Matrix<Rational> linearSpan = matroid_poly.give("LINEAR_SPAN");
       Matrix<Rational> rays = fan_skeleton.give("RAYS");
       
+      dbgtrace << "Checking for skeleton faces that correspond to loopfree matroids" << endl;
+      
       //Compute a list of those n-rank-dimensional faces whose vertices cover [n]
       Vector<Set<int> > listOfFacets;
       for(int mc = 0; mc < maximalCones.rows(); mc++) {
@@ -109,16 +112,19 @@ namespace polymake { namespace tropical {
 	}
 	//Check if the vector has a zero component. If the vertices cover [n], it shouldn't
 	bool hasZero = false;
-	for(int i = 1; i < v.dim(); i++) {
+	for(int i = 1; i < v.dim(); i++) { //Start at 1 because of homog. coordinates
 	    if(v[i] == 0) {
 	      hasZero = true;
 	      break;
 	    }
 	}
 	if(!hasZero) {
+	    dbglog << "Cone " << mc << " is valid with interior vector " << v << endl;
 	    listOfFacets = listOfFacets | maximalCones.row(mc);
 	}
       }
+      
+      dbglog << "Done. " << listOfFacets.dim() << " facets remaining." << endl;
       
       //Now compute normal cones for these faces
       Vector<Set<int> > bergmanCones;

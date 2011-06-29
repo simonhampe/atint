@@ -46,7 +46,7 @@ user_function skeleton_complex {
     my @cones = @{$fan->CODIM_1_FACES};
   
   my $codimfan;
-  if($preserve == TRUE) {
+  if($preserve eq TRUE) {
     $codimfan = new PolyhedralFan(RAYS=>$raymatrix, MAXIMAL_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$fan->USES_HOMOGENEOUS_C);
   }
   else {
@@ -54,7 +54,7 @@ user_function skeleton_complex {
 		    new PolyhedralFan(INPUT_HOM_RAYS=>$raymatrix, INPUT_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE)
 		    : new PolyhedralFan(INPUT_RAYS=>$raymatrix, INPUT_CONES=>\@cones ,LINEALITY_SPACE=>$fan->LINEALITY_SPACE);
   }
-  return skeleton_complex($codimfan,$k);
+  return skeleton_complex($codimfan,$k,$preserve);
 }
 
 # @category Polyhedral geometry
