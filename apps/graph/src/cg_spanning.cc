@@ -29,9 +29,9 @@ This function computes the set of spanning trees of the complete graph on n node
 
 namespace polymake { namespace graph {
     
-  //using namespace atint::donotlog;
+  using namespace atint::donotlog;
   //using namespace atint::dolog;
-  using namespace atint::dotrace;
+  //using namespace atint::dotrace;
   
   /**
     @brief Computes the set of all spanning trees of the complete graph on n nodes
