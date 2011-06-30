@@ -16,6 +16,8 @@
  
  ---
  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+ 
+ This file provides functionality to compute certain special tropical varieties
  */
 
 #include "polymake/client.h"
@@ -187,15 +189,5 @@ namespace polymake { namespace tropical {
 		      
     Function4perl(&computeBergmanFan,"computeBergmanFan(fan::PolyhedralFan, polytope::Polytope,$,$)");
     
-//     UserFunction4perl("# @category Tropical geometry"
-// 		      "# Creates the bergman fan of a given matroid fan."
-// 		      "# @param matroid::Matroid m A matroid"
-// 		      "# @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the "
-// 		      "# fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE"
-// 		      "# @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is 0."
-// 		      "# @return fan::PolyhedralFan The bergman fan of the matroid, possibly with the lineality space divided out",
-// 		      &bergman_fan,"bergman_fan($;$=0,$=0)");
-
-  //Function4perl(&bergman_fan_via_polytope,"bergman_fan_via_polytope(polytope::Polytope,$;$=0,$=0)");
 }
 }

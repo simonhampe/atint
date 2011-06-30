@@ -22,8 +22,6 @@
 # and by allowing the fan to be interpreted as a polyhedral complex by intersecting it at x0 = 1
 ########################################################################
 
-USE tropical
-
 object PolyhedralFan {
 
 	## PROPERTIES ###########################################################
