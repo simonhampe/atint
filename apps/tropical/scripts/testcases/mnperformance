@@ -7,15 +7,15 @@ use Benchmark qw(:all);
 
 # Do it once for initialization
 print "Initializing..:";
-tropical::tropical_mn(5);
+tropical::tropical_m0n(5);
 print "Done.\n";
 
 #Now compute Mn's
-my $maxn = 8;
+my $maxn = 15;
 for(my $i = 5; $i <= $maxn; $i++) {
     print "Computing M_",$i,"\n";
     my $t0 = Benchmark->new;
-    my $m = tropical::tropical_mn($i);
+    my $m = tropical::tropical_m0n($i);
     my $t1 = Benchmark->new;
     my $s = timediff($t1,$t0);
     #Save the fan and print out the time it took

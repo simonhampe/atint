@@ -199,7 +199,7 @@ object PolyhedralFan {
 	
 	#------------------------------------------------------------------------#
 	  
-	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE {
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, AMBIENT_DIM {
 	  computeLatticeNormals($this);
 	}
 	
