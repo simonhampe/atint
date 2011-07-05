@@ -39,5 +39,11 @@ namespace polymake { namespace fan {
    }
    FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object const&, pm::Rational const&) );
 
+   FunctionWrapper4perl( void (perl::Object, std::vector<perl::Object, std::allocator<perl::Object> >) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturnVoid( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( void (perl::Object, std::vector<perl::Object, std::allocator<perl::Object> >) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

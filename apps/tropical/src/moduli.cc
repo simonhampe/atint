@@ -26,6 +26,7 @@ This file provides the functionality necessary to compute tropical moduli spaces
 #include "polymake/Matrix.h"
 #include "polymake/Set.h"
 #include "polymake/Rational.h"
+#include "polymake/Integer.h"
 
 namespace polymake { namespace tropical {
 
@@ -33,6 +34,30 @@ namespace polymake { namespace tropical {
   //using namespace atint::dolog;
   //using namespace atint::dotrace;
  
+  //Documentation see perl wrapper
+  Integer count_mn_cones(int n) {
+    if(n == 3) {
+      return Integer(1);
+    }
+    Integer result(1);
+    for(int i = 0; i <= n-4; i++) {
+	result = result * (2*(n-i) -5);
+    }
+    return result;
+  }
+  
+  //Documentaion see perl wrapper
+  Integer count_mn_rays(int n) {
+    if(n == 3) {
+      return Integer(0);
+    }
+    Integer result(0);
+    Integer nint(n);
+    for(long i = 1; i <= n-3; i++) {
+      result = result + Integer::binom(nint-1,i);
+    }
+    return result;
+  }
   
   //Documentation see perl wrapper
   perl::Object tropical_mn(int n) {
@@ -63,6 +88,8 @@ namespace polymake { namespace tropical {
     //Will contain the rays, but as set partitions (better for checking for doubles)
     //Ray i is the i-th row of rays
     Vector<Set<int> > raysAsPartitions;
+    
+    
     //Will contain the set of maximal cones 
     Vector<Set<int> > cones;
       
@@ -73,8 +100,13 @@ namespace polymake { namespace tropical {
     }
     
     //Things we will need:
-    Set<int> allLeafs = sequence(0,n);
-    Vector<int> onlyones = ones_vector<int>(raydim);
+    Set<int> allLeafs = sequence(0,n); //The complete sequence of leaves (for taking complements)
+    Vector<int> onlyones = ones_vector<int>(raydim); //A ones vector(for projecting the lineality space)
+    Vector<Integer> rayIndices(n-2); //Entry k contains the sum from i = 1 to k of binomial(n-1,i)
+      rayIndices[0] = 0;
+      for(int i = 1; i < rayIndices.dim(); i++) {
+	rayIndices[i] = rayIndices[i-1] + Integer::binom(n-1,i);
+      }
     
     //Iterate through all Prüfer sequences -------------------------------------------------
     
@@ -153,14 +185,14 @@ namespace polymake { namespace tropical {
 	//Now check, if we already have that ray
 	dbgtrace << "Checking if ray already exists" << endl;
 	
-// 	bool found = false;
-// 	for(int s = 0; s < raysAsPartitions.dim(); s++) {
-// 	  if(raysAsPartitions[s] == rayset) {
-// 	      newcone = newcone + s;
-// 	      found = true;
-// 	      break;
-// 	  }
-// 	}
+	bool found = false;
+	for(int s = 0; s < raysAsPartitions.dim(); s++) {
+	  if(raysAsPartitions[s] == rayset) {
+	      newcone = newcone + s;
+	      found = true;
+	      break;
+	  }
+	}
 	//If not, create the corresponding matroid coordinates
 	if(!found) {
 	  dbgtrace << "Ray " << rayset << " does not exist. Creating..." << endl;
@@ -207,6 +239,18 @@ namespace polymake { namespace tropical {
     return result;
     
   }
+
+  UserFunction4perl("# @category Tropical geometry"
+		    "# Computes the number of maximal cones of the tropical moduli space M_0,n"
+		    "# @param Int n The number of leaves. Should be >= 3"
+		    "# @return Integer The number of maximal cones",
+		    &count_mn_cones,"count_mn_cones($)");
+		    
+  UserFunction4perl("# @category Tropical geometry"
+		    "# Computes the number of rays of the tropical moduli space M_0,n"
+		    "# @param int n The number of leaves. Should be >= 3"
+		    "# @return Integer The number of rays",
+		    &count_mn_rays,"count_mn_rays($)");
 
   UserFunction4perl("# @category Tropical geometry"
 		    "# Creates the moduli space of abstract rational n-marked curves. Its coordinates are"
