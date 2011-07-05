@@ -40,8 +40,9 @@ namespace polymake { namespace tropical {
       return Integer(1);
     }
     Integer result(1);
-    for(int i = 0; i <= n-4; i++) {
-	result = result * (2*(n-i) -5);
+    Integer nint(n);
+    for(Integer i(0); i <= n-4; i++) {
+	result = result * (2*(nint-i) -5);
     }
     return result;
   }
@@ -84,20 +85,21 @@ namespace polymake { namespace tropical {
     
     //Will contain the rays of the moduli space in matroid coordinates
     int raydim = (n*(n-1))/2 - n;
-    Matrix<Rational> rays(0,raydim);
+    int raycount = count_mn_rays(n);
+    dbgtrace << "Expecting " << raycount << " rays" << endl;
+    Matrix<Rational> rays(raycount,raydim);
+    
     //Will contain the rays, but as set partitions (better for checking for doubles)
     //Ray i is the i-th row of rays
-    Vector<Set<int> > raysAsPartitions;
+    //Vector<Set<int> > raysAsPartitions;
     
-    
+    //Will contain value 'true' for each ray that has been computed
+    Vector<bool> raysComputed(count_mn_rays(n));
     //Will contain the set of maximal cones 
     Vector<Set<int> > cones;
       
     //Compute the number of sequences = number of maximal cones
-    int noOfMax = 1;
-    for(int i = 0; i <= n-4; i++) {
-      noOfMax *= (2*(n-i) -5);
-    }
+    int noOfMax = count_mn_cones(n);   
     
     //Things we will need:
     Set<int> allLeafs = sequence(0,n); //The complete sequence of leaves (for taking complements)
@@ -185,19 +187,45 @@ namespace polymake { namespace tropical {
 	//Now check, if we already have that ray
 	dbgtrace << "Checking if ray already exists" << endl;
 	
-	bool found = false;
-	for(int s = 0; s < raysAsPartitions.dim(); s++) {
-	  if(raysAsPartitions[s] == rayset) {
-	      newcone = newcone + s;
-	      found = true;
-	      break;
+// 	bool found = false;
+// 	for(int s = 0; s < raysAsPartitions.dim(); s++) {
+// 	  if(raysAsPartitions[s] == rayset) {
+// 	      newcone = newcone + s;
+// 	      found = true;
+// 	      break;
+// 	  }
+// 	}
+
+	//Now we compute the index of the ray -----------------------------------------
+	// Consider ray as a vector of length n filled with a's and b's where entry i is a iff i is in I
+	int k = n - rayset.size();
+	int bsleft = k-1; int l = 1;
+	int rIndex (rayIndices[k-2]);
+	while(bsleft > 1) {
+	  if(rayset.contains(n-l-1)) {
+	    rIndex += (int)Integer::binom(n-l-1,bsleft-1);
 	  }
+	  else {
+	    bsleft--;
+	  }
+	  l++;
 	}
+	int m = 0;
+	while(rayset.contains(m)) { m++;}
+	//at last we add the difference of the indices of the second b' and the first b (-1)
+	rIndex += (n-1-l)-m; 
+	newcone = newcone + rIndex;
+	
+	
+	
 	//If not, create the corresponding matroid coordinates
-	if(!found) {
+	if(!raysComputed[rIndex]) {
+	//if(!found) {
+	  dbglog << "Ray index of " << rayset << " is " << rIndex << endl;
 	  dbgtrace << "Ray " << rayset << " does not exist. Creating..." << endl;
-	  raysAsPartitions = raysAsPartitions | rayset;
-	  newcone = newcone + (raysAsPartitions.dim()-1);
+	  //raysAsPartitions = raysAsPartitions | rayset;
+	  //newcone = newcone + (raysAsPartitions.dim()-1);
+	  raysComputed[rIndex] = true;
 	  Vector<int> raylist(rayset);
 	  Vector<Rational> newray(raydim);
 	  for(int k = 0; k < raylist.dim()-1; k++) {
@@ -214,7 +242,8 @@ namespace polymake { namespace tropical {
 		}
 	      }
 	  }
-	  rays = rays / newray;
+	  //rays = rays / newray;
+	  rays.row(rIndex) = newray;
 	}
       }
       cones = cones | newcone;

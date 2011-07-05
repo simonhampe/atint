@@ -11,7 +11,7 @@ tropical::tropical_m0n(5);
 print "Done.\n";
 
 #Now compute Mn's
-my $maxn = 15;
+my $maxn = 10;
 for(my $i = 5; $i <= $maxn; $i++) {
     print "Computing M_",$i,"\n";
     my $t0 = Benchmark->new;
@@ -20,5 +20,5 @@ for(my $i = 5; $i <= $maxn; $i++) {
     my $s = timediff($t1,$t0);
     #Save the fan and print out the time it took
     print "Time taken: ", timestr($s),"\n";
-    save($m,"moduli$i");
+    #save($m,"moduli$i");
 }
