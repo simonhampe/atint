@@ -186,7 +186,7 @@ object PolyhedralFan {
 	
 	#------------------------------------------------------------------------#
 	
-	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C {
+	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, AMBIENT_DIM {
 	  #computeCodimensionOne($this);
 	  my @cones = ();
 	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
@@ -205,25 +205,25 @@ object PolyhedralFan {
 	
 	#------------------------------------------------------------------------#
 	
-	rule IS_BALANCED : CODIM_1_FACES, LATTICE_NORMAL_SUM{
+	rule IS_BALANCED : CODIM_1_FACES, LATTICE_NORMAL_SUM, AMBIENT_DIM{
 	  computeIfBalanced($this);
 	}
 	
 	#------------------------------------------------------------------------#
 	
-	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_SPACE, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES {
+	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_SPACE, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES, AMBIENT_DIM {
 	  computeFunctionVectors($this);
 	}
 	
 	#------------------------------------------------------------------------#
 	
-	rule LATTICE_NORMAL_SUM : LATTICE_NORMALS, TROPICAL_WEIGHTS {
+	rule LATTICE_NORMAL_SUM : LATTICE_NORMALS, TROPICAL_WEIGHTS, AMBIENT_DIM {
 	    computeLatticeNormalSum($this);
 	}
 	
 	#------------------------------------------------------------------------#
 	
-	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES {
+	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, AMBIENT_DIM {
 	  computeComplexData($this);
 	}
 	

@@ -21,7 +21,7 @@
 #  k-skeleton of a complex or computing the cartesian product of two varieties
 ########################################################################
 
-USE fan
+#USE fan
 
 # @category Polyhedral geometry
 # Takes a polyhedral complex and computes the k-skeleton. Will return an empty fan, if k is larger then the dimension

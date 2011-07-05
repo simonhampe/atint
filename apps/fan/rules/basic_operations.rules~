@@ -47,7 +47,6 @@ user_function skeleton_complex {
   
   my $codimfan;
   if($preserve eq TRUE) {
-    print "bla\n";
     $codimfan = new PolyhedralFan(RAYS=>$raymatrix, MAXIMAL_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$fan->USES_HOMOGENEOUS_C);
   }
   else {
