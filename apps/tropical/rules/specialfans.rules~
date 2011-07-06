@@ -94,7 +94,7 @@ user_function tropical_mn {
   
   #Create the matroid of the complete graph on n-1 nodes 
   my @bases = graph::spanning_complete($n-1);
-  my $edges = $n * ($n-1) / 2;
+  my $edges = ($n-1) * ($n-2) / 2;
   my $matroid = new matroid::Matroid(N_ELEMENTS=>$edges,BASES=>\@bases);
   return bergman_fan($matroid,!$preserve);
 }
@@ -130,9 +130,12 @@ user_function bergman_fan {
 # @param int ambient_dim The ambient dimension of the divisor
 # @param int equations The number of equations to use
 # @param int upperCoeffBound The upper bound  of the coefficients (All coefficients are positive)
+# @param Bool onlyFunction If true, only the random function is returned and the divisor is not computed. FALSE by default.
 user_function random_minmaxdivisor {
-  my ($ambient_dim, $equations, $upperCoeffBound) = @_;
+  my ($ambient_dim, $equations, $upperCoeffBound, $onlyFunction) = @_;
   $upperCoeffBound = new Integer($upperCoeffBound);
+  
+  $onlyFunction = FALSE unless defined($onlyFunction);
   
   # Create function matrix
   my $m = new Matrix<Rational>(0,$ambient_dim+1);

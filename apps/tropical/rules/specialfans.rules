@@ -130,9 +130,13 @@ user_function bergman_fan {
 # @param int ambient_dim The ambient dimension of the divisor
 # @param int equations The number of equations to use
 # @param int upperCoeffBound The upper bound  of the coefficients (All coefficients are positive)
+# @param Bool onlyFunction If true, only the random function is returned and the divisor is not computed. FALSE by default.
+# @return MinMaxFunction if onlyFunction is TRUE, otherwise an array containing first the function, then the divisor
 user_function random_minmaxdivisor {
-  my ($ambient_dim, $equations, $upperCoeffBound) = @_;
+  my ($ambient_dim, $equations, $upperCoeffBound, $onlyFunction) = @_;
   $upperCoeffBound = new Integer($upperCoeffBound);
+  
+  $onlyFunction = FALSE unless defined($onlyFunction);
   
   # Create function matrix
   my $m = new Matrix<Rational>(0,$ambient_dim+1);
@@ -142,9 +146,13 @@ user_function random_minmaxdivisor {
   }
   
   my $f = new MinMaxFunction(FUNCTION_MATRIX=>$m,USES_MIN=>0);
-  my $div = divisorByPLF(linear_nspace($ambient_dim),$f);
-  
-  return ($f,$div);
+  if(!$onlyFunction) {
+    my $div = divisorByPLF(linear_nspace($ambient_dim),$f);
+    return ($f,$div);
+  }
+  else {
+    return $f;
+  }
 }
 # 
 # user_function test_matroid {
