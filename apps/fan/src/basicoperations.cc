@@ -29,6 +29,7 @@ This file provides c++ realizations of basic operations on polyhedral complexes
 #include "polymake/tropical/LoggingPrinter.h"
 
 namespace polymake { namespace fan{ 
+  
   using namespace atint::donotlog;
   //using namespace atint::dolog;
   //using namespace atint::dotrace;
@@ -91,7 +92,7 @@ namespace polymake { namespace fan{
       
       dbgtrace << "Iterating over all " << complexes.size() -1 << " complexes: " << endl;
       
-      for(int i = 1; i < complexes.size(); i++) {
+      for(unsigned int i = 1; i < complexes.size(); i++) {
 	dbgtrace << "Considering complex nr. " << i+1 << endl;
 	//Extract properties
 	
@@ -99,11 +100,8 @@ namespace polymake { namespace fan{
 	bool uses_weights = false;
 	Matrix<Rational> prerays = complexes[i].give("RAYS");
 	Matrix<Rational> prelin = complexes[i].give("LINEALITY_SPACE");
-	//If this fan uses homog. coordinates, strip away the first column of rays and linear space
-	prerays = prerays.minor(All,~scalar2set(0));
-	prelin = prelin.minor(All,~scalar2set(0));
 	IncidenceMatrix<> premax = complexes[i].give("MAXIMAL_CONES");
-	int dim = prerays.cols() > prelin.cols() ? prerays.cols() : prelin.cols();
+	
 	Array<Integer> preweights;
 	if(complexes[i].exists("TROPICAL_WEIGHTS")) {
 	  uses_weights = true;
@@ -113,8 +111,16 @@ namespace polymake { namespace fan{
 	Set<int> complex_affine;
 	Set<int> complex_directional;
 	separateRays(prerays,complex_affine, complex_directional,uses_homog);
+	//If this fan uses homog. coordinates, strip away the first column of rays and linear space
+	if(uses_homog) {
+	  if(prerays.rows() > 0) prerays = prerays.minor(All,~scalar2set(0));
+	  if(prelin.rows() > 0) prelin = prelin.minor(All,~scalar2set(0));
+	}
+	int dim = prerays.cols() > prelin.cols() ? prerays.cols() : prelin.cols();
 		
 	dbgtrace << "Creating ray matrix" << endl;
+	//dbgtrace << "Affine rays of product are " << rayMatrix.minor(product_affine,All) << endl;
+	//dbgtrace << "Affine rays of complex are " << prerays.minor(complex_affine,All) << endl;
 	
 	//Create new ray matrix
 	Matrix<Rational> newRays(0,product_dim + dim);
@@ -134,6 +140,10 @@ namespace polymake { namespace fan{
 	      }
 	  }
 	}
+	Set<int> newAffine = sequence(0, newRays.rows());
+	
+	dbgtrace << "New affine rays read " << newRays << endl;
+	
 	//If the product is non-homog. and the complex is homog., we have to add a column of ones in front
 	//We then also add a zero column in front of the old product rays for the directional rays
 	if(!product_uses_homog && uses_homog && newRays.rows() > 0) {
@@ -155,19 +165,87 @@ namespace polymake { namespace fan{
 	  newRays = newRays / (product_zero | prerays.row(*crays));
 	  cdirIndices[*crays] = newRays.rows()-1;
 	}
+	Set<int> newDirectional = sequence(newRays.rows()-1,newRays.rows() - product_affine.size());
+	
+	dbgtrace << "Creating lineality matrix" << endl;
 	
 	//Create new lineality matrix
 	if(prelin.rows() > 0) {
-	  
+	  prelin = Matrix<Rational>(prelin.rows(),product_dim) | prelin;
+	}
+	if(linMatrix.rows() > 0) {
+	  linMatrix = linMatrix | Matrix<Rational>(linMatrix.rows(), dim);
 	}
 	
+	dbgtrace << "Prelin = " << prelin << "\nlinMatrix = " << linMatrix << endl;
 	
+	//Copy values
+	rayMatrix = newRays;
+	linMatrix = linMatrix.rows() == 0? prelin : (prelin.rows() == 0? linMatrix : linMatrix / prelin);
+	product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
+		
+	dbgtrace << "Creating cones" << endl;
+	
+	//Now create the new cones and weights:
+	Vector<Set<int> > newMaxCones;
+	Vector<Integer> newWeights;
+	//Make sure, we have at least one "cone" in each fan, even if it is empty
+	if(maximalCones.dim() == 0) { maximalCones = maximalCones | Set<int>();}
+	if(premax.rows() == 0) { premax = premax / Set<int>();}
+	for(int pmax = 0; pmax < maximalCones.dim(); pmax++) {
+	    Set<int> product_cone = maximalCones[pmax];
+	    if(!product_uses_homog && uses_homog) {
+	      product_cone = product_cone + (-1);
+	    }
+	    for(int cmax = 0; cmax < premax.rows(); cmax++) {
+	      Set<int> complex_cone = premax.row(cmax);
+	      if(!uses_homog && product_uses_homog) {
+		complex_cone = complex_cone + (-1);
+	      }
+	      Set<int> newcone;
+	      Set<int> pAffine = product_cone * product_affine;
+	      Set<int> pDirectional = product_cone * product_directional;
+	      Set<int> cAffine = complex_cone * complex_affine;
+	      Set<int> cDirectional = complex_cone * complex_directional;
+	      //First add the affine rays: For each pair of affine rays add the corresponding index from
+	      //affineIndices
+	      for(Entire<Set<int> >::iterator pa = entire(pAffine); !pa.at_end(); pa++) {
+		for(Entire<Set<int> >::iterator ca = entire(cAffine); !ca.at_end(); ca++) {
+		    newcone = newcone + affineIndices[std::make_pair(*pa,*ca)];
+		}		
+	      }
+	      //Now add the directional indices
+	      for(Entire<Set<int> >::iterator pd = entire(pDirectional); !pd.at_end(); pd++) {
+		newcone = newcone + pdirIndices[*pd];
+	      }
+	      for(Entire<Set<int> >::iterator cd = entire(cDirectional); !cd.at_end(); cd++) {
+		newcone = newcone + cdirIndices[*cd];
+	      }
+	      newMaxCones = newMaxCones | newcone;
+	      //Compute weight
+	      if(product_has_weights || uses_weights) {
+		newWeights = newWeights | (product_has_weights? weights[pmax] : Integer(1)) * (uses_weights? preweights[cmax] : Integer(1));
+	      }
+	    }
+	}
+	
+	//Copy values
+	product_affine = newAffine;
+	product_directional = newDirectional;
+	maximalCones = newMaxCones;
+	weights = newWeights;
     
       }
     
-    
-	perl::Object result("fan::PolyhedralFan");
-	return result;
+      //Fill fan with result
+      perl::Object result("fan::PolyhedralFan");
+	result.take("RAYS") << rayMatrix;
+	result.take("LINEALITY_SPACE") << linMatrix;
+	result.take("MAXIMAL_CONES") << maximalCones;
+	if(product_has_weights) result.take("TROPICAL_WEIGHTS") << weights;
+	result.take("USES_HOMOGENEOUS_C") << product_uses_homog;
+	
+      return result;
     
     
 //     perl::Object firstComplex = complexes[0];
