@@ -19,6 +19,8 @@
 #include "polymake/Matrix.h"
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
+#include "polymake/SparseMatrix.h"
+#include "polymake/IncidenceMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
@@ -30,5 +32,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(operator_x_x_f5, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::Matrix<pm::Rational> const&> > >);
    FunctionInstance4perl(operator_x_x_f5, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::Matrix<pm::Rational> const&> > >);
    FunctionInstance4perl(operator_x_x_f5, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::Matrix<pm::Rational> const&> > >);
+   FunctionInstance4perl(operator_x_x_f5, perl::Canned< const Wary< SparseMatrix< Rational, NonSymmetric > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

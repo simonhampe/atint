@@ -262,6 +262,14 @@ object PolyhedralFan {
 	  return $this->AMBIENT_DIM;
 	}
 	
+	# @category Basic properties
+	# This computes the ambient dimension ignoring homogeneous coordinates. More precisely, returns
+	# ambient_dim_fix, if the fan does not use homog. coordinates, otherwise it returns ambient_dim_fix-1
+	user_method real_ambient_dim {
+	  my $this = shift;
+	  return $this->USES_HOMOGENEOUS_C? $this->ambient_dim_fix-1 : $this->ambient_dim_fix; # FIXME
+	}
+	
 	# @category Tropical methods
 	# Convenience method, returns LATTICE_NORMALS->[i]->[j]
 	# @param Int i The index of the facet

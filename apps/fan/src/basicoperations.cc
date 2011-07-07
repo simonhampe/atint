@@ -234,7 +234,8 @@ namespace polymake { namespace fan{
 	product_directional = newDirectional;
 	maximalCones = newMaxCones;
 	weights = newWeights;
-    
+	product_uses_homog = product_uses_homog || uses_homog;
+	product_has_weights = product_has_weights ||  uses_weights;
       }
     
       //Fill fan with result

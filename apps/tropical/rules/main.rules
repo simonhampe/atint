@@ -16,6 +16,8 @@
 #  
 #  ---
 #  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file subsumes all atint extensions to the application tropical
 #####################################################################
 
 IMPORT polytope 
@@ -26,5 +28,5 @@ INCLUDE
   divisor.rules
   specialfans.rules
   minmaxfunction.rules
-  #plfunction.rules
+  intersection.rules
   

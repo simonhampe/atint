@@ -30,9 +30,9 @@ This file provides c++ realizations of basic operations on polyhedral complexes
 
 namespace polymake { namespace fan{ 
   
-  //using namespace atint::donotlog;
+  using namespace atint::donotlog;
   //using namespace atint::dolog;
-  using namespace atint::dotrace;
+  //using namespace atint::dotrace;
   
   /**
     @brief Takes a matrix and returns the row indices where the first coordinate is nonzero and where the first coordinate is zero in  two different sets
@@ -234,7 +234,8 @@ namespace polymake { namespace fan{
 	product_directional = newDirectional;
 	maximalCones = newMaxCones;
 	weights = newWeights;
-    
+	product_uses_homog = product_uses_homog || uses_homog;
+	product_has_weights = product_has_weights ||  uses_weights;
       }
     
       //Fill fan with result

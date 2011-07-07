@@ -20,6 +20,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/SparseMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
@@ -32,5 +33,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(col_x_f5, perl::Canned< const Wary< pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> const&, pm::all_selector const&> > >);
    FunctionInstance4perl(col_x_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >);
    FunctionInstance4perl(col_x_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >);
+   FunctionInstance4perl(col_x_f5, perl::Canned< const Wary< SparseMatrix< Rational, NonSymmetric > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

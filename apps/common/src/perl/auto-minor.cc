@@ -23,6 +23,7 @@
 #include "polymake/Set.h"
 #include "polymake/Vector.h"
 #include "polymake/Array.h"
+#include "polymake/SparseMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1, typename T2>
@@ -36,5 +37,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >, perl::Enum<pm::all_selector>, perl::TryCanned< const Array< int > >);
    FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >, perl::Enum<pm::all_selector>, perl::TryCanned< const Array< int > >);
    FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >, perl::Enum<pm::all_selector>, perl::TryCanned< const Array< int > >);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< SparseMatrix< Rational, NonSymmetric > > >, perl::Enum<pm::all_selector>, perl::Canned< const pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

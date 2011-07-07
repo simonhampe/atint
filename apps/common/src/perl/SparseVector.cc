@@ -16,10 +16,10 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/client.h"
-#include "polymake/Matrix.h"
+#include "polymake/SparseVector.h"
 #include "polymake/Rational.h"
-#include "polymake/Vector.h"
-#include "polymake/linalg.h"
+#include "polymake/SparseMatrix.h"
+#include "polymake/IncidenceMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -28,7 +28,6 @@ namespace polymake { namespace common {
       WrapperReturnNew(T0, (arg0.get<T1>()) );
    };
 
-   FunctionInstance4perl(new_X, Matrix< Rational >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> const&> >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< Matrix< Rational > > >, perl::Canned< const pm::SameElementSparseVector<pm::SingleElementSet<int>, pm::Rational> >);
+   FunctionInstance4perl(new_X, SparseVector< Rational >, perl::Canned< const pm::sparse_matrix_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::Rational, false, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&, pm::NonSymmetric> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

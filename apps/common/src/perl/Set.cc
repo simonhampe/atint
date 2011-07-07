@@ -41,5 +41,6 @@ namespace polymake { namespace common {
    Class4perl("Polymake::common::Set__Set__Int", Set< Set< int > >);
    FunctionInstance4perl(new, Set< Set< int > >);
    OperatorInstance4perl(Binary_sub, perl::Canned< const Set< int > >, int);
+   OperatorInstance4perl(assign, pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)2>, false, (pm::sparse2d::restriction_kind)2> > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
