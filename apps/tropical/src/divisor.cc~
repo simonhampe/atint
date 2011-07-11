@@ -27,13 +27,31 @@
 #include "polymake/Array.h"
 #include "polymake/tropical/divisor.h"
 #include "polymake/tropical/LoggingPrinter.h"
+#include "polymake/polytope/cdd_interface.h"
 
 
 namespace polymake { namespace tropical {
 
+    using polymake::polytope::cdd_interface::solver;
+  
     using namespace atint::donotlog;
     //using namespace atint::dolog;
     //using namespace atint::dotrace;
+    
+    perl::ListReturn intersection_test(perl::Object c1, perl::Object c2) {
+      Matrix<Rational> facets = c1.give("FACETS | INEQUALITIES");
+      Matrix<Rational> f2 = c2.give("FACETS | INEQUALITIES");
+	facets /= f2;
+      Matrix<Rational> linear = c1.give("LINEAR_SPAN | EQUATIONS");
+      Matrix<Rational> l2 =  c2.give("LINEAR_SPAN | EQUATIONS");
+	linear /= l2;
+      std::pair<Matrix<Rational>, Matrix<Rational> > s = solver<Rational>().enumerate_vertices(facets,linear,true);
+      
+      perl::ListReturn result;
+	result << s.first;
+	result << s.second;      
+      
+    }
     
     //Documentation see header
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
@@ -157,8 +175,6 @@ namespace polymake { namespace tropical {
 			newWeights = newWeights | weights[fanIndex];
 		    }
 		}
-		
-		
 	    }//End check intersection cone
 	    
 	   
@@ -253,6 +269,8 @@ namespace polymake { namespace tropical {
       return result;
     }
     
+    //perl::Object divisorByPLF(perl::Object fan, perl::Object function)
+    
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Tropical geometry"
@@ -267,6 +285,6 @@ namespace polymake { namespace tropical {
     
     Function4perl(&divisorByValueVector,"divisorByValueVector(fan::PolyhedralFan, Vector<Rational>)");  
     
-
+    Function4perl(&intersection_test,"intersection_test(polytope::Cone, polytope::Cone)");
 }
 }

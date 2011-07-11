@@ -411,7 +411,7 @@ object MinMaxFunction {
       my $fmatrix = new Matrix<Rational>(0,(2*$n) + 1);
 	$fmatrix = $fmatrix / new Vector<Rational>(unit_vector<Rational>(2*$n+1,$i));
 	$fmatrix = $fmatrix / new Vector<Rational>(unit_vector<Rational>(2*$n+1,$i+$n));
-      @result = (@result, new MinMaxFunction(FUNCTION_MATRIX=>$fmatrix,USES_MIN=>FALSE));
+      @result = (new MinMaxFunction(FUNCTION_MATRIX=>$fmatrix,USES_MIN=>FALSE),@result);
     }
     return @result;
   }

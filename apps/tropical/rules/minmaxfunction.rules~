@@ -409,9 +409,9 @@ object MinMaxFunction {
     my @result = ();
     for(my $i = 0; $i < $n; $i++) {
       my $fmatrix = new Matrix<Rational>(0,(2*$n) + 1);
-	$fmatrix = $fmatrix / unit_vector<Rational>(2*$n+1,$i);
-	$fmatrix = $fmatrix / unit_vector<Rational>(2*$n+1,$i+$n);
-      @result = (@result, new MinMaxFunction(FUNCTION_MATRIX=>new Matrix<Rational>($fmatrix),USES_MIN=>FALSE));
+	$fmatrix = $fmatrix / new Vector<Rational>(unit_vector<Rational>(2*$n+1,$i));
+	$fmatrix = $fmatrix / new Vector<Rational>(unit_vector<Rational>(2*$n+1,$i+$n));
+      @result = (@result, new MinMaxFunction(FUNCTION_MATRIX=>$fmatrix,USES_MIN=>FALSE));
     }
     return @result;
   }
