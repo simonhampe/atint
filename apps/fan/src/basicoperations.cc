@@ -34,14 +34,7 @@ namespace polymake { namespace fan{
   //using namespace atint::dolog;
   //using namespace atint::dotrace;
   
-  /**
-    @brief Takes a matrix and returns the row indices where the first coordinate is nonzero and where the first coordinate is zero in  two different sets
-    @param Matrix<Rational> m The matrix whose rows we consider
-    @param Set<int> affine A reference to a set where the indices of the affine rows are stored
-    @param Set<int> directional A reference to a set where the indices of the directional rows are stored
-    @param bool uses_homog When set to false, all rows are directional and affine only contains the index -1
-    @return std::pair<Set<int>, Set<int> > The first set contains the row indices of rows that start with a nonzero entry, the second set is the complement
-  */
+  //Documentation see header
   inline std::pair<Set<int>, Set<int> > separateRays(Matrix<Rational> m, Set<int> &affine, Set<int> &directional, bool uses_homog) {
     affine.clear();
     directional.clear();

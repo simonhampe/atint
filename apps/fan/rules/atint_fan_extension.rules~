@@ -106,7 +106,7 @@ object PolyhedralFan {
 	
 	# @category Polyhedral complex
 	# If the fan does not use homogeneous coordinates, this is just a copy of RAYS and actually needn't be requested. Otherwise this computes
-	# a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from [[RAYS]] occurs in 
+	# a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from [[RAYS]] occurs  
 	# as a row in this matrix...
 	# - once, if r_0 = 1
 	# - k times, if r_0 = 0 and k is the number of equivalence classes of maximal cones containing r with respect to the following relation:

@@ -52,6 +52,13 @@ perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values);
 */
 perl::Object divisorByPLF(perl::Object fan, perl::Object);
 
+/**
+  @brief Computes the function value of a min-max function at a given point
+  @param Matrix<Rational> functionMatrix The function matrix of the min-max-function. Each row corresponds to a function, the last column contains the constant coefficients
+  @param Vector<Rational> point The point at which the function should be evaluated, given in homogeneous coordinates (the first coordinate is sliced away.
+  @param bool uses_min True, if we take the mininum over all function rows, otherwise we take the maximum
+*/
+inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min);
 
 }}
 

@@ -106,11 +106,11 @@ object PolyhedralFan {
 	
 	# @category Polyhedral complex
 	# If the fan does not use homogeneous coordinates, this is just a copy of RAYS and actually needn't be requested. Otherwise this computes
-	# a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from [[RAYS]] occurs in 
+	# a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from [[RAYS]] occurs  
 	# as a row in this matrix...
 	# - once, if r_0 = 1
 	# - k times, if r_0 = 0 and k is the number of equivalence classes of maximal cones containing r with respect to the following relation:
-	# To maximal cones m, m' containing r are equivalent, if they are equal or there exists a sequence of maximal cones
+	# Two maximal cones m, m' containing r are equivalent, if they are equal or there exists a sequence of maximal cones
 	# m = m_1,...m_r = m', such that r is contained in each m_i and each intersection m_i cap m_i+1 contains at least one ray s with s_0 = 1.
 	# The reason for this is that, when specifying a piecewise affine linear function on a polyhedral complex, the same directional ray with 
 	# x0 = 0 might be assigned two different values, if it is contained in two "non-connected" maximal cones (where connectedness is to be 

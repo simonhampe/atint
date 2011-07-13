@@ -28,32 +28,17 @@
 #include "polymake/tropical/divisor.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/polytope/cdd_interface.h"
-
+#include "polymake/linalg.h"
 
 namespace polymake { namespace tropical {
 
     using polymake::polytope::cdd_interface::solver;
-  
-    using namespace atint::donotlog;
-    //using namespace atint::dolog;
+
+    //using namespace atint::donotlog;
+    using namespace atint::dolog;
     //using namespace atint::dotrace;
     
-    perl::ListReturn intersection_test(perl::Object c1, perl::Object c2) {
-      Matrix<Rational> facets = c1.give("FACETS | INEQUALITIES");
-      Matrix<Rational> f2 = c2.give("FACETS | INEQUALITIES");
-	facets /= f2;
-      Matrix<Rational> linear = c1.give("LINEAR_SPAN | EQUATIONS");
-      Matrix<Rational> l2 =  c2.give("LINEAR_SPAN | EQUATIONS");
-	linear /= l2;
-      std::pair<Matrix<Rational>, Matrix<Rational> > s = solver<Rational>().enumerate_vertices(facets,linear,true);
-      
-      perl::ListReturn result;
-	result << s.first;
-	result << s.second;      
-      
-    }
-    
-    //Documentation see header
+    //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
       
       //First we compute ambient dimensions and check that they are equal
@@ -69,9 +54,11 @@ namespace polymake { namespace tropical {
       int dimension = fan.CallPolymakeMethod("dim_fix");
       if(dimension == 0) return fan;
       
+      dbgtrace << "Extracting values" << endl;
+      
       //Extract values
       Matrix<Rational> rays = fan.give("RAYS");
-      Matrix<Rational> lineality_space = fan.give("LINEALITY_SPACE");
+      Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
       Array<Integer> weights;
       bool weightsExist = false;
       if(fan.exists("TROPICAL_WEIGHTS")) {
@@ -84,7 +71,7 @@ namespace polymake { namespace tropical {
       Matrix<Rational> compRays = completeFan.give("RAYS");
       IncidenceMatrix<> compMaximalCones = completeFan.give("MAXIMAL_CONES");
       Matrix<Rational> compLinealitySpace = completeFan.give("LINEALITY_SPACE");
-      
+
       //Result variables
       Matrix<Rational> newRays(0,ambient_dim);
       Vector<Set<int> > newCones;
@@ -92,8 +79,7 @@ namespace polymake { namespace tropical {
       Matrix<Rational> newLineality(0,ambient_dim);
 	bool computedLineality = false;
       Vector<Integer> newWeights;
-      
-      
+            
       //If the complete fan is only a lineality space, it is the whole space, so we return fan
       if(compMaximalCones.rows() == 0) {
 	return fan;
@@ -105,34 +91,52 @@ namespace polymake { namespace tropical {
       bool fanHasOnlyLineality = maximalCones.rows() == 0;
       int fanUpperBound = fanHasOnlyLineality? 1 : maximalCones.rows();
       
+      dbgtrace << "Intersecting cones" << endl;
+      
       //Now intersect all pairs of maximal cones.
       for(int fanIndex = 0; fanIndex < fanUpperBound; fanIndex++) {
+	//Compute inequalities and equations for the fan cone
+	std::pair<Matrix<Rational>, Matrix<Rational> > fanEqs =
+	    solver<Rational>().enumerate_facets(fanHasOnlyLineality? Matrix<Rational>(0,ambient_dim) :
+				zero_vector<Rational>() | rays.minor(maximalCones.row(fanIndex),All),
+				zero_vector<Rational>() | linspace,true);
 	for(int cIndex = 0; cIndex < compMaximalCones.rows(); cIndex++) {
-	    //Create the cones and compute the intersection
-	    perl::Object fanCone("polytope::Cone<Rational>");
-	    perl::Object compCone("polytope::Cone<Rational>");
-	      fanCone.take("RAYS") << (fanHasOnlyLineality?
-					Matrix<Rational>(1,ambient_dim) :
-					rays.minor(maximalCones.row(fanIndex),All));
-	      fanCone.take("LINEALITY_SPACE") << fan.give("LINEALITY_SPACE");
-	      compCone.take("RAYS") << compRays.minor(compMaximalCones.row(cIndex),All);
-	      compCone.take("LINEALITY_SPACE") << compLinealitySpace;
-	    perl::Object inter = CallPolymakeFunction("intersection",fanCone,compCone);
-	    int coneDimension = inter.give("CONE_DIM");
+	    std::pair<Matrix<Rational>, Matrix<Rational> > compEqs =
+		solver<Rational>().enumerate_facets(
+			      zero_vector<Rational>() | compRays.minor(compMaximalCones.row(cIndex),All),
+			      zero_vector<Rational>() | compLinealitySpace,true);
+	    
+	    dbgtrace << "Created cone, inequalites are\n" << (fanEqs.first / compEqs.first).rows() << "\nEqualities are\n" << (fanEqs.second / compEqs.second).rows() << endl;
+	    
+	    std::pair<Matrix<Rational>, Matrix<Rational> > s = 	
+		  solver<Rational>().enumerate_vertices(fanEqs.first / compEqs.first, fanEqs.second / compEqs.second,true);
+	    s.first = s.first.minor(All, range(1,s.first.cols()-1));
+	    s.second = s.second.minor(All,range(1,s.second.cols()-1));
+	    
+	    dbgtrace << "Computed rays of intersection" << endl;
+		  
+	    int coneDimension = rank(s.first) + rank(s.second);
 	    
 	    //Only consider intersections that have the correct dimension
 	    if(coneDimension == dimension) {
-	      //The first time we compute this, the lineality space of the intersection is copied as the lineality space of
-		//the resulting fan
+		dbgtrace << "Rays: " << s.first << endl;
+		dbgtrace << "Lineality: " << s.second << endl;
+		//The first time we compute this, the lineality space of the intersection is copied as the lineality space of the resulting fan
 		if(!computedLineality) {
-		  inter.give("LINEALITY_SPACE") >> newLineality;
+		  newLineality = s.second;
+		  //Make sure the lineality space has the right dimension
+		  if(newLineality.cols() <= 0) {
+		    newLineality = Matrix<Rational>(0,ambient_dim);
+		  }
 		  computedLineality = true;
 		  dbgtrace << "Setting lineality space to " << newLineality << endl;
 		  
 		}
 		
 		//Now go through the rays of the intersection to find those already added
-		Matrix<Rational> interRays = inter.give("RAYS");
+		Matrix<Rational> interRays = s.first;//inter.give("RAYS");
+		
+		dbgtrace << "Checking rays" << endl;
 		
 		Set<int> remainingRows;
 		Set<int> newMaximalCone;
@@ -157,7 +161,7 @@ namespace polymake { namespace tropical {
 		
 		//Now add remaining rays and the corresponding cone (if it doesn't exist yet)
 		bool addCone = false;
-		if(remainingRows.size() < 0) {
+		if(remainingRows.size() > 0) {
 		  addCone = true;
 		}
 		else {
@@ -165,6 +169,7 @@ namespace polymake { namespace tropical {
 		}
 		
 		if(addCone) {
+		    dbgtrace << "Adding cone" << endl;		  
 		    newRays = newRays / interRays.minor(remainingRows,All);
 		    for(int i = newRays.rows() - remainingRows.size(); i < newRays.rows(); i++) {
 		      newMaximalCone += i;
@@ -193,6 +198,7 @@ namespace polymake { namespace tropical {
       
     }
     
+    //Documentation see header -------------------------------------------------------------
     perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values) {
       //Extract properties
       bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
@@ -269,7 +275,81 @@ namespace polymake { namespace tropical {
       return result;
     }
     
-    //perl::Object divisorByPLF(perl::Object fan, perl::Object function)
+    //Documentation see header -------------------------------------------------------------
+    inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min) {
+      //Remove the first coordinate and add a 1 at the end of point for the constant coefficient
+      point = point.slice(1,point.dim()-1);
+      point |= 1;
+      Vector<Rational> listOfValues = functionMatrix * point;
+      return uses_min? 	accumulate(Set<Rational>(listOfValues), operations::min())
+			: accumulate(Set<Rational>(listOfValues), operations::max());
+    }
+    
+    //Documentation see header -------------------------------------------------------------
+    perl::Object divisorByPLF(perl::Object fan, perl::Object function) {
+      dbglog << "Refining fan" << endl;
+      
+      //Homogenize the fan and refine it
+      bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+      if(!uses_homog) fan = fan.CallPolymakeMethod("homogenize");
+      perl::Object linearityDomains = function.CallPolymakeMethod("linearityDomains");
+      fan = intersect_complete_fan(fan, linearityDomains);
+      
+      dbglog << "Extracting values" << endl;
+      
+      //Extract values
+      Matrix<Rational> rays = fan.give("CMPLX_RAYS");	
+      Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
+      Array<Set<int> > maximal = fan.give("CMPLX_MAXIMAL_CONES");
+      Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");
+      bool uses_min = function.give("USES_MIN");
+      
+      //Now compute function values
+      Vector<Rational> values;
+      
+      //Separate rays
+      Set<int> affine, directional;
+      for(int r = 0; r < rays.rows(); r++) {
+	if(rays(r,0) == 0) {
+	  directional += r;
+	}
+	else {
+	  affine += r;
+	}
+      }
+      
+      dbglog << "Computing values" << endl;
+	
+      for(int index = 0; index < rays.rows(); index++) {
+	//If it is an affine ray, simply compute the function value at that point
+	if(rays(index,0) == 1) {
+	    values |= functionValue(fmatrix, rays.row(index),uses_min);
+	}
+	//Otherwise find an affine ray that shares a maximal cone with this ray (if there is none, set the value to 0, it doesn't matter anyway)
+	else {
+	    for(int mc = 0; mc < maximal.size(); mc++) {
+	      if(maximal[mc].contains(index)) {
+		Set<int> sharedRays = maximal[mc] * affine;
+		if(sharedRays.size() > 0) {
+		    //If we have found such an affine ray, compute the value of affine + direction and substract the value of the affine ray and stop searching
+		    int sray = *(sharedRays.begin());
+		    values |= (functionValue(fmatrix, rays.row(sray) + rays.row(index),uses_min) - 
+			      functionValue(fmatrix, rays.row(sray),uses_min));
+		    break;
+		}
+	      }
+	    }
+	}
+      }
+      
+      //Finally we add the function values on the lineality space
+      for(int index = 0; index < linspace.rows(); index++) {
+	values |= functionValue(fmatrix, linspace.row(index), uses_min);
+      }
+      
+      return divisorByValueVector(fan, values);
+      
+    }
     
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
@@ -285,6 +365,16 @@ namespace polymake { namespace tropical {
     
     Function4perl(&divisorByValueVector,"divisorByValueVector(fan::PolyhedralFan, Vector<Rational>)");  
     
-    Function4perl(&intersection_test,"intersection_test(polytope::Cone, polytope::Cone)");
+    UserFunction4perl("# @category Tropical geometry"
+		      "# Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be "
+		      "# in homogeneous coordinates, whether the tropical variety uses them or not. The function "
+		      "# should be given on the affine coordinates of the variety, NOT the homogeneous ones."
+		      "# @param fan::PolyhedralFan fan A tropical variety, on which the divisor is computed"
+		      "# @param MinMaxFunction A function whose DOMAIN should be equal to the affine coordinate "
+		      "# space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, " 
+		      "# AMBIENT_DIM otherwise."
+		      "# @return The corresponding divisor as a tropical variety in homogeneous coordinates.",
+		      &divisorByPLF, "divisorByPLF(fan::PolyhedralFan,MinMaxFunction)");
+   
 }
 }

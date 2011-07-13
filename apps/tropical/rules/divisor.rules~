@@ -53,8 +53,6 @@ user_function divisorByPLF {
   $fan = $fan->homogenize;
   $fan = intersect_complete_fan($fan,$function->linearityDomains);
   
-  print "kra\n";
-  
   #Now compute the function values
   my $crays = $fan->CMPLX_RAYS;
   my @mcones = @{$fan->CMPLX_MAXIMAL_CONES};
