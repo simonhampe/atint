@@ -30,6 +30,7 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/tropical/normalvector.h"
 #include "polymake/tropical/LoggingPrinter.h"
+#include "polymake/polytope/cdd_interface.h"
 
 namespace polymake { namespace fan{ 
   
@@ -37,16 +38,41 @@ namespace polymake { namespace fan{
   //using namespace atint::dolog;
   //using namespace atint::dotrace;
   
+  using polymake::polytope::cdd_interface::solver;
+  
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
     @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeCodimensionOne(perl::Object fan) {
-    //First we construct the set of all facets 
-    Array<IncidenceMatrix<> > maximal_cone_incidence = fan.give("MAXIMAL_CONES_INCIDENCES");
-    
+    Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> rays = fan.give("RAYS");
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    
+    //First we construct the set of all facets 
+    //Array<IncidenceMatrix<> > maximal_cone_incidence = fan.give("MAXIMAL_CONES_INCIDENCES");
+    //Compute the rays-in-facets for each cone directly
+    Vector<IncidenceMatrix<> > maximal_cone_incidence;
+    for(int mc = 0; mc < maximalCones.rows(); mc++) {
+      Set<int> mset = maximalCones.row(mc);
+      //Extract inequalities
+      Matrix<Rational> facets = solver<Rational>().enumerate_facets(
+	    zero_vector<Rational>() | rays.minor(mset,All),
+	    linspace).first.minor(All, ~scalar2set(0));;
+      //For each inequality, check which rays lie in it
+      Vector<Set<int> > facetIncidences;
+      for(int row = 0; row < facets.rows(); row++) {
+	Set<int> facetRays;
+	for(Entire<Set<int> >::iterator m = entire(mset); !m.at_end(); m++) {
+	  if(facets.row(row) * rays.row(*m) == 0) {
+	    facetRays += *m;
+	  }
+	}
+	facetIncidences |= facetRays;
+      }
+      maximal_cone_incidence |= IncidenceMatrix<>(facetIncidences);
+    }
     
     //This will contain the set of indices defining the codim one faces
     Vector<Set<int> > facetArray;
@@ -113,7 +139,7 @@ namespace polymake { namespace fan{
     dbgtrace << "Going through all maximal cones" << endl;
     
     //Iterate through all cone objects
-    for(int i = 0; i < cones.size(); i++) {
+    for(int i = 0; i < maximalCones.rows(); i++) {
       dbgtrace << "Considering maximal cone no. " << i << endl;
       //Put its rays in a vector
       Vector<int> sortedRayIndices(maximalCones.row(i));

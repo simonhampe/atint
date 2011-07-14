@@ -187,14 +187,14 @@ object PolyhedralFan {
 	#------------------------------------------------------------------------#
 	
 	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, AMBIENT_DIM {
-	  #computeCodimensionOne($this);
-	  my @cones = ();
-	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
-	    my $cone = new Cone<Rational>(RAYS=>$this->RAYS->minor($this->MAXIMAL_CONES->row($c),All));
-	    $cone->RAYS_IN_FACETS;
-	    @cones = (@cones,$cone);
-	  }
-	  computeCodimensionOneViaCones($this,@cones);
+	  computeCodimensionOne($this);
+# 	  my @cones = ();
+# 	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
+# 	    my $cone = new Cone<Rational>(RAYS=>$this->RAYS->minor($this->MAXIMAL_CONES->row($c),All));
+# 	    $cone->RAYS_IN_FACETS;
+# 	    @cones = (@cones,$cone);
+# 	  }
+# 	  computeCodimensionOneViaCones($this,@cones);
 	}
 	
 	#------------------------------------------------------------------------#
@@ -227,13 +227,22 @@ object PolyhedralFan {
 	  computeComplexData($this);
 	}
 	
+	#------------------------------------------------------------------------#
+	
+	rule INPUT_RAYS, INPUT_CONES : LINEALITY_SPACE {
+	  $this->INPUT_RAYS = new Matrix<Rational>(0,$this->LINEALITY_SPACE->cols());
+	  $this->INPUT_CONES = new Vector<Set<Int>>();
+	}
+	
+	
+	
 	## METHODS #################################################################
 	
 	# @category Basic properties
 	# This computes the dimension of the fan in the following way: If the fan has rays, it simply
 	# calls DIM, otherwise it returns LINEALITY_DIM.
 	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'dimension 0'
-	# (Actually, if we didn't give any ray, not even [0,..0], it will break and start filling up the RAM)
+	# (Actually, if we give only one ray [0,..0], it will break and start filling up the RAM)
 	# So we should delete this function when this is fixed.
 	user_method dim_fix {
 	  my $this = shift;

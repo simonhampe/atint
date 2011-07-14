@@ -41,6 +41,8 @@ namespace polymake { namespace tropical {
     //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
       
+      dbglog << "Starting refinement..." << endl;
+      
       //First we compute ambient dimensions and check that they are equal
       int ambient_dim =  fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
       int comp_ambient_dim = completeFan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
@@ -51,10 +53,10 @@ namespace polymake { namespace tropical {
       
       //If fan is zero-dimensional it is just a point, so it has no maximal cones.
       //But since no refinement is necessary anyway, we just return fan
-      int dimension = fan.CallPolymakeMethod("dim_fix");
+      int dimension = fan.CallPolymakeMethod("dim_fix"); //FIXME: Replace
       if(dimension == 0) return fan;
       
-      dbgtrace << "Extracting values" << endl;
+      dbglog << "Extracting values" << endl;
       
       //Extract values
       Matrix<Rational> rays = fan.give("RAYS");
@@ -287,12 +289,13 @@ namespace polymake { namespace tropical {
     
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByPLF(perl::Object fan, perl::Object function) {
-      dbglog << "Refining fan" << endl;
+      dbglog << "Preparing computations" << endl;
       
       //Homogenize the fan and refine it
       bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
       if(!uses_homog) fan = fan.CallPolymakeMethod("homogenize");
       perl::Object linearityDomains = function.CallPolymakeMethod("linearityDomains");
+      dbglog << "Refining fan" << endl;
       fan = intersect_complete_fan(fan, linearityDomains);
       
       dbglog << "Extracting values" << endl;

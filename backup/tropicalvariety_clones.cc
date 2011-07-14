@@ -31,7 +31,7 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 #include "polymake/tropical/normalvector.h"
 #include "polymake/tropical/LoggingPrinter.h"
 
-namespace polymake { namespace tropical{ 
+namespace polymake { namespace fan{ 
   
   using namespace atint::donotlog;
   //using namespace atint::dolog;
@@ -39,7 +39,7 @@ namespace polymake { namespace tropical{
   
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
-    @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
+    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeCodimensionOne(perl::Object fan) {
     //First we construct the set of all facets 
@@ -94,8 +94,81 @@ namespace polymake { namespace tropical{
   }
   
   /**
+    @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically. This function differs from the function computeCodimensionOne in that it does not use the property MAXIMAL_CONES_INCICDENCES, but uses the FACETS_THRU_VERTICES property of polytope::Cone (which seems to make everything a lot faster)
+    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+    @param std::vector<perl::Object> cones An array of polytope::Cone objects (whose RAYS_IN_FACETS should have been precomputed) that represent the maximal cones of fan (s.t. the i-th cone is the i-th maximal cone)
+  */
+  void computeCodimensionOneViaCones(perl::Object fan, std::vector<perl::Object> cones) {
+    
+    //Extract needed properties
+    Matrix<Rational> rays = fan.give("RAYS");
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+    
+    //This will contain the array of codim-1-cones, which we use to construct the incidence matrix
+    Vector<Set<int> > facetArray;
+    //This will define the codim-1-maximal-cone incidence matrix
+    Vector<Set<int> > facetsInCones;
+    
+    dbgtrace << "Going through all maximal cones" << endl;
+    
+    //Iterate through all cone objects
+    for(int i = 0; i < (int)cones.size(); i++) {
+      dbgtrace << "Considering maximal cone no. " << i << endl;
+      //Put its rays in a vector
+      Vector<int> sortedRayIndices(maximalCones.row(i));
+      //Retrieve the facets of the cone
+      IncidenceMatrix<> raysInFacets = cones[i].give("RAYS_IN_FACETS");
+      //Now go through all facets of the cone and map them back to facets of the fan
+      for(int irow = 0; irow < raysInFacets.rows(); irow++) {
+	dbgtrace << "Considering its facet no. " << irow << endl;
+	//Convert ray indices back to fan indices
+	Set<int> potentialFacet;
+	Set<int> coneRays = raysInFacets.row(irow);
+	for(Entire<Set<int> >::iterator iray = entire(coneRays); !iray.at_end(); iray++) {
+	    potentialFacet = potentialFacet + sortedRayIndices[*iray];
+	}
+	dbgtrace << "Converted indices. Now checking for existence" << endl;
+	//If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
+	//More precisely: Check if at least one of its rays has x0-coord != 0
+	if(uses_homog) {
+	  Vector<Rational> firstColumn = rays.minor(potentialFacet,All).col(0);
+	  if(firstColumn == zero_vector<Rational>(firstColumn.dim())) {
+	    continue;
+	  }
+	}
+	//Otherwise check if we already have that facet and remember its index
+	int fcIndex = -1;
+	for(int existing = 0; existing < facetArray.dim(); existing++) {
+	if(facetArray[existing] == potentialFacet) {
+	  fcIndex = existing;
+	  break;
+	}
+	}
+	//Add the facet if necessary and add its maximal-cone indices
+	if(fcIndex == -1) {
+	  facetArray = facetArray | potentialFacet;
+	  Set<int> singlecone;
+	    singlecone = singlecone + i;
+	  facetsInCones = facetsInCones | singlecone;
+	}
+	else {
+	  facetsInCones[fcIndex] = facetsInCones[fcIndex] + i;
+	}
+	
+	
+      }
+      
+    }
+    
+    //Finally: Insert values
+    fan.take("CODIM_1_FACES") << IncidenceMatrix<>(facetArray);
+    fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>(facetsInCones);    
+  }
+  
+  /**
    @brief Takes a polyhedral fan and computes a map of lattice normals. The corresponding property in the fan is set automatically.
-   @param WeightedComplex A polyhedral fan, extended by atint to a tropical variety
+   @param fan::PolyhedralFan A polyhedral fan, extended by atint to a tropical variety
    */	  
   void computeLatticeNormals(perl::Object fan) {
     
@@ -159,7 +232,7 @@ namespace polymake { namespace tropical{
 
   /**
   @brief Takes a polyhedral fan and computes the weighted sum of the lattice normals at each codimension one face. Sets the corresponding property LATTICE_NORMAL_SUM automatically.
-  @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
+  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeLatticeNormalSum(perl::Object fan) {
     //Extract all necessary properties
@@ -190,7 +263,7 @@ namespace polymake { namespace tropical{
 
   /**
   @brief Takes a polyhedral fan and computes whether the fan is balanced as a weighted polyhedral complex. Sets the corresponding property IS_BALANCED automatically.
-  @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
+  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeIfBalanced(perl::Object fan) {
     //Extract all necessary properties
@@ -314,7 +387,7 @@ namespace polymake { namespace tropical{
   
   /**
   @brief Takes a polyhedral fan and computes the function vectors for the lattice normals (and their sums). Sets the corresponding properties LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR automatically.
-  @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
+  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeFunctionVectors(perl::Object fan) {
     //Extract properties from the fan
@@ -362,7 +435,7 @@ namespace polymake { namespace tropical{
 
   /**
     @brief Takes a polyhedral fan and computes the ray data of the corresponding polyhedral complex. Sets the corresponding properties CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES automatically.
-    @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
+    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeComplexData(perl::Object fan) {
     //Extract properties of fan
@@ -380,7 +453,7 @@ namespace polymake { namespace tropical{
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     IncidenceMatrix<> facet_incidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
-      facet_incidences = T(facet_incidences);
+      //facet_incidences = T(facet_incidences);
       
     //Result variables
     Matrix<Rational> cmplxrays(0,ambient_dim);
@@ -406,105 +479,129 @@ namespace polymake { namespace tropical{
     
     dbgtrace << "Affine rays: " << affineRays << ", directional rays: " << directionalRays << endl;
     
-    //Insert the indices of the new affine rays for each cone
+    // This maps a tuple of a maximal cone index and an original ray index
+    // to the new ray index
+    Map<std::pair<int,int>, int> coneRayIndexMap;
+    
+    
+    for(int mc = 0; mc < maximalCones.rows(); mc++) {
+      dbgtrace << "Considering cone " << mc << endl;
+      //Insert the indices of the new affine rays for each cone
+      Set<int> mcrays = maximalCones.row(mc) * affineRays;
+      dbgtrace << "Affine rays are " << mcrays << endl;
+      maxcones[mc] = Set<int>();
+      for(Entire<Set<int> >::iterator e = entire( mcrays); !e.at_end(); ++e) {
+	maxcones[mc] = maxcones[mc] + newAffineIndices[*e];
+      }
+      // For each maximal cone, add a copy of each of its directional rays and 
+      // remember the index
+      Set<int> mcDirectional = maximalCones.row(mc) * directionalRays;
+      dbgtrace << "Directional rays are " << mcDirectional << endl;
+      for(Entire<Set<int> >::iterator r = entire(mcDirectional); !r.at_end(); r++) {
+	cmplxrays /= rays.row(*r);
+	maxcones[mc] = maxcones[mc] + (cmplxrays.rows()-1);
+	coneRayIndexMap[std::make_pair(mc,*r)] = cmplxrays.rows()-1;
+      }
+    }
     for(int co = 0; co < codimOneCones.rows(); co++) {
       Set<int> corays = codimOneCones.row(co) * affineRays;
       codimone[co] = Set<int>();
       for(Entire<Set<int> >::iterator e = entire( corays); !e.at_end(); ++e) {
 	codimone[co] = codimone[co] + newAffineIndices[*e];
       }
-    }
-    for(int mc = 0; mc < maximalCones.rows(); mc++) {
-      Set<int> mcrays = maximalCones.row(mc) * affineRays;
-      maxcones[mc] = Set<int>();
-      for(Entire<Set<int> >::iterator e = entire( mcrays); !e.at_end(); ++e) {
-	maxcones[mc] = maxcones[mc] + newAffineIndices[*e];
+      // For each codimension one cone, take the first maximal cone containing it and copy the 
+      // indices for the directional rays
+      int mc = *(facet_incidences.row(co).begin());
+      Set<int> coDirectional = codimOneCones.row(co) * directionalRays;
+      for(Entire<Set<int> >::iterator r = entire(coDirectional); !r.at_end(); r++) {
+	codimone[co] = codimone[co] + coneRayIndexMap[std::make_pair(mc,*r)];
       }
     }
     
-    dbgtrace << "Added affine rays to cones" << endl;
     
-    //Now we go through the directional rays and compute the connected component for each one
-    for(Entire<Set<int> >::iterator r = entire(directionalRays); !r.at_end(); ++r) {
-      
-      dbgtrace << "Computing components of ray " << *r << endl;
-      
-      //List of connected components of this ray, each element is a component
-      //containing the indices of the maximal cones
-      Vector<Set<int> > connectedComponents;
-      //The inverse of the component matrix, i.e. maps cone indices to row indices of connectedComponents
-      Map<int,int> inverseMap;
-      
-      //Compute the set of maximal cones containing r
-      Set<int> rcones;
-      for(int mc = 0; mc < maximalCones.rows(); mc++) {
-	if(maximalCones.row(mc).contains(*r)) {
-	  rcones = rcones + mc;
-	}
-      }
-      
-      dbgtrace << "Computed set of cones containing r:" << rcones << endl;
-      
-      //For each such maximal cone, compute its component (if it hasnt been computed yet).
-      for(Entire<Set<int> >::iterator mc = entire(rcones); !mc.at_end(); ++mc) {
-	if(!inverseMap.exists(*mc)) {
-	  dbgtrace << "Creating new component" << endl;
-	  //Create new component
-	  Set<int> newset; newset = newset + *mc;
-	  connectedComponents = connectedComponents | newset;
-	  inverseMap[*mc] = connectedComponents.dim()-1;
-	  
-	  //Do a breadth-first search for all other cones in the component
-	  std::list<int> queue;
-	    queue.push_back(*mc);
-	    //Semantics: Elements in that queue have been added but their neighbours might not
-	    dbgtrace << "Calculating component" << endl;
-	  while(queue.size() != 0) {
-	    int node = queue.front(); //Take the first element and find its neighbours
-	      queue.pop_front();
-	    for(Entire<Set<int> >::iterator othercone = entire(rcones); !othercone.at_end(); othercone++) {
-	      //We only want 'homeless' cones
-	      if(!inverseMap.exists(*othercone)) {
-		//This checks whether both cones share a ray with x0=1
-		if((maximalCones.row(node) * maximalCones.row(*othercone) * affineRays).size() > 0) {
-		    //Add this cone to the component
-		    connectedComponents[connectedComponents.dim()-1] += *othercone;
-		    inverseMap[*othercone] = connectedComponents.dim()-1;
-		    queue.push_back(*othercone);
-		}
-	      }
-	    }
-	  }
-	  
-	}
-      } //END computation of connected components
-      
-      dbgtrace << "Connected components:\n" << connectedComponents << endl;
-      
-      //Now add r once for each connected component to the appropriate cones
-      for(int cc = 0; cc < connectedComponents.dim(); cc++) {
-	cmplxrays = cmplxrays / rays.row(*r);
-	int rowindex = cmplxrays.rows()-1;
-	Set<int> ccset = connectedComponents[cc];
-	dbgtrace << "Inserting for component " << cc+1 << endl;
-	for(Entire<Set<int> >::iterator mc = entire(ccset); !mc.at_end(); ++mc) {
-	  maxcones[*mc] = maxcones[*mc] + rowindex;
-	  //For each facet of mc that contains r, add rowindex
-	  Set<int> fcset;
-	  //If there are maximal cones not intersecting x0 = 1, they have no facets
-	  //in facet_incidences, hence the following check
-	  if(*mc < facet_incidences.rows()) {
-	    fcset = facet_incidences.row(*mc);
-	  }
-	  for(Entire<Set<int> >::iterator fct = entire(fcset); !fct.at_end(); ++fct) {
-	    if(codimOneCones.row(*fct).contains(*r)) {
-	      codimone[*fct] = codimone[*fct] + rowindex;
-	    }
-	  }
-	}
-      }
-      
-    }//END iterate over all rays
+    //dbgtrace << "Added affine rays to cones" << endl;
+        
+//     //Now we go through the directional rays and compute the connected component for each one
+//     for(Entire<Set<int> >::iterator r = entire(directionalRays); !r.at_end(); ++r) {
+//       
+//       dbgtrace << "Computing components of ray " << *r << endl;
+//       
+//       //List of connected components of this ray, each element is a component
+//       //containing the indices of the maximal cones
+//       Vector<Set<int> > connectedComponents;
+//       //The inverse of the component matrix, i.e. maps cone indices to row indices of connectedComponents
+//       Map<int,int> inverseMap;
+//       
+//       //Compute the set of maximal cones containing r
+//       Set<int> rcones;
+//       for(int mc = 0; mc < maximalCones.rows(); mc++) {
+// 	if(maximalCones.row(mc).contains(*r)) {
+// 	  rcones = rcones + mc;
+// 	}
+//       }
+//       
+//       dbgtrace << "Computed set of cones containing r:" << rcones << endl;
+//       
+//       //For each such maximal cone, compute its component (if it hasnt been computed yet).
+//       for(Entire<Set<int> >::iterator mc = entire(rcones); !mc.at_end(); ++mc) {
+// 	if(!inverseMap.exists(*mc)) {
+// 	  dbgtrace << "Creating new component" << endl;
+// 	  //Create new component
+// 	  Set<int> newset; newset = newset + *mc;
+// 	  connectedComponents = connectedComponents | newset;
+// 	  inverseMap[*mc] = connectedComponents.dim()-1;
+// 	  
+// 	  //Do a breadth-first search for all other cones in the component
+// 	  std::list<int> queue;
+// 	    queue.push_back(*mc);
+// 	    //Semantics: Elements in that queue have been added but their neighbours might not
+// 	    dbgtrace << "Calculating component" << endl;
+// 	  while(queue.size() != 0) {
+// 	    int node = queue.front(); //Take the first element and find its neighbours
+// 	      queue.pop_front();
+// 	    for(Entire<Set<int> >::iterator othercone = entire(rcones); !othercone.at_end(); othercone++) {
+// 	      //We only want 'homeless' cones
+// 	      if(!inverseMap.exists(*othercone)) {
+// 		//This checks whether both cones share a ray with x0=1
+// 		if((maximalCones.row(node) * maximalCones.row(*othercone) * affineRays).size() > 0) {
+// 		    //Add this cone to the component
+// 		    connectedComponents[connectedComponents.dim()-1] += *othercone;
+// 		    inverseMap[*othercone] = connectedComponents.dim()-1;
+// 		    queue.push_back(*othercone);
+// 		}
+// 	      }
+// 	    }
+// 	  }
+// 	  
+// 	}
+//       } //END computation of connected components
+//       
+//       dbgtrace << "Connected components:\n" << connectedComponents << endl;
+//       
+//       //Now add r once for each connected component to the appropriate cones
+//       for(int cc = 0; cc < connectedComponents.dim(); cc++) {
+// 	cmplxrays = cmplxrays / rays.row(*r);
+// 	int rowindex = cmplxrays.rows()-1;
+// 	Set<int> ccset = connectedComponents[cc];
+// 	dbgtrace << "Inserting for component " << cc+1 << endl;
+// 	for(Entire<Set<int> >::iterator mc = entire(ccset); !mc.at_end(); ++mc) {
+// 	  maxcones[*mc] = maxcones[*mc] + rowindex;
+// 	  //For each facet of mc that contains r, add rowindex
+// 	  Set<int> fcset;
+// 	  //If there are maximal cones not intersecting x0 = 1, they have no facets
+// 	  //in facet_incidences, hence the following check
+// 	  if(*mc < facet_incidences.rows()) {
+// 	    fcset = facet_incidences.row(*mc);
+// 	  }
+// 	  for(Entire<Set<int> >::iterator fct = entire(fcset); !fct.at_end(); ++fct) {
+// 	    if(codimOneCones.row(*fct).contains(*r)) {
+// 	      codimone[*fct] = codimone[*fct] + rowindex;
+// 	    }
+// 	  }
+// 	}
+//       }
+//       
+//     }//END iterate over all rays
     
     dbgtrace << "Done computing rays, inserting values..." << endl;
     
@@ -620,18 +717,20 @@ namespace polymake { namespace tropical{
   
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-Function4perl(&computeCodimensionOne,"computeCodimensionOne(WeightedComplex)");
+Function4perl(&computeCodimensionOne,"computeCodimensionOne(fan::PolyhedralFan)");
 
-Function4perl(&computeLatticeNormals, "computeLatticeNormals(WeightedComplex)");
+Function4perl(&computeCodimensionOneViaCones,"computeCodimensionOneViaCones(fan::PolyhedralFan;@)");
 
-Function4perl(&computeLatticeNormalSum, "computeLatticeNormalSum(WeightedComplex)");
+Function4perl(&computeLatticeNormals, "computeLatticeNormals(fan::PolyhedralFan)");
 
-Function4perl(&computeIfBalanced, "computeIfBalanced(WeightedComplex)");
+Function4perl(&computeLatticeNormalSum, "computeLatticeNormalSum(fan::PolyhedralFan)");
 
-Function4perl(&computeComplexData, "computeComplexData(WeightedComplex)");
+Function4perl(&computeIfBalanced, "computeIfBalanced(fan::PolyhedralFan)");
 
-Function4perl(&computeFunctionVectors, "computeFunctionVectors(WeightedComplex)");
+Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
 
-Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(WeightedComplex, Rational, $)");
+Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
+
+Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $)");
 
 }}
