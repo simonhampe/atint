@@ -133,6 +133,15 @@ object PolyhedralFan {
 	# If the fan does not use homogeneous coordinates, it is just a copy of [[CODIM_1_FACES]].
 	property CMPLX_CODIM_1_FACES : IncidenceMatrix;
 		
+	# @category Basic properties
+	# Returns the dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
+	# just DIM, otherwise DIM-1. When computing this property, it is assumed that the complex is pure.
+	property CMPLX_DIM: Int;
+	
+	# @category Basic properties
+	# Returns the ambient dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
+	# just AMBIENT_DIM, otherwise AMBIENT_DIM-1
+	property CMPLX_AMBIENT_DIM: Int;
 	
 	## RULES ################################################################
 	
@@ -186,7 +195,7 @@ object PolyhedralFan {
 	
 	#------------------------------------------------------------------------#
 	
-	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, AMBIENT_DIM {
+	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, AMBIENT_DIM, LINEALITY_SPACE {
 	  computeCodimensionOne($this);
 # 	  my @cones = ();
 # 	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
@@ -234,6 +243,27 @@ object PolyhedralFan {
 	  $this->INPUT_CONES = new Vector<Set<Int>>();
 	}
 	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_AMBIENT_DIM : RAYS, LINEALITY_SPACE, USES_HOMOGENEOUS_C { # FIXME: Copy ambient_dim
+	  my $d = max($this->RAYS->cols(), $this->LINEALITY_SPACE->cols());
+	  $this->CMPLX_AMBIENT_DIM = $this->USES_HOMOGENEOUS_C? 
+	      $d-1 :
+	      $d;		     
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_DIM : RAYS,MAXIMAL_CONES,LINEALITY_DIM, USES_HOMOGENEOUS_C { # FIXME: Copy dim
+	  my $d = $this->LINEALITY_DIM;
+	  if($this->MAXIMAL_CONES->rows() > 0) {
+	    my $m = new Matrix<Rational>($this->RAYS->minor($this->MAXIMAL_CONES->row(0),All));
+	    $d = $d + rank($m);
+	  }
+	  $this->CMPLX_DIM = $this->USES_HOMOGENEOUS_C?
+	    ($d-1) : $d;
+	}
+	
 	
 	
 	## METHODS #################################################################
@@ -244,15 +274,15 @@ object PolyhedralFan {
 	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'dimension 0'
 	# (Actually, if we give only one ray [0,..0], it will break and start filling up the RAM)
 	# So we should delete this function when this is fixed.
-	user_method dim_fix {
-	  my $this = shift;
-	  if(defined($this->lookup("INPUT_RAYS")) || defined($this->lookup("INPUT_HOM_RAYS")) || defined($this->lookup("RAYS"))) {
-	    if($this->RAYS->rows() > 0) {
-	      return $this->DIM;
-	    }
-	  }
-	  return $this->LINEALITY_DIM;
-	}
+# 	user_method dim_fix {
+# 	  my $this = shift;
+# 	  if(defined($this->lookup("INPUT_RAYS")) || defined($this->lookup("INPUT_HOM_RAYS")) || defined($this->lookup("RAYS"))) {
+# 	    if($this->RAYS->rows() > 0) {
+# 	      return $this->DIM;
+# 	    }
+# 	  }
+# 	  return $this->LINEALITY_DIM;
+# 	}
 	
 	# @category Basic properties
 	# This computes the ambient dimension in the following way: If the fan has rays, it simply
@@ -260,24 +290,24 @@ object PolyhedralFan {
 	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'ambient dimension 0'
 	# (if I give INPUT_RAYS=>[])
 	# So we should delete this function when this is fixed.
-	user_method ambient_dim_fix {
-	  my $this = shift;
-	  my $ir = $this->lookup("INPUT_RAYS");
-	  if(defined($ir)) {
-	    if($ir->cols() == 0) {
-	      return $this->LINEALITY_SPACE->cols();
-	    }
-	  }
-	  return $this->AMBIENT_DIM;
-	}
+# 	user_method ambient_dim_fix {
+# 	  my $this = shift;
+# 	  my $ir = $this->lookup("INPUT_RAYS");
+# 	  if(defined($ir)) {
+# 	    if($ir->cols() == 0) {
+# 	      return $this->LINEALITY_SPACE->cols();
+# 	    }
+# 	  }
+# 	  return $this->AMBIENT_DIM;
+# 	}
 	
 	# @category Basic properties
 	# This computes the ambient dimension ignoring homogeneous coordinates. More precisely, returns
 	# ambient_dim_fix, if the fan does not use homog. coordinates, otherwise it returns ambient_dim_fix-1
-	user_method real_ambient_dim {
-	  my $this = shift;
-	  return $this->USES_HOMOGENEOUS_C? $this->ambient_dim_fix-1 : $this->ambient_dim_fix; # FIXME
-	}
+# 	user_method real_ambient_dim {
+# 	  my $this = shift;
+# 	  return $this->USES_HOMOGENEOUS_C? $this->ambient_dim_fix-1 : $this->ambient_dim_fix; # FIXME
+# 	}
 	
 	# @category Tropical methods
 	# Convenience method, returns LATTICE_NORMALS->[i]->[j]
@@ -295,7 +325,7 @@ object PolyhedralFan {
 	# @category Polyhedral geometry
 	# Transforms the fan into homogeneous coordinates
 	# @return If this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
-	# by the following matrix: One affine ray [1,0,...0] and then [0,ray] for any ray of the original fan. [[MAXIMAL_CONES]]
+	# by the following matrix: One affine ray [1,0,...0] and then [0,ray] for any ray of the original fan. In [[MAXIMAL_CONES]]
 	# all get the additional affine ray and [[TROPICAL WEIGHTS]] is simply copied
 	user_method homogenize {
 	  my $this = shift;
@@ -304,12 +334,12 @@ object PolyhedralFan {
 	  }
 	  
 	  #Create the new ray matrix
-	  my $rayMatrix = new Matrix<Rational>(0,$this->ambient_dim_fix +1); # FIXME
+	  my $rayMatrix = new Matrix<Rational>(0,$this->CMPLX_AMBIENT_DIM+1);
 	  #Add the remaining rays with a zero at front
 	  my $origRays = (zero_vector<Rational>($this->RAYS->rows())) | $this->RAYS;
 	  $rayMatrix = $rayMatrix / $origRays;
 	  #Add the affine ray
-	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->ambient_dim_fix)); # FIXME
+	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->CMPLX_AMBIENT_DIM)); 
 	  $rayMatrix = (new Matrix<Rational>($rayMatrix)) / $affineRay;
 	  my $affineIndex = $rayMatrix->rows()-1;
 	  

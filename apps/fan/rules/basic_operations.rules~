@@ -21,7 +21,7 @@
 #  k-skeleton of a complex or computing the cartesian product of two varieties
 ########################################################################
 
-USE fan
+#USE fan
 
 # @category Polyhedral geometry
 # Takes a polyhedral complex and computes the k-skeleton. Will return an empty fan, if k is larger then the dimension
@@ -35,10 +35,10 @@ user_function skeleton_complex {
   
   $preserve = FALSE unless defined($preserve);
   
-  if($k < 1 || $k > $fan->dim_fix) { # FIXME
+  if($k < 1 || $k > $fan->CMPLX_DIM) { 
     return new PolyhedralFan();
   }
-  if($k == $fan->dim_fix) {
+  if($k == $fan->CMPLX_DIM) {
     return $fan;
   }
   #Create codim 1 complex and continue recursively

@@ -34,8 +34,8 @@ namespace polymake { namespace tropical {
 
     using polymake::polytope::cdd_interface::solver;
 
-    //using namespace atint::donotlog;
-    using namespace atint::dolog;
+    using namespace atint::donotlog;
+    //using namespace atint::dolog;
     //using namespace atint::dotrace;
     
     //Documentation see header -------------------------------------------------------------
@@ -43,32 +43,27 @@ namespace polymake { namespace tropical {
       
       dbglog << "Starting refinement..." << endl;
       
-      //First we compute ambient dimensions and check that they are equal
-      int ambient_dim =  fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
-      int comp_ambient_dim = completeFan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
-            
-      if(ambient_dim != comp_ambient_dim) {
-	throw std::runtime_error("Cannot intersect fans in different ambient dimension.");
-      }
-      
-      //If fan is zero-dimensional it is just a point, so it has no maximal cones.
-      //But since no refinement is necessary anyway, we just return fan
-      int dimension = fan.CallPolymakeMethod("dim_fix"); //FIXME: Replace
-      if(dimension == 0) return fan;
-      
       dbglog << "Extracting values" << endl;
       
       //Extract values
       Matrix<Rational> rays = fan.give("RAYS");
       Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
+      int ambient_dim = rays.cols() < linspace.cols() ? linspace.cols() : rays.cols();
+      IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+      bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+      int dimension = fan.give("CMPLX_DIM");
+	//If fan is zero-dimensional it is just a point, so it has no maximal cones.
+	//But since no refinement is necessary anyway, we just return fan	
+	if(dimension == 0) return fan;
+      
       Array<Integer> weights;
       bool weightsExist = false;
       if(fan.exists("TROPICAL_WEIGHTS")) {
 	weights = fan.give("TROPICAL_WEIGHTS");
 	weightsExist = true;
       }
-      IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
-      bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+      
+      
       
       Matrix<Rational> compRays = completeFan.give("RAYS");
       IncidenceMatrix<> compMaximalCones = completeFan.give("MAXIMAL_CONES");

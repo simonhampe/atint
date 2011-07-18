@@ -35,10 +35,10 @@ user_function skeleton_complex {
   
   $preserve = FALSE unless defined($preserve);
   
-  if($k < 1 || $k > $fan->dim_fix) { # FIXME
+  if($k < 1 || $k > $fan->CMPLX_DIM) { 
     return new PolyhedralFan();
   }
-  if($k == $fan->dim_fix) {
+  if($k == $fan->CMPLX_DIM) {
     return $fan;
   }
   #Create codim 1 complex and continue recursively

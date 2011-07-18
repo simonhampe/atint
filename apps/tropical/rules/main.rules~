@@ -56,9 +56,8 @@ user_function atint_testrun {
   $f->LATTICE_NORMAL_FCT_VECTOR;
   $f->LATTICE_NORMAL_SUM_FCT_VECTOR;
   $f->IS_BALANCED;
-  $f->dim_fix;
-  $f->ambient_dim_fix;
-  $f->real_ambient_dim;
+  $f->CMPLX_DIM;
+  $f->CMPLX_AMBIENT_DIM;
   print "OK\nHomogenizing a fan...";
   $f->homogenize;
   print "OK\nComputing a skeleton...";

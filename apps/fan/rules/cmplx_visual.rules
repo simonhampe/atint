@@ -63,7 +63,7 @@ object PolyhedralFan {
   user_method CMPLX_VISUAL(%Visual::WeightedComplex::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
     my ($this,$decor,$cutoff_decor)=@_;
     
-    my $fanDim = $this->USES_HOMOGENEOUS_C ? ($this->dim_fix -1) : $this->dim_fix; # FIXME
+    my $fanDim = $this->CMPLX_DIM;
     
     #Extract self-definded values and delete them
    
@@ -183,6 +183,6 @@ object PolyhedralFan {
 					  @cells_visual));
 					
   }
-  precondition : AMBIENT_DIM { $this->ambient_dim_fix<=4 }# FIXME
+  precondition : CMPLX_AMBIENT_DIM { $this->CMPLX_AMBIENT_DIM<=3 }
   
 }

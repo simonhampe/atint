@@ -199,7 +199,7 @@ namespace polymake { namespace fan{
   void computeLatticeNormals(perl::Object fan) {
     
     //Extract basic properties of fan
-    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
+    int ambient_dim = fan.give("AMBIENT_DIM");
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
     IncidenceMatrix<> codimInc = fan.give("CODIM_1_IN_MAXIMAL_CONES");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
@@ -263,7 +263,7 @@ namespace polymake { namespace fan{
   void computeLatticeNormalSum(perl::Object fan) {
     //Extract all necessary properties
      Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
-    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
+    int ambient_dim = fan.give("AMBIENT_DIM");
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     Array<Integer> weights = fan.give("TROPICAL_WEIGHTS");
     IncidenceMatrix<> codimInc = fan.give("CODIM_1_IN_MAXIMAL_CONES");
@@ -293,7 +293,7 @@ namespace polymake { namespace fan{
   */
   void computeIfBalanced(perl::Object fan) {
     //Extract all necessary properties
-    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
+    int ambient_dim = fan.give("AMBIENT_DIM");
     Matrix<Rational> summatrix = fan.give("LATTICE_NORMAL_SUM");
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     Matrix<Rational> rays = fan.give("RAYS");
@@ -417,7 +417,7 @@ namespace polymake { namespace fan{
   */
   void computeFunctionVectors(perl::Object fan) {
     //Extract properties from the fan
-    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
+    int ambient_dim = fan.give("AMBIENT_DIM");
     int lineality_dim = fan.give("LINEALITY_DIM");
     Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
@@ -475,7 +475,7 @@ namespace polymake { namespace fan{
     }
     
     Matrix<Rational> rays = fan.give("RAYS");
-    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix"); //FIXME: Replace
+    int ambient_dim = fan.give("AMBIENT_DIM");
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     IncidenceMatrix<> facet_incidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
@@ -632,7 +632,7 @@ namespace polymake { namespace fan{
       if(weightsExist) {
 	weights = fan.give("TROPICAL_WEIGHTS");
       }
-    int ambient_dim = fan.CallPolymakeMethod("ambient_dim_fix");
+    int ambient_dim = fan.give("AMBIENT_DIM");
     Matrix<Rational> rays = fan.give("RAYS");
     Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");

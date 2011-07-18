@@ -32,7 +32,7 @@ user_function cycle_intersection {
   my $Z = fan::product_complex( $X,$Y);
   
   #Compute the diagonal divisor on the cross product
-  my $ad = $X->real_ambient_dim;
+  my $ad = $X->CMPLX_AMBIENT_DIM;
   my @psi = diagonal_functions($ad);
   for my $f (@psi) {
     $Z = divisorByPLF($Z,$f);

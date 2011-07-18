@@ -25,6 +25,11 @@
 #include "polymake/Integer.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0>
+   FunctionInterface4perl( new, T0 ) {
+      WrapperReturnNew(T0, () );
+   };
+
    template <typename T0, typename T1>
    FunctionInterface4perl( new_X, T0,T1 ) {
       perl::Value arg0(stack[1]);
@@ -37,5 +42,6 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> >);
    OperatorInstance4perl(convert, Vector< Set< int > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
    OperatorInstance4perl(assign, Vector< Integer >, perl::Canned< const Vector< Rational > >);
+   FunctionInstance4perl(new, Vector< Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
