@@ -34,9 +34,9 @@ namespace polymake { namespace tropical {
 
     using polymake::polytope::cdd_interface::solver;
 
-    using namespace atint::donotlog;
+    //using namespace atint::donotlog;
     //using namespace atint::dolog;
-    //using namespace atint::dotrace;
+    using namespace atint::dotrace;
     
     //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
@@ -55,6 +55,7 @@ namespace polymake { namespace tropical {
 	//If fan is zero-dimensional it is just a point, so it has no maximal cones.
 	//But since no refinement is necessary anyway, we just return fan	
 	if(dimension == 0) return fan;
+	if(uses_homog) dimension++;
       
       Array<Integer> weights;
       bool weightsExist = false;
@@ -293,7 +294,7 @@ namespace polymake { namespace tropical {
       dbglog << "Refining fan" << endl;
       fan = intersect_complete_fan(fan, linearityDomains);
       
-      dbglog << "Extracting values" << endl;
+      dbglog << "Extracting values for divisor computation" << endl;
       
       //Extract values
       Matrix<Rational> rays = fan.give("CMPLX_RAYS");	
@@ -301,6 +302,8 @@ namespace polymake { namespace tropical {
       Array<Set<int> > maximal = fan.give("CMPLX_MAXIMAL_CONES");
       Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");
       bool uses_min = function.give("USES_MIN");
+      
+      dbglog << "Extracted values" << endl;
       
       //Now compute function values
       Vector<Rational> values;

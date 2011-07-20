@@ -294,7 +294,7 @@ namespace polymake { namespace tropical {
       dbglog << "Refining fan" << endl;
       fan = intersect_complete_fan(fan, linearityDomains);
       
-      dbglog << "Extracting values" << endl;
+      dbglog << "Extracting values for divisor computation" << endl;
       
       //Extract values
       Matrix<Rational> rays = fan.give("CMPLX_RAYS");	
@@ -302,6 +302,8 @@ namespace polymake { namespace tropical {
       Array<Set<int> > maximal = fan.give("CMPLX_MAXIMAL_CONES");
       Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");
       bool uses_min = function.give("USES_MIN");
+      
+      dbglog << "Extracted values" << endl;
       
       //Now compute function values
       Vector<Rational> values;

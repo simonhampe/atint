@@ -50,6 +50,8 @@ namespace polymake { namespace fan{
     Matrix<Rational> rays = fan.give("RAYS");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     
+    dbgtrace << "Computing all facets..." << endl;
+    
     //First we construct the set of all facets 
     //Array<IncidenceMatrix<> > maximal_cone_incidence = fan.give("MAXIMAL_CONES_INCIDENCES");
     //Compute the rays-in-facets for each cone directly
@@ -57,9 +59,11 @@ namespace polymake { namespace fan{
     for(int mc = 0; mc < maximalCones.rows(); mc++) {
       Set<int> mset = maximalCones.row(mc);
       //Extract inequalities
+      dbgtrace << "Computing facets for cone set " << mset << endl;
       Matrix<Rational> facets = solver<Rational>().enumerate_facets(
 	    zero_vector<Rational>() | rays.minor(mset,All),
-	    linspace).first.minor(All, ~scalar2set(0));;
+	    zero_vector<Rational>() | linspace).first.minor(All, ~scalar2set(0));;
+      dbgtrace << "Done. Checking rays..." << endl;
       //For each inequality, check which rays lie in it
       Vector<Set<int> > facetIncidences;
       for(int row = 0; row < facets.rows(); row++) {
@@ -71,8 +75,11 @@ namespace polymake { namespace fan{
 	}
 	facetIncidences |= facetRays;
       }
+      dbgtrace << "Done." << endl;
       maximal_cone_incidence |= IncidenceMatrix<>(facetIncidences);
     }
+    
+    dbgtrace << "Check for doubles and useless facets..." << endl;
     
     //This will contain the set of indices defining the codim one faces
     Vector<Set<int> > facetArray;
