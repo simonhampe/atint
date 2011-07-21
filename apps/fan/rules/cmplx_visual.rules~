@@ -247,31 +247,39 @@ object PolyhedralFan {
     delete($$decor{"DirScale"});
     
     #Set some default values
-    if(!defined($$decor{"FacetTransparency"}) && $this->CMPLX_DIM >= 2 ) {
+    my $dim = $this->CMPLX_DIM;
+    if(!defined($$decor{"FacetTransparency"}) && $dim >= 2) {
       $$decor{"FacetTransparency"} = 1;
     }
+    
     
     my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),new Matrix<Rational>($boundingBox));
     my @cells_visual;
     my $weightCenters = pop(@result);
     
     for my $cell (@result) {
-      $cell->VERTEX_LABELS = ();
-      #Compute coordinate labels if necessary
-      if($showCoordinates != 0) {
-	  #Create labels for vertices
-	  my @labels = ();
-	  my $vtx = $cell->VERTICES;
-	  for(my $row = 0; $row < $vtx->rows(); $row++) {
-	      my $coords = $this->USES_HOMOGENEOUS_C? 
-				$vtx->row($row)->slice(1,$vtx->cols()-1) :
-				$vtx->row($row);
-	      @labels = (@labels,"(".$coords.")");
-	  }
-	  $cell->VERTEX_LABELS = \@labels;
+      #If the fan is not 0-dimensional, only add a cell, if it has at least three vertices
+      #(Otherwise its a point set or a graph and all the facet options don't work)
+      if($dim <= 1 || $cell->VERTICES->rows() > 2) {
+	$cell->VERTEX_LABELS = ();
+	
+	#Compute coordinate labels if necessary
+	if($showCoordinates != 0) {
+	    #Create labels for vertices
+	    my @labels = ();
+	    my $vtx = $cell->VERTICES;
+	    for(my $row = 0; $row < $vtx->rows(); $row++) {
+		my $coords = $this->USES_HOMOGENEOUS_C? 
+				  $vtx->row($row)->slice(1,$vtx->cols()-1) :
+				  $vtx->row($row);
+		@labels = (@labels,"(".$coords.")");
+	    }
+	    $cell->VERTEX_LABELS = \@labels;
+	}
+	
+	push @cells_visual, ($cell->VISUAL( $decor ));
       }
       
-      push @cells_visual, ($cell->VISUAL( $decor ));
   }
   if($showWeights != 0) {
       push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
