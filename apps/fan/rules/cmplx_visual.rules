@@ -47,7 +47,20 @@ options %Visual::WeightedComplex::decorations=(
     # String If set to "pinned", the weight labels are computed in such a way that they stick to the cells when the complex
     # is exploded. Note that this is expensive and significantly increases computation time.
    # WeightLabelStyle => "",
-  
+);
+
+options %Visual::WeightedComplex::BoundingDecorations=(
+    %Visual::WeightedComplex::decorations,
+    
+    # Flexible<Rational> The distance of the border of the bounding box from the smallest box 
+    # containing the affine points of the complex. This is only relevant, if BoundingMode is "relative"
+    BoundingDistance => 1,
+
+    # Matrix<Rational> A fixed bounding box, determined by two row vectors that specify two of its vertices (on "on top" and one "at the bottom"). Is only relevant, if BoundingMode is "absolute"
+    BoundingBox => undef,
+							  
+    # String If set to "relative", the function determines the smallest possible box containing all affine points of the complex and then enlarges the box by BoundingDistance to all sides. If set to "absolute", BoundingBox must be specified and the complex will be intersected with that box. By default this is set to "relative".
+    BoundingMode => enum("relative","absolute"),
 );
 
 object PolyhedralFan {
@@ -185,4 +198,87 @@ object PolyhedralFan {
   }
   precondition : CMPLX_AMBIENT_DIM { $this->CMPLX_AMBIENT_DIM<=3 }
   
+  # ---------------------------------------------------------------------------------------------------------
+  
+  user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
+    my ($this,$decor,$cutoff_decor)=@_;
+     
+    #Take care of self-defined decor options and delete them
+    
+    my $showWeights = 1;
+    if(defined($$decor{"WeightLabels"})) {
+      if($$decor{"WeightLabels"} eq "hidden") {
+	$showWeights = 0;
+      }
+    }
+    if(!defined($this->lookup("TROPICAL_WEIGHTS"))) {
+      $showWeights = 0;
+    }
+    delete($$decor{"WeightLabels"});
+    my $showCoordinates = 0;
+    if(defined($$decor{"CoordLabels"})) {
+      if($$decor{"CoordLabels"} eq "show") {
+	$showCoordinates = 1;
+      }
+    }
+    delete($$decor{"CoordLabels"});
+    if($showCoordinates == 0) {
+      $$decor{"VertexLabels"} = "hidden";
+    }
+    my $isRelative = 1;
+    if(defined($$decor{"BoundingMode"})) {
+      if($$decor{"BoundingMode"} eq "absolute") {
+	$isRelative = 0;
+      }
+    }
+    delete($$decor{"BoundingMode"});
+    my $boundingDistance = new Rational(1);
+    if(defined($$decor{"BoundingDistance"})) {
+      $boundingDistance = $$decor{"BoundingDistance"};
+    }
+    delete($$decor{"BoundingDistance"});
+    my $boundingBox = new Matrix<Rational>();
+    if(defined($$decor{"BoundingBox"})) {
+      $boundingBox = $$decor{"BoundingBox"};
+    }
+    delete($$decor{"BoundingBox"}); 
+    
+    #We don't need that here
+    delete($$decor{"DirScale"});
+    
+    #Set some default values
+    if(!defined($$decor{"FacetTransparency"}) && $this->CMPLX_DIM >= 2 ) {
+      $$decor{"FacetTransparency"} = 1;
+    }
+    
+    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),new Matrix<Rational>($boundingBox));
+    my @cells_visual;
+    my $weightCenters = pop(@result);
+    
+    for my $cell (@result) {
+      $cell->VERTEX_LABELS = ();
+      #Compute coordinate labels if necessary
+      if($showCoordinates != 0) {
+	  #Create labels for vertices
+	  my @labels = ();
+	  my $vtx = $cell->VERTICES;
+	  for(my $row = 0; $row < $vtx->rows(); $row++) {
+	      my $coords = $this->USES_HOMOGENEOUS_C? 
+				$vtx->row($row)->slice(1,$vtx->cols()-1) :
+				$vtx->row($row);
+	      @labels = (@labels,"(".$coords.")");
+	  }
+	  $cell->VERTEX_LABELS = \@labels;
+      }
+      
+      push @cells_visual, ($cell->VISUAL( $decor ));
+  }
+  if($showWeights != 0) {
+      push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
+  }
+  
+  visualize(new Visual::PolyhedralFan( Name => $this->name,
+					  PolyhedralFan => $this,
+					  @cells_visual));
+  }
 }

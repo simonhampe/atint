@@ -126,78 +126,78 @@ namespace polymake { namespace fan{
     
   }
   
-  /**
-    @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically. This function differs from the function computeCodimensionOne in that it does not use the property MAXIMAL_CONES_INCICDENCES, but uses the FACETS_THRU_VERTICES property of polytope::Cone (which seems to make everything a lot faster)
-    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
-    @param std::vector<perl::Object> cones An array of polytope::Cone objects (whose RAYS_IN_FACETS should have been precomputed) that represent the maximal cones of fan (s.t. the i-th cone is the i-th maximal cone)
-  */
-  void computeCodimensionOneViaCones(perl::Object fan, std::vector<perl::Object> cones) {
+//  /**
+//*    @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically. This function differs from the function computeCodimensionOne in that it does not use the property MAXIMAL_CONES_INCICDENCES, but uses the FACETS_THRU_VERTICES property of polytope::Cone (which seems to make everything a lot faster)
+//     @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+//     @param std::vector<perl::Object> cones An array of polytope::Cone objects (whose RAYS_IN_FACETS should have been precomputed) that represent the maximal cones of fan (s.t. the i-th cone is the i-th maximal cone)*/
+//   */
+//   void computeCodimensionOneViaCones(perl::Object fan, std::vector<perl::Object> cones) {
+//     
+//     //Extract needed properties
+//     Matrix<Rational> rays = fan.give("RAYS");
+//     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+//     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+//     
+//     //This will contain the array of codim-1-cones, which we use to construct the incidence matrix
+//     Vector<Set<int> > facetArray;
+//     //This will define the codim-1-maximal-cone incidence matrix
+//     Vector<Set<int> > facetsInCones;
+//     
+//     dbgtrace << "Going through all maximal cones" << endl;
+//     
+//     //Iterate through all cone objects
+//     for(int i = 0; i < maximalCones.rows(); i++) {
+//       dbgtrace << "Considering maximal cone no. " << i << endl;
+//       //Put its rays in a vector
+//       Vector<int> sortedRayIndices(maximalCones.row(i));
+//       //Retrieve the facets of the cone
+//       IncidenceMatrix<> raysInFacets = cones[i].give("RAYS_IN_FACETS");
+//       //Now go through all facets of the cone and map them back to facets of the fan
+//       for(int irow = 0; irow < raysInFacets.rows(); irow++) {
+// 	dbgtrace << "Considering its facet no. " << irow << endl;
+// 	//Convert ray indices back to fan indices
+// 	Set<int> potentialFacet;
+// 	Set<int> coneRays = raysInFacets.row(irow);
+// 	for(Entire<Set<int> >::iterator iray = entire(coneRays); !iray.at_end(); iray++) {
+// 	    potentialFacet = potentialFacet + sortedRayIndices[*iray];
+// 	}
+// 	dbgtrace << "Converted indices. Now checking for existence" << endl;
+// 	//If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
+// 	//More precisely: Check if at least one of its rays has x0-coord != 0
+// 	if(uses_homog) {
+// 	  Vector<Rational> firstColumn = rays.minor(potentialFacet,All).col(0);
+// 	  if(firstColumn == zero_vector<Rational>(firstColumn.dim())) {
+// 	    continue;
+// 	  }
+// 	}
+// 	//Otherwise check if we already have that facet and remember its index
+// 	int fcIndex = -1;
+// 	for(int existing = 0; existing < facetArray.dim(); existing++) {
+// 	if(facetArray[existing] == potentialFacet) {
+// 	  fcIndex = existing;
+// 	  break;
+// 	}
+// 	}
+// 	//Add the facet if necessary and add its maximal-cone indices
+// 	if(fcIndex == -1) {
+// 	  facetArray = facetArray | potentialFacet;
+// 	  Set<int> singlecone;
+// 	    singlecone = singlecone + i;
+// 	  facetsInCones = facetsInCones | singlecone;
+// 	}
+// 	else {
+// 	  facetsInCones[fcIndex] = facetsInCones[fcIndex] + i;
+// 	}
+// 	
+// 	
+//       }
+//       
+//     }
     
-    //Extract needed properties
-    Matrix<Rational> rays = fan.give("RAYS");
-    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
-    bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
-    
-    //This will contain the array of codim-1-cones, which we use to construct the incidence matrix
-    Vector<Set<int> > facetArray;
-    //This will define the codim-1-maximal-cone incidence matrix
-    Vector<Set<int> > facetsInCones;
-    
-    dbgtrace << "Going through all maximal cones" << endl;
-    
-    //Iterate through all cone objects
-    for(int i = 0; i < maximalCones.rows(); i++) {
-      dbgtrace << "Considering maximal cone no. " << i << endl;
-      //Put its rays in a vector
-      Vector<int> sortedRayIndices(maximalCones.row(i));
-      //Retrieve the facets of the cone
-      IncidenceMatrix<> raysInFacets = cones[i].give("RAYS_IN_FACETS");
-      //Now go through all facets of the cone and map them back to facets of the fan
-      for(int irow = 0; irow < raysInFacets.rows(); irow++) {
-	dbgtrace << "Considering its facet no. " << irow << endl;
-	//Convert ray indices back to fan indices
-	Set<int> potentialFacet;
-	Set<int> coneRays = raysInFacets.row(irow);
-	for(Entire<Set<int> >::iterator iray = entire(coneRays); !iray.at_end(); iray++) {
-	    potentialFacet = potentialFacet + sortedRayIndices[*iray];
-	}
-	dbgtrace << "Converted indices. Now checking for existence" << endl;
-	//If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
-	//More precisely: Check if at least one of its rays has x0-coord != 0
-	if(uses_homog) {
-	  Vector<Rational> firstColumn = rays.minor(potentialFacet,All).col(0);
-	  if(firstColumn == zero_vector<Rational>(firstColumn.dim())) {
-	    continue;
-	  }
-	}
-	//Otherwise check if we already have that facet and remember its index
-	int fcIndex = -1;
-	for(int existing = 0; existing < facetArray.dim(); existing++) {
-	if(facetArray[existing] == potentialFacet) {
-	  fcIndex = existing;
-	  break;
-	}
-	}
-	//Add the facet if necessary and add its maximal-cone indices
-	if(fcIndex == -1) {
-	  facetArray = facetArray | potentialFacet;
-	  Set<int> singlecone;
-	    singlecone = singlecone + i;
-	  facetsInCones = facetsInCones | singlecone;
-	}
-	else {
-	  facetsInCones[fcIndex] = facetsInCones[fcIndex] + i;
-	}
-	
-	
-      }
-      
-    }
-    
-    //Finally: Insert values
-    fan.take("CODIM_1_FACES") << IncidenceMatrix<>(facetArray);
-    fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>(facetsInCones);    
-  }
+//     //Finally: Insert values
+//     fan.take("CODIM_1_FACES") << IncidenceMatrix<>(facetArray);
+//     fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>(facetsInCones);    
+//   }
   
   /**
    @brief Takes a polyhedral fan and computes a map of lattice normals. The corresponding property in the fan is set automatically.
@@ -724,11 +724,148 @@ namespace polymake { namespace fan{
     return result;
   }
   
+  /**
+    @brief Computes the polyhedral data necessary for visualization with a bounding box
+    @param perl::Object fan The polyhedral complex to be visualized, in homogeneous coordinates
+    @param bool isRelative true, iff the bounding box is given relative to the complex
+    @param bool showWeights If true, the barycenters of the polytopes are computed for weight labelling
+    @param Rational bbDistance The relative distance of the border of the bounding box to the affine part of the complex (should be a positive number).
+    @param Matrix<Rational> bBox The absolute bounding box needed if isRelative is false. Given by two row vectors indicating the extreme points of the box
+    @return A perl::ListReturn containing 
+    1) the list of polytopes to be rendered
+    2) A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true, but is contained in the ListReturn in any case
+  */
+  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, Matrix<Rational> bBox) {
+    
+    //Extract values
+    int ambient_dim = fan.give("CMPLX_AMBIENT_DIM");
+    Matrix<Rational> rays = fan.give("RAYS");
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    Matrix<Rational> facetNormals = fan.give("FACET_NORMALS");
+    Matrix<Rational> facetNormalsInCones = fan.give("MAXIMAL_CONES_FACETS");
+    Matrix<Rational> linearSpan = fan.give("LINEAR_SPAN_NORMALS");
+    Matrix<Rational> linearSpanInCones = fan.give("MAXIMAL_CONES_LINEAR_SPAN_NORMALS");
+    
+     //First separate affine and directional rays
+    Set<int> affineRays;
+    Set<int> directionalRays;
+    for(int r = 0; r < rays.rows(); r++) {
+      if(rays.row(r)[0] == 0) {
+	directionalRays = directionalRays + r;
+      }
+      else {
+	affineRays = affineRays + r;
+      }
+    }  
+    
+    dbgtrace << "Computing bounding box..." << endl;
+    
+    //Compute facets of the bounding box
+    Matrix<Rational> bbFacets(0,ambient_dim+1);
+    
+    //For each coordinate, contain minimum and maximum
+    Vector<Rational> minCoord(ambient_dim);
+    Vector<Rational> maxCoord(ambient_dim);
+    //If bounding mode is relative, determine the maximal/minimal coordinates of the affine rays
+    if(isRelative) {
+      for(Entire<Set<int> >::iterator aff = entire(affineRays); !aff.at_end(); aff++) {
+	for(int i = 0; i < ambient_dim; i++) {
+	  Rational val = rays(*aff,i+1);
+	  if(val > maxCoord[i]) maxCoord[i] = val;
+	  if(val < minCoord[i]) minCoord[i] = val;
+	}
+      }
+      //Now add the bbDistance to all values
+      for(int i = 0; i < ambient_dim; i++) {
+	maxCoord[i] += bbDistance;
+	minCoord[i] -= bbDistance;
+      }
+    }
+    //otherwise take min and max from the given bounding box
+    else {
+      for(int i = 0; i < ambient_dim; i++) {
+	maxCoord[i] = bBox(0,i) > bBox(1,i)? bBox(0,i) : bBox(1,i);
+	minCoord[i] = bBox(0,i) < bBox(1,i)? bBox(0,i) : bBox(1,i);
+      }
+    }
+    //Now make these coordinates into facets
+    for(int i = 0; i < ambient_dim; i++) {
+      Vector<Rational> facetVector = unit_vector<Rational>(ambient_dim,i);
+      bbFacets /= (maxCoord[i] | -facetVector);
+      bbFacets /= (-minCoord[i] | facetVector);
+    }
+    
+    dbgtrace << "Done." << endl;
+    
+    perl::ListReturn result;
+    
+    //This will contain the cell centers with the weight labels
+    perl::Object weightCenters("polytope::PointConfiguration");
+    Matrix<Rational> centermatrix(0,ambient_dim);
+    Vector<std::string> centerlabels;
+    Array<Integer> weights;
+    if(showWeights) {
+      weights = fan.give("TROPICAL_WEIGHTS");
+    }
+    
+    //Now compute all polyhedra to be rendered
+    for(int mc = 0; mc < maximalCones.rows(); mc++) {
+      dbgtrace << "Computing polytope of cone " << mc << endl;
+      //Compute the facets ans equalities of the current cone and add the bbox facets
+      Matrix<Rational> facets(0,ambient_dim+1);
+      Matrix<Rational> linspan = linearSpan.minor(linearSpanInCones.row(mc),All);
+	linspan = linspan;
+      for(int fn = 0; fn < facetNormalsInCones.cols(); fn++) {
+	if(facetNormalsInCones(mc,fn) == 1) {
+	    facets /= facetNormals.row(fn);
+	}
+	if(facetNormalsInCones(mc,fn) == -1) {
+	    facets /= (-facetNormals.row(fn));
+	}
+      }
+      facets /= bbFacets;
+      facets = facets;
+      
+      dbgtrace << "Facets are " << facets << "Equalities are " << linspan << endl;
+      
+      try {
+      
+	  //Compute the polytope vertices from that
+	  Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(facets,linspan).first;
+	  perl::Object polytope("polytope::Polytope<Rational>");
+	    polytope.take("VERTICES") << polyRays; //The polytope shouldn't have a lineality space
+	  result << polytope;
+	  
+	  //If weight labels should be displayed, compute the vertex barycenter of the polytope and
+	  // label it
+	  if(showWeights) {
+	    Vector<Rational> barycenter = average(rows(polyRays));
+	    centermatrix = centermatrix / barycenter;
+	    std::ostringstream wlabel;
+	    wlabel << "# " << mc << ": " << weights[mc];
+	    centerlabels = centerlabels | wlabel.str();
+	  }
+      }
+      catch(...) { //An error should only occur if the polytope is empty. Then just omit it
+	dbgtrace << "Cone " << mc << " not in bounding box. Omitting." << endl;
+      }
+      
+    }
+    
+    if(showWeights) {
+      weightCenters.take("POINTS") << centermatrix;
+      weightCenters.take("LABELS") << centerlabels;
+    }
+    result << weightCenters;
+    
+    return result;
+  }
+  
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 Function4perl(&computeCodimensionOne,"computeCodimensionOne(fan::PolyhedralFan)");
 
-Function4perl(&computeCodimensionOneViaCones,"computeCodimensionOneViaCones(fan::PolyhedralFan;@)");
+//Function4perl(&computeCodimensionOneViaCones,"computeCodimensionOneViaCones(fan::PolyhedralFan;@)");
 
 Function4perl(&computeLatticeNormals, "computeLatticeNormals(fan::PolyhedralFan)");
 
@@ -741,5 +878,7 @@ Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
 Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
 
 Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $)");
+
+Function4perl(&computeBoundedVisual, "computeBoundedVisual(fan::PolyhedralFan, $, $, Rational, Matrix<Rational>)");
 
 }}
