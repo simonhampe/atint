@@ -745,6 +745,7 @@ namespace polymake { namespace fan{
     Matrix<Rational> facetNormalsInCones = fan.give("MAXIMAL_CONES_FACETS");
     Matrix<Rational> linearSpan = fan.give("LINEAR_SPAN_NORMALS");
     Matrix<Rational> linearSpanInCones = fan.give("MAXIMAL_CONES_LINEAR_SPAN_NORMALS");
+    int fan_dim = fan.give("CMPLX_DIM");
     
      //First separate affine and directional rays
     Set<int> affineRays;
@@ -832,18 +833,23 @@ namespace polymake { namespace fan{
       
 	  //Compute the polytope vertices from that
 	  Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(facets,linspan).first;
-	  perl::Object polytope("polytope::Polytope<Rational>");
-	    polytope.take("VERTICES") << polyRays; //The polytope shouldn't have a lineality space
-	  result << polytope;
-	  
-	  //If weight labels should be displayed, compute the vertex barycenter of the polytope and
-	  // label it
-	  if(showWeights) {
-	    Vector<Rational> barycenter = average(rows(polyRays));
-	    centermatrix = centermatrix / barycenter;
-	    std::ostringstream wlabel;
-	    wlabel << "# " << mc << ": " << weights[mc];
-	    centerlabels = centerlabels | wlabel.str();
+	  //We have to make sure that the polytope has
+	  //at least dim +1 vertices after cutting, otherwise its a point set or graph to the
+	  //visualization and all the Facet options don't work
+	  if(polyRays.rows() >= fan_dim+1) {
+	    perl::Object polytope("polytope::Polytope<Rational>");
+	      polytope.take("VERTICES") << polyRays; //The polytope shouldn't have a lineality space
+	    result << polytope;
+	    
+	    //If weight labels should be displayed, compute the vertex barycenter of the polytope and
+	    // label it
+	    if(showWeights) {
+	      Vector<Rational> barycenter = average(rows(polyRays));
+	      centermatrix = centermatrix / barycenter;
+	      std::ostringstream wlabel;
+	      wlabel << "# " << mc << ": " << weights[mc];
+	      centerlabels = centerlabels | wlabel.str();
+	    }
 	  }
       }
       catch(...) { //An error should only occur if the polytope is empty. Then just omit it

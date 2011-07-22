@@ -200,7 +200,7 @@ object PolyhedralFan {
   
   # ---------------------------------------------------------------------------------------------------------
   
-  user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
+  user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES, CMPLX_DIM, CMPLX_AMBIENT_DIM {
     my ($this,$decor,$cutoff_decor)=@_;
      
     #Take care of self-defined decor options and delete them
@@ -252,34 +252,36 @@ object PolyhedralFan {
       $$decor{"FacetTransparency"} = 1;
     }
     
+    #Make sure that the bounding box has the right dimension, otherwise, we get a segfault
+    if(!$isRelative) {
+      my $m = new Matrix<Rational>($boundingBox);
+      if($m->rows() < 2 || $m->cols() < $this->CMPLX_AMBIENT_DIM) {
+	die "Bounding box has invalid dimension\n";
+      }
+    }
     
     my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),new Matrix<Rational>($boundingBox));
     my @cells_visual;
     my $weightCenters = pop(@result);
     
     for my $cell (@result) {
-      #If the fan is not 0- or 1-dimensional, only add a cell, if it has at least three vertices
-      #(Otherwise its a point set or a graph and all the facet options don't work)
-      if($dim <= 1 || $cell->VERTICES->rows() > 2) {
-	$cell->VERTEX_LABELS = ();
+      $cell->VERTEX_LABELS = ();
 	
-	#Compute coordinate labels if necessary
-	if($showCoordinates != 0) {
-	    #Create labels for vertices
-	    my @labels = ();
-	    my $vtx = $cell->VERTICES;
-	    for(my $row = 0; $row < $vtx->rows(); $row++) {
-		my $coords = $this->USES_HOMOGENEOUS_C? 
-				  $vtx->row($row)->slice(1,$vtx->cols()-1) :
-				  $vtx->row($row);
-		@labels = (@labels,"(".$coords.")");
-	    }
-	    $cell->VERTEX_LABELS = \@labels;
-	}
-	
-	push @cells_visual, ($cell->VISUAL( $decor ));
+      #Compute coordinate labels if necessary
+      if($showCoordinates != 0) {
+	  #Create labels for vertices
+	  my @labels = ();
+	  my $vtx = $cell->VERTICES;
+	  for(my $row = 0; $row < $vtx->rows(); $row++) {
+	      my $coords = $this->USES_HOMOGENEOUS_C? 
+				$vtx->row($row)->slice(1,$vtx->cols()-1) :
+				$vtx->row($row);
+	      @labels = (@labels,"(".$coords.")");
+	  }
+	  $cell->VERTEX_LABELS = \@labels;
       }
       
+      push @cells_visual, ($cell->VISUAL( $decor ));
   }
   if($showWeights != 0) {
       push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
