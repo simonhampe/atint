@@ -730,12 +730,14 @@ namespace polymake { namespace fan{
     @param bool isRelative true, iff the bounding box is given relative to the complex
     @param bool showWeights If true, the barycenters of the polytopes are computed for weight labelling
     @param Rational bbDistance The relative distance of the border of the bounding box to the affine part of the complex (should be a positive number).
+    @param bool onlyBoundingBox If true, only the relative bounding box with respect to the given bbDistance is computed and returned
     @param Matrix<Rational> bBox The absolute bounding box needed if isRelative is false. Given by two row vectors indicating the extreme points of the box
     @return A perl::ListReturn containing 
     1) the list of polytopes to be rendered
-    2) A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true, but is contained in the ListReturn in any case
+    2) A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true, but is contained in the ListReturn in any case.
+    If however, onlyBoundingBox is true, the ListReturn will only contain a Matrix<Rational> specifying the relative  bounding box.
   */
-  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, Matrix<Rational> bBox) {
+  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, bool onlyBoundingBox, Matrix<Rational> bBox) {
     
     //Extract values
     int ambient_dim = fan.give("CMPLX_AMBIENT_DIM");
@@ -780,6 +782,14 @@ namespace polymake { namespace fan{
       for(int i = 0; i < ambient_dim; i++) {
 	maxCoord[i] += bbDistance;
 	minCoord[i] -= bbDistance;
+      }
+      if(onlyBoundingBox) {
+	Matrix<Rational> bb(0,ambient_dim);
+	bb /= minCoord; 
+	bb /= maxCoord;
+	perl::ListReturn smallResult;
+	  smallResult << bb;
+	return smallResult;
       }
     }
     //otherwise take min and max from the given bounding box
@@ -885,6 +895,6 @@ Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFa
 
 Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $)");
 
-Function4perl(&computeBoundedVisual, "computeBoundedVisual(fan::PolyhedralFan, $, $, Rational, Matrix<Rational>)");
+Function4perl(&computeBoundedVisual, "computeBoundedVisual(fan::PolyhedralFan, $, $, Rational,$, Matrix<Rational>)");
 
 }}

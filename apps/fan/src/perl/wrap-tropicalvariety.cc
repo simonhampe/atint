@@ -38,5 +38,17 @@ namespace polymake { namespace fan {
    }
    FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, pm::Matrix<pm::Rational>) );
 
+   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, pm::Matrix<pm::Rational>, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]), arg5(stack[5]);
+      IndirectWrapperReturnVoid( arg0, arg1, arg2, arg3.get< perl::TryCanned< const Rational > >(), arg4.get< perl::TryCanned< const Matrix< Rational > > >(), arg5 );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, pm::Matrix<pm::Rational>, bool) );
+
+   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, bool, pm::Matrix<pm::Rational>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]), arg5(stack[5]);
+      IndirectWrapperReturnVoid( arg0, arg1, arg2, arg3.get< perl::TryCanned< const Rational > >(), arg4, arg5.get< perl::TryCanned< const Matrix< Rational > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, bool, pm::Matrix<pm::Rational>) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
