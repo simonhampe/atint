@@ -361,4 +361,29 @@ object PolyhedralFan {
 	  return new PolyhedralFan(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
 				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE);
 	}
+	
+# 	user_method adjHomology {
+# 	  my $this = shift;
+# 	  #Create set graph
+# 	  my $facets = new Vector<Set<Int> >();
+# 	  my $maximalInCodim = $this->CODIM_1_IN_MAXIMAL_CONES;
+# 	  my $codimInMaximal = transpose($this->CODIM_1_IN_MAXIMAL_CONES);
+# 	  for my $mc (0 .. $this->MAXIMAL_CONES->rows() -1) {
+# 	      print "Finding adjacencies of cone $mc...\n";
+# 	      my $cdset = $codimInMaximal->row($mc);
+# 	      for my $cd (@{$cdset}) {
+# 		my $mcset = ($maximalInCodim->row($cd) - $mc);
+# 		for my $othermc (@{$mcset}) {
+# 		  if($othermc > $mc) {
+# 		    my $s = new Set<Int>($mc,$othermc);
+# 		    $facets = $facets | $s;
+# 		  }
+# 		}
+# 	      }
+# 	  }
+# 	  my $cplx = new topaz::SimplicialComplex(FACETS=>$facets);
+# 	  $cplx->VISUAL;
+# 	  return $cplx->HOMOLOGY;
+# 	}
+
 }
