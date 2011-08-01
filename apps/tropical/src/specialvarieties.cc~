@@ -16,6 +16,8 @@
  
  ---
  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+ 
+ This file provides functionality to compute certain special tropical varieties
  */
 
 #include "polymake/client.h"
@@ -28,11 +30,11 @@
 #include "polymake/Array.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Graph.h"
-
+#include "polymake/linalg.h"
 
 namespace polymake { namespace tropical {
 
-    using namespace atint::donotlog;
+    //using namespace atint::donotlog;
     //using namespace atint::dolog;
     //using namespace atint::dotrace;
     
@@ -154,23 +156,33 @@ namespace polymake { namespace tropical {
       Matrix<Rational> bergmanRays = facets.minor(All,~scalar2set(0));
       if(modOutLineality) {
 	//Create the projection matrix
-	Matrix<Rational> projectionMatrix = unit_matrix<Rational>(bergmanRays.cols()-1);
+	Matrix<Rational> unitMatrix = unit_matrix<Rational>(bergmanRays.cols()-1);
+	Matrix<Rational> projectionMatrix(0,unitMatrix.cols());
 	
 	//Insert a -1's- vector at the right position
-	projectionMatrix = projectionMatrix.minor(sequence(0,projectionCoordinate),All) / 
-			   (- ones_vector<Rational>(projectionMatrix.cols())) /
-			   projectionMatrix.minor(sequence(projectionCoordinate,projectionMatrix.rows() -projectionCoordinate-1),All);
+	if(projectionCoordinate > 0) {
+	    projectionMatrix /= unitMatrix.minor(sequence(0,projectionCoordinate),All);
+	}
+	projectionMatrix /= - ones_vector<Rational>(unitMatrix.cols());
+	if(projectionCoordinate < unitMatrix.rows()) {						
+	      projectionMatrix /= unitMatrix.minor(sequence(projectionCoordinate,unitMatrix.rows() -	projectionCoordinate),All);
+	}
 	
 	dbgtrace << "Projection matrix is " << projectionMatrix << endl;
 			   
 	bergmanRays = bergmanRays * projectionMatrix;
+	
+	//Apply projection to the lineality space, but make sure the remaining rows are a basis
+	bergmanLineality = bergmanLineality * projectionMatrix;
+	Set<int> rbasis = basis_rows(bergmanLineality);
+	bergmanLineality = bergmanLineality.minor(rbasis,All);
       }
       
       perl::Object result("fan::PolyhedralFan");
 	result.take("INPUT_RAYS") << bergmanRays;
 	result.take("INPUT_CONES") << bergmanCones;
 	result.take("TROPICAL_WEIGHTS") << bergmanWeights;
-	if(!modOutLineality) { result.take("LINEALITY_SPACE") << bergmanLineality;}
+	if(bergmanLineality.rows() > 0) { result.take("LINEALITY_SPACE") << bergmanLineality;}
 	
       return result;
     }

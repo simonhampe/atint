@@ -20,7 +20,7 @@
 # This file provides convenience methods for creation of special tropical varieties
 ########################################################################
 
-#USE #fan #matroid 
+USE fan matroid 
 
 # @category Tropical geometry
 # Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
@@ -120,7 +120,7 @@ user_function bergman_fan {
   my $polyfan = new fan::PolyhedralFan(RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,USES_HOMOGENEOUS_C=>TRUE);
   my $skeleton = fan::skeleton_complex( $polyfan, $ambient_dim - $matroid->RANK,TRUE);
   
-  return computeBergmanFan($skeleton, $poly,$modOutLineality? 1 : 0, $projectionCoordinate);
+  return computeBergmanFan($skeleton, $poly,$modOutLineality eq TRUE? 1 : 0, $projectionCoordinate);
 }
 
 # @category Tropical geometry

@@ -21,6 +21,8 @@
 # a function that tests termination of all functions in a-tint.
 #####################################################################
 
+USE fan 
+
 IMPORT polytope 
 
 declare object MinMaxFunction<Scalar=Rational [ typechecks::is_ordered_field(Scalar) ]>;
