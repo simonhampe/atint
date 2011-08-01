@@ -386,9 +386,10 @@ object PolyhedralFan {
 # 	  return $cplx->HOMOLOGY;
 # 	}
 
-      user_method adjGraph {
-	my $this = shift;
-	my $c = adjacencyComplex($this);
-	my @adj = @{$c->FACETS};
-      }
+	user_method characteristic {
+	  my $this = shift;
+	  my $cplx = equivalenceComplex($this);
+	  return $cplx->HOMOLOGY->[1]->[1];
+	}
+
 }

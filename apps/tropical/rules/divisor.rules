@@ -21,7 +21,7 @@
 ########################################################################################################
 
 
-USE fan polytope
+#USE fan polytope
 
 # @category Tropical geometry
 # Takes as input a tropical fan / tropical variety and an array of rational values. The array length should coincide 

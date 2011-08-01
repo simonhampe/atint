@@ -20,7 +20,7 @@
 # This file provides convenience methods for creation of special tropical varieties
 ########################################################################
 
-USE fan matroid 
+#USE #fan #matroid 
 
 # @category Tropical geometry
 # Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
