@@ -1,0 +1,154 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file provides convenience methods for creation of special tropical varieties
+########################################################################
+
+# @category Tropical geometry
+# Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
+# @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan).
+# If you already know that your rows are a basis, call linear_space_by_basis instead.
+# @param int weight The weight of the linear space (1, if none is given)
+# @return WeightedComplex The resulting fan object
+user_function linear_space_by_matrix {
+  my ($matrix,$weight) = @_;
+  
+  $matrix = $matrix->minor(basis_rows($matrix),All);
+  
+  if(!defined($weight)) {
+      $weight = 1;
+  }
+  my @weightarray = ($weight);
+  
+  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[],LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
+  
+}
+
+# @category Tropical geometry
+# Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
+# @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan) and
+# which are assumed to be linearly independent. If you are not sure of this, call linear_space_by_matrix instead.
+# @param int weight The weight of the linear space (1, if none is given)
+# @return WeightedComplex The resulting fan object
+user_function linear_space_by_basis {
+  my ($matrix,$weight) = @_;
+  
+  if(!defined($weight)) {
+      $weight = 1;
+  }
+  my @weightarray = ($weight);
+  
+  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[],LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
+}
+
+# @category Tropical geometry
+# Creates the tropical variety R^n as a single lineality space with a given weight 
+# @param int n The dimension of the linear space
+# @param int weight The weight of the linear space (1, if none is given)
+# @return WeightedComplex The resulting fan object
+user_function linear_nspace {
+  my ($n,$weight) = @_;
+  
+  if(!defined($weight)) {
+      $weight = 1;
+  }
+  my @weightarray = ($weight);
+  
+  my $m = new Matrix<Rational>(unit_matrix($n));
+  
+  return new WeightedComplex(
+    INPUT_RAYS=>[],
+    INPUT_CONES=>[],
+    LINEALITY_SPACE=> $m,
+    TROPICAL_WEIGHTS=>\@weightarray);
+  
+}
+
+# @category Tropical geometry
+# Creates the moduli space of rational n-marked abstract tropical curves M_{0,n} as the bergman
+# fan of the complete graph on n-1 nodes modulo lineality space.
+# @param Int n The number of marks on the curves
+# @param Bool preserveLineality By default set to false. If true, the function returns Mn with an additional lineality space <(1,...,1)>
+# user_function tropical_mn {
+#   my ($n,$preserve) = @_;
+#   
+#   $preserve = 0 unless defined($preserve);
+#   
+#   #Create the matroid of the complete graph on n-1 nodes 
+#   my @bases = graph::spanning_complete($n-1);
+#   my $edges = ($n-1) * ($n-2) / 2;
+#   my $matroid = new matroid::Matroid(N_ELEMENTS=>$edges,BASES=>\@bases);
+#   return bergman_fan($matroid,!$preserve);
+# }
+
+# @category Tropical geometry
+# Creates the bergman fan of a given matroid fan.
+# @param matroid::Matroid m A matroid
+# @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+# fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
+# @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.
+user_function bergman_fan {
+  my ($matroid, $modOutLineality, $projectionCoordinate) = @_;
+  
+  #Set default values if necessary
+  $modOutLineality = FALSE unless defined($modOutLineality);
+  $projectionCoordinate = $matroid->N_ELEMENTS -1 unless defined($projectionCoordinate);
+  
+  #Get matroid polytope and make it a fan to compute the n-rank-skeleton
+  my $poly = $matroid->POLYTOPE;
+    my $ambient_dim = $poly->AMBIENT_DIM;
+    my $raymatrix = $poly->VERTICES;
+    my @cones = (sequence(0,$raymatrix->rows()));
+  my $polyfan = new WeightedComplex(RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,USES_HOMOGENEOUS_C=>TRUE);
+  my $skeleton = skeleton_complex( $polyfan, $ambient_dim - $matroid->RANK,TRUE);
+  
+  return computeBergmanFan($skeleton, $poly,$modOutLineality eq TRUE? 1 : 0, $projectionCoordinate);
+}
+
+# @category Tropical geometry
+# Creates a divisor of a random MinMaxFunction (in n-space) with integer coefficients.
+# By default this uses maximum for the function. It returns an array containing the function created and its
+# divisor in n-space.
+# @param int ambient_dim The ambient dimension of the divisor
+# @param int equations The number of equations to use
+# @param int upperCoeffBound The upper bound  of the coefficients (All coefficients are positive)
+# @param Bool onlyFunction If true, only the random function is returned and the divisor is not computed. FALSE by default.
+# @return MinMaxFunction if onlyFunction is TRUE, otherwise an array containing first the function, then the divisor
+user_function random_minmaxdivisor {
+  my ($ambient_dim, $equations, $upperCoeffBound, $onlyFunction) = @_;
+  $upperCoeffBound = new Integer($upperCoeffBound);
+  
+  $onlyFunction = FALSE unless defined($onlyFunction);
+  
+  # Create function matrix
+  my $m = new Matrix<Rational>(0,$ambient_dim+1);
+  for(my $i = 0; $i < $equations; $i++) {
+    my @r = randomInteger($upperCoeffBound,$ambient_dim+1);
+    $m = new Matrix<Rational>($m / new Vector<Rational>(@r));
+  }
+  
+  my $f = new MinMaxFunction(FUNCTION_MATRIX=>$m,USES_MIN=>0);
+  if(!$onlyFunction) {
+    my $div = divisorByPLF(linear_nspace($ambient_dim),$f);
+    return ($f,$div);
+  }
+  else {
+    return $f;
+  }
+}

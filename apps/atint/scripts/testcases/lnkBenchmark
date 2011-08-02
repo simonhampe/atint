@@ -1,0 +1,61 @@
+# This script creates the tropical linear space L^n_k for several different n and k and measures the time to create
+# it and to check for balancing
+
+use application "common";
+use application "atint";
+#use application "fan";
+use Benchmark qw(:all);
+
+#This map will contain the values
+declare $timingMapCreation = new Map<Int,<Map<Int,String> > >();
+declare $timingMapBalancing = new Map<Int,<Map<Int,String> > >();
+
+#Benchmark parameters
+my $minimalN = 11;
+my $maximalN = 20;
+
+my $t0;
+my $t1;
+my $s;
+
+print "Doing this once without benchmarking for wrapper initialization\n";
+my $initfan = tropical::tropical_lnk(2,1);
+$initfan->IS_BALANCED;
+
+open (RESULT, ">lnkBenchmarkResults.csv");
+
+for(my $n = $minimalN; $n <= $maximalN; $n++) {
+  print RESULT $n;
+  print RESULT ";";
+  for(my $k = 1; $k <= $n; $k ++) {
+    print "Creating L^",$n,"_",$k,"...\n";
+    $t0 = Benchmark->new;
+    my $f = tropical::tropical_lnk($n,$k);
+    $t1 = Benchmark->new;
+    $s = timediff($t1,$t0);
+    #$timingMapCreation->{$n}->{$k} = $s;
+
+    print RESULT "$$s[0]";
+    print RESULT "/";
+   
+    print "Done.\n";
+    print "Checking balancing...\n";
+    $t0 = Benchmark->new;
+    my $b = $f->IS_BALANCED;
+    if(!$b) {
+      die "Error: L^",$n,"_",$k, " not balanced.\n";
+    }
+    $t1 = Benchmark->new;
+    $s = timediff($t1,$t0);
+    #$timingMapBalancing->{$n}->{$k} = $s;
+
+    print RESULT "$$s[0]";
+    print RESULT ";";
+
+    print "Done.\n";
+  }
+  print RESULT "\n";
+}
+
+close (RESULT);
+

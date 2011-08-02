@@ -1,0 +1,395 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+#
+# This file extends the polyhedral fan of polymake to a tropical variety by assigning weights to the maximal cones
+# and by allowing the fan to be interpreted as a polyhedral complex by intersecting it at x0 = 1
+########################################################################
+
+object WeightedComplex {
+
+	## PROPERTIES ###########################################################
+  
+	# @category Tropical properties
+	# Vector of (integer) weights for maximal cones. Indices refer to (the rows of) [[MAXIMAL_CONES]]
+	# If, however, the fan only consists of a lineality space, specifying the weight of this single maximal
+	# cone is only necessary, if you want to compute refinements of this fan later on (e.g. for computing
+	# divisors of rational functions)
+	property TROPICAL_WEIGHTS : Vector<Integer>;
+
+	# @category Tropical properties
+	# Indicates whether the fan is balanced with the given [[TROPICAL_WEIGHTS]].
+	property IS_BALANCED : Bool;	
+
+	# @category Basic properties
+	# An incidence matrix of all codimension one faces. Each row is a face and column indices refer to [[RAYS]].
+	# If the fan uses homogeneous coordinates, only those faces that intersect {x0 = 1} are listed here.
+	property CODIM_1_FACES : IncidenceMatrix;
+	
+	# @category Basic properties
+	# An incidence matrix indicating which codim 1 faces are contained in which maximal cone. Rows refer
+	# to (rows of) [[CODIM_1_FACES]], columns to (rows of) [[MAXIMAL_CONES]]
+	property CODIM_1_IN_MAXIMAL_CONES : IncidenceMatrix;
+	
+	# @category Tropical properties
+	# A list of lattice normal vectors. They are associated to the faces and maximal cones in the following 
+	# way: For face i and adjacent maximal cone j, the element [[LATTICE_NORMALS]]->{i}->{j} is the corresp.
+	# lattice normal vector. There is a convenience method lattice_normal(i,j)
+	# If [[USES_HOMOGENEOUS_C]] is TRUE, this actually computes a lattice normal of the cone (face i)\cap {x0 =1} wrt the
+	# cone (maximal cone j) \cap {x0=1} to ensure that the normal is of the form (0,...)
+	property LATTICE_NORMALS : Map<Int,Map<Int,Vector<Integer>>>; 
+	
+	# @category Tropical geometry
+	# For each lattice normal vector, this gives a vector of length (number of rays) + (lineality dim.), such that
+	# if a rational function is given by values on the rays and lin space generators, the value of the corresponding
+	# normal [[LATTICE_NORMALS]]->{i}->{j} can be computed by multiplying the function value vector with 
+	# the vector [[LATTICE_NORMAL_FCT_VECTOR]]->{i}->{j}. This is done in the following way:  If this fan does not 
+	# use homogeneous coordinates, it computes a representation of the lattice normal in the generating system 
+	# consisting of the rays of [[MAXIMAL_CONES]]->row(j) and the generators 
+	# of the lineality space. It then inserts the coefficients of the representation at the right position. 
+	# If the fan uses homog. coordinates, however, we use a different generating system (and indices refer to CMPLX_RAYS)
+	# <(r_i-r_0)_i>0, s_j, l_k>, where r_0 is the ray of the maximal cone 
+	# with the lowest index in [[CMPLX_RAYS]], such that it fulfills x0 = 1, r_i are the remaining rays with x0 = 1, ordered
+	# according to their index in [[CMPLX_RAYS]], s_j are the rays of the cone with x0 = 0 and l_k are the lineality space 
+	# generators. We will then store the coefficients a_i of (r_i - r_0) at the index of r_i, then - sum(a_i) at 
+	# the index of r_0 and the remaining coefficients at the appropriate places.
+	property LATTICE_NORMAL_FCT_VECTOR : Map<Int,Map<Int,Vector<Rational>>>;
+	
+	# @category Tropical geometry
+	# Rows of this matrix correspond to [[CODIM_1_FACES]], and each row contains the weighted sum:
+	# sum_{cone > codim-1-face}( weight(cone) * [[LATTICE_NORMALS]]->{codim-1-face}->{cone})
+	property LATTICE_NORMAL_SUM : Matrix<Rational>;
+	
+	# @category Tropical geometry
+	# Rows of this matrix correspond to [[CODIM_1_FACES]] (or [[CMPLX_CODIM_1_FACES]] in the homog. case), and each row 
+	# contains a function vector for the corresponding row of [[LATTICE_NORMAL_SUM]]. This function vector is computed 
+	# in the same way as described under [[LATTICE_NORMAL_FCT_VECTOR]].
+	property LATTICE_NORMAL_SUM_FCT_VECTOR : Matrix<Rational>;
+	
+	# @category Polyhedral complex
+	# A matrix of the rays of the fan. This should be used *instead of* [[INPUT_RAYS]], if the coordinates of the
+	# fan should be interpreted as homogeneous coordinates and the fan as the complex at x0 = 1.
+	# The input rays are normalized to x0 = 1 and the fan is then initialized with the normalized rays as
+	# [[INPUT_RAYS]].
+	# [[INPUT_CONES]] can be combined with this as usual. If your rays are already homogenized and you are sure they
+	# are also your rays, you can directly put this into RAYS and manually set USES_HOMOGENEOUS_C=>TRUE
+	property INPUT_HOM_RAYS: Matrix<Rational>;
+	
+	# @category Polyhedral complex
+	# A matrix of generators of the lineality space, but in homogeneous coordinates (i.e. x0 should be 0, otherwise 
+	# this throws an error). This should be used *instead of* [[INPUT_LINEALITY]] / [[LINEALITY_SPACE]]
+	property INPUT_HOM_LINEALITY : Matrix<Rational>;
+	
+	# @category Polyhedral complex
+	# Indicates whethere this fan's coordinates should be interpreted as affine coordinates or as homogeneous coordinates.
+	# In the latter case the fan would actually represent the polyhedral complex that comes from intersecting the fan
+	# (in affine coordinates) with the affine hyperplane x0 = 1. This property should not be set manually. It will be set
+	# as true, if [[INPUT_HOM_RAYS]] or [[INPUT_HOM_LINEALITY]] are used and to false, if [[INPUT_RAYS]] or [[INPUT_LINEALITY]]
+	# are used.
+	property USES_HOMOGENEOUS_C : Bool;
+	
+	# @category Polyhedral complex
+	# If the fan does not use homogeneous coordinates, this is just a copy of RAYS and actually needn't be requested. Otherwise this computes
+	# a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from [[RAYS]] occurs  
+	# as a row in this matrix...
+	# - once, if r_0 = 1
+	# - k times, if r_0 = 0 and k is the number of equivalence classes of maximal cones containing r with respect to the following relation:
+	# Two maximal cones m, m' containing r are equivalent, if they are equal or there exists a sequence of maximal cones
+	# m = m_1,...m_r = m', such that r is contained in each m_i and each intersection m_i cap m_i+1 contains at least one ray s with s_0 = 1.
+	# The reason for this is that, when specifying a piecewise affine linear function on a polyhedral complex, the same directional ray with 
+	# x0 = 0 might be assigned two different values, if it is contained in two "non-connected" maximal cones (where connectedness is to be 
+	# understood as described above).
+	property CMPLX_RAYS : Matrix<Rational>;
+	
+	# @category Polyhedral complex
+	# An incidence matrix describing which maximal cone in the complex at x0 = 1 is generated by which rays. 
+	# Each row corresponds to a maximal cone (More precisely, the i-th element represents the
+	# same maximal cone as the i-th element of [[MAXIMAL_CONES]]). The indices in a row refer to rows of [[CMPLX_RAYS]], i.e. the maximal
+	# cone described by the i-th element is generated by the rays corresponding to these row indices.
+	# If the fan does not use homogeneous coordinates, it is just a copy of [[MAXIMAL_CONES]]
+	property CMPLX_MAXIMAL_CONES : IncidenceMatrix;
+	
+	# @category Polyhedral complex
+	# An incidence matrix describing which codim 1 cone in the complex at x0 = 1 is generated by which rays. 
+	# Each row corresponds to a codimension one cone (More precisely, the i-th element represents the
+	# same codim 1 cone as the i-th element of [[CODIM_1_FACES]]). The indices in a row refer to rows of [[CMPLX_RAYS]], i.e. the cone
+	# cone described by the i-th element is generated by the rays corresponding to these row indices.
+	# If the fan does not use homogeneous coordinates, it is just a copy of [[CODIM_1_FACES]].
+	property CMPLX_CODIM_1_FACES : IncidenceMatrix;
+		
+	# @category Basic properties
+	# Returns the dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
+	# just DIM, otherwise DIM-1. When computing this property, it is assumed that the complex is pure.
+	property CMPLX_DIM: Int;
+	
+	# @category Basic properties
+	# Returns the ambient dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
+	# just FAN_AMBIENT_DIM, otherwise FAN_AMBIENT_DIM-1
+	property CMPLX_AMBIENT_DIM: Int;
+	
+	## RULES ################################################################
+	
+	# The different weights for the following two rules make sure that existence of INPUT_HOM_* is checked first (since INPUT_* will always be set by INPUT_HOM_*
+	
+	rule USES_HOMOGENEOUS_C : INPUT_RAYS | INPUT_LINEALITY {
+	    $this->USES_HOMOGENEOUS_C = FALSE;
+	}
+	weight 0.2;
+		
+	rule USES_HOMOGENEOUS_C : INPUT_HOM_RAYS | INPUT_HOM_LINEALITY {
+	    $this->USES_HOMOGENEOUS_C = TRUE;
+	}
+	weight 0.1;
+	
+	rule USES_HOMOGENEOUS_C : RAYS {
+	  $this->USES_HOMOGENEOUS_C = FALSE;
+	}
+	weight 0.3;
+	
+	#------------------------------------------------------------------------#
+	
+	rule INPUT_RAYS : INPUT_HOM_RAYS {
+	    #Normalize rays first
+	    my $m = new Matrix<Rational>($this->INPUT_HOM_RAYS->rows(), $this->INPUT_HOM_RAYS->cols());
+	    for(my $r = 0; $r < $this->INPUT_HOM_RAYS->rows(); $r++) {
+		if($this->INPUT_HOM_RAYS->row($r)->[0] == 0) {
+		    $m->row($r) = $this->INPUT_HOM_RAYS->row($r);
+		}
+		else {
+		    $m->row($r) = ($this->INPUT_HOM_RAYS->row($r)) * (1 / $this->INPUT_HOM_RAYS->row($r)->[0]);
+		}
+	    }
+	    $this->INPUT_RAYS = $m;
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	## !!!!!!!!!!!!! FIXME: This should probably be INPUT_LINEALITY, but as long as polymake doesn't actually use that property, it makes no sense to do that
+	rule LINEALITY_SPACE : INPUT_HOM_LINEALITY {
+	    #Just check if all the first entries are 0
+	    for(my $r = 0; $r < $this->INPUT_HOM_LINEALITY->rows(); $r++) {
+		if($this->INPUT_HOM_LINEALITY->row($r)->[0] != 0) {
+		    die "Invalid coordinates for lineality space, x0 should be 0";
+		}
+	    }
+	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
+	}
+	weight 0.02;
+	
+	
+	#------------------------------------------------------------------------#
+	
+	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, FAN_AMBIENT_DIM, LINEALITY_SPACE {
+	  computeCodimensionOne($this);
+# 	  my @cones = ();
+# 	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
+# 	    my $cone = new Cone<Rational>(RAYS=>$this->RAYS->minor($this->MAXIMAL_CONES->row($c),All));
+# 	    $cone->RAYS_IN_FACETS;
+# 	    @cones = (@cones,$cone);
+# 	  }
+# 	  computeCodimensionOneViaCones($this,@cones);
+	}
+	
+	#------------------------------------------------------------------------#
+	  
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM {
+	  computeLatticeNormals($this);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule IS_BALANCED : CODIM_1_FACES, LATTICE_NORMAL_SUM, FAN_AMBIENT_DIM{
+	  computeIfBalanced($this);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_SPACE, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES, FAN_AMBIENT_DIM {
+	  computeFunctionVectors($this);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule LATTICE_NORMAL_SUM : LATTICE_NORMALS, TROPICAL_WEIGHTS, FAN_AMBIENT_DIM {
+	    computeLatticeNormalSum($this);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, FAN_AMBIENT_DIM {
+	  computeComplexData($this);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule INPUT_RAYS, INPUT_CONES : LINEALITY_SPACE {
+	  $this->INPUT_RAYS = new Matrix<Rational>(0,$this->LINEALITY_SPACE->cols());
+	  $this->INPUT_CONES = new Vector<Set<Int>>();
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_AMBIENT_DIM : RAYS, LINEALITY_SPACE, USES_HOMOGENEOUS_C { # FIXME: Copy ambient_dim
+	  my $d = max($this->RAYS->cols(), $this->LINEALITY_SPACE->cols());
+	  $this->CMPLX_AMBIENT_DIM = $this->USES_HOMOGENEOUS_C? 
+	      $d-1 :
+	      $d;		     
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_DIM : RAYS,MAXIMAL_CONES,LINEALITY_DIM, USES_HOMOGENEOUS_C { # FIXME: Copy dim
+	  my $d = $this->LINEALITY_DIM;
+	  if($this->MAXIMAL_CONES->rows() > 0) {
+	    my $m = new Matrix<Rational>($this->RAYS->minor($this->MAXIMAL_CONES->row(0),All));
+	    $d = $d + rank($m);
+	  }
+	  $this->CMPLX_DIM = $this->USES_HOMOGENEOUS_C?
+	    ($d-1) : $d;
+	}
+	
+	
+	
+	## METHODS #################################################################
+	
+	# @category Basic properties
+	# This computes the dimension of the fan in the following way: If the fan has rays, it simply
+	# calls DIM, otherwise it returns LINEALITY_DIM.
+	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'dimension 0'
+	# (Actually, if we give only one ray [0,..0], it will break and start filling up the RAM)
+	# So we should delete this function when this is fixed.
+# 	user_method dim_fix {
+# 	  my $this = shift;
+# 	  if(defined($this->lookup("INPUT_RAYS")) || defined($this->lookup("INPUT_HOM_RAYS")) || defined($this->lookup("RAYS"))) {
+# 	    if($this->RAYS->rows() > 0) {
+# 	      return $this->DIM;
+# 	    }
+# 	  }
+# 	  return $this->LINEALITY_DIM;
+# 	}
+	
+	# @category Basic properties
+	# This computes the ambient dimension in the following way: If the fan has rays, it simply
+	# calls AMBIENT_DIM, otherwise it returns LINEALITY_SPACE->cols().
+	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'ambient dimension 0'
+	# (if I give INPUT_RAYS=>[])
+	# So we should delete this function when this is fixed.
+# 	user_method ambient_dim_fix {
+# 	  my $this = shift;
+# 	  my $ir = $this->lookup("INPUT_RAYS");
+# 	  if(defined($ir)) {
+# 	    if($ir->cols() == 0) {
+# 	      return $this->LINEALITY_SPACE->cols();
+# 	    }
+# 	  }
+# 	  return $this->AMBIENT_DIM;
+# 	}
+	
+	# @category Basic properties
+	# This computes the ambient dimension ignoring homogeneous coordinates. More precisely, returns
+	# ambient_dim_fix, if the fan does not use homog. coordinates, otherwise it returns ambient_dim_fix-1
+# 	user_method real_ambient_dim {
+# 	  my $this = shift;
+# 	  return $this->USES_HOMOGENEOUS_C? $this->ambient_dim_fix-1 : $this->ambient_dim_fix; # FIXME
+# 	}
+	
+	# @category Tropical methods
+	# Convenience method, returns LATTICE_NORMALS->[i]->[j]
+	# @param Int i The index of the facet
+	# @param Int j The index of the maximal cone
+	# @return The lattice normal vector of cone j wrt. facet i
+	user_method lattice_normal {
+	    my $this = shift;
+	    my $i = shift;
+	    my $j = shift;
+	    
+	    return $this->LATTICE_NORMALS->{$i}->{$j};
+	}
+	
+	# @category Polyhedral geometry
+	# Transforms the fan into homogeneous coordinates
+	# @return If this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
+	# by the following matrix: One affine ray [1,0,...0] and then [0,ray] for any ray of the original fan. In [[MAXIMAL_CONES]]
+	# all get the additional affine ray and [[TROPICAL WEIGHTS]] is simply copied
+	user_method homogenize {
+	  my $this = shift;
+	  if($this->USES_HOMOGENEOUS_C) {
+	    return $this;
+	  }
+	  
+	  #Create the new ray matrix
+	  my $rayMatrix = new Matrix<Rational>(0,$this->CMPLX_AMBIENT_DIM+1);
+	  #Add the remaining rays with a zero at front
+	  my $origRays = (zero_vector<Rational>($this->RAYS->rows())) | $this->RAYS;
+	  $rayMatrix = $rayMatrix / $origRays;
+	  #Add the affine ray
+	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->CMPLX_AMBIENT_DIM)); 
+	  $rayMatrix = (new Matrix<Rational>($rayMatrix)) / $affineRay;
+	  my $affineIndex = $rayMatrix->rows()-1;
+	  
+	  #Now add the last ray to each maximal cone
+	  my @mcones = @{$this->MAXIMAL_CONES};
+	  my @newmcones = ();
+	  for my $set (@mcones) {
+	    @newmcones = (@newmcones, $set + $affineIndex);
+	  }
+	  #If there are no maximal cones (because the fan is only lineality space),we add a maximal cone
+	  # with just the origin
+	  if(scalar(@newmcones) == 0) {
+	    my $aSet = new Set<Int>(); $aSet = $aSet + $affineIndex;
+	    @newmcones = (@newmcones, $aSet);
+	  }
+	  
+	  my @weight = defined($this->lookup("TROPICAL_WEIGHTS"))? @{$this->TROPICAL_WEIGHTS} : ();
+	  
+	  return new WeightedComplex(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
+				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE);
+	}
+	
+# 	user_method adjHomology {
+# 	  my $this = shift;
+# 	  #Create set graph
+# 	  my $facets = new Vector<Set<Int> >();
+# 	  my $maximalInCodim = $this->CODIM_1_IN_MAXIMAL_CONES;
+# 	  my $codimInMaximal = transpose($this->CODIM_1_IN_MAXIMAL_CONES);
+# 	  for my $mc (0 .. $this->MAXIMAL_CONES->rows() -1) {
+# 	      print "Finding adjacencies of cone $mc...\n";
+# 	      my $cdset = $codimInMaximal->row($mc);
+# 	      for my $cd (@{$cdset}) {
+# 		my $mcset = ($maximalInCodim->row($cd) - $mc);
+# 		for my $othermc (@{$mcset}) {
+# 		  if($othermc > $mc) {
+# 		    my $s = new Set<Int>($mc,$othermc);
+# 		    $facets = $facets | $s;
+# 		  }
+# 		}
+# 	      }
+# 	  }
+# 	  my $cplx = new topaz::SimplicialComplex(FACETS=>$facets);
+# 	  $cplx->VISUAL;
+# 	  return $cplx->HOMOLOGY;
+# 	}
+
+	user_method characteristic {
+	  my $this = shift;
+	  my $cplx = tropical::equivalenceComplex($this);
+	  return $cplx->HOMOLOGY->[1]->[1];
+	}
+
+}

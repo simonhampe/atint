@@ -1,0 +1,64 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+#  This file provides functions for basic polyhedral operations, like taking the
+#  k-skeleton of a complex or computing the cartesian product of two varieties
+########################################################################
+
+# @category Polyhedral geometry
+# Takes a polyhedral complex and computes the k-skeleton. Will return an empty fan, if k is larger then the dimension
+# of the given complex or smaller than 1.
+# @param WeightedComplex fan A fan (or polyhedral complex)
+# @param Int k The dimension of the skeleton that should be computed
+# @param Bool preserveRays When true, the function assumes that all rays of the fan remain in the k-skeleton, so it just copies the RAYS, instead of passing them to INPUT_RAYS. This property can always be set to true, if fan is not in homogeneous coordinates or if the corresponding complex at x0 = 1 only has vertices. By default, this property is false.
+# @return The k-skeleton of the fan (or complex, if USES_HOMOGENEOUS_C is true)
+user_function skeleton_complex {
+  my ($fan, $k, $preserve) = @_;
+  
+  $preserve = FALSE unless defined($preserve);
+  
+  if($k < 1 || $k > $fan->CMPLX_DIM) { 
+    return new WeightedComplex();
+  }
+  if($k == $fan->CMPLX_DIM) {
+    return $fan;
+  }
+  #Create codim 1 complex and continue recursively
+    my $raymatrix = $fan->RAYS;
+    my @cones = @{$fan->CODIM_1_FACES};
+  
+  my $codimfan;
+  if($preserve eq TRUE) {
+    $codimfan = new WeightedComplex(RAYS=>$raymatrix, MAXIMAL_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$fan->USES_HOMOGENEOUS_C);
+  }
+  else {
+    $codimfan = $fan->USES_HOMOGENEOUS_C? 
+		    new WeightedComplex(INPUT_HOM_RAYS=>$raymatrix, INPUT_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE)
+		    : new WeightedComplex(INPUT_RAYS=>$raymatrix, INPUT_CONES=>\@cones ,LINEALITY_SPACE=>$fan->LINEALITY_SPACE);
+  }
+  return skeleton_complex($codimfan,$k,$preserve);
+}
+
+# @category Polyhedral geometry
+# Computes the cartesian product of a set of polyhedral fans. If any of them uses homogeneous coordinates, so will the result
+# @param complexes A list of WeightedComplex objects
+# @return the cartesian product of the complexes. If any of the complexes use homogeneous coordinates, so does the result. If any of the complexex carries weights, the result carries the sum of the weights of its factors (Complexes without weights are treated as complexes with weight 1).
+user_function product_complex {
+  return compute_product_complex(@_);
+}

@@ -13,18 +13,13 @@
    GNU General Public License for more details.
 */
 
-///==== this line controls the automatic file splitting: max.instances=40
-
-#include "polymake/client.h"
-#include "polymake/Map.h"
-#include "polymake/Vector.h"
-#include "polymake/Rational.h"
-#include "polymake/Integer.h"
-namespace polymake { namespace common {
+namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   Class4perl("Polymake::common::Map_A_Int_I_Vector__Rational_Z", Map< int, Vector< Rational > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Vector__Integer_Z", Map< int, Vector< Integer > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Integer_Z_Z", Map< int, Map< int, Vector< Integer > > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Rational_Z_Z", Map< int, Map< int, Vector< Rational > > >);
+   FunctionWrapper4perl( perl::Object (perl::Object, perl::Object, bool, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
+      IndirectWrapperReturn( arg0, arg1, arg2, arg3 );
+   }
+   FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, bool, int) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
