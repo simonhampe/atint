@@ -152,3 +152,24 @@ user_function random_minmaxdivisor {
     return $f;
   }
 }
+
+# @category Tropical geometry
+# Returns the zero cycle, i.e. a weighted complex with no rays and cones
+user_function zero_cycle {
+  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[]);
+}
+
+# @category Tropical geometry
+# Checks whether a cycle is the 0 cycle
+# @param WeightedComplex c
+# @return Bool
+user_function is_zerocycle {
+  my $wc = shift;
+  if($wc->CMPLX_AMBIENT_DIM == 0) {
+    return new Bool(TRUE);
+  }
+  if($wc->RAYS->rows() > 0 || $wc->LINEALITY_SPACE->rows() > 0) {
+    return new Bool(FALSE);
+  }
+  return new Bool(TRUE);
+}

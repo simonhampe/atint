@@ -26,6 +26,8 @@ IMPORT common
 USE fan matroid
 #IMPORT polytope 
 
+file_suffix atint
+
 declare object WeightedComplex : fan::PolyhedralFan<Rational>;
 
 declare object MinMaxFunction;

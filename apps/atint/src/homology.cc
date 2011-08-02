@@ -76,9 +76,9 @@ namespace polymake { namespace atint {
       IncidenceMatrix<> maximalByCodim = fan.give("CODIM_1_IN_MAXIMAL_CONES");
       IncidenceMatrix<> codimInMaximal = T(maximalByCodim);
       int noOfCones = maximalCones.rows();
-      Matrix<Rational> rays = fan.give("RAYS");
-      Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
-      Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
+//       Matrix<Rational> rays = fan.give("RAYS");
+//       Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
+//       Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
       //Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
       
       dbgtrace << "Computing adjacency complex" << endl;
@@ -89,12 +89,14 @@ namespace polymake { namespace atint {
       //Now we compute the equivalence classes of maximal cones
       Vector<Set<int> > equivalenceClasses;
       Vector<bool> hasBeenAdded(noOfCones); //contains whether a cone has been added to an equivalence class
+      Map<int, int> conesInClasses; //Maps cone indices to the index of their class in equivalenceClasses
       
       dbgtrace << "Computing equivalence classes" << endl;
       
       for(int mc = 0; mc < noOfCones; mc++) {
 	if(!hasBeenAdded[mc]) {
 	      Set<int> newset; newset = newset + mc;
+	      conesInClasses[mc] = equivalenceClasses.dim();
 	      //Do a breadth-first search for all other cones in the component
 	      std::list<int> queue;
 		queue.push_back(mc);
@@ -115,10 +117,9 @@ namespace polymake { namespace atint {
 			newset += othermc;
 			queue.push_back(othermc);
 			hasBeenAdded[othermc] = true;
+			conesInClasses[othermc] = equivalenceClasses.dim();
 		      }
 		    }
-		    
-		    
 		    //For each neighbour, if it has not been assigned a component yet, check if it should be added
 // 		    for(Entire<Set<int> >::iterator othermc = entire(otherMaximals); !othermc.at_end(); othermc++) {
 // 		      if(!hasBeenAdded[*othermc]) {
@@ -135,27 +136,67 @@ namespace polymake { namespace atint {
 // 		    }
 		}		
 	      }//End iterate queue
-	if(newset.size() > 2) {equivalenceClasses |= newset;}
+	//if(newset.size() > 2) {equivalenceClasses |= newset;}
+	equivalenceClasses |= newset;
 	}	
       } //End compute equivalence classes
       
-      dbgtrace << "Equivalence classes are " << equivalenceClasses << endl;
-      dbgtrace << "Removing edges from equivalence classes" << endl;
+      dbglog << "Equivalence classes are " << equivalenceClasses << endl;
+      dbglog << "Cones in classes reads " << conesInClasses << endl;
+      //dbgtrace << "Removing edges from equivalence classes" << endl;
+      
+      //Now we take each equivalence class, iterate over all cones in this class and add as connected
+      // vertices all classes containing a cone connected to one of the cones in this class in the adjacencyComplex
+      Vector<Set<int> > facets;
+      Vector<Set<int> > adjacency = complex.give("FACETS");
+      IncidenceMatrix<> vertexInEdge = T(IncidenceMatrix<>(adjacency));
+      dbgtrace << "vertex-in-edge matrix reads " << vertexInEdge << endl;
+      for(int cls = 0; cls < equivalenceClasses.dim(); cls++) {
+	dbgtrace << "Finding connected classes for class " << cls << endl;
+	Set<int> c = equivalenceClasses[cls];
+	Set<int> connectedClasses;
+	dbgtrace << "Cones in that class are " << c << endl;
+	//Iterate over all cones in the class
+	for(Entire<Set<int> >::iterator cone = entire(c); !cone.at_end(); cone++) {
+	    //Extract all edges containing that cone
+	    Set<int> edgeSet = vertexInEdge.row(*cone);
+	    dbgtrace << "Cone " << *cone << " contained in edges " << edgeSet << endl;
+	    //Now add all neighbour cones
+	    for(Entire<Set<int> >::iterator nb = entire(edgeSet); !nb.at_end(); nb++) {
+	      connectedClasses += conesInClasses[*((adjacency[*nb] - *cone).begin())];
+	    }
+	}
+	dbgtrace << "Connected classes are " << connectedClasses << endl;
+	//Now that we know all connected classes, add the corresponding edges (only if the index is > )
+	for(Entire<Set<int> >::iterator cc = entire(connectedClasses); !cc.at_end(); cc++) {
+	    if(*cc > cls) {
+	      Set<int> edge; edge += cls; edge += *cc;
+	      facets |= edge;
+	    }
+	}
+	//If there are no connected classes, create a vertex
+	if(connectedClasses.size() == 0) {
+	    Set<int> vertex; vertex += cls;
+	    facets |= vertex;
+	}
+      }
+      
+      dbgtrace << "Done. Facets are " << facets << endl;
       
       //Now we remove all edges contained in the equivalence classes and add the classes as facets
-      Vector<Set<int> > facets = complex.give("FACETS");
-	dbgtrace << "Facets before are " << facets << endl;
-      for(int ec = 0; ec < equivalenceClasses.dim(); ec++) {
-	  Set<int> facetsToRemove;
-	  for(int fc = 0; fc < facets.dim(); fc++) {
-	    //Fancy way of saying facets[fc] contained in equivClasses[ec]
-	    if((facets[fc]*equivalenceClasses[ec]).size() == facets[fc].size()) {
-	      facetsToRemove += fc;
-	    }
-	  }
-	  facets = facets.slice(~facetsToRemove);
-      }
-      facets |= equivalenceClasses;
+//       Vector<Set<int> > facets = complex.give("FACETS");
+// 	dbgtrace << "Facets before are " << facets << endl;
+//       for(int ec = 0; ec < equivalenceClasses.dim(); ec++) {
+// 	  Set<int> facetsToRemove;
+// 	  for(int fc = 0; fc < facets.dim(); fc++) {
+// 	    //Fancy way of saying facets[fc] contained in equivClasses[ec]
+// 	    if((facets[fc]*equivalenceClasses[ec]).size() == facets[fc].size()) {
+// 	      facetsToRemove += fc;
+// 	    }
+// 	  }
+// 	  facets = facets.slice(~facetsToRemove);
+//       }
+//       facets |= equivalenceClasses;
       
       perl::Object result("topaz::SimplicialComplex");
 	result.take("FACETS") << facets;
@@ -171,11 +212,12 @@ namespace polymake { namespace atint {
 		      &adjacencyComplex, "adjacencyComplex(WeightedComplex)");
 		      
     UserFunction4perl("# @category Homology"
-		      "# Computes the canonical complex of a tropical variety. The one-skeleton is simply the "
-		      "# adjacency graph of the variety. Higher dimensional faces are determined by equivalence"
-		      "#  classes of cones. Two cones a,b are equivalent, if there exists a sequence of "
+		      "# Computes the canonical complex of a tropical variety. The one-skeleton is determined "
+		      "# in the following way: Two cones a,b are equivalent, if there exists a sequence of "
 		      "# maximal cones a=c0,...,cr=b, such that ci,ci+1 intersect in a codimension one face of "
 		      "# which they are the only neighbours"
+		      "# The vertices are the equivalence classes and two of them are connected if any cones in "
+		      "# them are connected."
 		      "# @param WeightedComplex fan A tropical variety"
 		      "# @return topaz::SimplicialComplex The canonical complex of the variety.",
 		      &equivalencyComplex, "equivalenceComplex(WeightedComplex)");

@@ -28,6 +28,12 @@
 user_function cycle_intersection {
   my ($X,$Y) = @_;
   
+  #If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-fan
+  my $codimsum = $X->CMPLX_CODIMENSION + $Y->CMPLX_CODIMENSION;
+  if($codimsum > $X->CMPLX_AMBIENT_DIM) {
+    return zero_cycle();
+  }
+  
   #Compute the cross product
   my $Z = product_complex( $X,$Y);
   
@@ -44,6 +50,25 @@ user_function cycle_intersection {
   my @weights = @{$Z->TROPICAL_WEIGHTS};
   my $uses_homog = $Z->USES_HOMOGENEOUS_C;
   return new WeightedComplex( RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,TROPICAL_WEIGHTS=>\@weights,USES_HOMOGENEOUS_C=>$uses_homog);
-  
-  
+}
+
+# @category Tropical geometry
+# Computes the degree of a tropical variety as the degree of the 0-dimensional complex obtained when intersecting
+# the variety with an appropriate linear space L^n_k
+# @param WeightedComplex complex
+# @return Int
+user_function degree {
+  my $cplx = shift;
+  #If its 0-dimensional, just add up the weights
+  if($cplx->CMPLX_DIM == 0) {
+    my $degree = 0;
+    for my $tw (@{$cplx->TROPICAL_WEIGHTS}) {
+      $degree += $tw;
+    }
+    return $degree;
+  }
+  #Otherwise compute the appropriate intersection product
+  my $n = $cplx->CMPLX_AMBIENT_DIM;
+  my $k = $cplx->CMPLX_CODIMENSION;
+  return degree(cycle_intersection($cplx,tropical_lnk($n,$k)));
 }

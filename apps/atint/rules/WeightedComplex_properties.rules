@@ -143,6 +143,11 @@ object WeightedComplex {
 	# just FAN_AMBIENT_DIM, otherwise FAN_AMBIENT_DIM-1
 	property CMPLX_AMBIENT_DIM: Int;
 	
+	# @category Basic properties
+	# Returns the codimension of the polyhedral complex in its ambient vector space. More precisely, this
+	# value is equal to [[CMPLX_AMBIENT_DIM]] - [[CMPLX_DIM]]
+	property CMPLX_CODIMENSION: Int;
+	
 	## RULES ################################################################
 	
 	# The different weights for the following two rules make sure that existence of INPUT_HOM_* is checked first (since INPUT_* will always be set by INPUT_HOM_*
@@ -264,6 +269,11 @@ object WeightedComplex {
 	    ($d-1) : $d;
 	}
 	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_CODIMENSION : CMPLX_AMBIENT_DIM, CMPLX_DIM {
+	  $this->CMPLX_CODIMENSION = $this->CMPLX_AMBIENT_DIM - $this->CMPLX_DIM;
+	}
 	
 	
 	## METHODS #################################################################
