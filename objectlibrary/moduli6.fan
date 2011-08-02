@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?pm chk="4e0dc214"?>
 
-<object type="fan::PolyhedralFan&lt;Rational&gt;" version="2.9.10" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object type="atint::WeightedComplex" version="2.9.10" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="RAYS">
     <m>
       <v>-1 0 0 0 0 0 0 0 0</v>

@@ -19,7 +19,7 @@ my $t1;
 my $s;
 
 print "Doing this once without benchmarking for wrapper initialization\n";
-my $initfan = tropical::tropical_lnk(2,1);
+my $initfan = atint::tropical_lnk(2,1);
 $initfan->IS_BALANCED;
 
 open (RESULT, ">lnkBenchmarkResults.csv");
@@ -30,7 +30,7 @@ for(my $n = $minimalN; $n <= $maximalN; $n++) {
   for(my $k = 1; $k <= $n; $k ++) {
     print "Creating L^",$n,"_",$k,"...\n";
     $t0 = Benchmark->new;
-    my $f = tropical::tropical_lnk($n,$k);
+    my $f = atint::tropical_lnk($n,$k);
     $t1 = Benchmark->new;
     $s = timediff($t1,$t0);
     #$timingMapCreation->{$n}->{$k} = $s;

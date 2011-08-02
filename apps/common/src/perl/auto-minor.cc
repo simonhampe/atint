@@ -16,10 +16,14 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/client.h"
-#include "polymake/Matrix.h"
+#include "polymake/linalg.h"
 #include "polymake/Rational.h"
+#include "polymake/Matrix.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Set.h"
+#include "polymake/Vector.h"
+#include "polymake/Array.h"
+#include "polymake/SparseMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1, typename T2>
@@ -28,6 +32,10 @@ namespace polymake { namespace common {
       WrapperReturnLvalue( T0, arg0.get<T0>().minor(arg1.get<T1>(), arg2.get<T2>()) );
    };
 
-   FunctionInstance4perl(minor_X_X_f5, perl::Canned< Wary< Matrix<Rational> > >, perl::Canned< const Set< int > >, perl::Enum<pm::all_selector>);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::RowChain<pm::ColChain<pm::SingleCol<pm::SameElementVector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> const&, pm::SingleRow<pm::SameElementSparseVector<pm::SingleElementSet<int>, pm::Rational> const&> > > >, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, perl::Enum<pm::all_selector>);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< Wary< Matrix< Rational > > >, perl::Canned< const Set< int > >, perl::Enum<pm::all_selector>);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >, perl::Enum<pm::all_selector>, perl::TryCanned< const Array< int > >);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >, perl::Enum<pm::all_selector>, perl::TryCanned< const Array< int > >);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > > >, perl::Enum<pm::all_selector>, perl::TryCanned< const Array< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

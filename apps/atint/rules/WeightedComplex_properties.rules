@@ -388,7 +388,7 @@ object WeightedComplex {
 
 	user_method characteristic {
 	  my $this = shift;
-	  my $cplx = tropical::equivalenceComplex($this);
+	  my $cplx = equivalenceComplex($this);
 	  return $cplx->HOMOLOGY->[1]->[1];
 	}
 

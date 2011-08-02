@@ -42,7 +42,7 @@ namespace polymake { namespace atint {
   
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
-    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+    @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeCodimensionOne(perl::Object fan) {
     Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
@@ -128,7 +128,7 @@ namespace polymake { namespace atint {
   
 //  /**
 //*    @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically. This function differs from the function computeCodimensionOne in that it does not use the property MAXIMAL_CONES_INCICDENCES, but uses the FACETS_THRU_VERTICES property of polytope::Cone (which seems to make everything a lot faster)
-//     @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+//     @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
 //     @param std::vector<perl::Object> cones An array of polytope::Cone objects (whose RAYS_IN_FACETS should have been precomputed) that represent the maximal cones of fan (s.t. the i-th cone is the i-th maximal cone)*/
 //   */
 //   void computeCodimensionOneViaCones(perl::Object fan, std::vector<perl::Object> cones) {
@@ -201,7 +201,7 @@ namespace polymake { namespace atint {
   
   /**
    @brief Takes a polyhedral fan and computes a map of lattice normals. The corresponding property in the fan is set automatically.
-   @param fan::PolyhedralFan A polyhedral fan, extended by atint to a tropical variety
+   @param WeightedComplex A polyhedral fan, extended by atint to a tropical variety
    */	  
   void computeLatticeNormals(perl::Object fan) {
     
@@ -265,7 +265,7 @@ namespace polymake { namespace atint {
 
   /**
   @brief Takes a polyhedral fan and computes the weighted sum of the lattice normals at each codimension one face. Sets the corresponding property LATTICE_NORMAL_SUM automatically.
-  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeLatticeNormalSum(perl::Object fan) {
     //Extract all necessary properties
@@ -296,7 +296,7 @@ namespace polymake { namespace atint {
 
   /**
   @brief Takes a polyhedral fan and computes whether the fan is balanced as a weighted polyhedral complex. Sets the corresponding property IS_BALANCED automatically.
-  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeIfBalanced(perl::Object fan) {
     //Extract all necessary properties
@@ -420,7 +420,7 @@ namespace polymake { namespace atint {
   
   /**
   @brief Takes a polyhedral fan and computes the function vectors for the lattice normals (and their sums). Sets the corresponding properties LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR automatically.
-  @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+  @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeFunctionVectors(perl::Object fan) {
     //Extract properties from the fan
@@ -468,7 +468,7 @@ namespace polymake { namespace atint {
 
   /**
     @brief Takes a polyhedral fan and computes the ray data of the corresponding polyhedral complex. Sets the corresponding properties CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES automatically.
-    @param fan::PolyhedralFan fan A polyhedral fan, extended by atint to a tropical variety
+    @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeComplexData(perl::Object fan) {
     //Extract properties of fan
@@ -879,22 +879,22 @@ namespace polymake { namespace atint {
   
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-Function4perl(&computeCodimensionOne,"computeCodimensionOne(fan::PolyhedralFan)");
+Function4perl(&computeCodimensionOne,"computeCodimensionOne(WeightedComplex)");
 
-//Function4perl(&computeCodimensionOneViaCones,"computeCodimensionOneViaCones(fan::PolyhedralFan;@)");
+//Function4perl(&computeCodimensionOneViaCones,"computeCodimensionOneViaCones(WeightedComplex;@)");
 
-Function4perl(&computeLatticeNormals, "computeLatticeNormals(fan::PolyhedralFan)");
+Function4perl(&computeLatticeNormals, "computeLatticeNormals(WeightedComplex)");
 
-Function4perl(&computeLatticeNormalSum, "computeLatticeNormalSum(fan::PolyhedralFan)");
+Function4perl(&computeLatticeNormalSum, "computeLatticeNormalSum(WeightedComplex)");
 
-Function4perl(&computeIfBalanced, "computeIfBalanced(fan::PolyhedralFan)");
+Function4perl(&computeIfBalanced, "computeIfBalanced(WeightedComplex)");
 
-Function4perl(&computeComplexData, "computeComplexData(fan::PolyhedralFan)");
+Function4perl(&computeComplexData, "computeComplexData(WeightedComplex)");
 
-Function4perl(&computeFunctionVectors, "computeFunctionVectors(fan::PolyhedralFan)");
+Function4perl(&computeFunctionVectors, "computeFunctionVectors(WeightedComplex)");
 
-Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(fan::PolyhedralFan, Rational, $)");
+Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(WeightedComplex, Rational, $)");
 
-Function4perl(&computeBoundedVisual, "computeBoundedVisual(fan::PolyhedralFan, $, $, Rational,$, Matrix<Rational>)");
+Function4perl(&computeBoundedVisual, "computeBoundedVisual(WeightedComplex, $, $, Rational,$, Matrix<Rational>)");
 
 }}
