@@ -13,19 +13,20 @@
    GNU General Public License for more details.
 */
 
-namespace polymake { namespace atint {
+///==== this line controls the automatic file splitting: max.instances=40
+
+#include "polymake/client.h"
+#include "polymake/Matrix.h"
+#include "polymake/Rational.h"
+#include "polymake/IncidenceMatrix.h"
+namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( perl::Object (std::vector<perl::Object, std::allocator<perl::Object> >) ) {
-      perl::Value arg0(stack[0]);
-      IndirectWrapperReturn( arg0 );
-   }
-   FunctionWrapperInstance4perl( perl::Object (std::vector<perl::Object, std::allocator<perl::Object> >) );
+   template <typename T0>
+   FunctionInterface4perl( slice_x_x_f5, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      WrapperReturnLvalue( T0, arg0.get<T0>().slice(arg1, arg2) );
+   };
 
-   FunctionWrapper4perl( pm::perl::ListReturn (pm::Matrix<pm::Rational>, bool) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturnVoid( arg0.get< perl::TryCanned< const Matrix<Rational> > >(), arg1 );
-   }
-   FunctionWrapperInstance4perl( pm::perl::ListReturn (pm::Matrix<pm::Rational>, bool) );
-
+   FunctionInstance4perl(slice_x_x_f5, perl::Canned< const Wary< pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

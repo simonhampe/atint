@@ -133,20 +133,30 @@ object WeightedComplex {
 	# If the fan does not use homogeneous coordinates, it is just a copy of [[CODIM_1_FACES]].
 	property CMPLX_CODIM_1_FACES : IncidenceMatrix;
 		
-	# @category Basic properties
+	# @category Polyhedral complex
 	# Returns the dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
 	# just DIM, otherwise DIM-1. When computing this property, it is assumed that the complex is pure.
 	property CMPLX_DIM: Int;
 	
-	# @category Basic properties
+	# @category Polyhedral complex
 	# Returns the ambient dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
 	# just FAN_AMBIENT_DIM, otherwise FAN_AMBIENT_DIM-1
 	property CMPLX_AMBIENT_DIM: Int;
 	
-	# @category Basic properties
+	# @category Polyhedral complex
 	# Returns the codimension of the polyhedral complex in its ambient vector space. More precisely, this
 	# value is equal to [[CMPLX_AMBIENT_DIM]] - [[CMPLX_DIM]]
 	property CMPLX_CODIMENSION: Int;
+	
+	# @category Polyhedral complex
+	# Computes the subset of row indices of RAYS, such that the corresponding rows describe a vertex of the complex.
+	# This set is empty if [[USES_HOMOGENEOUS_C]] is false and is the complement of [[DIRECTIONAL_RAYS]]
+	property VERTICES : Set<Int>;
+	
+	# @category Polyhedral complex
+	# Computes the subset of row indices of RAYS, such that the corresponding rows describe a directional ray of the complex.
+	# This set contains all row indices  if [[USES_HOMOGENEOUS_C]] is false and is the complement of [[VERTICES]]
+	property DIRECTIONAL_RAYS : Set<Int>;
 	
 	## RULES ################################################################
 	
@@ -275,6 +285,13 @@ object WeightedComplex {
 	  $this->CMPLX_CODIMENSION = $this->CMPLX_AMBIENT_DIM - $this->CMPLX_DIM;
 	}
 	
+	#------------------------------------------------------------------------#
+	
+	rule VERTICES, DIRECTIONAL_RAYS : RAYS, USES_HOMOGENEOUS_C {
+	  my @a = separateRayMatrix($this->RAYS,$this->USES_HOMOGENEOUS_C);
+	  $this->VERTICES = $a[0];
+	  $this->DIRECTIONAL_RAYS = $a[1];
+	}
 	
 	## METHODS #################################################################
 	

@@ -6,13 +6,14 @@ use application "atint";
 #use application "fan";
 use Benchmark qw(:all);
 
-my $testNumber = 100; #Number of random tropical varieties computed
-my $refinements = 100; #Number of random refinements computed for each variety
-my $ambient_dim = 3;
+my $testNumber = 10; #Number of random tropical varieties computed
+my $refinements = 10; #Number of random refinements computed for each variety
+my $ambient_dim = 10;
 my $eqnumber = 10; # The higher the more complicated the varieties become
 my $coeffbound = 5; # The higher the more 'distributed' a variety becomes
 
 for(my $t = 1; $t <= $testNumber; $t++) {
+  print "Testing random hypersurface $t of $testNumber\n";
   my @a = atint::random_minmaxdivisor($ambient_dim, $eqnumber, $coeffbound, 0);
   my $variety = $a[1];
   my $prechar = $variety->characteristic;

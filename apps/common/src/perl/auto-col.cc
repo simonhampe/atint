@@ -13,19 +13,20 @@
    GNU General Public License for more details.
 */
 
-namespace polymake { namespace atint {
+///==== this line controls the automatic file splitting: max.instances=40
+
+#include "polymake/client.h"
+#include "polymake/SparseMatrix.h"
+#include "polymake/Rational.h"
+#include "polymake/IncidenceMatrix.h"
+namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( perl::Object (perl::Object, perl::Object, bool, int) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
-      IndirectWrapperReturn( arg0, arg1, arg2, arg3 );
-   }
-   FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, bool, int) );
-
-   FunctionWrapper4perl( perl::Object (pm::Vector<pm::Integer>, pm::Rational) ) {
+   template <typename T0>
+   FunctionInterface4perl( col_x_f5, T0 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< Integer > > >(), arg1.get< perl::TryCanned< const Rational > >() );
-   }
-   FunctionWrapperInstance4perl( perl::Object (pm::Vector<pm::Integer>, pm::Rational) );
+      WrapperReturnLvalue( T0, arg0.get<T0>().col(arg1) );
+   };
 
+   FunctionInstance4perl(col_x_f5, perl::Canned< const Wary< SparseMatrix< Rational, NonSymmetric > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

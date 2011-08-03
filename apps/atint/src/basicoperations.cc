@@ -243,7 +243,25 @@ namespace polymake { namespace atint{
          
   }
   
+  /**
+   @brief Takes the ray matrix of a complex and returns two sets, describing which rows are affine and which are directional rays
+   @param Matrix<Rational> m The ray matrix of the complex
+   @param bool uses_homog Whether the complex uses homogeneous coordinates (if not, the result is trivial)
+   @return perl::ListReturn A list containing two sets. In this order: Affine rays (vertices), directional rays   
+   */
+  perl::ListReturn separateRayMatrix(Matrix<Rational> m, bool uses_homog) {
+    Set<int> affine, directional;
+    separateRays(m,affine, directional,uses_homog);
+    if(!uses_homog) {
+      affine = Set<int>();
+    }
+    perl::ListReturn result;
+      result << affine;
+      result << directional;
+    return result;
+  }
   
+  Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   
   Function4perl(&compute_product_complex,"compute_product_complex(;@)");
 

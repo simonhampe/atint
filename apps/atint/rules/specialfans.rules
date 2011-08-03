@@ -76,9 +76,9 @@ user_function linear_nspace {
     INPUT_RAYS=>[],
     INPUT_CONES=>[],
     LINEALITY_SPACE=> $m,
-    TROPICAL_WEIGHTS=>\@weightarray);
-  
+    TROPICAL_WEIGHTS=>\@weightarray); 
 }
+
 
 # @category Tropical geometry
 # Creates the moduli space of rational n-marked abstract tropical curves M_{0,n} as the bergman

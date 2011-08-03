@@ -187,6 +187,44 @@ namespace polymake { namespace atint {
       return result;
     }
     
+    perl::Object halfspace_complex(Vector<Integer> g, Rational a) {
+      //Prepare rays and cones
+      Matrix<Rational> rays(0,g.dim());
+	rays /= Vector<Rational>(g);
+	Matrix<Rational> lineality = null_space(rays);
+	rays /= Vector<Rational>(-g);
+      Vector<Set<int> > cones;
+	Set<int> first; first += 0;
+	Set<int> second; second += 1;
+      
+	
+      //If necessary, compute a vertex
+      if(a != 0) {
+	//Compute the norm squared of g
+	Rational sum = accumulate(attach_operation(g,operations::square()),operations::add());
+	Vector<Rational> vertex = (a / sum) * g;
+	  vertex = 1 | vertex;
+	rays = zero_vector<Rational>() | rays;
+	rays /= vertex;
+	first += 2;
+	second += 2;
+	lineality = zero_vector<Rational>() | lineality;
+      }
+      cones |= first;
+      cones |= second;
+      Vector<Integer> weights = ones_vector<Integer>(2);
+      
+      //Create result
+      perl::Object fan("WeightedComplex");
+	fan.take("RAYS") << rays;
+	fan.take("MAXIMAL_CONES") << cones;
+	fan.take("LINEALITY_SPACE") << lineality;
+	fan.take("USES_HOMOGENEOUS_C") << (a != 0);
+	fan.take("TROPICAL_WEIGHTS") << weights;
+	
+      return fan;      
+    }
+    
     UserFunction4perl("# @category Tropical geometry"
 		      "# Creates the linear tropical space L^n_k. This tropical fan is defined in the following way: "
 		      "# As rays we take -e_i,i=1,...,n, where e_i is the i-th standard basis vector of R^n and "
@@ -196,6 +234,14 @@ namespace polymake { namespace atint {
 		      "# @param Int k The dimension of the fan (should be smaller equal n, otherwise an error is thrown)."
 		      "# @return WeightedComplex A PolyhedralFan object representing L^n_k",
 		      &tropical_lnk,"tropical_lnk($,$)");       
+	
+    UserFunction4perl("# @category Tropical geometry"
+		      "# Creates the halfspace complex defined by an integer vector g and a rational b, i.e. the "
+		      "# complex consisting of the two maximal cones g >= a and g <= a"
+		      "# @param Vector<Int> equation The defining equation g"
+		      "# @param Rational constant The constant translation a"
+		      "# @return WeightedComplex The resultin halfspace complex",
+		      &halfspace_complex,"halfspace_complex(Vector<Integer>, Rational)");
 		      
     Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
     

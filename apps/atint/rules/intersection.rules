@@ -70,5 +70,16 @@ user_function degree {
   #Otherwise compute the appropriate intersection product
   my $n = $cplx->CMPLX_AMBIENT_DIM;
   my $k = $cplx->CMPLX_CODIMENSION;
-  return degree(cycle_intersection($cplx,tropical_lnk($n,$k)));
+  #Create function matrix for max(0,x1,...,xn)
+  my $functionmatrix = unit_matrix<Rational>($n);
+  my $zeroequation = zero_vector<Rational>($n);
+    $functionmatrix = $zeroequation / $functionmatrix;
+  my $zeroconstant = zero_vector<Rational>($n+1);
+    $functionmatrix = $functionmatrix | $zeroconstant;
+  my $div = $cplx;
+  my $function = new MinMaxFunction(FUNCTION_MATRIX=>$functionmatrix,USES_MIN=>FALSE);
+  for(my $i = 1; $i <= $n-$k; $i++) {
+    $div = divisorByPLF($cplx,$function);
+  }
+  return degree($div);#cycle_intersection($cplx,tropical_lnk($n,$k)));
 }
