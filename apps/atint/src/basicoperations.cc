@@ -27,6 +27,8 @@ This file provides c++ realizations of basic operations on polyhedral complexes
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/atint/LoggingPrinter.h"
+#include "polymake/atint/specialvarieties.h"
+#include "polymake/atint/divisor.h"
 
 namespace polymake { namespace atint{ 
   
@@ -56,10 +58,7 @@ namespace polymake { namespace atint{
     return std::pair<Set<int>, Set<int> >(affine,directional);
   }
   
-  /**
-    @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1.
-    @return The cartesian product of the complexes
-  */
+  //Documentation see header
   perl::Object compute_product_complex(std::vector<perl::Object> complexes) {
       dbgtrace << "Generating container variables for result" << endl;
     
@@ -261,8 +260,17 @@ namespace polymake { namespace atint{
     return result;
   }
   
+  //Documentation see header
+  perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets) {
+    for(int r = 0; r < facets.rows(); r++) {
+      fan = intersect_complete_fan(fan,halfspace_complex(0,facets.row(r)));
+    }
+    return fan;
+  }
+  
   Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   
   Function4perl(&compute_product_complex,"compute_product_complex(;@)");
-
+  
+  Function4perl(&facetRefinement,"facetRefinement(WeightedComplex,Matrix<Rational>)");
 }}

@@ -46,15 +46,17 @@ namespace polymake { namespace atint {
       dbglog << "Extracting values" << endl;
       
       //Extract values
+      dbglog << "Computing rays " << endl;
       Matrix<Rational> rays = fan.give("RAYS");
+      dbglog << "Done." << endl;
       Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
       int ambient_dim = rays.cols() < linspace.cols() ? linspace.cols() : rays.cols();
       IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
       bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
       int dimension = fan.give("CMPLX_DIM");
-	//If fan is zero-dimensional it is just a point, so it has no maximal cones.
-	//But since no refinement is necessary anyway, we just return fan	
+	//If fan is zero-dimensional, no refinement is necessary anyway, we just return fan	
 	if(dimension == 0) return fan;
+	//We actually want to compute with the homogeneous dimension
 	if(uses_homog) dimension++;
       
       Array<Integer> weights;
@@ -65,11 +67,12 @@ namespace polymake { namespace atint {
       }
       
       
-      
       Matrix<Rational> compRays = completeFan.give("RAYS");
       IncidenceMatrix<> compMaximalCones = completeFan.give("MAXIMAL_CONES");
       Matrix<Rational> compLinealitySpace = completeFan.give("LINEALITY_SPACE");
 
+      dbglog << "Done. Computing intersection" << endl;
+      
       //Result variables
       Matrix<Rational> newRays(0,ambient_dim);
       Vector<Set<int> > newCones;
@@ -104,10 +107,10 @@ namespace polymake { namespace atint {
 			      zero_vector<Rational>() | compRays.minor(compMaximalCones.row(cIndex),All),
 			      zero_vector<Rational>() | compLinealitySpace,true);
 	    
-	    dbgtrace << "Created cone, inequalites are\n" << (fanEqs.first / compEqs.first).rows() << "\nEqualities are\n" << (fanEqs.second / compEqs.second).rows() << endl;
-	    
+	    Matrix<Rational> interinequalities = fanEqs.first / compEqs.first;
+	    Matrix<Rational> interequalities = fanEqs.second / compEqs.second;
 	    std::pair<Matrix<Rational>, Matrix<Rational> > s = 	
-		  solver<Rational>().enumerate_vertices(fanEqs.first / compEqs.first, fanEqs.second / compEqs.second,true);
+		  solver<Rational>().enumerate_vertices(interinequalities, fanEqs.second / compEqs.second,true);
 	    s.first = s.first.minor(All, range(1,s.first.cols()-1));
 	    s.second = s.second.minor(All,range(1,s.second.cols()-1));
 	    
@@ -190,6 +193,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << newCones;
 	result.take("USES_HOMOGENEOUS_C") << uses_homog;
 	result.take("LINEALITY_SPACE") << newLineality;
+	result.take("CMPLX_DIM") << dimension-1;
 	if(weightsExist) result.take("TROPICAL_WEIGHTS") << newWeights;
       return result;
       
@@ -237,6 +241,10 @@ namespace polymake { namespace atint {
       dbgtrace << "Computing facet weights" << endl;
       
       //Go through each facet and compute its weight. Only add it, if the weight is nonzero
+      Matrix<Rational> newrays(0,rays.cols()); //Will contain the rays that remain after removing weight-0-facets
+      Vector<bool> hasBeenAdded(rays.rows()); //True, if a facet containing that ray has been added with > 0 weight
+      Map<int,int> oldToNew; //Maps old ray indices to ray indices in newrays
+      
       for(int co = 0; co < codimOneCones.rows(); co++) {
 	dbgtrace << "Codim 1 face " << co << endl;
 	Integer coweight(0);
@@ -250,8 +258,22 @@ namespace polymake { namespace atint {
 	coweight = coweight - lsumFunctionVector.row(co) * values;
 	
 	if(coweight != 0) {
-	    newcones = newcones | codimOneCones.row(co);
 	    newweights = newweights | coweight;
+	    //Go through the rays, check which one has been added and take its index, otherwise create a new row
+	    Set<int> oldConeRays = codimOneCones.row(co);
+	    Set<int> newConeRays;
+	    for(Entire<Set<int> >::iterator r = entire(oldConeRays); !r.at_end(); r++) {
+	      if(hasBeenAdded[*r]) {
+		newConeRays += oldToNew[*r];
+	      }
+	      else {
+		hasBeenAdded[*r] = true;
+		newrays /= rays.row(*r);
+		oldToNew[*r] = newrays.rows()-1;
+		newConeRays += (newrays.rows()-1);
+	      }
+	    }
+	    newcones = newcones | newConeRays;
 	}
       }
       
@@ -259,17 +281,11 @@ namespace polymake { namespace atint {
       
       //Return result
       perl::Object result("WeightedComplex");
-	if(uses_homog) {
-	    result.take("INPUT_HOM_RAYS") << rays;
-	}
-	else {
-	    result.take("INPUT_RAYS") << rays;
-	}
-	result.take("INPUT_CONES") << newcones;
+	result.take("RAYS") << newrays;
+	result.take("USES_HOMOGENEOUS_C") << uses_homog;
+	result.take("MAXIMAL_CONES") << newcones;
 	result.take("TROPICAL_WEIGHTS") << newweights;
 	result.take("LINEALITY_SPACE") << lineality_space; 
-	//FIXME: Why do I need this? It seems, INPUT_RAYS does not get computed properly otherwise
-	result.give("INPUT_RAYS");
       return result;
     }
     
@@ -290,7 +306,7 @@ namespace polymake { namespace atint {
       //Homogenize the fan and refine it
       bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
       if(!uses_homog) fan = fan.CallPolymakeMethod("homogenize");
-      perl::Object linearityDomains = function.CallPolymakeMethod("linearityDomains");
+      perl::Object linearityDomains = function.give("LINEARITY_DOMAINS");
       dbglog << "Refining fan" << endl;
       fan = intersect_complete_fan(fan, linearityDomains);
       

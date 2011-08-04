@@ -24,8 +24,8 @@ Contains the definitions for basicoperations.cc
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
 
-#ifndef ATINT_DIVISOR_H
-#define ATINT_DIVISOR_H
+#ifndef ATINT_BASICOP_H
+#define ATINT_BASICOP_H
 
 namespace polymake { namespace atint{
   
@@ -39,6 +39,19 @@ namespace polymake { namespace atint{
   */
   inline std::pair<Set<int>, Set<int> > separateRays(Matrix<Rational> m, Set<int> &affine, Set<int> &directional, bool uses_homog);
   
+  /**
+    @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1.
+    @return The cartesian product of the complexes
+  */
+  perl::Object compute_product_complex(std::vector<perl::Object> complexes) ;
+  
+  /**
+   @brief Takes a weighted complex and computes the refinement of the fan along the halfspace fans given by the rows of a matrix
+   @param perl::Object fan The weighted complex to be refined, given in homogeneous coordinates.
+   @param Matrix<Rational> facets A matrix whose rows define halfspace fans in the following way: The matrix should have fan->CMPLX_AMBIENT_DIM+1 columns. The function will then intersect with the halfspace complexes defined by (0,row) for each row.
+   @return perl::Object The corr. refinement of fan
+  */
+  perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets);
 }}
 
 #endif

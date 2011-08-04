@@ -48,6 +48,14 @@ be mapped to minus the sum of the remaining coordinates.
 */
 perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_poly, bool modOutLineality, int projectionCoordinate);
 
+/**
+  @brief Creates the halfspace complex defined by an rational vector g and a rational b, i.e. the complex consisting of the two maximal cones g >= a and g <= a
+  @param Rational constant The constant translation a
+  @param Vector<Rational> equation The defining equation g
+  @return WeightedComplex The resultin halfspace complex
+*/
+perl::Object halfspace_complex(Rational a, Vector<Rational> g );
+
 }}
 
 #endif

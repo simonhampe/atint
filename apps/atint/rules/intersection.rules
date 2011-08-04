@@ -25,32 +25,32 @@
 # @param WeightedComplex X The first tropical variety
 # @param WeightedComplex Y The second tropical variety. Should have the same actual ambient dimension (homogeneous coordinates don't count) as X.
 # @return WeightedComplex Z The intersection product X*Y in V = R^n, where n is the ambient dimension of X and Y. The result has homogeneous coordinates, if and only if X or Y has homog. coordinates.
-user_function cycle_intersection {
-  my ($X,$Y) = @_;
-  
-  #If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-fan
-  my $codimsum = $X->CMPLX_CODIMENSION + $Y->CMPLX_CODIMENSION;
-  if($codimsum > $X->CMPLX_AMBIENT_DIM) {
-    return zero_cycle();
-  }
-  
-  #Compute the cross product
-  my $Z = product_complex( $X,$Y);
-  
-  #Compute the diagonal divisor on the cross product
-  my $ad = $X->CMPLX_AMBIENT_DIM;
-  my @psi = diagonal_functions($ad);
-  for my $f (@psi) {
-    $Z = divisorByPLF($Z,$f);
-  }
-  
-  #Then project
-  my $raymatrix = $Z->RAYS->minor(All,sequence(0,$Z->USES_HOMOGENEOUS_C? $ad+1 : $ad));
-  my @cones = @{$Z->MAXIMAL_CONES};
-  my @weights = @{$Z->TROPICAL_WEIGHTS};
-  my $uses_homog = $Z->USES_HOMOGENEOUS_C;
-  return new WeightedComplex( RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,TROPICAL_WEIGHTS=>\@weights,USES_HOMOGENEOUS_C=>$uses_homog);
-}
+# user_function cycle_intersection {
+#   my ($X,$Y) = @_;
+#   
+#   #If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-fan
+#   my $codimsum = $X->CMPLX_CODIMENSION + $Y->CMPLX_CODIMENSION;
+#   if($codimsum > $X->CMPLX_AMBIENT_DIM) {
+#     return zero_cycle();
+#   }
+#   
+#   #Compute the cross product
+#   my $Z = product_complex( $X,$Y);
+#   
+#   #Compute the diagonal divisor on the cross product
+#   my $ad = $X->CMPLX_AMBIENT_DIM;
+#   my @psi = diagonal_functions($ad);
+#   for my $f (@psi) {
+#     $Z = divisorByPLF($Z,$f);
+#   }
+#   
+#   #Then project
+#   my $raymatrix = $Z->RAYS->minor(All,sequence(0,$Z->USES_HOMOGENEOUS_C? $ad+1 : $ad));
+#   my @cones = @{$Z->MAXIMAL_CONES};
+#   my @weights = @{$Z->TROPICAL_WEIGHTS};
+#   my $uses_homog = $Z->USES_HOMOGENEOUS_C;
+#   return new WeightedComplex( RAYS=>$raymatrix,MAXIMAL_CONES=>\@cones,TROPICAL_WEIGHTS=>\@weights,USES_HOMOGENEOUS_C=>$uses_homog);
+# }
 
 # @category Tropical geometry
 # Computes the degree of a tropical variety as the degree of the 0-dimensional complex obtained when intersecting

@@ -179,20 +179,22 @@ namespace polymake { namespace atint {
       }
       
       perl::Object result("WeightedComplex");
-	result.take("INPUT_RAYS") << bergmanRays;
-	result.take("INPUT_CONES") << bergmanCones;
+	result.take("RAYS") << bergmanRays;
+	result.take("MAXIMAL_CONES") << bergmanCones;
+	result.take("USES_HOMOGENEOUS_C") << false;
 	result.take("TROPICAL_WEIGHTS") << bergmanWeights;
 	if(bergmanLineality.rows() > 0) { result.take("LINEALITY_SPACE") << bergmanLineality;}
 	
       return result;
     }
     
-    perl::Object halfspace_complex(Vector<Integer> g, Rational a) {
+    //Documentation see perl wrapper
+    perl::Object halfspace_complex(Rational a, Vector<Rational> g ) {
       //Prepare rays and cones
       Matrix<Rational> rays(0,g.dim());
 	rays /= Vector<Rational>(g);
 	Matrix<Rational> lineality = null_space(rays);
-	rays /= Vector<Rational>(-g);
+	rays /= (-g);
       Vector<Set<int> > cones;
 	Set<int> first; first += 0;
 	Set<int> second; second += 1;
@@ -236,12 +238,12 @@ namespace polymake { namespace atint {
 		      &tropical_lnk,"tropical_lnk($,$)");       
 	
     UserFunction4perl("# @category Tropical geometry"
-		      "# Creates the halfspace complex defined by an integer vector g and a rational b, i.e. the "
+		      "# Creates the halfspace complex defined by an rational vector g and a rational b, i.e. the "
 		      "# complex consisting of the two maximal cones g >= a and g <= a"
-		      "# @param Vector<Int> equation The defining equation g"
 		      "# @param Rational constant The constant translation a"
+		      "# @param Vector<Rational> equation The defining equation g"
 		      "# @return WeightedComplex The resultin halfspace complex",
-		      &halfspace_complex,"halfspace_complex(Vector<Integer>, Rational)");
+		      &halfspace_complex,"halfspace_complex($,Vector<Rational>)");
 		      
     Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
     

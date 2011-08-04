@@ -128,7 +128,6 @@ object WeightedComplex {
       $$decor{"FacetTransparency"} = 1;
     }
     
-    
     #Compute geometry
     my @result = computeVisualPolyhedra($this->homogenize,new Rational($dirScale),$showWeights);
     my $weightCenters = pop(@result);
@@ -186,7 +185,7 @@ object WeightedComplex {
     }
     
     if($showWeights != 0) {
-      push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
+      push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.1);
     }
     
     
