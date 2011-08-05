@@ -52,6 +52,13 @@ namespace polymake { namespace atint{
    @return perl::Object The corr. refinement of fan
   */
   perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets);
+  
+  /**
+   @brief Take a polyhedral complex and returns a list of all the local vertex fans, i.e. for each affine ray r, the list contains the fan Star_complex(r) (in non-homogeneous coordinates)
+   @param WeightedComplex complex A tropical variety
+   @return perl::ListReturn A list of WeightedComplex objects in non-homogeneous coordinates. The i-th complex corresponds to the i-th affine ray ( vertex). If the complex is not in homogeneous coordinates, the list contains just the complex itself
+   */
+  perl::ListReturn fan_decomposition(perl::Object complex);
 }}
 
 #endif

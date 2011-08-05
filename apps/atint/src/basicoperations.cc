@@ -268,9 +268,86 @@ namespace polymake { namespace atint{
     return fan;
   }
   
+  //Documentation see header
+  perl::ListReturn fan_decomposition(perl::Object complex) {
+    //Extract values
+    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+    if(!uses_homog) {
+      perl::ListReturn singlefan;
+	singlefan << complex;
+      return singlefan;
+    }
+    Matrix<Rational> rays = complex.give("RAYS");
+    IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
+      IncidenceMatrix<> verticesInCones = T(cones);
+    Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
+    Set<int> affine = complex.give("VERTICES");
+    Set<int> directional = complex.give("DIRECTIONAL_RAYS");
+    int ambient_dim = complex.give("CMPLX_AMBIENT_DIM");
+    
+    //Now go through all affine rays
+    perl::ListReturn result;
+    for(Entire<Set<int> >::iterator v = entire(affine); !v.at_end(); v++) {
+      //For each cone containing this vertex, we get a cone of the Star at v
+      Set<int> conesatv = verticesInCones.row(*v);
+      //Whether a ray has been added to the Star (for an affine ray, this actually means the distance
+      Vector<bool> hasBeenAdded(rays.rows()); 
+      //Contains the new row indices of the rays
+      Map<int,int> newIndex;
+      Matrix<Rational> starRays(0,ambient_dim+1);
+      Vector<Set<int> > starCones;
+      Vector<Integer> starWeights;
+      //Now transform all the cones containing v
+      for(Entire<Set<int> >::iterator catv = entire(conesatv); !catv.at_end(); catv++) {
+	starWeights |= weights[*catv];
+	Set<int> otherrays = cones.row(*catv) - *v;
+	Set<int> newcone;
+	for(Entire<Set<int> >::iterator r = entire(otherrays); !r.at_end(); r++) {
+	    //If the ray is already in the matrix, just add its new index
+	    if(hasBeenAdded[*r]) {
+	      newcone += newIndex[*r];
+	    }
+	    else {
+	      hasBeenAdded[*r] = true;
+	      newIndex[*r] = starRays.rows();
+	      newcone += starRays.rows();
+	      //A directional ray is just copied, for an affine one we take the difference to v
+	      if(directional.contains(*r)) {
+		starRays /= rays.row(*r);
+	      }
+	      else {
+		starRays /= (rays.row(*r) - rays.row(*v));
+	      }
+	    }
+	}
+	starCones |= newcone;
+      } //End iterate all cones at v
+      starRays = starRays.minor(All,~scalar2set(0));
+      perl::Object fan("WeightedComplex");
+	fan.take("RAYS") << starRays;
+	fan.take("MAXIMAL_CONES") << starCones;
+	fan.take("TROPICAL_WEIGHTS") << starWeights;
+	fan.take("USES_HOMOGENEOUS_C") << false;
+      result << fan;
+    }//End iterate all vertices
+    
+    return result;
+  }
+  
   Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   
   Function4perl(&compute_product_complex,"compute_product_complex(;@)");
   
   Function4perl(&facetRefinement,"facetRefinement(WeightedComplex,Matrix<Rational>)");
+  
+  UserFunction4perl("# @category Tropical geometry"
+		    "# Take a polyhedral complex and returns a list of all the local vertex fans, "
+		    "# i.e. for each affine ray r, the list contains the fan Star_complex(r) "
+		    "# (in non-homogeneous coordinates)"
+		    "# @param WeightedComplex complex A tropical variety"
+		    "# @return perl::ListReturn A list of WeightedComplex objects in "
+		    "# non-homogeneous coordinates. The i-th complex corresponds to the i-th "
+		    "# affine ray ( vertex). If the complex is not in homogeneous coordinates, "
+		    "# the list contains just the complex itself ",
+    &fan_decomposition,"fan_decomposition(WeightedComplex)");
 }}

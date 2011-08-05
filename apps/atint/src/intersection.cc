@@ -161,6 +161,48 @@ namespace polymake { namespace atint {
       return result;
     }
     
+    //Documentation see perl wrapper
+    Integer degree(perl::Object fan) {
+      //Extract values
+      int dim = fan.give("CMPLX_DIM");
+      
+      //If it's 0-dimension, just sum up weights
+      if(dim == 0) {
+	Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
+	return accumulate(weights,operations::add());
+      }
+      
+      //Otherwise compute the appropriate intersection product
+      int ambient_dim = fan.give("CMPLX_AMBIENT_DIM");
+      int codim = fan.give("CMPLX_CODIMENSION");
+      //Create the function matrix for L^n_codim
+      Matrix<Rational> functionmatrix = unit_matrix<Rational>(ambient_dim);
+	functionmatrix = zero_vector<Rational>(functionmatrix.cols()) / functionmatrix;
+	functionmatrix |= zero_vector<Rational>(functionmatrix.rows());
+      perl::Object function("MinMaxFunction");
+	function.take("FUNCTION_MATRIX") << functionmatrix;
+	function.take("USES_MIN") << false;
+      perl::Object div = fan;
+      for(int i = 1; i <= ambient_dim - codim; i++) {
+	div = divisorByPLF(div,function);
+      }
+      return degree(div);
+    }
+    
+//     /**
+//       @brief Takes a list of tropical fans and checks whether each one has degree 1
+//       @param std::vector<perl::Object> fans A list of tropical fans
+//       @return int -1, if all are smooth, the index of the first non-smooth local fan otherwise
+//     */
+//     bool check_smoothness(std::vector<perl::Object> fans) {
+//       //Check if all local vertex fans have degree 1
+//       for(unsigned int i = 0; i < fans.size(); i++) {
+// 	if(degree(fans[i]) != 1) return i;
+//       }
+//       
+//       return -1;
+//     }
+    
     UserFunction4perl("# @category Tropical geometry"
 		      "# Computes the intersection product of two tropical cycles in a common ambient vector space V."
 		      "# @param WeightedComplex X The first tropical variety"
@@ -175,5 +217,15 @@ namespace polymake { namespace atint {
 		      "# @param WeightedComplex complex A tropical variety. If it is a fan, the complex itself is returned"
 		      "# @return WeightedComplex A tropical fan, the recession fan of the complex",
 		      &recession_fan, "recession_fan(WeightedComplex)");
-		      
+
+    UserFunction4perl("# @category Tropical geometry"
+		      "# Computes the degree of a tropical variety as the degree of the "
+		      "# 0-dimensional complex obtained when intersecting "
+		      "# the variety with an appropriate linear space L^n_k"
+		      "# @param WeightedComplex complex"
+		      "# @return Int",
+		      &degree, "degree(WeightedComplex)");
+    
+//     Function4perl(&check_smoothness,"check_smoothness(;@)");
+    
 }}

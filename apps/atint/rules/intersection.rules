@@ -53,33 +53,31 @@
 # }
 
 # @category Tropical geometry
-# Computes the degree of a tropical variety as the degree of the 0-dimensional complex obtained when intersecting
-# the variety with an appropriate linear space L^n_k
+# Computes whether a given tropical variety is locally isomorphic to a matroid fan. If the variety 
+# is a fan itself, it just checks whether the degree is 1. Otherwise it calls fan_decomposition and 
+# checks this on every local fan
 # @param WeightedComplex complex
-# @return Int
-user_function degree {
-  my $cplx = shift;
-  #If its 0-dimensional, just add up the weights
-  if($cplx->CMPLX_DIM == 0) {
-    my $degree = 0;
-    for my $tw (@{$cplx->TROPICAL_WEIGHTS}) {
-      $degree += $tw;
-    }
-    return $degree;
-  }
-  #Otherwise compute the appropriate intersection product
-  my $n = $cplx->CMPLX_AMBIENT_DIM;
-  my $k = $cplx->CMPLX_CODIMENSION;
-  #Create function matrix for max(0,x1,...,xn)
-  my $functionmatrix = unit_matrix<Rational>($n);
-  my $zeroequation = zero_vector<Rational>($n);
-    $functionmatrix = $zeroequation / $functionmatrix;
-  my $zeroconstant = zero_vector<Rational>($n+1);
-    $functionmatrix = $functionmatrix | $zeroconstant;
-  my $div = $cplx;
-  my $function = new MinMaxFunction(FUNCTION_MATRIX=>$functionmatrix,USES_MIN=>FALSE);
-  for(my $i = 1; $i <= $n-$k; $i++) {
-    $div = divisorByPLF($cplx,$function);
-  }
-  return degree($div);#cycle_intersection($cplx,tropical_lnk($n,$k)));
-}
+# @param Bool returnNonSmooth Optional, false by default. If true, the function does not return true or false but the index of the first vertex, where the local fan is not smooth and -1, it it is smooth
+# @return Bool (or Int)
+# user_function is_smooth {
+#   my ($this,$pns) = @_;
+#   $pns = 0 unless defined($pns);
+#     if($pns eq TRUE) {$pns = 1;}
+#   if(!$this->USES_HOMOGENEOUS_C) {
+#     my $d = degree($this);
+#     if($d == 1) {
+#       return $pns? -1 : 1;
+#     }
+#     else {
+#       return 0;
+#     }
+#   }
+#   my @a = fan_decomposition($this);
+#   my $result = check_smoothness(@a);
+#   if($result == -1) {
+#     return $pns? -1 : 1;
+#   }
+#   else {
+#     return $result;
+#   }
+# }
