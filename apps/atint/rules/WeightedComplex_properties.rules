@@ -191,7 +191,10 @@ object WeightedComplex {
 		}
 	    }
 	    $this->INPUT_RAYS = $m;
-	}
+	} 
+	weight 0.1; 
+	#Need this weight, otherwise this function won't be called when I ask for 
+	# RAYS in some rule condition
 	
 	#------------------------------------------------------------------------#
 	

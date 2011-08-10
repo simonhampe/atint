@@ -193,7 +193,8 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << newCones;
 	result.take("USES_HOMOGENEOUS_C") << uses_homog;
 	result.take("LINEALITY_SPACE") << newLineality;
-	result.take("CMPLX_DIM") << dimension-1;
+	  int cmplx_dim = uses_homog? dimension-1 : dimension;
+	result.take("CMPLX_DIM") << cmplx_dim;
 	if(weightsExist) result.take("TROPICAL_WEIGHTS") << newWeights;
       return result;
       

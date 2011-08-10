@@ -54,11 +54,20 @@ namespace polymake { namespace atint{
   perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets);
   
   /**
-   @brief Take a polyhedral complex and returns a list of all the local vertex fans, i.e. for each affine ray r, the list contains the fan Star_complex(r) (in non-homogeneous coordinates)
+   @brief Takes a polyhedral complex and returns a list of all the local vertex fans, i.e. for each affine ray r, the list contains the fan Star_complex(r) (in non-homogeneous coordinates)
    @param WeightedComplex complex A tropical variety
    @return perl::ListReturn A list of WeightedComplex objects in non-homogeneous coordinates. The i-th complex corresponds to the i-th affine ray ( vertex). If the complex is not in homogeneous coordinates, the list contains just the complex itself
    */
   perl::ListReturn fan_decomposition(perl::Object complex);
+  
+  /**
+   @brief Takes a polyhedral complex and applies an affine linear transformation, given by a translate vector and a matrix. The method assumes the function is bijective and preserves cones, i.e. it just applies the transformation to the rays and lineality space and leaves the cones and weights unchanged.
+   @param WeightedComplex complex The complex to be transformed, supposed to be in homogeneous coordinates (if translate != 0)
+   @param Vector<Rational> translate A vector whose dimension should be equal to the column dimension of the transformation matrix
+   @param Matrix<Integer> matrix An integer (square) invertible matrix. 
+   @return WeightedComplex The transformed complex
+   */
+  perl::Object affineTransformation(perl::Object complex, Vector<Rational> translate, Matrix<Integer> matrix);
 }}
 
 #endif

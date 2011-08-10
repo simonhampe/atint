@@ -41,7 +41,7 @@ namespace polymake { namespace atint{
     affine.clear();
     directional.clear();
     if(!uses_homog) {
-      directional = sequence(0,m.rows());
+      if(m.rows() > 0) directional = sequence(0,m.rows());
       //We use the dummy index -1 to indicate that a homogenized fan has just the origin as affine ray
       affine += -1;
       return std::pair<Set<int>,Set<int> >(affine,directional);
@@ -81,6 +81,9 @@ namespace polymake { namespace atint{
       Set<int> product_affine;
       Set<int> product_directional;
       separateRays(rayMatrix, product_affine, product_directional, product_uses_homog);
+	dbgtrace << "Product affine " << product_affine << endl;
+	dbgtrace << "Product directional " << product_directional << endl;
+      
       
       dbgtrace << "Iterating over all " << complexes.size() -1 << " complexes: " << endl;
       
@@ -103,6 +106,8 @@ namespace polymake { namespace atint{
 	Set<int> complex_affine;
 	Set<int> complex_directional;
 	separateRays(prerays,complex_affine, complex_directional,uses_homog);
+	  dbgtrace << "Affine: " << complex_affine << endl;
+	  dbgtrace << "Directional: " << complex_directional << endl;
 	//If this fan uses homog. coordinates, strip away the first column of rays and linear space
 	if(uses_homog) {
 	  if(prerays.rows() > 0) prerays = prerays.minor(All,~scalar2set(0));
@@ -334,11 +339,40 @@ namespace polymake { namespace atint{
     return result;
   }
   
+  //Documentation see header
+  perl::Object affineTransformation(perl::Object complex, Vector<Rational> translate, Matrix<Integer> matrix) {
+    //Extract values
+    Matrix<Rational> rays = complex.give("RAYS");
+    Set<int> affine = complex.give("VERTICES");
+    Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
+    IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
+    Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
+    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+    
+    //Transform rays and lin space
+    linspace = linspace * matrix;
+    rays = rays * matrix;
+    for(Entire<Set<int> >::iterator r = entire(affine); !r.at_end(); r++) {
+      rays.row(*r) = rays.row(*r) + translate;
+    }
+    
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << rays;
+      result.take("MAXIMAL_CONES") << cones;
+      result.take("TROPICAL_WEIGHTS") << weights;
+      result.take("LINEALITY_SPACE") << linspace;
+      result.take("USES_HOMOGENEOUS_C") << uses_homog;
+    return result;
+    
+  }
+  
   Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   
   Function4perl(&compute_product_complex,"compute_product_complex(;@)");
   
   Function4perl(&facetRefinement,"facetRefinement(WeightedComplex,Matrix<Rational>)");
+  
+  Function4perl(&affineTransformation, "affineTransformation(WeightedComplex, Vector<Rational>, Matrix<Integer>)");
   
   UserFunction4perl("# @category Tropical geometry"
 		    "# Take a polyhedral complex and returns a list of all the local vertex fans, "

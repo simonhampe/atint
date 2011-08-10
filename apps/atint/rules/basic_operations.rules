@@ -62,3 +62,25 @@ user_function skeleton_complex {
 user_function product_complex {
   return compute_product_complex(@_);
 }
+
+# @category Linear algebra 
+# Takes a polyhedral complex and applies an affine linear transformation, given by a translate 
+# vector and a matrix. The method assumes the function is bijective and preserves cones, i.e. it 
+# just applies the transformation to the rays and lineality space and leaves the cones and weights
+# unchanged.
+# @param WeightedComplex complex The complex to be transformed, supposed to be in homogeneous 
+# coordinates (if translate != 0)
+# @param Vector<Rational> translate A vector whose dimension should be equal to the column dimension
+# of the transformation matrix
+# @param Matrix<Integer> matrix An integer (square) invertible matrix. 
+# @return WeightedComplex The transformed complex
+user_function affineTransform {
+  my ($this, $t, $m) = @_;
+  
+  #Check if the translate vector is non-zero. If so, homogenize the complex
+  if($t != zero_vector<Rational>($t->dim())) {
+    $this = $this->homogenize;
+  }
+  
+  return affineTransformation($this,$t,$m);
+}

@@ -27,6 +27,11 @@
 #include "polymake/SparseMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0>
+   FunctionInterface4perl( new, T0 ) {
+      WrapperReturnNew(T0, () );
+   };
+
    template <typename T0, typename T1>
    FunctionInterface4perl( new_X, T0,T1 ) {
       perl::Value arg0(stack[1]);
@@ -46,5 +51,7 @@ namespace polymake { namespace common {
    OperatorInstance4perl(convert, Vector< Set< int > >, perl::Canned< const Array< Set< int > > >);
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::SameElementVector<pm::Rational> > >, perl::Canned< const pm::DiagMatrix<pm::SameElementVector<pm::Rational>, true> >);
    OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const SparseMatrix< Rational, NonSymmetric > >);
+   OperatorInstance4perl(Binary__ne, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const pm::SameElementVector<pm::Rational> >);
+   FunctionInstance4perl(new, Vector< Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

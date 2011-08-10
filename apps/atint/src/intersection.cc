@@ -64,6 +64,7 @@ namespace polymake { namespace atint {
       //Compute the cross product
       std::vector<perl::Object> XandY;
 	XandY.push_back(X); XandY.push_back(Y);
+	dbgtrace << "Computed list for product..." << endl;
       perl::Object Z = compute_product_complex(XandY);
       
       dbgtrace << "Computing functions" << endl;
@@ -73,8 +74,8 @@ namespace polymake { namespace atint {
       
       //Now intersect with the product
       for(int i = 0; i < Xambi; i++) {
-	dbgtrace << "Intersecting " << i+1 << "th function" << endl;
-	Z = divisorByPLF(Z,psi[i]);
+	dbgtrace << "Intersecting function" << i+1 << endl;
+	Z = divisorByPLF(Z,psi[i]);  
       }
       
       dbgtrace << "Projecting" << endl;
@@ -83,10 +84,15 @@ namespace polymake { namespace atint {
       bool uses_homog = Z.give("USES_HOMOGENEOUS_C");
       Matrix<Rational> raymatrix = Z.give("RAYS");
 	raymatrix = raymatrix.minor(All,sequence(0,uses_homog? Xambi+1 : Xambi));
+      Matrix<Rational> linmatrix = Z.give("LINEALITY_SPACE");
+	if(linmatrix.rows() > 0) {
+	  linmatrix = linmatrix.minor(All,sequence(0,uses_homog? Xambi+1 : Xambi));
+	}
       IncidenceMatrix<> cones = Z.give("MAXIMAL_CONES");
       Vector<Integer> weights = Z.give("TROPICAL_WEIGHTS");
       perl::Object result("WeightedComplex");
 	result.take("RAYS") << raymatrix;
+	result.take("LINEALITY_SPACE") << linmatrix,
 	result.take("MAXIMAL_CONES") << cones;
 	result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << uses_homog;
