@@ -34,7 +34,7 @@ user_function skeleton_complex {
   $preserve = FALSE unless defined($preserve);
   
   if($k < 1 || $k > $fan->CMPLX_DIM) { 
-    return new WeightedComplex();
+    return zero_cycle();
   }
   if($k == $fan->CMPLX_DIM) {
     return $fan;
@@ -48,9 +48,11 @@ user_function skeleton_complex {
     $codimfan = new WeightedComplex(RAYS=>$raymatrix, MAXIMAL_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$fan->USES_HOMOGENEOUS_C);
   }
   else {
-    $codimfan = $fan->USES_HOMOGENEOUS_C? 
-		    new WeightedComplex(INPUT_HOM_RAYS=>$raymatrix, INPUT_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE)
-		    : new WeightedComplex(INPUT_RAYS=>$raymatrix, INPUT_CONES=>\@cones ,LINEALITY_SPACE=>$fan->LINEALITY_SPACE);
+    $codimfan = new WeightedComplex(INPUT_RAYS=>$raymatrix,INPUT_CONES=>\@cones,LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$fan->USES_HOMOGENEOUS_C);
+#     $fan->USES_HOMOGENEOUS_C? 
+# 		    new WeightedComplex(INPUT_HOM_RAYS=>$raymatrix, INPUT_CONES=>\@cones, LINEALITY_SPACE=>$fan->LINEALITY_SPACE)
+# 		    : new WeightedComplex(INPUT_RAYS=>$raymatrix, INPUT_CONES=>\@cones ,LINEALITY_SPACE=>$fan->LINEALITY_SPACE);
+#     print $codimfan->RAYS,"\n",$codimfan->MAXIMAL_CONES,"\n";
   }
   return skeleton_complex($codimfan,$k,$preserve);
 }

@@ -173,3 +173,20 @@ user_function is_zerocycle {
   }
   return new Bool(TRUE);
 }
+
+# # @category Tropical geometry
+# # Creates the tropical cube T^n_k, i.e. the tropical variety obtained by glueing together the 2^n 
+# # L^n_k obtained by applying all possible sign changes, such that the vertices form the k-skeleton of
+# # the n-dimensional cube
+# # @param Int n The ambient dimension
+# # @param Int k The dimension of the cube
+# # @return WeightedComplex cube
+# user_function tropical_cube {
+#   my ($n,$k) = @_;
+#   
+#   #First of all, prepare the k-skeleton of the classical cube
+#   my $c = polytope::cube($n);
+#   my $cfan = new WeightedComplex(RAYS=>$c->VERTICES,MAXIMAL_CONES=>$c->RAYS_IN_FACETS,USES_HOMOGENEOUS_C=>TRUE);
+#   my $s = skeleton_complex($cfan,$k,TRUE);
+#   return $s;
+# }

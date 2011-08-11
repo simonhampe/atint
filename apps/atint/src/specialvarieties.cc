@@ -227,6 +227,136 @@ namespace polymake { namespace atint {
       return fan;      
     }
     
+    /**
+     @brief Computes all vectors of dimension n with entries +1 and -1. They are sorted such that each vector v has the row index determined by the sum: sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1)
+     @param int n The column dimension of the matrix
+     @return Matrix<Rational> A 2^n by n matrix containing all +-1-vectors of dimension n
+     */
+    Matrix<Rational> binaryMatrix(int n) {
+      Matrix<Rational> result(0,n);
+	result /= (- ones_vector<Rational>(n));
+      //Now increase the last row of result by "one" in each iteration and append the new row to result
+      Integer iterations = pow(2,n)-1;
+      int i = 1;
+      while(i <= iterations) {
+	//Find the first -1-entry
+	int index = 0;
+	while(result(i-1,index) == 1) { index++;}
+	//Now toggle this and all preceding entries
+	Vector<Rational> newrow(result.row(i-1));
+	  newrow[index] = 1;
+	  for(int j = 0; j < index; j++) newrow[j] = -1;
+	result /= newrow;
+	i++;
+      }
+      return result;
+    }
+    
+    /**
+     @brief Assumes v is a vector with entries +1 and -1 only. Returns sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1
+     */
+    inline int binaryIndex(Vector<Rational> v) {
+      int result = 0;
+      for(int i = 0; i < v.dim(); i++) {
+	if(v[i] == 1) result += pow(2,i);
+      }
+      return result;
+    }
+    
+    //Documentation see perl wrapper
+    perl::Object tropical_cube(int n, int k) {
+      //Create the cube vertices
+      Matrix<Rational> rays = binaryMatrix(n);
+      Vector<Set<int> > cones;
+      
+      //First we treat the special case where k == 0 (or n < k)
+      if(k == 0 || n< k) {
+	perl::Object result("WeightedComplex");
+	  result.take("RAYS") << rays;
+	    Vector<Set<int> > singlefaces;
+	     for(int i = 0; i < rays.rows(); i++) {
+	      Set<int> iset; iset += i;
+	      singlefaces |= iset;
+	     }
+	  result.take("MAXIMAL_CONES") << singlefaces;
+	  result.take("TROPICAL_WEIGHTS") << ones_vector<Integer>(rays.rows());
+	  result.take("USES_HOMOGENEOUS_C") << true;
+	return result;
+      }
+
+      //Now create the k-skeleton of the n-cube: For each n-k-set S of 0,..,n-1 and for each vertex
+      // v of the n-k-dimensional cube: Insert the entries of v in S and then insert all possible 
+      //vertices of the k-dimensional cube in S^c to obtain a k-dimensional face of the cube
+      Array<Set<int> > nmkSets = pm::Subsets_of_k<Set<int> > ( sequence(0,n),n-k );
+      Matrix<Rational> nmkVertices = binaryMatrix(n-k);
+      Matrix<Rational> kVertices = binaryMatrix(k);
+      
+      for(int s = 0; s < nmkSets.size(); s++) {
+	for(int v = 0; v < nmkVertices.rows(); v++) {
+	   Set<int> S = nmkSets[s];
+	   Set<int> newface;
+	   Vector<Rational> vertex(n);
+	   vertex.slice(S) = nmkVertices.row(v);
+	   for(int w = 0; w < kVertices.rows(); w++) {
+	      vertex.slice(~S) = kVertices.row(w);
+	      newface += binaryIndex(vertex);
+	   }
+	   cones |= newface;
+	}
+      }//End create k-skeleton
+      
+      int vertexnumber = rays.rows();
+      
+      //Now we also create the k-1-skeleton of the cube to compute the ray faces
+      Array<Set<int> > nmlSets = pm::Subsets_of_k<Set<int> > (sequence(0,n),n-k+1);
+      Matrix<Rational> nmlVertices = binaryMatrix(n-k+1);
+      Matrix<Rational> lVertices = binaryMatrix(k-1);
+      Vector<Set<int> > raycones;
+      
+      for(int s = 0; s < nmlSets.size(); s++) {
+	for(int v = 0; v < nmlVertices.rows(); v++) {
+	    Set<int> S = nmlSets[s];
+	    Set<int> newface;
+	    Vector<Rational> vertex(n);
+	    vertex.slice(S) = nmlVertices.row(v);
+	    for(int w = 0; w < lVertices.rows(); w++) {
+	      vertex.slice(~S) = lVertices.row(w);
+	      newface += binaryIndex(vertex);
+	    }
+	    raycones |= newface;
+	}
+      }//End create k-1-skeleton
+      
+      
+      //We add a copy of each vertex and consider it a ray.
+      //Now, for each face S of the k-1-skeleton, we add a cone that contains for each i in S:
+      //The vertex i and its corresponding ray
+      if(k > 0) rays = rays / rays;
+      int iter = raycones.size();
+      for(int c = 0; c < iter; c++) {
+	Set<int> newface; 
+	Set<int> cubeface = raycones[c];
+	for(Entire<Set<int> >::iterator v = entire(cubeface); !v.at_end(); v++) {
+	    newface += *v;
+	    int rayindex = *v + vertexnumber;
+	    newface += rayindex;
+	}
+	cones |= newface;
+      }
+      
+      //Now create the result
+      Vector<Rational> homog_coord = ones_vector<Rational>(vertexnumber) |
+				    zero_vector<Rational>(vertexnumber);
+      rays = homog_coord | rays; //Homog. Coords!
+      Vector<Integer> weights = ones_vector<Integer>(cones.size());
+      perl::Object result("WeightedComplex"); 
+	result.take("RAYS") << rays;
+	result.take("MAXIMAL_CONES") << cones;
+	result.take("TROPICAL_WEIGHTS") << weights;
+	result.take("USES_HOMOGENEOUS_C") << true;
+      return result;	
+    }
+    
     UserFunction4perl("# @category Tropical geometry"
 		      "# Creates the linear tropical space L^n_k. This tropical fan is defined in the following way: "
 		      "# As rays we take -e_i,i=1,...,n, where e_i is the i-th standard basis vector of R^n and "
@@ -244,8 +374,18 @@ namespace polymake { namespace atint {
 		      "# @param Vector<Rational> equation The defining equation g"
 		      "# @return WeightedComplex The resultin halfspace complex",
 		      &halfspace_complex,"halfspace_complex($,Vector<Rational>)");
-		      
-    Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
+
+    UserFunction4perl("# @category Tropical geometry"
+		      "# Creates the tropical cube T^n_k, i.e. the tropical variety obtained by"
+		      "# glueing together the 2^n L^n_k obtained by applying all possible sign "
+		      "# changes, such that the vertices form the k-skeleton of "
+		      "# the n-dimensional cube"
+		      "# @param Int n The ambient dimension"
+		      "# @param Int k The dimension of the cube"
+		      "# @return WeightedComplex cube",
+		      &tropical_cube,"tropical_cube($,$)");
     
+    Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
+    Function4perl(&binaryMatrix,"binaryMatrix($)");
 }
 }

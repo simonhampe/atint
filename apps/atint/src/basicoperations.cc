@@ -329,8 +329,8 @@ namespace polymake { namespace atint{
       } //End iterate all cones at v
       starRays = starRays.minor(All,~scalar2set(0));
       perl::Object fan("WeightedComplex");
-	fan.take("RAYS") << starRays;
-	fan.take("MAXIMAL_CONES") << starCones;
+	fan.take("INPUT_RAYS") << starRays;
+	fan.take("INPUT_CONES") << starCones;
 	fan.take("TROPICAL_WEIGHTS") << starWeights;
 	fan.take("USES_HOMOGENEOUS_C") << false;
       result << fan;
