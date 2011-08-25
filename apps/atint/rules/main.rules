@@ -30,6 +30,8 @@ file_suffix atint
 
 declare object WeightedComplex : fan::PolyhedralFan<Rational>;
 
+declare object RationalCurve;
+
 declare object MinMaxFunction;
 
 INCLUDE
@@ -40,6 +42,7 @@ INCLUDE
   cmplx_visual.rules
   divisor.rules
   intersection.rules
+  RationalCurve.rules
   
 ## TESTRUN FUNCTION #######################
 

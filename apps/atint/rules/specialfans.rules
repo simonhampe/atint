@@ -25,7 +25,7 @@
 # @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan).
 # If you already know that your rows are a basis, call linear_space_by_basis instead.
 # @param int weight The weight of the linear space (1, if none is given)
-# @return WeightedComplex The resulting fan object
+# @return WeightedComplex The resulting fan object in non-homog. coordinates
 user_function linear_space_by_matrix {
   my ($matrix,$weight) = @_;
   
@@ -45,7 +45,7 @@ user_function linear_space_by_matrix {
 # @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan) and
 # which are assumed to be linearly independent. If you are not sure of this, call linear_space_by_matrix instead.
 # @param int weight The weight of the linear space (1, if none is given)
-# @return WeightedComplex The resulting fan object
+# @return WeightedComplex The resulting fan object in non-homog. coordinates
 user_function linear_space_by_basis {
   my ($matrix,$weight) = @_;
   
@@ -61,7 +61,7 @@ user_function linear_space_by_basis {
 # Creates the tropical variety R^n as a single lineality space with a given weight 
 # @param int n The dimension of the linear space
 # @param int weight The weight of the linear space (1, if none is given)
-# @return WeightedComplex The resulting fan object
+# @return WeightedComplex The resulting fan object in non-homog. coordinates
 user_function linear_nspace {
   my ($n,$weight) = @_;
   
@@ -103,6 +103,7 @@ user_function linear_nspace {
 # @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
 # fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
 # @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.
+# @return The bergman fan of the given matroid in non-homog. coordinates
 user_function bergman_fan {
   my ($matroid, $modOutLineality, $projectionCoordinate) = @_;
   

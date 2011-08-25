@@ -163,7 +163,8 @@ namespace polymake { namespace atint {
 	    dbgtrace << "Cone " << *cone << " contained in edges " << edgeSet << endl;
 	    //Now add all neighbour cones
 	    for(Entire<Set<int> >::iterator nb = entire(edgeSet); !nb.at_end(); nb++) {
-	      connectedClasses += conesInClasses[*((adjacency[*nb] - *cone).begin())];
+	      int coneClass = conesInClasses[*((adjacency[*nb] - *cone).begin())];
+	      if(coneClass != cls) connectedClasses += coneClass;
 	    }
 	}
 	dbgtrace << "Connected classes are " << connectedClasses << endl;

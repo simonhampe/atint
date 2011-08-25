@@ -419,7 +419,8 @@ object WeightedComplex {
 	user_method characteristic {
 	  my $this = shift;
 	  my $cplx = equivalenceComplex($this);
-	  return $cplx->HOMOLOGY->[1]->[1];
+	  if($cplx->HOMOLOGY->size() > 1) {return $cplx->HOMOLOGY->[1]->[1];}
+	  else { return 0;}
 	}
 
 }
