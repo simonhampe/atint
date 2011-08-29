@@ -91,6 +91,7 @@ object RationalCurve {
   
   rule INPUT_SETS, INPUT_COEFFS : INPUT_STRING {
     my $string = $this->INPUT_STRING;
+    $string =~ s/\s+//g; #Remove any whitespace before parsing
     #First we split the input along any consecutive sequence of + and -
     my @termlist = split(/[\+\-]+/,$string); 
     
@@ -137,7 +138,7 @@ object RationalCurve {
       }
       
       #Parse coefficient
-      my $coefficient = new Rational($termsep[0]);
+      my $coefficient = new Rational($termsep[0] eq "" ? 1 : $termsep[0]);
 	$coefficient = $coefficient * $signs[$signindex];
       @input_coeffs = (@input_coeffs,$coefficient);
       
