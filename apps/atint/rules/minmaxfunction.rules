@@ -177,7 +177,7 @@ object MinMaxFunction {
 	  }
 	  #Now every element in signlist corresponds to a term. We count the number of -'s to determine the actual
 	  # sign of the term
-	  for my $index (0 .. scalar(@termlist)) {
+	  for my $index (0 .. scalar(@termlist)-1) {
 	    my $minussigns = scalar(($signlist[$index] =~ tr/\-//));
 	    if ($minussigns % 2) { #If the number of -'s is odd, set sign to -
 	      $termlist[$index] = "-" . $termlist[$index];

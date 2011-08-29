@@ -25,23 +25,27 @@
 # I on the other side. The curve is given as a positive linear combination of some of those.
 # A curve can be created in several ways:
 # 1) By converting a point from the moduli space, which is given in matroid coordinates, via 
-# curveFromModuli(...)
+# rational_curve_from_moduli(...)
 # 2) By specifying a list of sets I in (1,..,n) (together with n) and corresponding positive 
 # coefficients. This can either be done directly via N_LEAVES, INPUT_SETS and INPUT_COEFFS or be parsed
 # as a string via INPUT_STRING. If your coefficients are all > 0 and the sets are non-redundant, you
 # can also use SETS and COEFFS directly.
 # 3) By giving a metric satisfying the four-point condition as an (n over 2)-vector and converting it
-# via curveFromMetric(...)
+# via rational_curve_from_metric(...)
 ########################################################################
 
+
+
 object RationalCurve {
+
+  use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'substract');
   
   # @category Basic properties
   # A list of partitions of [n] that define the tree of the curve: For each bounded edge we have 
   # the corresponding partition of the n leaves. These should be irredundant. If you want to input
   # a possibly redundant list, use [[INPUT_SETS]] and [[INPUT_COEFFS]] instead. The number of marked leaves
-  # should always be given by [[N_LEAVES]]
-  property SETS : Array<Set<Int>>;
+  # should always be given by [[N_LEAVES]]. The sets are subsets of {1,...,n} (NOT {0,..,n-1}!)
+  property SETS : IncidenceMatrix;
   
   # @category Basic properties
   # A list of positive rational coefficients. The list should have the same length as [[SETS]] and
@@ -52,7 +56,7 @@ object RationalCurve {
   
   # @category Basic properties
   # Same as [[SETS]], except that sets may appear several times.
-  property INPUT_SETS : Array<Set<Int>>;
+  property INPUT_SETS : IncidenceMatrix;
   
   # @category Basic properties
   # Same as [[COEFFS]], except that entries may be <=0. This should have the same length as [[INPUT_SETS]].
@@ -75,4 +79,140 @@ object RationalCurve {
   # element is not in the moduli space, an error is thrown.
   property INPUT_STRING : String;
   
+  # ----------------------- RULES -------------------------------------
+  
+  rule SETS, COEFFS : INPUT_SETS, INPUT_COEFFS, N_LEAVES {
+    # Compute metric from input and then reconvert to irredundant description
+    my $metric = metric_from_curve($this->INPUT_SETS, $this->INPUT_COEFFS, $this->N_LEAVES);
+    my $curve = rational_curve_from_metric($metric);
+    $this->SETS = $curve->SETS;
+    $this->COEFFS = $curve->COEFFS;
+  }
+  
+  rule INPUT_SETS, INPUT_COEFFS : INPUT_STRING {
+    my $string = $this->INPUT_STRING;
+    #First we split the input along any consecutive sequence of + and -
+    my @termlist = split(/[\+\-]+/,$string); 
+    
+    #Now extract the signs of the terms
+    my @signlist = ($string =~ /[\+\-]+/g);
+        
+    #If the first term's empty that means there are signs before the actual first term
+    if($termlist[0] eq "") {
+      shift(@termlist);
+    }
+    #If not then we don't have a sign for the first term and add it
+    else {
+      @signlist = ("+",@signlist);
+    }
+    #If the last term is empty that means there is an empty term at the end. Hence we also forget the corr. signs
+    if($termlist[scalar(@termlist)-1] eq "") {
+      pop(@termlist);
+      pop(@signlist);
+    }
+    #Now every element in signlist corresponds to a term. We count the number of -'s to determine the actual
+    # sign of the term
+    my @signs = ();
+    for my $index (0 .. scalar(@termlist)-1) {
+      my $minussigns = scalar(($signlist[$index] =~ tr/\-//));
+      if ($minussigns % 2) { #If the number of -'s is odd, set sign to -
+	@signs = (@signs,-1);
+	#$termlist[$index] = "-" . $termlist[$index];
+      }
+      else {
+	@signs = (@signs,1);
+      }
+    }
+    
+    #Now we parse each term 
+    my @input_sets = ();
+    my @input_coeffs = ();
+    my $signindex = 0;
+    
+    for my $term (@termlist) {
+      #Divide term into coefficient and set
+      my @termsep = ($term =~ /^(\-?[^a-zA-Z\*]*)?\*?\(([\d,]*)\)/);
+      if(scalar(@termsep) != 2) {
+	die "Invalid term: ", $term,"\n";
+      }
+      
+      #Parse coefficient
+      my $coefficient = new Rational($termsep[0]);
+	$coefficient = $coefficient * $signs[$signindex];
+      @input_coeffs = (@input_coeffs,$coefficient);
+      
+      #Parse set
+      my $set = new Set<Int>();
+      my @numbers = split(/,/,$termsep[1]);
+      for my $n (@numbers) {
+	$set = $set + new Int($n);
+      }
+      @input_sets = (@input_sets, $set);
+      $signindex++;
+    }
+    
+    $this->INPUT_SETS = new IncidenceMatrix(@input_sets);
+    $this->INPUT_COEFFS = new Vector<Rational>(\@input_coeffs);
+  }
+  
+  #If no leaf number is given, it is assumed to be the maximal element occuring in the sets
+  rule N_LEAVES : INPUT_SETS {
+    my $s = new Set<Int>();
+    my $M = $this->INPUT_SETS;
+    for(my $i = 0; $i < $M->rows(); $i++) {
+      $s = $s + $M->row($i);
+    }
+    my @a = @{$s};
+    $this->N_LEAVES = $a[scalar(@a)-1];
+  }
+  
+  # -------------------------- METHODS --------------------------------
+  
+  # @category Tropical geometry
+  # Returns the (n over 2) metric vector of the rational n-marked curve
+  user_method metric_vector {
+    my $this = shift;
+    return metric_from_curve($this->SETS,$this->COEFFS,$this->N_LEAVES);
+  }
+  
+  # @category Tropical geometry
+  # Computes the coordinates of the curve in the moduli space given in matroid coordinates.
+  # @return Vector<Rational>
+  user_method matroid_vector {
+    my $this = shift;
+    return moduli_from_curve($this);
+  }
+ 
+  # ----------------------------- OVERLOADED OPERATORS -----------------
+  
+  sub add {
+      my ($a,$b) = @_;
+      my $va = $a->metric_vector();
+      my $vb = $b->metric_vector();
+      if($va->dim() != $vb->dim()) {
+	die "Cannot add curves: Dimension mismatch.";
+      }
+      my $vr = $va+$vb;
+      return rational_curve_from_metric($vr);
+  }
+  
+  #For some reason the arguments seem to be sorted s.t. the scalar is always at the end
+  sub scalar_multiplication { 
+      my ($r,$c) = @_;
+      my $vc = $r->metric_vector();
+      return rational_curve_from_metric($c * $vc);
+  }
+  
+  sub substract {
+    my ($a,$b) = @_;
+    my $va = $a->metric_vector();
+      my $vb = $b->metric_vector();
+      if($va->dim() != $vb->dim()) {
+	die "Cannot add curves: Dimension mismatch.";
+      }
+      my $vr = $va-$vb;
+      return rational_curve_from_metric($vr);
+  }
+ 
 }
+
