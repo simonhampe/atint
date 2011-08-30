@@ -140,12 +140,16 @@ namespace polymake { namespace atint {
 	dbgtrace << "Attaching to vertex " << x << endl;
 	leaves[x] = leaves[x] + leaves[p] + leaves[q];
 	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
-	  coeffs |= d(p,x);
-	  sets |= leaves[p];
+	  if(d(p,x) != 0) {
+	    coeffs |= d(p,x);
+	    sets |= leaves[p];
+	  }
 	}
 	if(leaves[q].size() > 1 && leaves[q].size() < n-1) {
-	  coeffs |= d(q,x);
-	  sets |= leaves[q];
+	  if(d(q,x) != 0) {
+	    coeffs |= d(q,x);
+	    sets |= leaves[q];
+	  }
 	}
       }
       else {
@@ -158,12 +162,16 @@ namespace polymake { namespace atint {
 	    d(*i,t) = d(t,*i) = dtx[*i];
 	}
 	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
-	  coeffs |= dtp;
-	  sets |= leaves[p];
+	  if(dtp != 0) {
+	    coeffs |= dtp;
+	    sets |= leaves[p];
+	  }
 	}
 	if(leaves[q].size() > 1 && leaves[q].size() < n-1) {
-	  coeffs |= dtx[q];
-	  sets |= leaves[q];
+	  if(dtx[q] != 0) {
+	    coeffs |= dtx[q];
+	    sets |= leaves[q];
+	  }
 	}
 	//Now add the new vertex
 	V += t;
@@ -200,8 +208,10 @@ namespace polymake { namespace atint {
     }//End case size == 3
     if(V.size() == 2) {
       if(leaves[vAsList[0]].size() > 1 && leaves[vAsList[0]].size() < n-1) {
-	coeffs |= d(vAsList[0],vAsList[1]);
-	sets |= leaves[vAsList[0]];
+	if(d(vAsList[0],vAsList[1]) != 0) {
+	  coeffs |= d(vAsList[0],vAsList[1]);
+	  sets |= leaves[vAsList[0]];
+	}
       }
     }
     
@@ -328,6 +338,28 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  //Documentation see perl wrapper
+  perl::ListReturn curveFromModuliMatrix(Matrix<Rational> m) {
+    perl::ListReturn result;
+    
+    for(int i = 0; i < m.rows(); i++) {
+      result << curveFromModuli(m.row(i));
+    }
+    
+    return result;
+  }
+  
+  //Documentation see perl wrapper
+  perl::ListReturn curveFromMetricMatrix(Matrix<Rational> m) {
+    perl::ListReturn result;
+    
+    for(int i = 0; i < m.rows(); i++) {
+      result << curveFromMetric(m.row(i));
+    }
+    
+    return result;
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
   UserFunction4perl("# @category Tropical geometry"
@@ -353,6 +385,22 @@ namespace polymake { namespace atint {
 		    "# @param Vector<Rational> v A vector in the moduli space"
 		    "# @return RationalCurve",
 		    &curveFromModuli,"rational_curve_from_moduli(Vector<Rational>)");
+  
+  UserFunction4perl("# @category Tropical geometry"
+		    "# Takes a matrix whose rows are elements in the moduli space M_0,n in matroid "
+		    "# coordinates. Returns a list, where the i-th element is the curve corr. to "
+		    "# the i-th row in the matrix"
+		    "# @param Matrix<Rational> m"
+		    "# @return RationalCurve : An array of RationalCurves",
+		    &curveFromModuliMatrix, "rational_curve_list_from_moduli(Matrix<Rational>)");
+  
+  UserFunction4perl("# @category Tropical geometry"
+		    "# Takes a matrix whose rows are metrics of rational n-marked curves."
+		    "# Returns a list, where the i-th element is the curve corr. to "
+		    "# the i-th row in the matrix"
+		    "# @param Matrix<Rational> m"
+		    "# @return RationalCurve : An array of RationalCurves",
+		    &curveFromMetricMatrix, "rational_curve_list_from_metric(Matrix<Rational>)");
   
   Function4perl(&metricFromCurve, "metric_from_curve(IncidenceMatrix, Vector<Rational>, $)");
   Function4perl(&moduliFromCurve, "moduli_from_curve(RationalCurve)");

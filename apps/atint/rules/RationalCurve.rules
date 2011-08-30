@@ -38,7 +38,7 @@
 
 object RationalCurve {
 
-  use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'substract');
+  use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'substract', '""' => 'to_string');
   
   # @category Basic properties
   # A list of partitions of [n] that define the tree of the curve: For each bounded edge we have 
@@ -213,6 +213,35 @@ object RationalCurve {
       }
       my $vr = $va-$vb;
       return rational_curve_from_metric($vr);
+  }
+  
+  sub to_string {
+    my $this = shift;
+    my $result = "";
+    for my $i (0 .. ($this->SETS->rows()-1)) {
+      my $coeff = $this->COEFFS->[$i];
+      #Attach sign (if it is negative or not the first)
+      if($coeff < 0 || $i > 0) {
+	$result = $result.($coeff < 0? " - " : " + ");
+      }
+      #Attach coefficient (if it is not +-1)
+      if($coeff != 1 && $coeff != -1) {
+	$result = $result."$coeff*";
+      }
+      #Attach set
+      $result = $result."(";
+      my @a = @{$this->SETS->row($i)};
+      for my $j (0 ..(scalar(@a)-1)) {
+	my $n = $a[$j];
+	$result = $result."$n";
+	if($j != scalar(@a)-1) {
+	    $result = $result.", ";
+	}
+      }
+      $result = $result.")";
+    }
+    
+    return $result;
   }
  
 }
