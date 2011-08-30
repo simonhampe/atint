@@ -135,13 +135,20 @@ user_function random_minmaxdivisor {
   my ($ambient_dim, $equations, $upperCoeffBound, $onlyFunction) = @_;
   $upperCoeffBound = new Integer($upperCoeffBound);
   
-  $onlyFunction = FALSE unless defined($onlyFunction);
+  $onlyFunction = 0 unless defined($onlyFunction);
   
   # Create function matrix
   my $m = new Matrix<Rational>(0,$ambient_dim+1);
   for(my $i = 0; $i < $equations; $i++) {
     my @r = randomInteger($upperCoeffBound,$ambient_dim+1);
     $m = new Matrix<Rational>($m / new Vector<Rational>(@r));
+  }
+  
+  if($onlyFunction eq TRUE) {
+    $onlyFunction = 1;
+  }
+  else {
+    $onlyFunction = 0;
   }
   
   my $f = new MinMaxFunction(FUNCTION_MATRIX=>$m,USES_MIN=>0);

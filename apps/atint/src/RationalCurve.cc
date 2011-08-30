@@ -319,18 +319,24 @@ namespace polymake { namespace atint {
     Set<int> completeSet = sequence(1,n);
     
     Vector<Rational> result(raydim);
+    Vector<Rational> onlyones(ones_vector<Rational>(raydim));
     
     //Map each set to matroid coordinates with appropriate coefficient
     for(int s = 0; s < sets.rows(); s++) {
       Set<int> sset = sets.row(s);
       //Make sure the set does not contain n
       if(sset.contains(n)) sset = completeSet - sset;
-      
       //Now create the flat vector for the complete graph on vertices in sset
       Vector<Rational> slist(sset);
       for(int i = 0; i < slist.dim(); i++) {
 	for(int j = i+1; j < slist.dim(); j++) {
-	  result[E(slist[i],slist[j])] -= coeffs[s];
+	  int edgeindex = E(slist[i],slist[j]);
+	  if(edgeindex < raydim) {
+	    result[E(slist[i],slist[j])] -= coeffs[s];
+	  }
+	  else { //If edgeindex = raydim, this is the coordinate that we modded out
+	    result += coeffs[s] * onlyones;
+	  }
 	}
       }
     }
@@ -349,6 +355,16 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  /**
+   @brief Takes three integer values and checks whether two of them are equal and >= than the third
+   */
+  inline bool fpcCheck(int a, int b, int c) {
+    if(a == b && a >= c) return true;
+    if(a == c && a >= b) return true;
+    if(b == c && b >= a) return true;
+    return false;
+  }
+  
   //Documentation see perl wrapper
   perl::ListReturn curveFromMetricMatrix(Matrix<Rational> m) {
     perl::ListReturn result;
@@ -357,6 +373,75 @@ namespace polymake { namespace atint {
       result << curveFromMetric(m.row(i));
     }
     
+    return result;
+  }
+  
+  //Documentation see perl wrapper
+  perl::ListReturn testFourPointCondition(Vector<Rational> v) {
+    //Convert metric into map
+    int n = moduliDimensionFromLength(v.dim());
+    Matrix<Rational> d(n+1,n+1);
+    
+    int mindex = 0;
+    for(int i = 1; i < n; i++) {
+      for(int j = i+1; j <= n; j++) {
+	d(i,j) = d(j,i) = v[mindex];
+	mindex++;
+      }
+    }
+    
+    //First we test all 4-element subsets
+    Set<int> complete = sequence(1,n);
+    Array<Set<int> > fours =  pm::Subsets_of_k<Set<int> > ( complete,4 );
+    for(int f = 0; f < fours.size(); f++) {
+      Vector<int> l(fours[f]);
+      int a = d(l[0],l[1]) + d(l[2],l[3]);
+      int b = d(l[0],l[2]) + d(l[1],l[3]);
+      int c = d(l[0],l[3]) + d(l[1],l[2]);
+      //Check that two of a,b,c are equal and not less than the third
+      if(!fpcCheck(a,b,c)) {
+	perl::ListReturn fault;
+	  fault << l[0] << l[1] << l[2] << l[3];
+	return fault;
+      }
+    }
+    //Now we check all 3-element subsets
+    Array<Set<int> > threes = pm::Subsets_of_k<Set<int> >(complete, 3);
+    for(int f = 0; f < threes.size(); f++) {
+      Vector<int> l(threes[f]);
+      //Now check the three possibilities, where the fourth element is equal to any of the three
+      for(int t = 0; t < l.size(); t++) {
+	int a = d(l[0],l[1]) + d(l[2],l[t]);
+	int b = d(l[0],l[2]) + d(l[1],l[t]);
+	int c = d(l[0],l[t]) + d(l[1],l[2]);
+	//Check that two of a,b,c are equal and not less than the third
+	if(!fpcCheck(a,b,c)) {
+	  perl::ListReturn fault;
+	    fault << l[0] << l[1] << l[2] << l[t];
+	  return fault;
+	}
+      }
+    }
+    //Now we check all 2-element subsets
+    Array<Set<int> > twos = pm::Subsets_of_k<Set<int> >(complete, 2);
+    for(int f = 0; f < twos.size(); f++) {
+      Vector<int> l(twos[f]);
+      //We have three possibilites for the other two z,t: t=x,z=y or t=z=x or t=z=y
+      for(int p = 1; p <= 3; p++) {
+	int t = p < 3? l[0] : l[1];
+	int z = p != 2? l[1] : l[0];
+	int a = d(l[0],l[1]) + d(z,t);
+	int b = d(l[0],z) + d(l[1],t);
+	int c = d(l[0],t) + d(l[1],z);
+	//Check that two of a,b,c are equal and not less than the third
+	if(!fpcCheck(a,b,c)) {
+	  perl::ListReturn fault;
+	    fault << l[0] << l[1] << z << t;
+	  return fault;
+	}
+      }
+    }
+    perl::ListReturn result;
     return result;
   }
   
@@ -401,6 +486,16 @@ namespace polymake { namespace atint {
 		    "# @param Matrix<Rational> m"
 		    "# @return RationalCurve : An array of RationalCurves",
 		    &curveFromMetricMatrix, "rational_curve_list_from_metric(Matrix<Rational>)");
+  
+  UserFunction4perl("# @category Tropical geometry" 
+		    "# Takes a metric vector in Q^{(n over 2)} and checks whether it fulfills "
+		    "# the four-point condition, i.e. whether it lies in M_0,n. More precisely "
+		    "# it only needs to be equivalent to such a vector"
+		    "# @param Vector<Rational> v The vector to be checked"
+		    "# @return Int A quadruple (array) of indices, where the four-point condition "
+		    "# is violated or an empty list, if the vector is indeed in M_0,n",
+		    &testFourPointCondition, "testFourPointCondition(Vector<Rational>)");
+		    
   
   Function4perl(&metricFromCurve, "metric_from_curve(IncidenceMatrix, Vector<Rational>, $)");
   Function4perl(&moduliFromCurve, "moduli_from_curve(RationalCurve)");

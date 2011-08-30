@@ -28,5 +28,7 @@ namespace polymake { namespace common {
    };
 
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const Vector< Set< int > > >);
+   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
+   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
