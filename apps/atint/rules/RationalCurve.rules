@@ -79,6 +79,11 @@ object RationalCurve {
   # element is not in the moduli space, an error is thrown.
   property INPUT_STRING : String;
   
+  # @category Basic properties
+  # Contains the abstract graph (non-metric) corresponding to the curve. All unbounded leaves are modelled
+  # as bounded edges.
+  property GRAPH : graph::Graph;
+  
   # ----------------------- RULES -------------------------------------
   
   rule SETS, COEFFS : INPUT_SETS, INPUT_COEFFS, N_LEAVES {
@@ -167,6 +172,10 @@ object RationalCurve {
     $this->N_LEAVES = $a[scalar(@a)-1];
   }
   
+  rule GRAPH: SETS,COEFFS {
+    $this->GRAPH = curve_graph_from_metric($this->metric_vector());
+  }
+  
   # -------------------------- METHODS --------------------------------
   
   # @category Tropical geometry
@@ -183,7 +192,7 @@ object RationalCurve {
     my $this = shift;
     return moduli_from_curve($this);
   }
-  
+ 
   # ----------------------------- OVERLOADED OPERATORS -----------------
   
   sub add {

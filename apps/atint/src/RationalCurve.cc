@@ -31,6 +31,7 @@
 #include "polymake/Array.h"
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/Graph.h"
 
 namespace polymake { namespace atint { 
   
@@ -45,9 +46,9 @@ namespace polymake { namespace atint {
   }
   
   /**
-   @brief Computes a rational curve (in the v_I-representation) or its graph from a given metric. Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
+   @brief Computes a rational curve (in the v_I-representation) and its graph from a given metric. Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
    */
-  perl::Object curveOrGraphFromMetric(Vector<Rational> metric, bool computeGraph) {
+  perl::Object curveAndGraphFromMetric(Vector<Rational> metric) {
     // We prepare the metric by making sure, all entries are > 0
     // and by adding Phi(sum of unit vectors) to ensure all leaves have
     // positive distance
@@ -77,6 +78,14 @@ namespace polymake { namespace atint {
       
     dbgtrace << "Starting with metric matrix\n" << d << endl;
     
+    //For the graph case, we prepare a graph object
+    Graph<> G(n);
+    
+    //The algorithm possibly produces "double" vertices when creating a new vertex t
+    // that has distance 0 to p or q. In this case we have to remember the original index p (or q)
+    // to be able to create the graph correctly
+    Vector<int> orig(n+1);
+    for(int i = 1; i <= n; i++) { orig[i] = i;}
     
     //Result variable
     Vector<Rational> coeffs;
@@ -142,17 +151,16 @@ namespace polymake { namespace atint {
 	dbgtrace << "Attaching to vertex " << x << endl;
 	leaves[x] = leaves[x] + leaves[p] + leaves[q];
 	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
-	  if(d(p,x) != 0) {
-	    coeffs |= d(p,x);
-	    sets |= leaves[p];
-	  }
+	  coeffs |= d(p,x);
+	  sets |= leaves[p];
 	}
 	if(leaves[q].size() > 1 && leaves[q].size() < n-1) {
-	  if(d(q,x) != 0) {
-	    coeffs |= d(q,x);
-	    sets |= leaves[q];
-	  }
+	  coeffs |= d(q,x);
+	  sets |= leaves[q];
 	}
+	//Graph case
+	G.edge(orig[p]-1,orig[x]-1);
+	G.edge(orig[q]-1,orig[x]-1);
       }
       else {
 	dbgtrace << "Creating new vertex" << endl;
@@ -178,6 +186,22 @@ namespace polymake { namespace atint {
 	//Now add the new vertex
 	V += t;
 	leaves[t] = leaves[p] + leaves[q];
+	// Graph case
+	// If d(t,p) or d(t,q) = 0, identify t with p (or q)
+	// Otherwise give t the next available node index
+	if(dtp != 0 && dtx[q] != 0) {
+	  G.add_node();
+	  orig |= (orig[orig.dim()-1]+1);
+	}
+	if(dtp == 0) {
+	  orig |= orig[p];
+	}
+	if(dtx[q] == 0) {
+	  orig |= orig[q];
+	}
+	dbgtrace << "New orig vertex " << orig << endl;
+	if(dtp != 0) G.edge(orig[t]-1,orig[p]-1);
+	if(dtx[q] != 0) G.edge(orig[t]-1,orig[q]-1);
       }
       dbgtrace << "Distance matrix\n" << d << endl;
       dbgtrace << "Leaf map\n" << leaves << endl;
@@ -199,6 +223,7 @@ namespace polymake { namespace atint {
       dbgtrace << "Solving " << A << "," << B << endl;
       Vector<Rational> a = A * B;
       dbgtrace << "Result: " << a << endl;
+      int zeroa = -1;
       for(int i = 0; i < 3; i++) {
 	if(a[i] != 0) {
 	    if(leaves[vAsList[i]].size() > 1 && leaves[vAsList[i]].size() < n-1) {
@@ -206,34 +231,76 @@ namespace polymake { namespace atint {
 	      sets |= leaves[vAsList[i]];
 	    }
 	}
+	else {
+	  zeroa = i;
+	}
+      }
+      //Graph case
+      //If all distances are nonzero, we add a vertex
+      if(zeroa == -1) {
+	int t = G.add_node();
+	for(int j=0;j<3;j++) { 
+	  G.edge(t,orig[vAsList[j]]-1);
+	}	
+      }
+      //Otherwise we add the adjacencies of the two egdes
+      else {
+	for(int j=0; j<3; j++) {
+	    if(j != zeroa) {
+	      G.edge(orig[vAsList[j]]-1,orig[vAsList[zeroa]]-1);
+	    }
+	}
       }
     }//End case size == 3
-    if(V.size() == 2) {
+    if(V.size() == 2) {    
       if(leaves[vAsList[0]].size() > 1 && leaves[vAsList[0]].size() < n-1) {
 	if(d(vAsList[0],vAsList[1]) != 0) {
 	  coeffs |= d(vAsList[0],vAsList[1]);
 	  sets |= leaves[vAsList[0]];
 	}
       }
+      //Graph case
+      G.edge(orig[vAsList[0]]-1,orig[vAsList[1]]-1);
     }
     
-    //Now we're done, so we create the rational curve
+    //Now we're done, so we create the result
+    
+    //Create node labels
+    Vector<std::string> labels(G.nodes());
+    for(int i = 0; i < labels.dim(); i++) {
+      if(i < n) {
+	std::stringstream num;
+	  num << (i+1);
+	labels[i] = num.str(); 
+      }
+      else {
+	labels[i] = "";
+      }
+    }
+    perl::Object graph("graph::Graph");
+      graph.take("N_NODES") << G.nodes();
+      graph.take("ADJACENCY") << G;
+      graph.take("NODE_LABELS") << labels;
+	
     perl::Object curve("RationalCurve");
       curve.take("SETS") << sets;
       curve.take("COEFFS") << coeffs;
       curve.take("N_LEAVES") << n;
+      curve.take("GRAPH") << graph;
       
     return curve;
   }
   
   //Documentation see perl wrapper
   perl::Object curveFromMetric(Vector<Rational> metric) {
-    return curveOrGraphFromMetric(metric,false);
+    return curveAndGraphFromMetric(metric);
   }
   
   //Documentation see perl wrapper
   perl::Object graphFromMetric(Vector<Rational> metric) {
-    return curveOrGraphFromMetric(metric,true);
+    perl::Object curve = curveAndGraphFromMetric(metric);
+    perl::Object graph = curve.give("GRAPH"); 
+    return graph;
   }
   
   /**
@@ -476,6 +543,16 @@ namespace polymake { namespace atint {
 		    "# metric modulo leaf lengths."
 		    "# @return RationalCurve",
 		    &curveFromMetric,"rational_curve_from_metric(Vector<Rational>)");
+  
+  UserFunction4perl("# @category Tropical geometry"
+		    "# Takes a vector from Q^(n over 2) that describes an n-marked rational abstract"
+		    "# curve as a distance vector between its leaves. It then computes the "
+		    "# graph of the curve corresponding to this vector."
+		    "# @param Vector<Rational> v A vector of length (n over 2). Its entries are "
+		    "# interpreted as the distances d(i,j) ordered lexicographically according to i,j. However, they need not be positive, as long as v is equivalent to a proper "
+		    "# metric modulo leaf lengths."
+		    "# @return graph::Graph",
+		    &graphFromMetric,"curve_graph_from_metric(Vector<Rational>)");
   
   UserFunction4perl("# @category Tropical geometry"
 		    "# Takes a vector from Q^((n over 2) - n) that lies in M_0,n (in its matroid coordinates "

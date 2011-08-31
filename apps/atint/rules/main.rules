@@ -43,6 +43,7 @@ INCLUDE
   divisor.rules
   intersection.rules
   RationalCurve.rules
+  RationalCurve_visual.rules
   
 ## TESTRUN FUNCTION #######################
 

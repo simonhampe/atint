@@ -1,0 +1,49 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# Contains the visualization of RationalCurve
+########################################################################
+
+package Visual::RationalCurve;
+
+object RationalCurve {
+    
+  user_method VISUAL(%Visual::Graph::decorations) {
+    my ($this,$decor) = @_;
+    # We only need to compute the edge lengths for labelling the edges
+    # The edges with nodes in (0,..,n-1) get no label
+    # The other edges get the COEFFS as labels in the order they appear
+    my @labels = ();
+    my $coeffIndex = 0;
+    for my $i (0 .. ($this->GRAPH->EDGES->size()-1)) {
+      my $edge = $this->GRAPH->EDGES->[$i];
+      if($edge->[0] < $this->N_LEAVES) {
+	@labels = (@labels,"");
+      }
+      else {
+	my $length = $this->COEFFS->[$coeffIndex];
+	@labels = (@labels,"<$length>");
+	$coeffIndex++;
+      }
+    }
+    $$decor{"EdgeLabels"} = \@labels;
+    $this->GRAPH->VISUAL($decor);
+  }
+  #precondition: GRAPH
+}
