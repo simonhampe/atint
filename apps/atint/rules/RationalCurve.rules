@@ -183,7 +183,7 @@ object RationalCurve {
     my $this = shift;
     return moduli_from_curve($this);
   }
- 
+  
   # ----------------------------- OVERLOADED OPERATORS -----------------
   
   sub add {
@@ -248,9 +248,62 @@ object RationalCurve {
       }
       $result = $result.")";
     }
+    if($this->SETS->rows() == 0) {
+      $result = "0";
+    }
     
     return $result;
   }
  
+}
+
+# ----------------------------- FUNCTIONS --------------------------------------
+
+# @category Tropical geometry
+# This function takes a vector of coefficients a_i and a list of RationalCurves c_i and computes
+# sum(a_i * c_i). In particular, it also checks, whether the result lies in M_0,n. If not, it returns unded
+# @param RationalCurve An arbitrary list of RationalCurve objects
+# @param Vector<Rational> v A list of coefficients. Superfluous coefficients are ignored, missing ones replaced
+# by +1(!)
+# @return RationalCurve The linear combination of the curves defined by the coefficients or undef, if the result
+# is not in M_0,n. The history of the operation is kept in INPUT_SETS and INPUT_COEFFS
+user_function sum_curves {
+  #my ($coeff, @curves) = @_;
+  my @curves= @_;
+  my $coeff;
+  
+  if(scalar(@curves) == 0) {
+    return undef;
+  }
+  if($curves[scalar(@curves)-1]->isa("RationalCurve")) {
+    $coeff = new Vector<Rational>();
+  }
+  else {
+    $coeff = pop(@curves);
+  }
+  
+  my $n = binomial($curves[0]->N_LEAVES,2);
+  my $v = new Vector<Rational>($n);
+  
+  my $isets = new IncidenceMatrix();
+  my @icoeffs = ();
+  
+  for my $i (0 .. (scalar(@curves)-1)) {
+    my $c = $i < $coeff->dim()? $coeff->[$i] : 1;
+    $v = $v + $c * $curves[$i]->metric_vector();
+    @icoeffs = (@icoeffs,$c);
+    $isets = $isets / ($curves[$i]->SETS);
+  }
+  my @test = testFourPointCondition($v);
+  if(scalar(@test) == 0) {
+    my $result = rational_curve_from_metric($v);
+    my $cvector = new Vector<Rational>(\@icoeffs);
+    return new RationalCurve(SETS=>$result->SETS,COEFFS=>$result->COEFFS, INPUT_SETS=>$isets,
+			     INPUT_COEFFS=>$cvector,
+			     N_LEAVES=>$result->N_LEAVES);
+  }
+  else {
+    return undef;
+  }
 }
 

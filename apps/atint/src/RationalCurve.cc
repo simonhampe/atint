@@ -44,8 +44,10 @@ namespace polymake { namespace atint {
     return (1+s) / 2;
   }
   
-  //Documentation see perl wrapper
-  perl::Object curveFromMetric(Vector<Rational> metric) {
+  /**
+   @brief Computes a rational curve (in the v_I-representation) or its graph from a given metric. Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
+   */
+  perl::Object curveOrGraphFromMetric(Vector<Rational> metric, bool computeGraph) {
     // We prepare the metric by making sure, all entries are > 0
     // and by adding Phi(sum of unit vectors) to ensure all leaves have
     // positive distance
@@ -220,7 +222,18 @@ namespace polymake { namespace atint {
       curve.take("SETS") << sets;
       curve.take("COEFFS") << coeffs;
       curve.take("N_LEAVES") << n;
+      
     return curve;
+  }
+  
+  //Documentation see perl wrapper
+  perl::Object curveFromMetric(Vector<Rational> metric) {
+    return curveOrGraphFromMetric(metric,false);
+  }
+  
+  //Documentation see perl wrapper
+  perl::Object graphFromMetric(Vector<Rational> metric) {
+    return curveOrGraphFromMetric(metric,true);
   }
   
   /**

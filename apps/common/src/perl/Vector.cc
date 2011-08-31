@@ -60,5 +60,9 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Binary_mul, int, perl::Canned< const Wary< Vector< Rational > > >);
    OperatorInstance4perl(Binary_sub, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const Vector< Rational > >);
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::Vector<pm::Rational> const&> >);
+   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> >);
+   FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const Integer >);
+   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, int);
+   OperatorInstance4perl(Binary__or, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::SingleElementVector<pm::Rational> > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
