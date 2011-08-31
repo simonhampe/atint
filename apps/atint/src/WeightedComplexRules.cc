@@ -400,7 +400,7 @@ namespace polymake { namespace atint {
 	result[fixedIndices[r]] = repv[matrixindex];
 	dbgtrace << "Inserting " << repv[matrixindex] << " at " << fixedIndices[r] << endl;
 	//if this is an affine ray, substract its coefficient at the baseray
-	if(rays(fixedIndices[r],0) != 0) {
+	if(rays(fixedIndices[r],0) != 0 && uses_homog) {
 	  result[fixedIndices[baseRayIndex]] -= repv[matrixindex];
 	}
       }

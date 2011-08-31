@@ -361,7 +361,8 @@ UserFunction4perl("# @category Linear algebra"
 		  "# generators"
 		  "# @param Vector v The vector supposed to be contained in the row span of the generators"
 		  "# @param Matrix generators  A set of row vectors whose linear span should contain v"
-		  "# @return Vector A vector (a1,..,an) such that v = (a1,...,an) * generators. It returns a vector of" "# dimension 0, if v is not in the span of the generators. An error is thrown if the dimensions of "
+		  "# @return Vector A vector (a1,..,an) such that v = (a1,...,an) * generators. It returns a vector of" 
+		  "# dimension 0, if v is not in the span of the generators. An error is thrown if the dimensions of "
 		  "# v and the generators mismatch",
 		  &linearRepresentation,"linearRepresentation(Vector<Rational>,Matrix<Rational>)");
 					  
