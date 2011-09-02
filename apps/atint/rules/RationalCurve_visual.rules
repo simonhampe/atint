@@ -22,28 +22,47 @@
 
 package Visual::RationalCurve;
 
-object RationalCurve {
+  options %Visual::RationalCurve::decorations=(
+    %Visual::Graph::decorations,
     
-  user_method VISUAL(%Visual::Graph::decorations) {
+    # String if set to "hidden", the labels indicating the lengths are hidden
+    LengthLabels => enum("hidden"),
+    
+  );
+  
+
+object RationalCurve {
+  
+  user_method VISUAL(%Visual::RationalCurve::decorations) {
     my ($this,$decor) = @_;
-    # We only need to compute the edge lengths for labelling the edges
-    # The edges with nodes in (0,..,n-1) get no label
-    # The other edges get the COEFFS as labels in the order they appear
-    my @labels = ();
-    my $coeffIndex = 0;
-    for my $i (0 .. ($this->GRAPH->EDGES->size()-1)) {
-      my $edge = $this->GRAPH->EDGES->[$i];
-      if($edge->[0] < $this->N_LEAVES) {
-	@labels = (@labels,"");
-      }
-      else {
-	my $length = $this->COEFFS->[$coeffIndex];
-	@labels = (@labels,"<$length>");
-	$coeffIndex++;
+    # Find out if edge labelling is turned off
+    my $showLengths = 1;
+    if(defined($$decor{"LengthLabels"})) {
+      if($$decor{"LengthLabels"} eq "hidden") {
+	$showLengths = 0;
       }
     }
-    $$decor{"EdgeLabels"} = \@labels;
+    if($showLengths) {
+      # We only need to compute the edge lengths for labelling the edges
+      # The edges with nodes in (0,..,n-1) get no label
+      # The other edges get the COEFFS as labels in the order they appear
+      my @labels = ();
+      my $coeffIndex = 0;
+      for my $i (0 .. ($this->GRAPH->EDGES->size()-1)) {
+	my $edge = $this->GRAPH->EDGES->[$i];
+	if($edge->[0] < $this->N_LEAVES) {
+	  @labels = (@labels,"");
+	}
+	else {
+	  my $length = $this->GRAPH_EDGE_LENGTHS->[$coeffIndex];
+	  @labels = (@labels,"<$length>");
+	  $coeffIndex++;
+	}
+      }
+      $$decor{"EdgeLabels"} = \@labels;
+    }
+    delete($$decor{"LengthLabels"});
     $this->GRAPH->VISUAL($decor);
   }
-  #precondition: GRAPH
+  
 }

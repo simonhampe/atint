@@ -21,9 +21,9 @@
 # a function that tests termination of all functions in a-tint.
 #####################################################################
 
-IMPORT common
+IMPORT common graph
 
-USE fan matroid
+USE fan matroid 
 #IMPORT polytope 
 
 file_suffix atint
@@ -44,6 +44,7 @@ INCLUDE
   intersection.rules
   RationalCurve.rules
   RationalCurve_visual.rules
+  Bergman_Rincon.rules
   
 ## TESTRUN FUNCTION #######################
 

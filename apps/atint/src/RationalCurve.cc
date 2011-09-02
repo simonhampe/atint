@@ -297,10 +297,14 @@ namespace polymake { namespace atint {
   }
   
   //Documentation see perl wrapper
-  perl::Object graphFromMetric(Vector<Rational> metric) {
+  perl::ListReturn graphFromMetric(Vector<Rational> metric) {
     perl::Object curve = curveAndGraphFromMetric(metric);
     perl::Object graph = curve.give("GRAPH"); 
-    return graph;
+    Vector<Rational> lengths = curve.give("COEFFS");
+    perl::ListReturn result;
+      result << graph;
+      result << lengths;
+    return result;
   }
   
   /**
@@ -551,7 +555,8 @@ namespace polymake { namespace atint {
 		    "# @param Vector<Rational> v A vector of length (n over 2). Its entries are "
 		    "# interpreted as the distances d(i,j) ordered lexicographically according to i,j. However, they need not be positive, as long as v is equivalent to a proper "
 		    "# metric modulo leaf lengths."
-		    "# @return graph::Graph",
+		    "# @return An array containing first the graph::Graph and then a Vector<Rational>, containing "
+		    "# the lengths of the bounded edges (in the order they appear in EDGES)",
 		    &graphFromMetric,"curve_graph_from_metric(Vector<Rational>)");
   
   UserFunction4perl("# @category Tropical geometry"

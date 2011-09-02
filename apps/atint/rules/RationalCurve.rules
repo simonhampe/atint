@@ -84,6 +84,11 @@ object RationalCurve {
   # as bounded edges.
   property GRAPH : graph::Graph;
   
+  # @category Basic properties
+  # Contains the lengths of the edges of [[GRAPH]] that represent bounded edges of the curve.
+  # The coefficients appear in the order that the corr. edges appear in [[EDGES]].
+  property GRAPH_EDGE_LENGTHS : Vector<Rational>;
+  
   # ----------------------- RULES -------------------------------------
   
   rule SETS, COEFFS : INPUT_SETS, INPUT_COEFFS, N_LEAVES {
@@ -172,8 +177,10 @@ object RationalCurve {
     $this->N_LEAVES = $a[scalar(@a)-1];
   }
   
-  rule GRAPH: SETS,COEFFS {
-    $this->GRAPH = curve_graph_from_metric($this->metric_vector());
+  rule GRAPH, GRAPH_EDGE_LENGTHS: SETS,COEFFS {
+    my @a = curve_graph_from_metric($this->metric_vector());
+    $this->GRAPH = $a[0];
+    $this->GRAPH_EDGE_LENGTHS = $a[1];
   }
   
   # -------------------------- METHODS --------------------------------
