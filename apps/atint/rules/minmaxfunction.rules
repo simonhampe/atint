@@ -324,6 +324,10 @@ object MinMaxFunction {
     $this->LINEARITY_DOMAINS = fan::normal_fan($newt);
   }
   
+  rule USES_MIN : FUNCTION_MATRIX {
+    $this->USES_MIN = FALSE;
+  }
+  
   ## METHODS #################################################################################################
   
 #---- We don't need this to compute the domain of linearity ----

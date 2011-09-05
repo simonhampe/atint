@@ -210,6 +210,7 @@ namespace polymake { namespace atint {
       Matrix<Rational> lineality_space = fan.give("LINEALITY_SPACE");
       Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
       IncidenceMatrix<> codimOneCones = uses_homog? fan.give("CMPLX_CODIM_1_FACES") : fan.give("CODIM_1_FACES");
+      IncidenceMatrix<> maximalCones = uses_homog? fan.give("CMPLX_MAXIMAL_CONES") : fan.give("MAXIMAL_CONES");
       IncidenceMatrix<> coneIncidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
       Array<Integer> tropicalWeights = fan.give("TROPICAL_WEIGHTS");
       Map<int, Map<int, Vector<Rational> > > lnFunctionVector = fan.give("LATTICE_NORMAL_FCT_VECTOR");
@@ -218,7 +219,7 @@ namespace polymake { namespace atint {
       //If the fan only consists of the lineality space, the divisor is empty
       int noOfRays = rays.rows();
       if(noOfRays == 0) {
-	return perl::Object("WeightedComplex");
+	return CallPolymakeFunction("zero_cycle");
       }
       
       dbgtrace << "Making sure values have right length" << endl;
@@ -276,6 +277,11 @@ namespace polymake { namespace atint {
 	    }
 	    newcones = newcones | newConeRays;
 	}
+      }
+      
+      //If the lineality space is the codim 1 cone and its weight is 0, the divisor is still empty
+      if(newweights.dim() == 0) {
+	return CallPolymakeFunction("zero_cycle");
       }
       
       dbgtrace << "Done\n" << endl;

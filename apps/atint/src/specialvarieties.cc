@@ -148,15 +148,51 @@ namespace polymake { namespace atint {
 	bergmanCones = bergmanCones | raySet;
       }
       
-      dbgtrace << "Facets are: " << facets.minor(All,~scalar2set(0)) << endl;
+      //Reorder rays: Not all rays might be used in cones, so we have to go through all cones
+      // and recompute indices
+      Vector<int> newIndices(facets.rows()); //contains the new indices of the rays
+	for(int i = 0; i < newIndices.dim(); i++) { newIndices[i] = -1;}
+      Vector<Set<int> > reorderedCones; //contains the cones in term of the reordered rays
+      int nextindex = 0;
+      Matrix<Rational> bergmanRays(0,facets.cols());
+      for(int c = 0; c < bergmanCones.dim(); c++) {
+	Set<int> crays = bergmanCones[c];
+	Set<int> newcone;
+	//Copy all rays of the cone 
+	for(Entire<Set<int> >::iterator r = entire(crays); !r.at_end(); r++) {
+	    if(newIndices[*r] == -1) {
+	      newIndices[*r] = nextindex;
+	      newcone += nextindex;
+	      bergmanRays /= facets.row(nextindex);
+	      nextindex++;	      
+	    }
+	    else {
+	      newcone += newIndices[*r];
+	    }
+	}
+	reorderedCones |= newcone;
+      }
+      bergmanCones = reorderedCones;
+      if(bergmanRays.rows() > 0) {
+	bergmanRays = bergmanRays.minor(All,~scalar2set(0));
+      }
+      else {
+	bergmanRays = Matrix<Rational>(0,facets.cols()-1);
+      }
+      
+      dbgtrace << "Rays are: " << bergmanRays << endl;
       dbgtrace << "Cones are: " << bergmanCones << endl;
       dbgtrace << "Weights are: " << bergmanWeights << endl;
       dbgtrace << "Lineality is: " << bergmanLineality << endl;
       
-      Matrix<Rational> bergmanRays = facets.minor(All,~scalar2set(0));
+      if(bergmanRays.rows() == 0 && bergmanLineality.rows() == 0) {
+	return perl::Object("WeightedComplex");
+      }
+      
       if(modOutLineality) {
+	int cols = (bergmanRays.rows() > 0? bergmanRays.cols() : bergmanLineality.cols());
 	//Create the projection matrix
-	Matrix<Rational> unitMatrix = unit_matrix<Rational>(bergmanRays.cols()-1);
+	Matrix<Rational> unitMatrix = unit_matrix<Rational>(cols-1);
 	Matrix<Rational> projectionMatrix(0,unitMatrix.cols());
 	
 	//Insert a -1's- vector at the right position
@@ -170,12 +206,14 @@ namespace polymake { namespace atint {
 	
 	dbgtrace << "Projection matrix is " << projectionMatrix << endl;
 			   
-	bergmanRays = bergmanRays * projectionMatrix;
+	if(bergmanRays.rows() > 0) bergmanRays = bergmanRays * projectionMatrix;
 	
 	//Apply projection to the lineality space, but make sure the remaining rows are a basis
-	bergmanLineality = bergmanLineality * projectionMatrix;
-	Set<int> rbasis = basis_rows(bergmanLineality);
-	bergmanLineality = bergmanLineality.minor(rbasis,All);
+	if(bergmanLineality.rows() > 0) {
+	  bergmanLineality = bergmanLineality * projectionMatrix;
+	  Set<int> rbasis = basis_rows(bergmanLineality);
+	  bergmanLineality = bergmanLineality.minor(rbasis,All);
+	}
       }
       
       perl::Object result("WeightedComplex");
