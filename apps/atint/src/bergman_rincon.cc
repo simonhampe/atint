@@ -34,9 +34,9 @@
 
 namespace polymake { namespace atint { 
   
-  using namespace atintlog::donotlog;
+  //using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+  using namespace atintlog::dotrace;
   
   /**
    @brief Takes a matrix and computes all sets of column indices, s.t. the corresponding column vectors form a basis of the column space of the matrix.
@@ -115,12 +115,13 @@ namespace polymake { namespace atint {
    */
   inline Set<int> computeFkLinear(const IncidenceMatrix<> &bases, int mybase, int k, const Matrix<Rational> &m) {
     Set<int> Fk;
+    Vector<int> B(bases.row(mybase));
     //Compute the row reduced matrix s.t. the minor corresponding to mybase is the identity
     Matrix<Rational> I = inv(m.minor(All,bases.row(mybase)));
     Matrix<Rational> A = I * m;
     for(int i = 0; i < A.rows(); i++) {
-      if(A(i,k) != 0 && i != k) {
-	Fk += i;
+      if(A(i,k) != 0) {
+	Fk += B[i];
       }
     }
     return Fk;
@@ -135,7 +136,143 @@ namespace polymake { namespace atint {
     @return WeightedComplex The bergman fan of the matroid, including the (1,..,1)-lineality space.
   */
   perl::Object bergman_fan(int n, const IncidenceMatrix<> &bases, bool is_linear, const Matrix<Rational> &m) {
-    
+      //Prepare result variables
+      Matrix<Rational> rays(0,n);
+      Vector<Set<int> > cones;
+      Matrix<Rational> lineality(0,n);
+	lineality /= ones_vector<Rational>(n);
+      Vector<Integer> weights;
+      
+      //Now compute cones for each basis
+      Set<int> complete = sequence(0,n);
+      int count = 0;
+      for(int B = 0; B < bases.rows(); B++) {
+	//Initialize fundamental circuits
+	Vector<int> complement(complete - bases.row(B));
+	Vector<Set<int> > Fksets (complement.dim());
+	Vector<Vector<int > > Fklists(complement.dim());
+	dbgtrace << "Computing for basis " << bases.row(B) << endl;
+	for(int k = 0; k < Fksets.dim(); k++) {
+	  Fksets[k] = is_linear? computeFkLinear(bases,B,complement[k],m) :
+				 computeFk(bases,B,complement[k]);
+	  Fklists[k] = Vector<int>(Fksets[k]);
+	  dbgtrace << "For k = " << complement[k] << " Fk = " << Fklists[k] << endl;
+	}
+	
+	//Now we go through all the regressive compatible pairs (p,L)
+	Vector<int> p(complement.dim()); //contains the images p(k)
+	Vector<int> L; //the ordering on B (first element = smallest, etc)
+	int k = 0; //The k we currently define an image for (actually: index in complement)
+	//For given k, iterations[0]..iterations[k] describe the iterations for all k' <= k
+	// Semantics: (-1,-1): We just started with this k, check F_k cap L
+	// (0,-1): Start adding elements from F_k \ L
+	// (b,x): In the last iteration we took the element at index b in F_k and inserted it
+	// before position x. Find the next valid position
+	Vector<std::pair<int,int> > iterations(complement.dim());
+	for(int t = 0; t < iterations.dim(); t++) {
+	  iterations[t] = std::make_pair(-1,-1);
+	}	
+	while(k != -1) {
+	    //If we're through all k's, make a cone -------------------------
+	    if(k >= complement.dim()) {
+	      //TODO: Make a cone
+	      dbgtrace << "Compatible pair: \n: Order: " << L <<"\np: " << p << endl;
+	      count++;
+	      k--;
+	      continue;
+	    }
+	    //Check F_k \cap L for elements --------------------------------
+	    if(iterations[k].first == -1) {
+	      dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
+	      iterations[k] = std::make_pair(0,-1); 
+	      int newimage = -1;
+	      for(int l = 0; l < L.dim(); l++) {
+		if(Fksets[k].contains(L[l])) {
+		    newimage = L[l];break;
+		}
+	      }
+	      if(newimage >= 0) {
+		p[k] = newimage;
+		k++;
+		continue;
+	      }
+	    }
+	    //Go through the basis elements -------------------------------
+	    //Remove the last b we added
+	    if(iterations[k].second != -1) {
+	      L = L.slice(~scalar2set(iterations[k].second));
+	    }
+	    dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
+	    dbgtrace << "L is " << L << endl;
+	    //Find the next valid (b,x)
+	    int b = iterations[k].first;
+	    int x = iterations[k].second;
+	    bool found = false;
+	    do {
+	      x++;
+	      //If we arrive after the last position, take the next b
+	      if(x > L.dim()) {
+		x = 0; b++;
+	      }
+	      //Check that b is not in L
+	      bool binL = false;
+	      for(int l = 0; l < L.dim(); l++) {
+		if(Fklists[k][b] == L[l]) {
+		  binL = true; break;
+		}
+	      }
+	      if(binL) {
+		x = 0; b++;
+	      }
+	      //Check that b is smaller than k (and the list size)
+	      if(b >= Fklists[k].dim()) {
+		break;
+	      }
+	      if(Fklists[k][b] >= complement[k]) {
+		break;
+	      }
+	      //Check validity of b
+	      bool isvalid = true;
+	      for(int l = 0; isvalid && l < complement.dim() && complement[l] < complement[k]; l++) {
+		if(Fksets[l].contains(Fklists[k][b])) {
+		    //check if (p(complement[l]) > b), i.e. p(c[l]) occurs at position x or later
+		    for(int y = x; y < L.dim(); y++) {
+		      if(L[y] == p[l]) {
+			isvalid = false; break;
+		      }
+		    }
+		}
+	      }
+	      if(isvalid) {
+		//If we arrive here, we found a valid position
+		found = true; break;
+	      }
+	    } while(true);
+	    //If we found a position, continue the iteration
+	    if(found) {
+	      p[k] = Fklists[k][b];
+	      iterations[k] = std::make_pair(b,x);
+	      Vector<int> newL(L.dim()+1);
+		for(int y = 0; y < x; y++) newL[y] = L[y];
+		newL[x] = Fklists[k][b];
+		for(int y = x+1; y < newL.dim(); y++) newL[y] = L[y-1];
+	      L = newL;
+	      k++;
+	      continue;
+	    }
+	    //Otherwise step down
+	    else {
+	      iterations[k] = std::make_pair(-1,-1);
+	      k--;
+	      continue;
+	    }
+	    
+	} //End compute cones
+	
+      } //End for all bases
+      dbgtrace << "Found " << count << " pairs " << endl;
+      return perl::Object("WeightedComplex");
+      
   }
   
   
@@ -168,7 +305,8 @@ namespace polymake { namespace atint {
   
   Function4perl(&computeMatrixBases,"computeMatrixBases(Matrix<Rational>)");
   Function4perl(&computeMatrixColoops,"computeMatrixColoops(Matrix<Rational>)");
-//   Function4perl(&computeFkLinear,"computeFk(IncidenceMatrix, $,$,Matrix<Rational>)");
+  Function4perl(&computeFkLinear,"computeFk(IncidenceMatrix, $,$,Matrix<Rational>)");
+  Function4perl(&bergman_fan,"computeBergmanFan($,IncidenceMatrix,$,Matrix<Rational>)");
 //   Function4perl(&test,"test(IncidenceMatrix, $)");
 //   Function4perl(&test2,"test2(IncidenceMatrix, $,Matrix<Rational>)");
   
