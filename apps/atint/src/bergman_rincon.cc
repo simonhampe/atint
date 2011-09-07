@@ -35,8 +35,8 @@
 namespace polymake { namespace atint { 
   
   //using namespace atintlog::donotlog;
-  //using namespace atintlog::dolog;
-  using namespace atintlog::dotrace;
+  using namespace atintlog::dolog;
+  //using namespace atintlog::dotrace;
   
   /**
    @brief Takes a matrix and computes all sets of column indices, s.t. the corresponding column vectors form a basis of the column space of the matrix.
@@ -128,6 +128,87 @@ namespace polymake { namespace atint {
   }
   
   /**
+   @brief Given a regressive compatible pair (p,L) on a basis B, computes the corresponding cone
+   @param int n The number of elements of the matroid ground set
+   @param Matrix<Rational> rays A reference to the ray matrix. New rays will be appended
+   @param Set<int> B The basis on which the pair is defined
+   @param Vector<Set<int> > Fksets The sets F_k for all k not in B
+   @param Vector<int> p The map p: [n] - B -> B, p[i] = image of complement[i]
+   @param Vector<int> L The ordering on Im(p) (first = smallest)
+   @param Vector<Set<int> > Qb The i-th entry (where i in B) contains the preimage of i under p
+   @return The ray indices of the cone in the new ray matrix
+  */
+  inline Set<int> computeCone(int n, Matrix<Rational> &rays, const Set<int> &B, const Vector<Set<int> > &Fksets, const Vector<int> &p, const Vector<int> &L, const Vector<Set<int> > &Qb) {
+    
+    //First we compute the ray w_b for each b in B
+    Matrix<Rational> wbs(0,n);
+    //Compute the complement of L (i.e. the singleton blocks of the defining tree)
+    Set<int> Lcomp = B - Set<int>(L);
+    dbgtrace << "Computing leaves" << endl;
+    //For each element in L find the attached leafs
+    Vector<Set<int> > leafsAttached(L.dim());
+      for(int l = 0; l < leafsAttached.dim(); l++) { leafsAttached[l] = Set<int>();}
+    for(Entire<Set<int> >::const_iterator c = entire(Lcomp); !c.at_end(); c++) {
+      //Start from the right end of L to find the correct node
+      bool found = false;
+      for(int l = L.dim() -1; l >= 0 && !found; l--) {
+	//Find a complement element k that maps to L[l] and s.t. F_k contains c
+	for(int k = 0; k < Fksets.dim(); k++) {
+	    if(p[k] == L[l]) {
+	      if(Fksets[k].contains(*c)) {
+		found = true;
+		leafsAttached[l] += *c;
+		break;
+	      }
+	    }
+	}
+      }
+      //Also, we can already compute the ray w_c
+      wbs /= unit_vector<Rational>(n,*c);
+    } //End attach leaves
+    
+    dbgtrace << "Computing block vectors" << endl;
+    
+    //Now compute the rays w_b for b in L (except for the smallest one, which gives (1,..1))
+    for(int b = 1; b < L.dim(); b++) {
+      Vector<Rational> wb(n);
+      for(int c = b; c < L.dim(); c++) {
+	wb[L[c]] = 1;
+	//Add all elements from Q_c and the leaves
+	Set<int> X = Qb[L[c]] + leafsAttached[c];
+	for(Entire<Set<int> >::iterator x = entire(X); !x.at_end(); x++) {
+	  wb[*x] = 1;
+	}
+      }
+      wbs /= wb;
+    }
+    
+    dbgtrace << "Cone rays: " << wbs << endl;
+    dbgtrace << "Checking rays" << endl;
+    
+    //Now we check for existence of the rays and compute indices
+    Set<int> result;
+    for(int r = 0; r < wbs.rows(); r++) {
+      int index = -1;
+      for(int oray = 0; oray < rays.rows(); oray++) {
+	if(rays.row(oray) == wbs.row(r)) {
+	  index = oray; break;
+	}
+      }
+      if(index >= 0) {
+	result += index;
+      }
+      else {
+	rays /= wbs.row(r);
+	int newindex = rays.rows()-1;
+	result += newindex;
+      }
+    }
+    dbgtrace << "Indices: " << result << endl;
+    return result;
+  }
+  
+  /**
     @brief Computes the bergman fan of a matroid that is supposed to be loop- and coloop-free
     @param int n The number of elements of the ground set of the matroid
     @param IncidenceMatrix<> bases The bases of the matroid
@@ -145,23 +226,28 @@ namespace polymake { namespace atint {
       
       //Now compute cones for each basis
       Set<int> complete = sequence(0,n);
-      int count = 0;
       for(int B = 0; B < bases.rows(); B++) {
 	//Initialize fundamental circuits
 	Vector<int> complement(complete - bases.row(B));
-	Vector<Set<int> > Fksets (complement.dim());
-	Vector<Vector<int > > Fklists(complement.dim());
+	Vector<Set<int> > Fksets (complement.dim()); //Element i is the set F_[complement[i]]
+	Vector<Vector<int > > Fklists(complement.dim()); //Same set, but as list
 	dbgtrace << "Computing for basis " << bases.row(B) << endl;
 	for(int k = 0; k < Fksets.dim(); k++) {
 	  Fksets[k] = is_linear? computeFkLinear(bases,B,complement[k],m) :
 				 computeFk(bases,B,complement[k]);
 	  Fklists[k] = Vector<int>(Fksets[k]);
-	  dbgtrace << "For k = " << complement[k] << " Fk = " << Fklists[k] << endl;
+	  dbglog << "For k = " << complement[k] << " Fk = " << Fklists[k] << endl;
 	}
 	
+	//i-th element will contain all the k not in B mapped to i by p
+	Vector<Set<int> > Qb(n); 
+	  for(int l = 0; l < Qb.dim(); l++) { Qb[l] = Set<int>();}
+		
 	//Now we go through all the regressive compatible pairs (p,L)
-	Vector<int> p(complement.dim()); //contains the images p(k)
-	Vector<int> L; //the ordering on B (first element = smallest, etc)
+	
+	// Contains the images p(k), more precisely: p[i] is the image of complement[i]
+	Vector<int> p(complement.dim()); 
+	Vector<int> L; //the ordering on Im(p) (first element = smallest, etc)
 	int k = 0; //The k we currently define an image for (actually: index in complement)
 	//For given k, iterations[0]..iterations[k] describe the iterations for all k' <= k
 	// Semantics: (-1,-1): We just started with this k, check F_k cap L
@@ -175,24 +261,30 @@ namespace polymake { namespace atint {
 	while(k != -1) {
 	    //If we're through all k's, make a cone -------------------------
 	    if(k >= complement.dim()) {
-	      //TODO: Make a cone
-	      dbgtrace << "Compatible pair: \n: Order: " << L <<"\np: " << p << endl;
-	      count++;
+	      dbglog << "Compatible pair: \n: Order: " << L <<"\np: " << p << endl;
+	      dbgtrace << "Qb: " << Qb << endl;
+	      cones |= computeCone(n,rays,bases.row(B),Fksets,p,L,Qb);
 	      k--;
 	      continue;
 	    }
+	    //Remove k from the preimage of its image
+	    Qb[p[k]] -= complement[k];
+	    
 	    //Check F_k \cap L for elements --------------------------------
+	    int smallestInL = -1; //contains the smallest element in Fk cap L (or -1 if none)
+	    int smallestx = -1; // contains the position of the above element in L
 	    if(iterations[k].first == -1) {
 	      dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
 	      iterations[k] = std::make_pair(0,-1); 
-	      int newimage = -1;
 	      for(int l = 0; l < L.dim(); l++) {
 		if(Fksets[k].contains(L[l])) {
-		    newimage = L[l];break;
+		  smallestInL = L[l]; break;
+		  smallestx = l;
 		}
 	      }
-	      if(newimage >= 0) {
-		p[k] = newimage;
+	      if(smallestInL >= 0) {
+		p[k] = smallestInL;
+		Qb[smallestInL] += complement[k];
 		k++;
 		continue;
 	      }
@@ -201,6 +293,14 @@ namespace polymake { namespace atint {
 	    //Remove the last b we added
 	    if(iterations[k].second != -1) {
 	      L = L.slice(~scalar2set(iterations[k].second));
+	      //Have to recompute minimal element from Fk cap L (any other b from Fk must
+	      //be placed before that element
+	      smallestx = -1;	      
+	      for(int l = 0; l < L.dim(); l++) {
+		if(Fksets[k].contains(L[l])) {
+		  smallestx = l; break;
+		}
+	      }
 	    }
 	    dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
 	    dbgtrace << "L is " << L << endl;
@@ -208,10 +308,13 @@ namespace polymake { namespace atint {
 	    int b = iterations[k].first;
 	    int x = iterations[k].second;
 	    bool found = false;
+	    if(smallestx < 0) {
+	      smallestx = L.dim();
+	    }
 	    do {
 	      x++;
-	      //If we arrive after the last position, take the next b
-	      if(x > L.dim()) {
+	      //If we arrive after the last valid position, take the next b
+	      if(x > smallestx) {
 		x = 0; b++;
 	      }
 	      //Check that b is not in L
@@ -233,7 +336,7 @@ namespace polymake { namespace atint {
 	      }
 	      //Check validity of b
 	      bool isvalid = true;
-	      for(int l = 0; isvalid && l < complement.dim() && complement[l] < complement[k]; l++) {
+	      for(int l = 0; isvalid && l < complement.dim() && l < k; l++) {
 		if(Fksets[l].contains(Fklists[k][b])) {
 		    //check if (p(complement[l]) > b), i.e. p(c[l]) occurs at position x or later
 		    for(int y = x; y < L.dim(); y++) {
@@ -251,6 +354,7 @@ namespace polymake { namespace atint {
 	    //If we found a position, continue the iteration
 	    if(found) {
 	      p[k] = Fklists[k][b];
+	      Qb[Fklists[k][b]] += complement[k];
 	      iterations[k] = std::make_pair(b,x);
 	      Vector<int> newL(L.dim()+1);
 		for(int y = 0; y < x; y++) newL[y] = L[y];
@@ -270,9 +374,14 @@ namespace polymake { namespace atint {
 	} //End compute cones
 	
       } //End for all bases
-      dbgtrace << "Found " << count << " pairs " << endl;
-      return perl::Object("WeightedComplex");
       
+      //Create fan
+      perl::Object result("WeightedComplex");
+	result.take("RAYS") << rays;
+	result.take("MAXIMAL_CONES") << cones;
+	result.take("LINEALITY_SPACE") << lineality;
+	result.take("TROPICAL_WEIGHTS") << ones_vector<Integer>(cones.dim());
+      return result;	
   }
   
   

@@ -163,7 +163,7 @@ namespace polymake { namespace atint {
 	    if(newIndices[*r] == -1) {
 	      newIndices[*r] = nextindex;
 	      newcone += nextindex;
-	      bergmanRays /= facets.row(nextindex);
+	      bergmanRays /= facets.row(*r);
 	      nextindex++;	      
 	    }
 	    else {
