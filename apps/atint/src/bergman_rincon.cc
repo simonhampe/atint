@@ -34,8 +34,8 @@
 
 namespace polymake { namespace atint { 
   
-  //using namespace atintlog::donotlog;
-  using namespace atintlog::dolog;
+  using namespace atintlog::donotlog;
+  //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
   
   /**
@@ -292,18 +292,19 @@ namespace polymake { namespace atint {
 	    //Go through the basis elements -------------------------------
 	    //Remove the last b we added
 	    if(iterations[k].second != -1) {
-	      L = L.slice(~scalar2set(iterations[k].second));
-	      //Have to recompute minimal element from Fk cap L (any other b from Fk must
-	      //be placed before that element
-	      smallestx = -1;	      
-	      for(int l = 0; l < L.dim(); l++) {
-		if(Fksets[k].contains(L[l])) {
-		  smallestx = l; break;
-		}
-	      }
+	      L = L.slice(~scalar2set(iterations[k].second));  
 	    }
 	    dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
 	    dbgtrace << "L is " << L << endl;
+	    dbgtrace << "Smallest x is " << smallestx << endl; 
+	    //Have to recompute minimal element from Fk cap L (any other b from Fk must
+	    //be placed before that element)
+	    smallestx = -1;	      
+	    for(int l = 0; l < L.dim(); l++) {
+	      if(Fksets[k].contains(L[l])) {
+		smallestx = l; break;
+	      }
+	    }
 	    //Find the next valid (b,x)
 	    int b = iterations[k].first;
 	    int x = iterations[k].second;
@@ -384,40 +385,146 @@ namespace polymake { namespace atint {
       return result;	
   }
   
+  /**
+   @brief Takes a bergman fan of a matrix or general matroid and computes the final result, i.e. adds lineality spaces for missing coloops and mods out the lineality space (1,..1) if necessary
+   @param perl::Object fan The bergman fan
+   @param Set<int> coloops The element indices that were removed from the ground set, since they were coloops
+   @param bool modOutLineality Whether the lineality space (1,..1) should be modded out. See documentation of prepareBergmanMatrix for details
+   @param int projCoordinate The coordinate we use for projecting. See documentation of prepareBergmanMatrix for details
+   */
+  perl::Object modify_fan(perl::Object fan, Set<int> coloops, bool modOutLineality, int projCoordinate) {
+    Matrix<Rational> bergman_rays = fan.give("RAYS");
+    Matrix<Rational> bergman_lineality = fan.give("LINEALITY_SPACE");
+    IncidenceMatrix<> cones = fan.give("MAXIMAL_CONES");
+    Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
+      
+    //Next, we have to add appropriate zero columns for each coloop and a lineality space
+    for(Entire<Set<int> >::iterator c = entire(coloops); !c.at_end(); c++) {
+      Matrix<Rational> newrays(0,bergman_rays.cols());
+      Matrix<Rational> newlin(0,bergman_lineality.cols());
+      for(int i = 0; i < *c; i++) {
+	newrays |= bergman_rays.col(i);
+	newlin |= bergman_lineality.col(i);
+      }
+      newrays = newrays | zero_vector<Rational>(bergman_rays.rows());
+      newlin = newlin | ones_vector<Rational>(bergman_lineality.rows());
+      for(int i = *c; i < bergman_rays.cols(); i++) {
+	newrays |= bergman_rays.col(i);
+	newlin |= bergman_lineality.col(i);
+      }
+      bergman_rays = newrays;
+      bergman_lineality = newlin;
+      bergman_lineality /= unit_vector<Rational>(bergman_lineality.cols(),*c);
+    }
+    
+    //Finally, we mod out the lineality space (1..1) if necessary
+    if(modOutLineality) {
+	int cols = bergman_lineality.cols();
+	if(projCoordinate >= cols) projCoordinate = cols-1;
+	//Create the projection matrix
+	Matrix<Rational> unitMatrix = unit_matrix<Rational>(cols-1);
+	Matrix<Rational> projectionMatrix(0,unitMatrix.cols());
+	
+	//Insert a -1's- vector at the right position
+	if(projCoordinate > 0) {
+	    projectionMatrix /= unitMatrix.minor(sequence(0,projCoordinate),All);
+	}
+	projectionMatrix /= - ones_vector<Rational>(unitMatrix.cols());
+	if(projCoordinate < unitMatrix.rows()) {						
+	      projectionMatrix /= unitMatrix.minor(sequence(projCoordinate,unitMatrix.rows() -	projCoordinate),All);
+	}
+	
+	dbgtrace << "Projection matrix is " << projectionMatrix << endl;
+			   
+	if(bergman_rays.rows() > 0) bergman_rays = bergman_rays * projectionMatrix;
+	
+	//Apply projection to the lineality space, but make sure the remaining rows are a basis
+	bergman_lineality = bergman_lineality * projectionMatrix;
+	Set<int> rbasis = basis_rows(bergman_lineality);
+	bergman_lineality = bergman_lineality.minor(rbasis,All);
+      }
+	
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << bergman_rays;
+      result.take("LINEALITY_SPACE") << bergman_lineality;
+      result.take("MAXIMAL_CONES") << cones;
+      result.take("TROPICAL_WEIGHTS") << weights;
+    return result;
+  }
+  
+  /**
+   @brief Takes a matrix and computes its vector matroid's bergman fan
+   @param Matrix<Rational> m Any rational matrix
+   @param bool modOutLineality If set to TRUE, the lineality space is divided out before returning the fan. The next parameter specifies the exact modalities of the division. 
+   @param int projectionCoordinate An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. 
+   @return The bergman fan of the given matroid in non-homog. coordinates
+   */
+  perl::Object prepareBergmanMatrix(Matrix<Rational> m, bool modOutLineality, int projCoordinate) {
+    //First we check for loops - if there is one, the fan is empty - and coloops
+    Set<int> coloops;
+    for(int c = 0; c < m.cols(); c++) {
+      if(m.col(c) == zero_vector<Rational>(m.rows())) {
+	return CallPolymakeFunction("zero_cycle");
+      }
+      if(rank(m.minor(All,~scalar2set(c))) < m.rows()) {
+	coloops += c;
+      }
+    }
+    m = m.minor(All,~coloops);
+    //Now we make sure that m.cols = rank(m)
+    Set<int> rbasis = basis_rows(m);
+    m = m.minor(rbasis,All);
+    //Now we compute the bergman fan and extract values
+    IncidenceMatrix<> I = computeMatrixBases(m);
+    perl::Object fan = bergman_fan(m.cols(),I,1,m);
+    return modify_fan(fan,coloops, modOutLineality, projCoordinate);
+  }
+  
+  /**
+   @brief Takes a matroid and computes its bergman fan
+   @param int n The number of elements of the ground set
+   @param IncidenceMatrix<> bases The bases of the matroid
+   @param bool modOutLineality Same as in prepareBergmanMatrix
+   @param int projCoordinate Same as in prepareBergmanMatrix
+   @return The bergman fan of the given matroid in non-homog. coordinates
+   */
+  perl::Object prepareBergmanMatroid(int n, IncidenceMatrix<> bases, bool modOutLineality, int projCoordinate) {
+    //First we check for loops and coloops
+    Set<int> uniBases;
+    Set<int> coloops = sequence(0,n);
+    for(int b = 0; b < bases.rows() && (uniBases.size() < n || coloops.size() > 0); b++) {
+      uniBases += bases.row(b);
+      coloops *= bases.row(b);
+    }
+    //If it has any loops, the fan is empty
+    if(uniBases.size() < n) {
+      return CallPolymakeFunction("zero_cycle");
+    }
+    bases = bases.minor(All,~coloops);
+    perl::Object fan = bergman_fan(n-coloops.size(),bases,0,Matrix<Rational>());
+    return modify_fan(fan,coloops,modOutLineality,projCoordinate);
+  }
+   
+  UserFunction4perl("# @category Linear algebra"
+		    "# Computes a list of sets of column indices of a matrix such that"
+		    "# the corresponding column sets form a basis of the column space"
+		    "# @param Matrix<Rational> m "
+		    "# @return Set<int> An array of Set<int>",
+		    &computeMatrixBases,"computeMatrixBases(Matrix<Rational>)");
+  UserFunction4perl("# @category Linear algebra"
+		    "# Computes a list of column indices of a matrix such that "
+		    "# the corresponding columns are contained in every column basis of the"
+		    "# column space. Is equal to the intersection of all sets returned by"
+		    "# [[computeMatrixBases]]"
+		    "# @param Matrix<Rational> m"
+		    "# @return Set<int> ",
+		    &computeMatrixColoops,"computeMatrixColoops(Matrix<Rational>)");
   
   
-//   void test(IncidenceMatrix<> bases, int n) {
-//     //Go through all bases
-//     Set<int> complete = sequence(0,n);
-//     for(int i = 0; i < bases.rows(); i++) {
-//       //Compute complement
-//       Set<int> B = bases.row(i);
-//       Set<int> C = complete - B;
-//       for(Entire<Set<int> >::iterator k = entire(C); !k.at_end(); k++) {
-// 	computeFk(bases, i, *k);
-//       }
-//     }
-//   }
-//   
-//   void test2(IncidenceMatrix<> bases, int n, Matrix<Rational> m) {
-//     //Go through all bases
-//     Set<int> complete = sequence(0,n);
-//     for(int i = 0; i < bases.rows(); i++) {
-//       //Compute complement
-//       Set<int> B = bases.row(i);
-//       Set<int> C = complete - B;
-//       for(Entire<Set<int> >::iterator k = entire(C); !k.at_end(); k++) {
-// 	computeFkLinear(bases, i, *k,m);
-//       }
-//     }
-//   }
-  
-  Function4perl(&computeMatrixBases,"computeMatrixBases(Matrix<Rational>)");
-  Function4perl(&computeMatrixColoops,"computeMatrixColoops(Matrix<Rational>)");
   Function4perl(&computeFkLinear,"computeFk(IncidenceMatrix, $,$,Matrix<Rational>)");
   Function4perl(&bergman_fan,"computeBergmanFan($,IncidenceMatrix,$,Matrix<Rational>)");
-//   Function4perl(&test,"test(IncidenceMatrix, $)");
-//   Function4perl(&test2,"test2(IncidenceMatrix, $,Matrix<Rational>)");
+  Function4perl(&prepareBergmanMatrix,"prepareBergmanMatrix(Matrix<Rational>,$,$)");
+  Function4perl(&prepareBergmanMatroid,"prepareBergmanMatroid($,IncidenceMatrix,$,$)");
   
 }}
 

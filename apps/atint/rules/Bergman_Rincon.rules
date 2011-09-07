@@ -26,6 +26,37 @@ CREDIT bergman
   Felipe Rincón
   http://math.berkeley.edu/~felipe/bergman
   
+# @category Tropical geometry
+# Uses an algorithm by Felipe Rincón to compute the bergman fan of a linear matroid
+# @param Matrix<Rational> m Any rational matrix
+# @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+# fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
+# @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.
+# @return The bergman fan of the given matroid in non-homog. coordinates
 user_function bergman_fan_linear {
+  my ($matrix, $modOutLineality, $projectionCoordinate) = @_;
   
+  #Set default values if necessary
+  $modOutLineality = FALSE unless defined($modOutLineality);
+  $projectionCoordinate = $matrix->cols() -1 unless defined($projectionCoordinate);
+  
+  return prepareBergmanMatrix($matrix, ($modOutLineality eq TRUE || $modOutLineality == 1)? 1 : 0, $projectionCoordinate);
 }
+
+# @category Tropical geometry
+# Uses an algorithm by Felipe Rincón to compute the bergman fan of a general matroid
+# @param matroid::Matroid m Any matroid
+# @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+# fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
+# @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.
+# @return The bergman fan of the given matroid in non-homog. coordinates
+user_function bergman_fan_matroid {
+  my ($matroid, $modOutLineality,$projectionCoordinate) = @_;
+  
+  #Set default values if necessary
+  $modOutLineality = FALSE unless defined($modOutLineality);
+  $projectionCoordinate = $matroid->N_ELEMENTS -1 unless defined($projectionCoordinate);
+  
+    return prepareBergmanMatroid($matroid->N_ELEMENTS,new IncidenceMatrix($matroid->BASES), ($modOutLineality eq TRUE || $modOutLineality == 1)? 1 : 0, $projectionCoordinate);
+}
+
