@@ -76,55 +76,63 @@ namespace polymake { namespace atint {
   }
   
   /**
-    @brief For a given base B of a matroid and an element not in B, this method computes the set C(k,B)-{k}, where C(k,B) is the fundamental circuit of k over B
+    @brief For a given base B of a matroid, this method computes all the sets C(k,B)-{k}, where C(k,B) is the fundamental circuit of k over B
     @param IncidenceMatrix<> bases The set of all bases of the matroid
     @param int mybase The row index of the relevant base in the matrix bases
-    @param int k An element not in mybase
-    @return Set<int> The set C(k,B) - {k}
+    @param Vector<int> complement The complement of the basis as an ordered list
+    @return Vector<Set<int> > The set C(k,B) - {k}, in the order of complement
   */
-  inline Set<int> computeFk(const IncidenceMatrix<> &bases, int mybase, int k) {
-    Set<int> Fk;
-    //We go through all elements i of mybase and check if B - i + k is independent, i.e. equal to a basis
-    Set<int> B = bases.row(mybase);
-    for(Entire<Set<int> >::iterator i = entire(B); !i.at_end(); i++) {
-      Set<int> C = B; C -= (*i); C += k;
-      bool independent = false;
-      //Check if the set C is contained in any basis
-      for(int row = 0; row < bases.rows(); row++) {
-	if(row != mybase) {
-	  if(C == bases.row(row)) {
-	    independent = true;
-	    break;
+  Vector<Set<int> > computeFk(const IncidenceMatrix<> &bases, int mybase, Vector<int> complement) {
+    Vector<Set<int> > result;
+    for(int k = 0; k < complement.dim(); k++) {
+      Set<int> Fk;
+      //We go through all elements i of mybase and check if B - i + k is independent, i.e. equal to a basis
+      Set<int> B = bases.row(mybase);
+      for(Entire<Set<int> >::iterator i = entire(B); !i.at_end(); i++) {
+	Set<int> C = B; C -= (*i); C += complement[k];
+	bool independent = false;
+	//Check if the set C is contained in any basis
+	for(int row = 0; row < bases.rows(); row++) {
+	  if(row != mybase) {
+	    if(C == bases.row(row)) {
+	      independent = true;
+	      break;
+	    }
 	  }
 	}
+	if(independent) {
+	  Fk += (*i);
+	}
       }
-      if(independent) {
-	Fk += (*i);
-      }
+      result |= Fk;
     }
-    return Fk;
+    return result;
   }
   
   /**
-    @brief For a given base B of a linear matroid and an element not in B, this method computes the set C(k,B)-{k}, where C(k,B) is the fundamental circuit of k over B. This is much faster then computeFk for general matroids
+    @brief For a given base B of a linear matroid, this method computes all the sets C(k,B)-{k}, where C(k,B) is the fundamental circuit of k over B. This is much faster then computeFk for general matroids
     @param IncidenceMatrix<> bases The set of all bases of the matroid
     @param int mybase The row index of the relevant base in the matrix bases
-    @param int k An element not in mybase
     @param Matrix<Rational> m The matrix representing the matroid
-    @return Set<int> The set C(k,B) - {k}
+    @param Vector<int> complement The complement of the basis as an ordered list
+    @return Vector<Set<int> > The set C(k,B) - {k}, in the order of complement
    */
-  inline Set<int> computeFkLinear(const IncidenceMatrix<> &bases, int mybase, int k, const Matrix<Rational> &m) {
-    Set<int> Fk;
+  Vector<Set<int> > computeFkLinear(const IncidenceMatrix<> &bases, int mybase, const Matrix<Rational> &m, const Vector<int> &complement) {
+    Vector<Set<int> > result;
     Vector<int> B(bases.row(mybase));
     //Compute the row reduced matrix s.t. the minor corresponding to mybase is the identity
     Matrix<Rational> I = inv(m.minor(All,bases.row(mybase)));
     Matrix<Rational> A = I * m;
-    for(int i = 0; i < A.rows(); i++) {
-      if(A(i,k) != 0) {
-	Fk += B[i];
+    for(int k = 0; k < complement.dim(); k++) {
+      Set<int> Fk;
+      for(int i = 0; i < A.rows(); i++) {
+	if(A(i,complement[k]) != 0) {
+	  Fk += B[i];
+	}
       }
+      result |= Fk;
     }
-    return Fk;
+    return result;
   }
   
   /**
@@ -138,7 +146,7 @@ namespace polymake { namespace atint {
    @param Vector<Set<int> > Qb The i-th entry (where i in B) contains the preimage of i under p
    @return The ray indices of the cone in the new ray matrix
   */
-  inline Set<int> computeCone(int n, Matrix<Rational> &rays, const Set<int> &B, const Vector<Set<int> > &Fksets, const Vector<int> &p, const Vector<int> &L, const Vector<Set<int> > &Qb) {
+  Set<int> computeCone(int n, Matrix<Rational> &rays, const Set<int> &B, const Vector<Set<int> > &Fksets, const Vector<int> &p, const Vector<int> &L, const Vector<Set<int> > &Qb) {
     
     //First we compute the ray w_b for each b in B
     Matrix<Rational> wbs(0,n);
@@ -229,15 +237,23 @@ namespace polymake { namespace atint {
       for(int B = 0; B < bases.rows(); B++) {
 	//Initialize fundamental circuits
 	Vector<int> complement(complete - bases.row(B));
-	Vector<Set<int> > Fksets (complement.dim()); //Element i is the set F_[complement[i]]
-	Vector<Vector<int > > Fklists(complement.dim()); //Same set, but as list
-	dbgtrace << "Computing for basis " << bases.row(B) << endl;
+	Vector<Set<int> > Fksets = 
+	    is_linear? 	computeFkLinear(bases,B,m,complement) : 
+			computeFk(bases,B,complement);
+	
+	Vector<Vector<int> >  Fklists(Fksets.dim());
 	for(int k = 0; k < Fksets.dim(); k++) {
-	  Fksets[k] = is_linear? computeFkLinear(bases,B,complement[k],m) :
-				 computeFk(bases,B,complement[k]);
 	  Fklists[k] = Vector<int>(Fksets[k]);
-	  dbglog << "For k = " << complement[k] << " Fk = " << Fklists[k] << endl;
 	}
+// 	Vector<Set<int> > Fksets (complement.dim()); //Element i is the set F_[complement[i]]
+// 	Vector<Vector<int > > Fklists(complement.dim()); //Same set, but as list
+// 	dbgtrace << "Computing for basis " << bases.row(B) << endl;
+// 	for(int k = 0; k < Fksets.dim(); k++) {
+// 	  Fksets[k] = is_linear? computeFkLinear(bases,B,complement[k],m) :
+// 				 computeFk(bases,B,complement[k]);
+// 	  Fklists[k] = Vector<int>(Fksets[k]);
+// 	  dbglog << "For k = " << complement[k] << " Fk = " << Fklists[k] << endl;
+// 	}
 	
 	//i-th element will contain all the k not in B mapped to i by p
 	Vector<Set<int> > Qb(n); 
@@ -504,6 +520,15 @@ namespace polymake { namespace atint {
     perl::Object fan = bergman_fan(n-coloops.size(),bases,0,Matrix<Rational>());
     return modify_fan(fan,coloops,modOutLineality,projCoordinate);
   }
+/*  
+  void measure1(IncidenceMatrix<> bases, Matrix<Rational> m) {
+    for(int b = 0; b < bases.rows(); b++) {
+      Set<int> complement = sequence(0,m.cols()) - bases.row(b);
+      for(Entire<Set<int> >::iterator k = entire(complement); !k.at_end(); k++) {
+	computeFkLinear(bases,b,*k,m);	
+      }
+    }
+  }*/
    
   UserFunction4perl("# @category Linear algebra"
 		    "# Computes a list of sets of column indices of a matrix such that"
@@ -521,10 +546,11 @@ namespace polymake { namespace atint {
 		    &computeMatrixColoops,"computeMatrixColoops(Matrix<Rational>)");
   
   
-  Function4perl(&computeFkLinear,"computeFk(IncidenceMatrix, $,$,Matrix<Rational>)");
+  //Function4perl(&computeFkLinear,"computeFk(IncidenceMatrix, $,$,Matrix<Rational>)");
   Function4perl(&bergman_fan,"computeBergmanFan($,IncidenceMatrix,$,Matrix<Rational>)");
   Function4perl(&prepareBergmanMatrix,"prepareBergmanMatrix(Matrix<Rational>,$,$)");
   Function4perl(&prepareBergmanMatroid,"prepareBergmanMatroid($,IncidenceMatrix,$,$)");
+  //Function4perl(&measure1,"measure1(IncidenceMatrix, Matrix<Rational>)");
   
 }}
 

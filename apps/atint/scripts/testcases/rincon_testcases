@@ -39,7 +39,7 @@ my $A4 = new Matrix<Rational>([[0 ,2 ,0 ,0 ,1 ,0 ,0 ,1 ,1 ,0 ,0 ,2 ,0 ,0 ,1 ,0 ,
 [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1, 1 ,1 ,1 ,1 ,1 ,1]]);
   $A4 = null_space($A4);
 
-for(my $i = 1; $i <= 4; $i++) {
+for(my $i = 1; $i <= 3; $i++) {
   my $m;
   if($i == 1) { $m = $A1;}
   if($i == 2) { $m = $A2;}
@@ -51,4 +51,18 @@ for(my $i = 1; $i <= 4; $i++) {
   $t1 = Benchmark->new;
   print "Has ", $f->RAYS->rows, " rays and ", $f->MAXIMAL_CONES->rows, " maximal cones\n";
   print "Computation took ", timestr(timediff($t1,$t0)),"\n";
+
+  @a = @{atint::computeMatrixBases($m)};
+  $I = new IncidenceMatrix(@a);
+  my $mat = new matroid::Matroid(N_ELEMENTS=>($m->cols()), BASES=>\@a);
+
+  #$t0 = Benchmark->new;
+  #atint::bergman_fan_matroid($mat);
+  #$t1 = Benchmark->new;
+  #print "Computing as matroid took ", timestr(timediff($t1,$t0)),"\n";
+
+  #$t0 = Benchmark->new;
+  #atint::measure1($I,$m);
+  #$t1 = Benchmark->new;
+  #print "Fk-computation took ", timestr(timediff($t1,$t0)),"\n";
 }
