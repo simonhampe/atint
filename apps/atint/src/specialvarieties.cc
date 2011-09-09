@@ -38,6 +38,8 @@ namespace polymake { namespace atint {
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     //Documentation: see specialvarieties.h
     perl::Object tropical_lnk(const int n, const int k) {
       
@@ -92,6 +94,8 @@ namespace polymake { namespace atint {
       return fan;
       
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see specialvarieties.h
     perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_poly, bool modOutLineality, int projectionCoordinate) {
@@ -226,6 +230,8 @@ namespace polymake { namespace atint {
       return result;
     }
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     //Documentation see perl wrapper
     perl::Object halfspace_complex(Rational a, Vector<Rational> g ) {
       //Prepare rays and cones
@@ -265,6 +271,8 @@ namespace polymake { namespace atint {
       return fan;      
     }
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     /**
      @brief Computes all vectors of dimension n with entries +1 and -1. They are sorted such that each vector v has the row index determined by the sum: sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1)
      @param int n The column dimension of the matrix
@@ -290,6 +298,8 @@ namespace polymake { namespace atint {
       return result;
     }
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     /**
      @brief Assumes v is a vector with entries +1 and -1 only. Returns sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1
      */
@@ -300,6 +310,8 @@ namespace polymake { namespace atint {
       }
       return result;
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see perl wrapper
     perl::Object tropical_cube(int n, int k) {
@@ -394,6 +406,8 @@ namespace polymake { namespace atint {
 	result.take("USES_HOMOGENEOUS_C") << true;
       return result;	
     }
+    
+    // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Tropical geometry"
 		      "# Creates the linear tropical space L^n_k. This tropical fan is defined in the following way: "

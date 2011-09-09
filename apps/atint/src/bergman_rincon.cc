@@ -32,11 +32,14 @@
 #include "polymake/Map.h"
 #include "polymake/atint/LoggingPrinter.h"
 
+
 namespace polymake { namespace atint { 
   
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
+ 
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
    @brief Takes a matrix and computes all sets of column indices, s.t. the corresponding column vectors form a basis of the column space of the matrix.
@@ -57,6 +60,8 @@ namespace polymake { namespace atint {
     return IncidenceMatrix<>(result);
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Takes a matrix and finds all columns that are coloops in the matrix matroid, i.e. all column vectors that are contained in every basis of the column space. In other words, the rank of the matrix decreases, if I remove such a column
    @param Matrix<Rational> m
@@ -74,6 +79,8 @@ namespace polymake { namespace atint {
     }
     return coloops;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
     @brief For a given base B of a matroid, this method computes all the sets C(k,B)-{k}, where C(k,B) is the fundamental circuit of k over B
@@ -109,6 +116,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
     @brief For a given base B of a linear matroid, this method computes all the sets C(k,B)-{k}, where C(k,B) is the fundamental circuit of k over B. This is much faster then computeFk for general matroids
     @param IncidenceMatrix<> bases The set of all bases of the matroid
@@ -135,6 +144,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Given a regressive compatible pair (p,L) on a basis B, computes the corresponding cone
    @param int n The number of elements of the matroid ground set
@@ -147,7 +158,6 @@ namespace polymake { namespace atint {
    @return The ray indices of the cone in the new ray matrix
   */
   Set<int> computeCone(int n, Matrix<Rational> &rays, const Set<int> &B, const Vector<Set<int> > &Fksets, const Vector<int> &p, const Vector<int> &L, const Vector<Set<int> > &Qb) {
-    
     //First we compute the ray w_b for each b in B
     Matrix<Rational> wbs(0,n);
     //Compute the complement of L (i.e. the singleton blocks of the defining tree)
@@ -216,6 +226,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
     @brief Computes the bergman fan of a matroid that is supposed to be loop- and coloop-free
     @param int n The number of elements of the ground set of the matroid
@@ -245,15 +257,6 @@ namespace polymake { namespace atint {
 	for(int k = 0; k < Fksets.dim(); k++) {
 	  Fklists[k] = Vector<int>(Fksets[k]);
 	}
-// 	Vector<Set<int> > Fksets (complement.dim()); //Element i is the set F_[complement[i]]
-// 	Vector<Vector<int > > Fklists(complement.dim()); //Same set, but as list
-// 	dbgtrace << "Computing for basis " << bases.row(B) << endl;
-// 	for(int k = 0; k < Fksets.dim(); k++) {
-// 	  Fksets[k] = is_linear? computeFkLinear(bases,B,complement[k],m) :
-// 				 computeFk(bases,B,complement[k]);
-// 	  Fklists[k] = Vector<int>(Fksets[k]);
-// 	  dbglog << "For k = " << complement[k] << " Fk = " << Fklists[k] << endl;
-// 	}
 	
 	//i-th element will contain all the k not in B mapped to i by p
 	Vector<Set<int> > Qb(n); 
@@ -391,7 +394,7 @@ namespace polymake { namespace atint {
 	} //End compute cones
 	
       } //End for all bases
-      
+     
       //Create fan
       perl::Object result("WeightedComplex");
 	result.take("RAYS") << rays;
@@ -400,6 +403,8 @@ namespace polymake { namespace atint {
 	result.take("TROPICAL_WEIGHTS") << ones_vector<Integer>(cones.dim());
       return result;	
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
    @brief Takes a bergman fan of a matrix or general matroid and computes the final result, i.e. adds lineality spaces for missing coloops and mods out the lineality space (1,..1) if necessary
@@ -456,9 +461,9 @@ namespace polymake { namespace atint {
 	
 	//Apply projection to the lineality space, but make sure the remaining rows are a basis
 	bergman_lineality = bergman_lineality * projectionMatrix;
-	Set<int> rbasis = basis_rows(bergman_lineality);
-	bergman_lineality = bergman_lineality.minor(rbasis,All);
-      }
+    }
+    Set<int> rbasis = basis_rows(bergman_lineality);
+    bergman_lineality = bergman_lineality.minor(rbasis,All);
 	
     perl::Object result("WeightedComplex");
       result.take("RAYS") << bergman_rays;
@@ -467,6 +472,8 @@ namespace polymake { namespace atint {
       result.take("TROPICAL_WEIGHTS") << weights;
     return result;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
    @brief Takes a matrix and computes its vector matroid's bergman fan
@@ -496,6 +503,8 @@ namespace polymake { namespace atint {
     return modify_fan(fan,coloops, modOutLineality, projCoordinate);
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Takes a matroid and computes its bergman fan
    @param int n The number of elements of the ground set
@@ -520,16 +529,16 @@ namespace polymake { namespace atint {
     perl::Object fan = bergman_fan(n-coloops.size(),bases,0,Matrix<Rational>());
     return modify_fan(fan,coloops,modOutLineality,projCoordinate);
   }
-/*  
+  /*
   void measure1(IncidenceMatrix<> bases, Matrix<Rational> m) {
     for(int b = 0; b < bases.rows(); b++) {
-      Set<int> complement = sequence(0,m.cols()) - bases.row(b);
-      for(Entire<Set<int> >::iterator k = entire(complement); !k.at_end(); k++) {
-	computeFkLinear(bases,b,*k,m);	
-      }
+      Vector<int> complement(sequence(0,m.cols()) - bases.row(b));
+      computeFkLinear(bases,b,m, complement);	      
     }
   }*/
-   
+  
+  // ------------------------- PERL WRAPPERS ---------------------------------------------------
+  
   UserFunction4perl("# @category Linear algebra"
 		    "# Computes a list of sets of column indices of a matrix such that"
 		    "# the corresponding column sets form a basis of the column space"

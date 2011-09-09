@@ -34,6 +34,8 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see perl wrapper
   Integer count_mn_cones(int n) {
     if(n == 3) {
@@ -47,6 +49,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentaion see perl wrapper
   Integer count_mn_rays(int n) {
     if(n == 3) {
@@ -59,6 +63,8 @@ namespace polymake { namespace atint {
     }
     return result;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
   perl::Object tropical_mn(int n) {
@@ -269,6 +275,8 @@ namespace polymake { namespace atint {
     
   }
 
+  // ------------------------- PERL WRAPPERS ---------------------------------------------------
+  
   UserFunction4perl("# @category Tropical geometry"
 		    "# Computes the number of maximal cones of the tropical moduli space M_0,n"
 		    "# @param Int n The number of leaves. Should be >= 3"

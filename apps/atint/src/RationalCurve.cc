@@ -39,11 +39,15 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see perl wrapper
   int moduliDimensionFromLength(int length) {
     Rational s = sqrt(1 + 8*length);
     return (1+s) / 2;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
    @brief Computes a rational curve (in the v_I-representation) and its graph from a given metric. Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
@@ -291,10 +295,14 @@ namespace polymake { namespace atint {
     return curve;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see perl wrapper
   perl::Object curveFromMetric(Vector<Rational> metric) {
     return curveAndGraphFromMetric(metric);
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
   perl::ListReturn graphFromMetric(Vector<Rational> metric) {
@@ -306,6 +314,8 @@ namespace polymake { namespace atint {
       result << lengths;
     return result;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
     @brief Takes a linear combination of abstract n-marked curves with 1 bounded edge, described by their partitions and the corresponding edge length and computes the resulting metric
@@ -346,6 +356,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see perl wrapper
   perl::Object curveFromModuli(Vector<Rational> moduliVector) {
     //Insert projection 0
@@ -377,6 +389,8 @@ namespace polymake { namespace atint {
     
     return curveFromMetric(metric); 
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
    @brief Takes a rational n-marked abstract curve and computes its representation in the matroid coordinates of the moduli space
@@ -428,6 +442,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see perl wrapper
   perl::ListReturn curveFromModuliMatrix(Matrix<Rational> m) {
     perl::ListReturn result;
@@ -439,6 +455,8 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Takes three integer values and checks whether two of them are equal and >= than the third
    */
@@ -448,6 +466,8 @@ namespace polymake { namespace atint {
     if(b == c && b >= a) return true;
     return false;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
   perl::ListReturn curveFromMetricMatrix(Matrix<Rational> m) {
@@ -459,6 +479,8 @@ namespace polymake { namespace atint {
     
     return result;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
   perl::ListReturn testFourPointCondition(Vector<Rational> v) {

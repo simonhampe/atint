@@ -32,6 +32,9 @@ namespace polymake { namespace atint {
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
   
+      
+      ///////////////////////////////////////////////////////////////////////////////////////
+      
 	/*
 		Wrapper for the GMP's gcdext method. 
 	*/
@@ -51,6 +54,8 @@ namespace polymake { namespace atint {
 		
 		return Integer(gcd);	
 	}	
+	
+	///////////////////////////////////////////////////////////////////////////////////////
 	
 	/*
 		Computes a determinant +-1 matrix U with Z entries, such that AU = (0 | T), where T is a regular lower
@@ -120,6 +125,8 @@ namespace polymake { namespace atint {
 		}
 	}*/
 
+	///////////////////////////////////////////////////////////////////////////////////////
+	
 	/*
 		Takes a rational nxm matrix and multiplies each row with a minimal integer such that it becomes 
 		a primitive vector in Z^m 
@@ -136,6 +143,8 @@ namespace polymake { namespace atint {
 		return result;
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
 	Vector<Integer> makePrimitiveInteger(const Vector<Rational> &v) {
 	  Vector<Integer> result(v.dim());
 	  Integer lc = 1;
@@ -146,6 +155,8 @@ namespace polymake { namespace atint {
 	  
 	  return result;
 	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
 	
 	/*
 		Assuming that tauamtrix is a codimension one subspace of sigmamatrix (considered as dual spaces of the row spaces), computes a lattice normal vector
@@ -194,6 +205,8 @@ namespace polymake { namespace atint {
 	      return (hyper * lnormal >= 0? lnormal : (-1) * lnormal);	      
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
 	/*
 		Assuming that tau is a codimension one face of sigma, computes a lattice normal vector
 	*/	
@@ -228,6 +241,8 @@ namespace polymake { namespace atint {
 		return latticeNormal(taumatrix, sigmamatrix,additionalRay);		
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
 	/*
 	  Compute a lattice basis of the vector space spanned by cone (more precisely it computes Lambda_cone)
 	*/
@@ -246,6 +261,7 @@ namespace polymake { namespace atint {
 	  return latticeB;
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////
 	
 	Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Rational> &generators) {
 	  Vector<Rational> solution(generators.rows());
@@ -308,6 +324,8 @@ namespace polymake { namespace atint {
 	  
 	  return solution;
 	}
+	
+// ------------------------- PERL WRAPPERS ---------------------------------------------------
 	
 /*UserFunction4perl("# @category Linear algebra"
                   "# Computes a matrix //U// with entries in //Z// with determinatn +-1, such that"

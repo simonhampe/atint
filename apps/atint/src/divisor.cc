@@ -37,6 +37,8 @@ namespace polymake { namespace atint {
     using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
+
+    ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
@@ -200,7 +202,9 @@ namespace polymake { namespace atint {
       
       
     }
-    
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values) {
       //Extract properties
@@ -296,6 +300,8 @@ namespace polymake { namespace atint {
       return result;
     }
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     //Documentation see header -------------------------------------------------------------
     inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min) {
       //Remove the first coordinate and add a 1 at the end of point for the constant coefficient
@@ -305,6 +311,8 @@ namespace polymake { namespace atint {
       return uses_min? 	accumulate(Set<Rational>(listOfValues), operations::min())
 			: accumulate(Set<Rational>(listOfValues), operations::max());
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByPLF(perl::Object fan, perl::Object function) {

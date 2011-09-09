@@ -36,6 +36,8 @@ namespace polymake { namespace atint {
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     perl::Object adjacencyComplex(perl::Object fan) {
 	 //Extract values from fan
 	 IncidenceMatrix<> maximalByCodim = fan.give("CODIM_1_IN_MAXIMAL_CONES");
@@ -68,6 +70,8 @@ namespace polymake { namespace atint {
 	 return complex;
 	   
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
     
     perl::Object equivalencyComplex(perl::Object fan) {
       //Extract values
@@ -203,6 +207,8 @@ namespace polymake { namespace atint {
 	result.take("FACETS") << facets;
       return result;
     }
+    
+    // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Homology"
 		      "# Computes the codimension one adjacency graph of a tropical variety and returns it as a "
