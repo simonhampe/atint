@@ -40,6 +40,8 @@ namespace polymake { namespace atint {
   
   using polymake::polytope::cdd_interface::solver;
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
     @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
@@ -199,6 +201,8 @@ namespace polymake { namespace atint {
 //     fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>(facetsInCones);    
 //   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Takes a polyhedral fan and computes a map of lattice normals. The corresponding property in the fan is set automatically.
    @param WeightedComplex A polyhedral fan, extended by atint to a tropical variety
@@ -263,6 +267,8 @@ namespace polymake { namespace atint {
     fan.take("LATTICE_NORMALS") << latticeNormals;
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+
   /**
   @brief Takes a polyhedral fan and computes the weighted sum of the lattice normals at each codimension one face. Sets the corresponding property LATTICE_NORMAL_SUM automatically.
   @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
@@ -294,6 +300,8 @@ namespace polymake { namespace atint {
      
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+
   /**
   @brief Takes a polyhedral fan and computes whether the fan is balanced as a weighted polyhedral complex. Sets the corresponding property IS_BALANCED automatically.
   @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
@@ -321,6 +329,8 @@ namespace polymake { namespace atint {
     
     fan.take("IS_BALANCED") << true; 
   }
+    
+  ///////////////////////////////////////////////////////////////////////////////////////
     
   /**
   @brief  This method takes a set of row indices for [[RAYS]] (or [[CMPLX_RAYS]] in the homogeneous case) and a vector that is supposed to be in the span of these row vectors and the lineality space (or their affine space, see description of [[LATTICE_NORMAL_FCT_VECTOR]]). It then computes the corresponding represenation in these vectors
@@ -417,6 +427,7 @@ namespace polymake { namespace atint {
     return result;    
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
   @brief Takes a polyhedral fan and computes the function vectors for the lattice normals (and their sums). Sets the corresponding properties LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR automatically.
@@ -465,7 +476,9 @@ namespace polymake { namespace atint {
     fan.take("LATTICE_NORMAL_FCT_VECTOR") << summap;
     fan.take("LATTICE_NORMAL_SUM_FCT_VECTOR") << summatrix; 
   }
-
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
     @brief Takes a polyhedral fan and computes the ray data of the corresponding polyhedral complex. Sets the corresponding properties CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES automatically.
     @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
@@ -621,6 +634,8 @@ namespace polymake { namespace atint {
     
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Computes the data necessary to visualize the polyhedral complex. Will be called by CMPLX_VISUAL.
    @param fan The weighted polyhedral complex (in homogeneous coordinates!)
@@ -723,6 +738,8 @@ namespace polymake { namespace atint {
       
     return result;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
     @brief Computes the polyhedral data necessary for visualization with a bounding box

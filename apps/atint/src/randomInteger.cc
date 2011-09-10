@@ -24,6 +24,8 @@
 
 namespace polymake { namespace atint {
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   Array<Integer> randomInteger(const int& max_arg, const int &n) {
     static Integer upperBound = 0;
     static UniformlyRandomRanged<Integer> rg(max_arg);
@@ -38,7 +40,7 @@ namespace polymake { namespace atint {
     return result;
   }
   
-  
+  // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Random number generators"
                   "# Returns n random integers in the range 0.. (max_arg-1),inclusive"

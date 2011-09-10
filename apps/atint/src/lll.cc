@@ -31,6 +31,8 @@ namespace polymake { namespace atint {
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
   
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
     Matrix<Integer> lllHNF(const Matrix<Integer> &matrix, Matrix<Integer> &tfmatrix, Integer &kernelDimension) {
 	
 	
@@ -185,7 +187,7 @@ namespace polymake { namespace atint {
 	return A;
     }
     
-  
+  // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
  UserFunction4perl("# @category Linear algebra"
                   "# Computes a row HNF of an integer matrix A"

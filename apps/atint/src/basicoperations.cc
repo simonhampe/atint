@@ -36,6 +36,8 @@ namespace polymake { namespace atint{
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see header
   inline std::pair<Set<int>, Set<int> > separateRays(Matrix<Rational> m, Set<int> &affine, Set<int> &directional, bool uses_homog) {
     affine.clear();
@@ -57,6 +59,8 @@ namespace polymake { namespace atint{
     }
     return std::pair<Set<int>, Set<int> >(affine,directional);
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
   perl::Object compute_product_complex(std::vector<perl::Object> complexes) {
@@ -247,6 +251,8 @@ namespace polymake { namespace atint{
          
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief Takes the ray matrix of a complex and returns two sets, describing which rows are affine and which are directional rays
    @param Matrix<Rational> m The ray matrix of the complex
@@ -265,6 +271,8 @@ namespace polymake { namespace atint{
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see header
   perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets) {
     for(int r = 0; r < facets.rows(); r++) {
@@ -272,6 +280,8 @@ namespace polymake { namespace atint{
     }
     return fan;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
   perl::ListReturn fan_decomposition(perl::Object complex) {
@@ -339,6 +349,8 @@ namespace polymake { namespace atint{
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see header
   perl::Object affineTransformation(perl::Object complex, Vector<Rational> translate, Matrix<Integer> matrix) {
     //Extract values
@@ -365,6 +377,8 @@ namespace polymake { namespace atint{
     return result;
     
   }
+  
+  // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   

@@ -34,6 +34,8 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
     @brief Computes the set of all spanning trees of the complete graph on n nodes
     @param int n The number of nodes
@@ -102,6 +104,8 @@ namespace polymake { namespace atint {
     
     return result;
   }
+  
+  // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Graph theory"
 		    "# Computes the set of all spanning trees of the complete graph on n nodes"
