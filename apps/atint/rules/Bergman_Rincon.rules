@@ -22,9 +22,9 @@
 ########################################################################
 
 CREDIT bergman
-  Algorithms for computation of bergman fans taken from the program "bergman" by
+  Algorithms for computation of bergman fans taken from the program "TropLi" by
   Felipe Rincón
-  http://math.berkeley.edu/~felipe/bergman
+  http://math.berkeley.edu/~felipe/tropli/ 
   
 # @category Tropical geometry
 # Uses an algorithm by Felipe Rincón to compute the bergman fan of a linear matroid
