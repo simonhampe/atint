@@ -852,36 +852,36 @@ namespace polymake { namespace atint {
 	}
       }
       facets /= bbFacets;
-      facets = facets;
+      //facets = facets;
       
       dbgtrace << "Facets are " << facets << "Equalities are " << linspan << endl;
       
-      try {
-      
-	  //Compute the polytope vertices from that
-	  Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(facets,linspan).first;
-	  //We have to make sure that the polytope has
-	  //at least dim +1 vertices after cutting, otherwise its a point set or graph to the
-	  //visualization and all the Facet options don't work
-	  if(polyRays.rows() >= fan_dim+1) {
-	    perl::Object polytope("polytope::Polytope<Rational>");
-	      polytope.take("VERTICES") << polyRays; //The polytope shouldn't have a lineality space
-	    result << polytope;
-	    
-	    //If weight labels should be displayed, compute the vertex barycenter of the polytope and
-	    // label it
-	    if(showWeights) {
-	      Vector<Rational> barycenter = average(rows(polyRays));
-	      centermatrix = centermatrix / barycenter;
-	      std::ostringstream wlabel;
-	      wlabel << "# " << mc << ": " << weights[mc];
-	      centerlabels = centerlabels | wlabel.str();
-	    }
-	  }
+      //Compute the polytope vertices from that
+      Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(zero_vector<Rational>()| facets, zero_vector<Rational>() | linspan).first;
+      polyRays = polyRays.minor(All,~scalar2set(0));
+      //We have to make sure that the polytope has
+      //at least dim +1 vertices after cutting, otherwise its a point set or graph to the
+      //visualization and all the Facet options don't work
+      if(polyRays.rows() >= fan_dim+1) {
+	perl::Object polytope("polytope::Polytope<Rational>");
+	  polytope.take("VERTICES") << polyRays; //The polytope shouldn't have a lineality space
+	result << polytope;
+	
+	//If weight labels should be displayed, compute the vertex barycenter of the polytope and
+	// label it
+	if(showWeights) {
+	  Vector<Rational> barycenter = average(rows(polyRays));
+	  centermatrix = centermatrix / barycenter;
+	  std::ostringstream wlabel;
+	  wlabel << "# " << mc << ": " << weights[mc];
+	  centerlabels = centerlabels | wlabel.str();
+	}
       }
-      catch(...) { //An error should only occur if the polytope is empty. Then just omit it
-	dbgtrace << "Cone " << mc << " not in bounding box. Omitting." << endl;
-      }
+//       }
+//       catch(...) { //An error should only occur if the polytope is empty. Then just omit it
+// 	dbgtrace << "Cone " << mc << " not in bounding box. Omitting." << endl;
+// 	pm::cout << "Test" << endl;
+//       }
       
     }
     
