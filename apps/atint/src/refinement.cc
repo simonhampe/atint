@@ -58,6 +58,7 @@ namespace polymake { namespace atint {
 	    }
 	}
       } while(created);
+      return perl::Object("WeightedComplex");
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -190,6 +191,6 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&complexify,"complexify(Matrix<Rational>,IncidenceMatrix,Vector<Integer>)");
-  Function4perl(&testcone, "testcone(polytope::Polytope)");
+  //Function4perl(&testcone, "testcone(polytope::Polytope)");
   
 }}
