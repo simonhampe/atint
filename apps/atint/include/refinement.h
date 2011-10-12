@@ -32,11 +32,11 @@ namespace polymake { namespace atint {
 /**
  @brief Takes a collection of weighted cones of the same dimension and refines them such that they form a weighted complex. Weights of cones lying one over the other add up.
  @param Matrix<Rational> rays A matrix of rays of the cones. Has to be irredundant.
- @param IncidenceMatrix cones The maximal cones, given in terms of row indices of their rays
+ @param Vector<Set<int> > cones The maximal cones, given in terms of row indices of their rays
  @param Vector<Integer> weights The i-th element is the weight of the cone described by the i-th row of cones
  @param bool uses_homog Whether the rays are given in homogeneous coordinates
  @return perl::Object A WeightedComplex object, whose support is the union of the cones. The weight of a cone is the sum of the weights of the orginal cones containing it. The result is homogeneous iff uses_homog is true
  */
-perl::Object complexify(Matrix<Rational> rays, IncidenceMatrix<> cones, Vector<Integer> weights, bool uses_homog); 
+perl::Object complexify(Matrix<Rational> rays, Vector<Set<int> > max_cones, Vector<Integer> weights, bool uses_homog); 
 }}
 #endif // ATINT_REFINEMENT_H

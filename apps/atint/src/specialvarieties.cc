@@ -132,6 +132,10 @@ namespace polymake { namespace atint {
       
       dbglog << "Done. " << listOfFacets.dim() << " facets remaining." << endl;
       
+      if(listOfFacets.dim() == 0) {
+	return CallPolymakeFunction("zero_cycle");
+      }
+      
       //Now compute normal cones for these faces
       Vector<Set<int> > bergmanCones;
       Vector<Integer > bergmanWeights = ones_vector<Integer>(listOfFacets.dim());
@@ -148,8 +152,8 @@ namespace polymake { namespace atint {
 	  raySet = raySet * facetsThruVertices.row(*vertex);
 	}
 	dbgtrace << "Remaining rays : " << raySet << endl; 
-	//Make this a cone
-	bergmanCones = bergmanCones | raySet;
+	//Make this a cone (might be empty, if we have only a lin space)
+	if(raySet.size() > 0) bergmanCones = bergmanCones | raySet;
       }
       
       //Reorder rays: Not all rays might be used in cones, so we have to go through all cones

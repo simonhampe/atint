@@ -25,6 +25,7 @@ CREDIT TropLi
   Algorithms for computation of bergman fans taken from the program "TropLi" by
   Felipe Rincón
   http://math.berkeley.edu/~felipe/tropli/ 
+  See also: Felipe Rincón, "Computing tropical linear spaces", arXiv:1109.4130
   
 # @category Tropical geometry
 # Uses an algorithm by Felipe Rincón to compute the bergman fan of a linear matroid

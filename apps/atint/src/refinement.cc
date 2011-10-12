@@ -41,23 +41,105 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   perl::Object complexify(Matrix<Rational> rays, Vector<Set<int> > max_cones, Vector<Integer> weights, bool uses_homog) {
+      solver<Rational> sv;
+      //First we compute all the H-representations of the cones
+      dbgtrace << "Computing H-rep of cones" << endl;
+      Vector<Matrix<Rational> > inequalities(max_cones.dim());
+      Vector<Matrix<Rational> > equalities(max_cones.dim());
+      for(int c = 0; c < max_cones.dim(); c++) {
+	std::pair<Matrix<Rational>, Matrix<Rational> > fanEqs =
+		      solver<Rational>().enumerate_facets(zero_vector<Rational>() | rays.minor(max_cones[c],All), Matrix<Rational>(0,rays.cols()+1), true);
+	inequalities[c] = fanEqs.first;
+	equalities[c] = fanEqs.second;	
+      }
+      //Compute the dimension
+      int dimension = rank(rays.minor(max_cones[0],All));
       //The following matrix marks pairs of cones (i,j) that don't need to be made compatible since they already are
       //More precisely: a value of true at position (i,j), i < j means that cone i and cone j are compatible. A value of false or
       // any value on or below the diagonal carries no information
       Matrix<bool> markedPairs(max_cones.dim(), max_cones.dim());
       //The following value indicates that new cones have been created through refinement 
       bool created = false;
+      dbgtrace << "Starting intersection... " << endl;
       do {
+	created = false;
 	//We go through all cone pairs i < j and check if we need to refine anything. As soon as we actually made some changes, we start all over
 	for(int i = 0; i < max_cones.dim()-1 && !created; i++) {
 	    for(int j = i+1; j < max_cones.dim() && !created; j++) {
 		//We only intersect cones that may be incompatible
 		if(!markedPairs[i][j]) {
-		    
+		      dbgtrace << "Refining cones " << i << " and "<< j << endl;
+		      //Compute an irredundant H-representation of the intersection:
+		      Matrix<Rational> isIneq = inequalities[i]/inequalities[j];
+		      Matrix<Rational> isEq = equalities[i] / equalities[j];
+		      Matrix<Rational> isMatrix = isIneq / isEq;
+		      std::pair<Bitset,Bitset> isection = sv.canonicalize(isIneq,isEq,1);
+		      Matrix<Rational> hsEquations = isMatrix.minor(isection.first,All) / isMatrix.minor(isection.second,All);
+		      dbgtrace << "Computed intersection " << endl;
+		      dbgtrace << "Has equations: " << hsEquations << endl;
+		      //Go through all sign choices for the equations and compute the corr. refinement of i and j
+		      
+		      //This iterates all sign choices: x is in a set of this list, iff the corr
+		      // sign is +1
+		      Array<Set<int> > signChoices = pm::AllSubsets<Set<int> >(sequence(0,hsEquations.rows()));
+		      dbgtrace << "Going through all sign choices " <<  signChoices << endl;
+		      for(int s = 0; s < signChoices.size(); s++) {
+			//If s is not the whole set (which is simply the intersectio of i and j)
+			//then we compute the refinements of both i and j, otherwise one is sufficient
+			for(int coneindex = i; coneindex != j && signChoices[s].size() < hsEquations.rows(); coneindex = j) {
+			    Matrix<Rational> refIneqs = hsEquations.minor(signChoices[s],All);
+			    refIneqs /= (-hsEquations.minor(~signChoices[s],All));
+			    Matrix<Rational> ref = sv.enumerate_vertices(inequalities[coneindex] / refIneqs,equalities[coneindex],true).first;
+			    //Check the dimension of the intersection
+			    if(rank(ref) == dimension) {
+				dbgtrace << "Found refinement" << endl;
+				created = true;
+				//Add as new cone
+				//Go through all rays and check if they already exist
+				Set<int> coneRays;
+				int noOfRays = rays.rows();
+				for(int nr = 0; nr < ref.rows(); nr++) {
+				    for(int r = 0; r < noOfRays; r++) {
+				      if(rays.row(r) == ref.row(nr)) {
+					coneRays += r;
+					break;
+				      }
+				      if(r == noOfRays-1) {
+					rays /= ref.row(nr);
+					coneRays += (rays.rows()-1);
+				      }
+				    }
+				}
+				max_cones |= coneRays;
+				//Weight is the weight of coneindex (or the sum of both, if s is everything)
+				weights |= (signChoices[s].size() < hsEquations.rows()? weights[coneindex] : weights[i] + weights[j]);
+				
+				inequalities |= refIneqs;
+				equalities |= equalities[coneindex];
+			    }			    
+			}
+		      } //End refine i and j
+		      
+		      //Now if we did create anything new, we remove i and j
+		      if(created) {
+			dbgtrace << "Removing cones " << i << " and " << j << endl;
+			Set<int> removedIndices; removedIndices += i; removedIndices += j;
+			max_cones = max_cones.slice(~removedIndices);
+			weights = weights.slice(~removedIndices);
+		      }
 		}
 	    }
 	}
       } while(created);
+      
+      perl::Object result("WeightedComplex");
+	result.take("RAYS") << rays;
+	result.take("MAXIMAL_CONES") << max_cones;
+	result.take("TROPICAL_WEIGHTS") << weights;
+	result.take("USES_HOMOGENEOUS_C") << uses_homog;
+	
+      return result;
+      
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -190,6 +272,6 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&complexify,"complexify(Matrix<Rational>,IncidenceMatrix,Vector<Integer>)");
-  Function4perl(&testcone, "testcone(polytope::Polytope)");
+  //Function4perl(&testcone, "testcone(polytope::Polytope)");
   
 }}
