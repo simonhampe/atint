@@ -106,50 +106,52 @@ namespace polymake { namespace atint {
     
     //Documentation see perl wrapper
     perl::Object recession_fan(perl::Object complex) {
-//       bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
-// 	if(!uses_homog) return complex;
-//       
-//       //Extract values
-//       Matrix<Rational> rays = complex.give("RAYS");
-//       Set<int> directional = complex.give("DIRECTIONAL_RAYS");
-//       IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
-//       Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
-//       Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
-//       int dim = complex.give("CMPLX_DIM");
-//       
-//       Matrix<Rational> newrays = rays.minor(directional,~scalar2set(0));
-//       Matrix<Rational> newlineality = linspace.minor(All,~scalar2set(0));
-//       
-//       //Re-map ray indices
-//       Map<int,int> indexMap; int i = 0;
-//       for(Entire<Set<int> >::iterator d = entire(directional); !d.at_end(); d++) {
-// 	 indexMap[*d] = i;
-// 	 i++;
-//       }
-//       
-//       //We compute the recession cone of each cell
-//       Vector<Set<int> > rec_cones;
-//       for(int mc = 0; mc < cones.rows(); mc++) {
-// 	Set<int> mcDirectional = directional * cones.row(mc);
-// 	//Compute that it has the right dimension
-// 	int mcDim = rank(rays.minor(mcDirectional,All));
-// 	if(mcDirectional.size() > 0 && mcDim == dim) {
-// 	  Set<int> transformCone = attach_operation(mcDirectional,pm::operations::associative_access<Map<int,int>,int>(&indexMap));
-// 	  rec_cones |= transformCone;	  
-// 	}
-//       }
-//       
-//       //Compute the complexification of the recession cones
-//       perl::Object cplxify = complexify(newrays,rec_cones,weights,false);
-//       //Extract its values and put them into the result
-//       perl::Object result("WeightedComplex");
-// 	result.take("RAYS") << cplxify.give("RAYS");
-// 	result.take("MAXIMAL_CONES") << cplxify.give("MAXIMAL_CONES");
-// 	result.take("TROPICAL_WEIGHTS") << cplxify.give("TROPICAL_WEIGHTS");
-// 	result.take("LINEALITY_SPACE") << newlineality;
-//       return result;
+      bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+	if(!uses_homog) return complex;
+/*      
+      //Extract values
+      Matrix<Rational> rays = complex.give("RAYS");
+      Set<int> directional = complex.give("DIRECTIONAL_RAYS");
+      IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
+      Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
+      Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
+      int dim = complex.give("CMPLX_DIM");
       
-      Refine fan
+      Matrix<Rational> newrays = rays.minor(directional,~scalar2set(0));
+      Matrix<Rational> newlineality = linspace.minor(All,~scalar2set(0));
+      Vector<Integer> newweights;
+      
+      //Re-map ray indices
+      Map<int,int> indexMap; int i = 0;
+      for(Entire<Set<int> >::iterator d = entire(directional); !d.at_end(); d++) {
+	 indexMap[*d] = i;
+	 i++;
+      }
+      
+      //We compute the recession cone of each cell
+      Vector<Set<int> > rec_cones;
+      for(int mc = 0; mc < cones.rows(); mc++) {
+	Set<int> mcDirectional = directional * cones.row(mc);
+	//Compute that it has the right dimension
+	int mcDim = rank(rays.minor(mcDirectional,All));
+	if(mcDirectional.size() > 0 && mcDim == dim) {
+	  Set<int> transformCone = attach_operation(mcDirectional,pm::operations::associative_access<Map<int,int>,int>(&indexMap));
+	  rec_cones |= transformCone;	  
+	  newweights |= weights[mc];
+	}
+      }
+            
+      //Compute the complexification of the recession cones
+      perl::Object cplxify = complexify(newrays,rec_cones,newweights,false);
+      //Extract its values and put them into the result
+      perl::Object result("WeightedComplex");
+	result.take("RAYS") << cplxify.give("RAYS");
+	result.take("MAXIMAL_CONES") << cplxify.give("MAXIMAL_CONES");
+	result.take("TROPICAL_WEIGHTS") << cplxify.give("TROPICAL_WEIGHTS");
+	result.take("LINEALITY_SPACE") << newlineality;
+      return result;*/
+      
+      //Refine fan
       Matrix<Rational> facetNormals = complex.give("FACET_NORMALS");
       complex = facetRefinement(complex,facetNormals);
       
