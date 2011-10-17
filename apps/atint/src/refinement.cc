@@ -32,9 +32,9 @@
 
 namespace polymake { namespace atint { 
   
-  //using namespace atintlog::donotlog;
+  using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  using namespace atintlog::dotrace;
+  //using namespace atintlog::dotrace;
     
   using polymake::polytope::cdd_interface::solver;
   
@@ -63,12 +63,19 @@ namespace polymake { namespace atint {
     
     //The following value indicates that new cones have been created through refinement 
     bool created;
+    //The following values indicate that during an instance of the for(i,j)-loop below, 
+    //the cone i and/or j has been removed and replaced by other cones. Note that here
+    // assigning a different weight does count as "new"
+//     bool replacedI = false;
+//     bool replacedJ = false;
     
     //We go through all cone pairs i < j and check if we need to refine anything. As soon as we actually made some changes, we start all over
     do {
       created = false;
       for(int i = 0; i < max_cones.dim() -1 && !created; i++) {
-	for(int j = i+1; j < max_cones.dim() && !created; j++) {
+	for(int j = i+1; j < max_cones.dim() && !created;j++) {
+	    //replacedI = false; replacedJ = false;
+	    dbgtrace << "Refining " << i << " and "<< j << endl;
 	    //We only intersect non-marked pairs
 	    if(!markedPairs[i][j]) {
 	      //Compute an irredundant H-rep of the intersection of cones i and j
@@ -100,10 +107,7 @@ namespace polymake { namespace atint {
 	      
 	      //These variables remember the refinements of i and j (as indices in max_cones)
 	      Set<int> newconesI, newconesJ;	
-	      
-	      dbgtrace << "cone i" << rays.minor(max_cones[i],All) << endl;
-	      dbgtrace << "cone j" << rays.minor(max_cones[j],All) << endl;
-	      
+	       
 	      for(int coneindex = i; coneindex <= j; coneindex += (j-i)) {
 		//First we have to determine the relevant sign choices. We only want to change
 		//the signs of equations NOT coming from the cone we currently refine
@@ -149,6 +153,18 @@ namespace polymake { namespace atint {
 		    //If the refinement is full-dimensional, we get a new cone 
 		    if(rank(ref) - (uses_homog? 1 :0 ) == dimension) {
 		      dbgtrace << "is refinement" << endl;
+		      //First we canonicalize the directional rays
+		      for(int rw = 0; rw < ref.rows(); rw++) {
+			if(!uses_homog || ref(rw,0) == 0) {
+			    for(int cl = 0; cl < ref.cols();cl++) {
+			      if(ref(rw,cl) != 0) {
+				ref.row(rw) /= abs(ref(rw,cl));
+				break;
+			      }
+			    }
+			}
+		      }
+		      
 		      //Add as new cone
 		      //Go through all rays and check if they already exist
 		      //Assign appropriate indices
@@ -192,12 +208,11 @@ namespace polymake { namespace atint {
 				  weights[coneindex] : weights[i] + weights[j]);
 		      
 		      dbgtrace << "Cone weight is " << weights[weights.dim()-1] << endl;
-		      if(weights[weights.dim()-1] == 4) return perl::Object("WeightedComplex");
 		      
 		      inequalities |= (inequalities[coneindex] / refIneqs);
 		      equalities |= equalities[coneindex];
 		      markedPairs |= Vector<bool>(markedPairs.rows());
-		      markedPairs /= Vector<bool>(markedPairs.cols());		    
+		      markedPairs /= Vector<bool>(markedPairs.cols());		
 		    } //END if refDimension = dimension
 		  }
 		  catch(...) {
@@ -219,7 +234,7 @@ namespace polymake { namespace atint {
 		
 		dbgtrace << "Created cones " << newconesI << " in " << i << " and " << newconesJ << " in " << j << endl;
 		
-		created = newconesI.size() >= 2 || newconesJ.size() >= 2;
+		created = true;//newconesI.size() >= 2 || newconesJ.size() >= 2;
 		//Will contain the indices of cones to be marked compatible
 		Vector<int> markIndices;
 		//Will contain the indices of cones to be removed
@@ -227,27 +242,58 @@ namespace polymake { namespace atint {
 		
 		
 		//Find out indices to be marked and removed:
-		if(newconesI.size() >= 2) {
+		
+		//If the cones intersect in full dimension, then we keep the new cones in any case
+		//and discard the old ones
+		if(isDimension == dimension) {
+		  removedIndices += i; removedIndices += j;
 		  markIndices |= Vector<int>(newconesI);
-		  removedIndices += i;
-		}
-		else {
-		  markIndices |= i;
-		  if(isDimension == dimension && newconesJ.size() < 2) removedIndices += i;
-		  else removedIndices += newconesI;
-		}
-		//If the intersection is full-dimensional, then j contains an additional 
-		//refining cone that we didn't compute (to avoid doubles)
-		if(newconesJ.size() + (isDimension == dimension? 1 : 0) >= 2) {
 		  markIndices |= Vector<int>(newconesJ);
-		  removedIndices += j;
+		  //replacedI = replacedJ = true;
 		}
 		else {
-		  markIndices |= j;
-		  if(isDimension == dimension && newconesI.size() < 2) removedIndices += j;
-		  else removedIndices += newconesJ;
+		  //Otherwise we discard the old cones iff they have been refined by at least 2 cones
+		  if(newconesI.size() >= 2) {
+		    markIndices |= Vector<int>(newconesI);
+		    removedIndices += i;
+		    //replacedI = true;
+		  }
+		  else {
+		    markIndices |= i;
+		    removedIndices += newconesI;
+		  }		  
+		  
+		  if(newconesJ.size() >= 2) {
+		    markIndices |= Vector<int>(newconesJ);
+		    removedIndices += j;
+		    //replacedJ = true;
+		  }
+		  else {
+		    markIndices |= j;
+		    removedIndices += newconesJ;
+		  }
 		}
 		
+// 		for(int coneindex = i; coneindex <= j; coneindex += (j-i)) {
+// 		  Set<int> st = coneindex == i? newconesI : newconesJ;
+// 		  for(Entire<Set<int> >::iterator ni = entire(st); !ni.at_end(); ni++) {
+// 		    if(max_cones[*ni].contains(3) && max_cones[*ni].contains(8) && !removedIndices.contains(*ni)) {
+// 		      dbglog << "Keeping 3,8 cone " << *ni << endl;
+// 		      dbglog << "Created in intersecting " << i << "," << j << endl;
+// 		      dbglog << "Cone of " << coneindex << endl;
+// 		      dbglog << "cones in i: " << newconesI << endl;
+// 		      dbglog << "cones in j: " << newconesJ << endl;
+// 		      dbglog << "Created: " << created << endl;
+// 		      for(int k = 0; k < *ni; k++) {
+// 			if(max_cones[k] == max_cones[*ni]) {
+// 			    dbglog << "Same as cone " << k << endl;
+// 			    dbglog << "Compatible: " << markedPairs(k,*ni) << endl;
+// 			}
+// 		      }
+// 		    }
+// 		  }
+// 		}
+	
 		dbgtrace << "Marking indices " << markIndices << " and removing " << removedIndices << endl;
 		
 		for(int v = 0; v < markIndices.dim()-1; v++) {
@@ -273,6 +319,14 @@ namespace polymake { namespace atint {
 	    }//END refine i and j
 	}//END iterate j
       }//END iterate i
+//       for(int k = 0; k < max_cones.dim();k++) {
+// 	 for(int l = k+1; l < max_cones.dim(); l++) {
+// 	    if(max_cones[k] == max_cones[l] && max_cones[k].contains(3) && max_cones[k].contains(8)) {
+// 	      dbglog << "Cones " << k << " and " << l << " agree. Compatible: " << markedPairs(k,l) << endl;
+// 	      dbglog << "Restarting: " << created << endl;
+// 	    }
+// 	 }
+//       }
     } while(created);
     
     perl::Object result("WeightedComplex");

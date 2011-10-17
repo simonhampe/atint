@@ -30,12 +30,15 @@ file_suffix atint
 
 declare object WeightedComplex : fan::PolyhedralFan<Rational>;
 
+declare object RationalFunction;
+
 declare object RationalCurve;
 
-declare object MinMaxFunction;
+declare object MinMaxFunction : RationalFunction;
 
 INCLUDE
   WeightedComplex_properties.rules
+  RationalFunction.rules
   minmaxfunction.rules
   basic_operations.rules
   specialfans.rules

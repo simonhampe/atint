@@ -78,7 +78,7 @@ object MinMaxFunction {
   
   # @category Basic properties
   # The dimension n of the domain R^n of the function. Is equal to the columns of [[LINEAR_COEFFICIENTS]]
-  property DOMAIN : Int;
+  property DOMAIN_DIMENSION : Int;
   
   # @category Basic properties
   # A matrix of the linear coefficients of the functions. Each row corresponds to a linear function within
@@ -104,7 +104,7 @@ object MinMaxFunction {
   # homogenize the variety (call method homogenize on the variety) and intersect then.
   # If the function uses min, the coefficients are multiplied by -1 before computing the polytope. Note that, since
   # min(f_i) = - max (-f_i), this doesn't change the domain of linearity.
-  property LINEARITY_DOMAINS : fan::PolyhedralFan;
+  #property LINEARITY_DOMAINS : fan::PolyhedralFan;
   
   ## RULES ###################################################################################################
   
@@ -262,7 +262,7 @@ object MinMaxFunction {
   }
   weight 0.2;
   
-  rule DOMAIN : LINEAR_COEFFICIENTS {
+  rule DOMAIN_DIMENSION : LINEAR_COEFFICIENTS {
     $this->DOMAIN = $this->LINEAR_COEFFICIENTS->cols();
   }
   
@@ -308,7 +308,7 @@ object MinMaxFunction {
       $this->STANDARD_FORM = $this->USES_MIN? "min($functionList)" : "max($functionList)";
   }
   
-  rule LINEARITY_DOMAINS : LINEAR_COEFFICIENTS, CONSTANT_COEFFICIENTS, USES_MIN {
+  rule DOMAIN: LINEAR_COEFFICIENTS, CONSTANT_COEFFICIENTS, USES_MIN {
     #The constant coefficients correspond to the homogenizing coordinate in a tropical variety, so we place it at the front
     my $pointmatrix = $this->CONSTANT_COEFFICIENTS | $this->LINEAR_COEFFICIENTS;
     if(!($this->USES_MIN)) {
@@ -321,7 +321,7 @@ object MinMaxFunction {
     $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
     
     my $newt = new polytope::Polytope<Rational>(POINTS=>$pointmatrix);
-    $this->LINEARITY_DOMAINS = fan::normal_fan($newt);
+    $this->DOMAIN = wfan(fan::normal_fan($newt),1);
   }
   
   rule USES_MIN : FUNCTION_MATRIX {
@@ -329,50 +329,6 @@ object MinMaxFunction {
   }
   
   ## METHODS #################################################################################################
-  
-#---- We don't need this to compute the domain of linearity ----
-#   # @category Tropical geometry
-#   # This computes another MinMaxFunction from this one in the following way:  
-#   # * If the function uses min, the new function uses max and the coefficients are multiplied by -1
-#   # * It multiplies all coefficients with the same minimal natural number n, such that all coefficients become integer
-#   # * For each negative coefficient, it adds 1 to each entry in the corresponding column until all entries are nonnegative
-#   # This function then has only natural numbers as coefficients and the same domain of linearity as the original function.
-#   user_method positiveForm {
-#     my $this = shift;  
-#     #Copy coefficients into a single matrix
-#     my $m = $this->FUNCTION_MATRIX;
-#     
-#     #Convert from min to max, if necessary
-#     if($this->USES_MIN) {
-#       $m = -$m;
-#     }
-#     
-#     #Determine lcm of denominators
-#     my $lc = 1;
-#     for my $row (0 .. $m->rows() -1) {
-#       for my $col (0 .. $m->cols() -1) {
-# 	if($m->($row,$col) != 0) {
-# 	  $lc *= denominator($m->($row,$col));
-# 	}
-#       }
-#     }
-#     #Now make the matrix integer
-#     $m = $m * abs($lc);
-#     
-#     #Now make each column nonnegative and copy the result into the final matrix
-#     my $finalmatrix = new Matrix<Rational>($m->rows(),0);
-#     for my $col (0 .. $m->cols() -1) {
-#       my @colarray = @{$m->col($col)};
-#       my $cmin = (sort {$a <=> $b} @colarray)[0];
-#       if($cmin < 0) {
-# 	for my $entry (@colarray) { $entry += -$cmin;}
-#       }
-#       $finalmatrix = $finalmatrix | new Vector<Rational>(\@colarray);
-#     }
-#     
-#     #Return result
-#     return new MinMaxFunction(LINEAR_COEFFICIENTS=>$finalmatrix->minor(All,[0 .. $finalmatrix->cols()-2]),								CONSTANT_COEFFICIENTS=>$finalmatrix->col($finalmatrix->cols()-1),USES_MIN=>FALSE);
-#   }
   
   # @category Tropical geometry
   # This computes the (homogenized version of the) domains of linearity of the function. More precisely, it computes the 
@@ -384,39 +340,41 @@ object MinMaxFunction {
   # homogenize the variety (call method homogenize on the variety) and intersect then.
   # If the function uses min, the coefficients are multiplied by -1 before computing the polytope. Note that, since
   # min(f_i) = - max (-f_i), this doesn't change the domain of linearity.
+  # Note that this function returns the same as [[DOMAIN]]
   user_method linearityDomains {
-    my $this = shift;
-    
-    #The constant coefficients correspond to the homogenizing coordinate in a tropical variety, so we place it at the front
-    my $pointmatrix = $this->CONSTANT_COEFFICIENTS | $this->LINEAR_COEFFICIENTS;
-    if(!($this->USES_MIN)) {
-      $pointmatrix = - $pointmatrix;
-    }
-    
-    #For representing the polytope properly, we have to homogenize the coordinates again by adding a 1 at the front
-    my @ones = ();
-    for my $c (0 .. $pointmatrix->rows() -1) { @ones = (@ones,1);}
-    $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
-    
-    my $newt = new polytope::Polytope<Rational>(POINTS=>$pointmatrix);
-    return fan::normal_fan($newt);
+#     my $this = shift;
+#     
+#     #The constant coefficients correspond to the homogenizing coordinate in a tropical variety, so we place it at the front
+#     my $pointmatrix = $this->CONSTANT_COEFFICIENTS | $this->LINEAR_COEFFICIENTS;
+#     if(!($this->USES_MIN)) {
+#       $pointmatrix = - $pointmatrix;
+#     }
+#     
+#     #For representing the polytope properly, we have to homogenize the coordinates again by adding a 1 at the front
+#     my @ones = ();
+#     for my $c (0 .. $pointmatrix->rows() -1) { @ones = (@ones,1);}
+#     $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
+#     
+#     my $newt = new polytope::Polytope<Rational>(POINTS=>$pointmatrix);
+#     return fan::normal_fan($newt);
+    return $this->DOMAIN;
   }
   
   # @category Tropical geometry
-  # Computes the value of this function at a given point. If the point has dimension DOMAIN, it simply computes the value. 
-  # If it has dimension DOMAIN +1, it assumes the point is given in homogeneous coordinates (i.e. the first coordinate should be one or zero, 
-  # this is not checked, however) and computes the function value of the last DOMAIN coordinates.
+  # Computes the value of this function at a given point. If the point has dimension DOMAIN_DIMENSION, it simply computes the value. 
+  # If it has dimension DOMAIN_DIMENSION +1, it assumes the point is given in homogeneous coordinates (i.e. the first coordinate should be one or zero, 
+  # this is not checked, however) and computes the function value of the last DOMAIN_DIMENSION coordinates.
   # @return Rational The function value at the given point.
   user_method valueAt  {
     my $this = shift;
     my $p = shift;
     #If it seems to be in homog. coordinates, slice the first coordinate away
-    if($p->dim() == $this->DOMAIN+1) {
+    if($p->dim() == $this->DOMAIN_DIMENSIOn+1) {
       $p = $p->slice([1 .. $p->dim()-1]);
     }
     #Add a 1 at the end of $p for the constant coefficient
     $p = $p | 1;
-    #In any case $p should now have dimension [[DOMAIN]]+1
+    #In any case $p should now have dimension [[DOMAIN_DIMENSION]]+1
     if($p->dim() != $this->DOMAIN+1) {
       die "Error computing function value: Dimension mismatch.";
     }

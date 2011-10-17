@@ -108,7 +108,7 @@ namespace polymake { namespace atint {
     perl::Object recession_fan(perl::Object complex) {
       bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
 	if(!uses_homog) return complex;
-/*      
+      
       //Extract values
       Matrix<Rational> rays = complex.give("RAYS");
       Set<int> directional = complex.give("DIRECTIONAL_RAYS");
@@ -149,69 +149,70 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cplxify.give("MAXIMAL_CONES");
 	result.take("TROPICAL_WEIGHTS") << cplxify.give("TROPICAL_WEIGHTS");
 	result.take("LINEALITY_SPACE") << newlineality;
-      return result;*/
-      
-      //Refine fan
-      Matrix<Rational> facetNormals = complex.give("FACET_NORMALS");
-      complex = facetRefinement(complex,facetNormals);
-      
-      //Extract values
-      Matrix<Rational> rays = complex.give("RAYS");
-      Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
-      IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
-      Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
-      Set<int> directional = complex.give("DIRECTIONAL_RAYS");
-      int dim = complex.give("CMPLX_DIM"); 
-      
-      
-      //Re-map ray indices
-      Map<int,int> indexMap; int i = 0;
-      for(Entire<Set<int> >::iterator d = entire(directional); !d.at_end(); d++) {
-	 indexMap[*d] = i;
-	 i++;
-      }
-      Matrix<Rational> newrays = rays.minor(directional,~scalar2set(0));
-      Matrix<Rational> newlineality = linspace.minor(All,~scalar2set(0));
-      
-      Vector<Set<int> > newcones;
-      Vector<Integer> newweights;
-      
-      //Compute the recession cones of all cones
-      for(int mc = 0; mc < cones.rows(); mc++) {
-	//Compute the directional rays of the cone
-	Set<int> mcDirectional = directional * cones.row(mc);
-	//Compute that it has the right dimension
-	int mcDim = rank(rays.minor(mcDirectional,All));
-	if(mcDirectional.size() > 0 && mcDim == dim) {
-	  //Compute the image of the cone set under the index map
-	  Set<int> transformCone =
-	    attach_operation(mcDirectional,pm::operations::associative_access<Map<int,int>,int>(&indexMap));
-	  //Check if this cone already exists
-	  bool found = false;
-	  int tcSize = transformCone.size();
-	  for(int i = 0; i < newcones.dim(); i++) {
-	    if((newcones[i]*transformCone).size() == tcSize) {
-	      found = true;
-	      newweights[i] += weights[mc];
-	      break;
-	    }
-	  }
-	  //If the cone doesn't exist yet, add it
-	  if(!found) {
-	    newcones = newcones | transformCone;
-	    newweights |= weights[mc];
-	  }
-	}
-      }
-      
-      //Create the result
-      perl::Object result("WeightedComplex");
-	result.take("RAYS") << newrays;
-	result.take("MAXIMAL_CONES") << newcones;
-	result.take("LINEALITY_SPACE") << newlineality;
-	result.take("USES_HOMOGENEOUS_C") << false;
-	
       return result;
+      
+//       Refine fan
+//       Matrix<Rational> facetNormals = complex.give("FACET_NORMALS");
+//       complex = facetRefinement(complex,facetNormals);
+//       
+//       //Extract values
+//       Matrix<Rational> rays = complex.give("RAYS");
+//       Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
+//       IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
+//       Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
+//       Set<int> directional = complex.give("DIRECTIONAL_RAYS");
+//       int dim = complex.give("CMPLX_DIM"); 
+//       
+//       
+//       //Re-map ray indices
+//       Map<int,int> indexMap; int i = 0;
+//       for(Entire<Set<int> >::iterator d = entire(directional); !d.at_end(); d++) {
+// 	 indexMap[*d] = i;
+// 	 i++;
+//       }
+//       Matrix<Rational> newrays = rays.minor(directional,~scalar2set(0));
+//       Matrix<Rational> newlineality = linspace.minor(All,~scalar2set(0));
+//       
+//       Vector<Set<int> > newcones;
+//       Vector<Integer> newweights;
+//       
+//       //Compute the recession cones of all cones
+//       for(int mc = 0; mc < cones.rows(); mc++) {
+// 	//Compute the directional rays of the cone
+// 	Set<int> mcDirectional = directional * cones.row(mc);
+// 	//Compute that it has the right dimension
+// 	int mcDim = rank(rays.minor(mcDirectional,All));
+// 	if(mcDirectional.size() > 0 && mcDim == dim) {
+// 	  //Compute the image of the cone set under the index map
+// 	  Set<int> transformCone =
+// 	    attach_operation(mcDirectional,pm::operations::associative_access<Map<int,int>,int>(&indexMap));
+// 	  //Check if this cone already exists
+// 	  bool found = false;
+// 	  int tcSize = transformCone.size();
+// 	  for(int i = 0; i < newcones.dim(); i++) {
+// 	    if((newcones[i]*transformCone).size() == tcSize) {
+// 	      found = true;
+// 	      newweights[i] += weights[mc];
+// 	      break;
+// 	    }
+// 	  }
+// 	  //If the cone doesn't exist yet, add it
+// 	  if(!found) {
+// 	    newcones = newcones | transformCone;
+// 	    newweights |= weights[mc];
+// 	  }
+// 	}
+//       }
+//       
+//       //Create the result
+//       perl::Object result("WeightedComplex");
+// 	result.take("RAYS") << newrays;
+// 	result.take("MAXIMAL_CONES") << newcones;
+// 	result.take("LINEALITY_SPACE") << newlineality;
+// 	result.take("TROPICAL_WEIGHTS") << newweights; 
+// 	result.take("USES_HOMOGENEOUS_C") << false;
+// 	
+//       return result;
     }
     
     ///////////////////////////////////////////////////////////////////////////////////////

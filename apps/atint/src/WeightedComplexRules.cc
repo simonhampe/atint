@@ -35,8 +35,8 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 namespace polymake { namespace atint { 
   
   using namespace atintlog::donotlog;
-    //using namespace atintlog::dolog;
-    //using namespace atintlog::dotrace;
+  //using namespace atintlog::dolog;
+  //using namespace atintlog::dotrace;
   
   using polymake::polytope::cdd_interface::solver;
   

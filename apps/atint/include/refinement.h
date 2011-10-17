@@ -31,7 +31,7 @@ namespace polymake { namespace atint {
   
 /**
  @brief Takes a collection of weighted cones of the same dimension and refines them such that they form a weighted complex. Weights of cones lying one over the other add up.
- @param Matrix<Rational> rays A matrix of rays of the cones. Has to be irredundant.
+ @param Matrix<Rational> rays A matrix of rays of the cones. Has to be irredundant and normalized.
  @param Vector<Set<int> > cones The maximal cones, given in terms of row indices of their rays
  @param Vector<Integer> weights The i-th element is the weight of the cone described by the i-th row of cones
  @param bool uses_homog Whether the rays are given in homogeneous coordinates

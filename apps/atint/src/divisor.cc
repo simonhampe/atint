@@ -37,7 +37,12 @@ namespace polymake { namespace atint {
     using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
-
+    
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
+    
+    
     ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
@@ -321,7 +326,7 @@ namespace polymake { namespace atint {
       //Homogenize the fan and refine it
       bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
       if(!uses_homog) fan = fan.CallPolymakeMethod("homogenize");
-      perl::Object linearityDomains = function.give("LINEARITY_DOMAINS");
+      perl::Object linearityDomains = function.give("DOMAIN");
       dbglog << "Refining fan" << endl;
       fan = intersect_complete_fan(fan, linearityDomains);
       
