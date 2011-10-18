@@ -325,6 +325,94 @@ namespace polymake { namespace atint {
 	  return solution;
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////
+    
+	//Documentation see header
+	Vector<Rational> functionRepresentationVector(const Set<int> &rayIndices, const Vector<Rational> &v,
+						      int ambient_dim, bool uses_homog, 
+						      const Matrix<Rational> &rays,
+						      const Matrix<Rational> &linealitySpace,
+						      int lineality_dim) {
+	  dbgtrace << "Starting representation computation" << endl;
+	  //Put ray indices in fixed order
+	  Array<int> fixedIndices(rayIndices);
+	  //Matrix of generators
+	  Matrix<Rational> m(0,ambient_dim);
+	  //First affine ray (not used in non-homog. coords)
+	  Vector<Rational> baseray;
+	  int baseRayIndex = -1; //Index of baseray in fixedIndices
+	  
+	  //Compute matrix of generators
+	  if(!uses_homog) {
+	    m = m / rays.minor(rayIndices,All);
+	  }
+	  else {
+	    for(int r = 0; r < fixedIndices.size(); r++) {
+	      Vector<Rational> rayVector = rays.row(fixedIndices[r]);
+	      //Add all directional rays as is
+	      if(rayVector[0] == 0) {
+		m = m / rayVector;
+	      }
+	      //Use relative differences in the homog. case
+	      else {
+		if(baseRayIndex == -1) {
+		  baseray = rayVector;
+		  baseRayIndex = r;
+		}
+		else {
+		  m = m / (rayVector - baseray);
+		}
+	      }
+	    }
+	  }
+	  if(lineality_dim > 0) {
+	    m = m / linealitySpace;
+	  }
+	  
+	  //If there were no row indices, i.e. m = 0-space, just enter a zero row
+	  if(m.rows() == 0) {
+	    m = m / zero_vector<Rational>(ambient_dim);
+	  }
+	  
+	  dbgtrace << "Generator matrix is " << m << endl;
+	  dbgtrace << "Vector is " << v << endl;
+	  
+	  //Now compute the representation
+	  Vector<Rational> repv = linearRepresentation(v,m);
+	  
+	  dbgtrace << "Representation vector: " << repv << endl;
+	  
+	  if(repv.dim() == 0) {
+	    throw std::runtime_error("Error: vector not in linear span of generators");
+	  }
+	  
+	  //Insert coefficients at correct places
+	  Vector<Rational> result(lineality_dim + rays.rows());
+	  for(int r = 0; r < fixedIndices.size(); r++) {
+	    if(r != baseRayIndex) {
+	      //If a ray came after the baseray, its matrix row index is one lower then its array index.
+	      int matrixindex = (baseRayIndex == -1)? r : (r > baseRayIndex? r-1 : r);
+	      result[fixedIndices[r]] = repv[matrixindex];
+	      dbgtrace << "Inserting " << repv[matrixindex] << " at " << fixedIndices[r] << endl;
+	      //if this is an affine ray, substract its coefficient at the baseray
+	      if(rays(fixedIndices[r],0) != 0 && uses_homog) {
+		result[fixedIndices[baseRayIndex]] -= repv[matrixindex];
+	      }
+	    }
+	  }
+	  
+	  dbgtrace << "Result vector is " << result << endl;
+	  
+	  //Insert linspace coefficients at the end
+	  int repvSize = repv.dim();
+	  for(int lingen = 0; lingen < lineality_dim; lingen++) {
+	  result[rays.rows() + lingen] = repv[repvSize - lineality_dim + lingen];
+	  }
+	  dbgtrace << "Done." << endl;
+	  return result;    
+	}
+  
+	
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 	
 /*UserFunction4perl("# @category Linear algebra"

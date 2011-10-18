@@ -267,10 +267,14 @@ namespace polymake { namespace atint {
       }
     }
     
+    std::ostringstream dsc;
+      dsc << "Moduli space M_0," << n;
+    
     perl::Object result("WeightedComplex");
       result.take("RAYS") << rays;
       result.take("MAXIMAL_CONES") << cones;
       result.take("TROPICAL_WEIGHTS") << ones_vector<int>(cones.dim());
+      result.take("DESCRIPTION") << dsc.str();
     return result;
     
   }

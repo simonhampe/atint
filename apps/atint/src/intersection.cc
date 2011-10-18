@@ -116,6 +116,7 @@ namespace polymake { namespace atint {
       Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
       Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
       int dim = complex.give("CMPLX_DIM");
+      std::string desc = complex.give("DESCRIPTION");
       
       Matrix<Rational> newrays = rays.minor(directional,~scalar2set(0));
       Matrix<Rational> newlineality = linspace.minor(All,~scalar2set(0));
@@ -140,6 +141,9 @@ namespace polymake { namespace atint {
 	  newweights |= weights[mc];
 	}
       }
+      
+      std::ostringstream newdesc;
+	newdesc << "Recession fan of \"" << desc << "\"";
             
       //Compute the complexification of the recession cones
       perl::Object cplxify = complexify(newrays,rec_cones,newweights,false);
@@ -149,6 +153,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cplxify.give("MAXIMAL_CONES");
 	result.take("TROPICAL_WEIGHTS") << cplxify.give("TROPICAL_WEIGHTS");
 	result.take("LINEALITY_SPACE") << newlineality;
+	result.take("DESCRIPTION") << newdesc.str();
       return result;
       
 //       Refine fan

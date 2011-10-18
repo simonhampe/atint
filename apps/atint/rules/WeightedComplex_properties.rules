@@ -158,6 +158,12 @@ object WeightedComplex {
 	# This set contains all row indices  if [[USES_HOMOGENEOUS_C]] is false and is the complement of [[VERTICES]]
 	property DIRECTIONAL_RAYS : Set<Int>;
 	
+	# @category Basic properties
+	# An arbitrary textual description of the complex, to be specified by the user. Some
+	# operations that produce a WeightedComplex automatically set this property to something
+	# informative.
+	property DESCRIPTION : String;
+	
 	## RULES ################################################################
 	
 	# The different weights for the following two rules make sure that existence of INPUT_HOM_* is checked first (since INPUT_* will always be set by INPUT_HOM_*
@@ -294,6 +300,12 @@ object WeightedComplex {
 	  my @a = separateRayMatrix($this->RAYS,$this->USES_HOMOGENEOUS_C);
 	  $this->VERTICES = $a[0];
 	  $this->DIRECTIONAL_RAYS = $a[1];
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule DESCRIPTION : {
+	  $this->DESCRIPTION = "No description available";
 	}
 	
 	## METHODS #################################################################

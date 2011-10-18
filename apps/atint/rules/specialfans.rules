@@ -164,7 +164,7 @@ user_function random_minmaxdivisor {
 # @category Tropical geometry
 # Returns the zero cycle, i.e. a weighted complex with no rays and cones
 user_function zero_cycle {
-  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[],TROPICAL_WEIGHTS=>[]);
+  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[],TROPICAL_WEIGHTS=>[], DESCRIPTION=>"zero cycle");
 }
 
 # @category Tropical geometry

@@ -82,6 +82,23 @@ Matrix<Integer> latticeBasis(const perl::Object &cone);
 */
 Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Rational> &generators);
 
+/**
+@brief  This method takes a set of row indices for [[RAYS]] (or [[CMPLX_RAYS]] in the homogeneous case) and a vector that is supposed to be in the span of these row vectors and the lineality space (or their affine space, see description of [[LATTICE_NORMAL_FCT_VECTOR]]). It then computes the corresponding representation in these vectors
+@param s a set of row indices of [[RAYS]] (or [[CMPLX_RAYS]])
+@param v a vector supposed to lie in the span (or affine span) of [[RAYS]] (or [[CMPLX_RAYS]]) + [[LINEALITY_SPACE]]
+@param ambient_dim The ambient dimension of the fan
+@param uses_homog Whether the fan uses homogeneous coordinates
+@param rays The matrix of [[RAYS]] or [[CMPLX_RAYS]]
+@param linealitySpace A matrix of generators of the lineality space
+@param lineality_dim The dimension of the lineality space
+@return A vector of length [[N_RAYS]] + [[LINEALITY_DIM]] (or [[CMPLX_RAYS]]->rows() + [[LINEALITY_DIM]] in the homogeneous case) with linear coefficients of a representation in the generators chosen via s. The last elements always refer to the lineality space.
+*/
+Vector<Rational> functionRepresentationVector(const Set<int> &rayIndices, const Vector<Rational> &v,
+					      int ambient_dim, bool uses_homog, 
+					      const Matrix<Rational> &rays,
+					      const Matrix<Rational> &linealitySpace,
+					      int lineality_dim); 
+
 }}
 
 #endif // __h_

@@ -27,6 +27,16 @@
 namespace polymake { namespace atint {
 
 /**
+ @brief This function can be used in two ways (which are chosen via the boolean value isFunction): You can either give it a weighted complex and a rational function or a weighted complex and a polyhedral complex. In the first case it computes a refinement of the complex such that the function is cellwise linear and a new function that is just the restriction of the old one onto the new refinement. In the second case it assumes the variety is contained in the complex and computes a refinement. The function assumes that both variety and container have the same non-homogeneous dimension. I.e. a complex in homog. coordinates in R^3 (i.e. with non-homog. dimension 4) and a fan in non-homog. coordinates in R^3 would not be compatible, the fan would need to be homogenized first.
+ @param perl::Object variety A WeightedComplex object. It needn't actually have defined TROPICAL_WEIGHTS. In this case the resulting variety will not have any weights either.
+ @param perl::Object container Either a RationalFunction object or a WeightedComplex object. In either case, the function assumes that the variety is contained in the domain of the function or the given complex.
+ @param bool isFunction This value indicates whether container is a RationalFunction (true) or a WeightedComplex (false)
+ @param bool isMinMaxFunction This value is only relevant if isFunction is true. It indicates whether the rational function container is of type MinMaxFunction
+ @return A perl::ListReturn object. In the first case (RationalFunction) it returns first the refined variety and second the new rational function. In the second case it only returns the refined variety.
+ */
+perl::ListReturn refine(perl::Object variety, perl::Object container, bool isFunction, bool isMinMaxFunction) ; 
+  
+/**
 @brief Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete (i.e. its support is the whole ambient space) to compute the intersection correctly.
 @param fan An arbitrary polyhedral fan
 @param completeFan A complete polyhedral fan, in non-homog. coordinates
@@ -55,10 +65,11 @@ perl::Object divisorByPLF(perl::Object fan, perl::Object);
 /**
   @brief Computes the function value of a min-max function at a given point
   @param Matrix<Rational> functionMatrix The function matrix of the min-max-function. Each row corresponds to a function, the last column contains the constant coefficients
-  @param Vector<Rational> point The point at which the function should be evaluated, given in homogeneous coordinates (the first coordinate is sliced away.
+  @param Vector<Rational> point The point at which the function should be evaluated
   @param bool uses_min True, if we take the mininum over all function rows, otherwise we take the maximum
+  @param bool uses_homog Whether point is given in homogeneous coordinates
 */
-inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min);
+inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog);
 
 }}
 

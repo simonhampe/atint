@@ -84,12 +84,16 @@ namespace polymake { namespace atint {
       for(int i = 0; i < weights.size(); i++) {
 	  weights[i] = 1;
       }
-            
+        
+      std::ostringstream dsc;
+	dsc << "Tropical linear space L^" << n << "_" <<k;
+        
       perl::Object fan("WeightedComplex");
 	fan.take("RAYS") << rayMatrix;
 	fan.take("MAXIMAL_CONES") << kSets;
 	fan.take("TROPICAL_WEIGHTS") << weights;
 	fan.take("USES_HOMOGENEOUS_C") << false;
+	fan.take("DESCRIPTION") << dsc.str();
 	
       return fan;
       
@@ -398,6 +402,9 @@ namespace polymake { namespace atint {
 	cones |= newface;
       }
       
+      std::ostringstream dsc;
+	dsc << "Tropical cube T^" << n << "_" << k;
+      
       //Now create the result
       Vector<Rational> homog_coord = ones_vector<Rational>(vertexnumber) |
 				    zero_vector<Rational>(vertexnumber);
@@ -408,6 +415,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cones;
 	result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << true;
+	result.take("DESCRIPTION") << dsc.str();
       return result;	
     }
     

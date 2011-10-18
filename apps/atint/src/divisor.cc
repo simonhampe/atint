@@ -29,6 +29,7 @@
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/linalg.h"
+#include "polymake/atint/normalvector.h"
 
 namespace polymake { namespace atint {
 
@@ -38,10 +39,191 @@ namespace polymake { namespace atint {
     //using namespace atintlog::dolog;
     //using namespace atintlog::dotrace;
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
+    //Documentation see header -------------------------------------------------------------
+    inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog) {
+      //Remove the first coordinate and add a 1 at the end of point for the constant coefficient
+      if(uses_homog) point = point.slice(~scalar2set(0));
+      point |= 1;
+      Vector<Rational> listOfValues = functionMatrix * point;
+      return uses_min? 	accumulate(Set<Rational>(listOfValues), operations::min())
+			: accumulate(Set<Rational>(listOfValues), operations::max());
+    }
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
-    
+    //Documentation see header -------------------------------------------------------------
+    perl::ListReturn refine(perl::Object variety, perl::Object container, bool isFunction, bool isMinMaxFunction) {
+      
+      solver<Rational> sv;
+      perl::ListReturn result;
+      
+      //Extract values of the variety
+      Matrix<Rational> rays = variety.give("RAYS");
+      IncidenceMatrix<> cones = variety.give("MAXIMAL_CONES");
+      Matrix<Rational> lineality_space = variety.give("LINEALITY_SPACE");
+      int ambient_dim = rays.cols() < lineality_space.cols() ? lineality_space.cols() : rays.cols();
+      bool uses_homog = variety.give("USES_HOMOGENEOUS_C");
+      int dimension = variety.give("CMPLX_DIM");	
+      Array<Integer> weights; bool weightsExist = false;
+      if(variety.exists("TROPICAL_WEIGHTS")) {
+	weights = variety.give("TROPICAL_WEIGHTS");
+	weightsExist = true;	
+      }
+      
+      //If the fan is 0-dimensional and we have just a containing fan, we don't need to refine.
+      if(dimension == 0 && !isFunction) {
+	result << variety;
+	return result;
+      }
+      
+      //Extract values of the container
+      perl::Object containerFan = (isFunction? container.give("DOMAIN") : container);
+      Matrix<Rational> re_rays = containerFan.give("RAYS");
+      IncidenceMatrix<> re_cmplx_cones = containerFan.give("CMPLX_MAXIMAL_CONES");
+      IncidenceMatrix<> re_cones = containerFan.give("MAXIMAL_CONES");
+      Matrix<Rational> re_lineality_space = containerFan.give("LINEALITY_SPACE");
+      int re_lineality_dim = containerFan.give("LINEALITY_DIM");
+      Matrix<Rational> values_rays = isFunction && !isMinMaxFunction? containerFan.give("RAY_VALUES") : 
+								      Matrix<Rational>();
+      Matrix<Rational> values_lin = isFunction && !isMinMaxFunction? containerFan.give("LIN_VALUES") :
+								      Matrix<Rational>();
+      Matrix<Rational> values = values_rays | values_lin;
+      Matrix<Rational> function_matrix = isMinMaxFunction && isFunction? containerFan.give("FUNCTION_MATRIX") : 
+								      Matrix<Rational>();
+      
+      //If the container is only a lineality space and we have just a containing fan, we don't need to refine
+      if(re_cones.rows() == 0 && !isFunction) {
+	result << variety;
+	return result;
+      }
+      
+      //Prepare result variables
+      Matrix<Rational> newrays(0,ambient_dim);
+      Matrix<Rational> newlineality(0,ambient_dim);
+      Vector<Set<int> > newcones;
+      Vector<Integer> newweights;
+      Vector<Rational> newrayvalues;
+      Vector<Rational> newlinvalues;
+      //This variable maps indices of cones of the variety to ray index sets occuring in newcones.
+      //More precisely, for cone i, refinementSet[i] is a set of all new cones
+      //obtained by intersecting cone i.
+      Map<int,Set<Set<int> > > refinementSet;
+      
+      //Compute lineality space
+      Matrix<Rational> interlinmatrix = 
+	lineality_space | zero_matrix<Rational>(lineality_space.rows(),re_lineality_space.cols());    
+      interlinmatrix /= 
+	(zero_matrix<Rational>(re_lineality_space.rows(),lineality_space.cols()) | re_lineality_space);
+      newlineality = null_space(interlinmatrix);
+      newlineality = newlineality.minor(All,sequence(0,lineality_space.cols()));
+      int newlineality_dim = rank(newlineality);
+      
+      //If the variety or container is only a lineality space, we have to treat it as a cone for intersection
+      bool fanHasOnlyLineality = cones.rows() == 0;
+      bool containerOnlyHasLineality = re_cones.rows() == 0;
+      
+      //Before we start intersecting, we compute the H-reps of all container cones, so we don't 
+      //have to do it several times
+      Vector<Matrix<Rational> > inequalities;
+      Vector<Matrix<Rational> > equalities;
+      for(int c = 0; c < re_cones.cols(); c++) {
+	std::pair<Matrix<Rational>, Matrix<Rational> > facets = sv.enumerate_facets(zero_vector<Rational>() | re_rays.minor(re_cones.row(c),All),zero_vector<Rational>() | re_lineality_space, true,false);
+	inequalities |= facets.first;
+	equalities |= facets.second;
+      }
+      if(containerOnlyHasLineality) {
+	equalities |= null_space(re_lineality_space);
+	inequalities |= Matrix<Rational>(0,equalities[0].cols());
+      }
+      
+      //Iterate all maximal cones of variety
+      for(int vc = 0; vc < cones.rows() + (fanHasOnlyLineality? 1 : 0); vc++) {
+	//We compute the H-representation of the variety cone
+	std::pair<Matrix<Rational>,Matrix<Rational> > vfacet = sv.enumerate_facets(
+	  fanHasOnlyLineality? Matrix<Rational>(0,ambient_dim) : 
+			zero_vector<Rational>() | rays.minor(cones.row(vc),All),
+			zero_vector<Rational>() | lineality_space,true,false);
+	//Iterate all maximal cones of the container 
+	for(int co = 0; co < re_cones.rows() + (containerOnlyHasLineality? 1 : 0); co++) {
+	  //Compute the intersection rays
+	  Matrix<Rational> inter = sv.enumerate_vertices(
+	      vfacet.first / inequalities[co], vfacet.second / equalities[co],true,true).first;
+	  inter = inter.minor(All,~scalar2set(0));
+	  
+	  //Check if the intersection has the correct dimension
+	  if(rank(inter) + newlineality_dim == dimension + (uses_homog? 1 : 0)) {
+	    //Now we canonicalize the rays
+	    for(int rw = 0; rw < inter.rows(); rw++) {
+	      //Vertices start with a 1
+	      if(uses_homog && inter(rw,0) != 0) {
+		inter.row(rw) /= inter(rw,0);
+	      }
+	      //The first non-zero entry in a directional ray is +-1
+	      else {
+		for(int cl = 0; cl < inter.cols();cl++) {
+		  if(inter(rw,cl) != 0) {
+		    inter.row(rw) /= abs(inter(rw,cl));
+		    break;
+		  }
+		}
+	      }
+	    } //END canonicalize rays
+	    
+	    //Now we assign indices to the rays
+	    int noOfRays = newrays.rows();
+	    Set<int> rayIndices;
+	    Set<int> newRayIndices;
+	    for(int nr = 0; nr < inter.rows(); nr++) {
+	      for(int r = 0; r < noOfRays; r++) {
+		if(newrays.row(r) == inter.row(nr)) {
+		    rayIndices += r;
+		    break;
+		}
+		if(r == noOfRays-1) {
+		    newrays /= inter.row(nr);
+		    rayIndices += (newrays.rows()-1);
+		    newRayIndices += (newrays.rows()-1);
+		}
+	      }
+	    } //END assign ray indices
+	    
+	    //If there are no new rays, we have to check, whether this cone already
+	    //exists (in this case we simply jump to the next case)
+	    if(newRayIndices.size() == 0) {
+	      if(refinementSet[vc].contains(rayIndices)) continue;
+	    }
+	    
+	    //Now we add the new cone
+	    newcones |= rayIndices;
+	    refinementSet[vc] += rayIndices;
+	    if(weightsExist) newweights |= weights[vc];
+	    
+	    //Now we compute the function values, if necessary
+	    if(isFunction) {
+	      //Iterate all new rays
+	      for(Entire<Set<int> >::iterator nr = entire(newRayIndices); !nr.at_end(); nr++) {
+		//If the function is a general function, we just compute a representation of each
+		//new vector in the old rays and use this to compute its value
+		if(!isMinMaxFunction) {
+		  Vector<Rational> repv = functionRepresentationVector(re_cmplx_cones.row(co),newrays.row(*nr),							     ambient_dim,uses_homog,re_rays,re_lineality_space,
+							      re_lineality_dim);
+		  newrayvalues |= (repv * values);
+		}
+		//Otherwise compute values for 
+		else {
+		  
+		}
+	      }//END iterate all new rays
+	    }//END compute function values
+	    
+	  }//END if full-dimensional
+	  
+	  
+	}//END iterate container cones
+      }//END iterate variety cones
+    }//END FUNCTION refine
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -308,18 +490,6 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
-    inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min) {
-      //Remove the first coordinate and add a 1 at the end of point for the constant coefficient
-      point = point.slice(1,point.dim()-1);
-      point |= 1;
-      Vector<Rational> listOfValues = functionMatrix * point;
-      return uses_min? 	accumulate(Set<Rational>(listOfValues), operations::min())
-			: accumulate(Set<Rational>(listOfValues), operations::max());
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////////////////
-    
-    //Documentation see header -------------------------------------------------------------
     perl::Object divisorByPLF(perl::Object fan, perl::Object function) {
       dbglog << "Preparing computations" << endl;
       
@@ -360,7 +530,7 @@ namespace polymake { namespace atint {
       for(int index = 0; index < rays.rows(); index++) {
 	//If it is an affine ray, simply compute the function value at that point
 	if(rays(index,0) == 1) {
-	    values |= functionValue(fmatrix, rays.row(index),uses_min);
+	    values |= functionValue(fmatrix, rays.row(index),uses_min,true);
 	}
 	//Otherwise find an affine ray that shares a maximal cone with this ray (if there is none, set the value to 0, it doesn't matter anyway)
 	else {
@@ -370,8 +540,8 @@ namespace polymake { namespace atint {
 		if(sharedRays.size() > 0) {
 		    //If we have found such an affine ray, compute the value of affine + direction and substract the value of the affine ray and stop searching
 		    int sray = *(sharedRays.begin());
-		    values |= (functionValue(fmatrix, rays.row(sray) + rays.row(index),uses_min) - 
-			      functionValue(fmatrix, rays.row(sray),uses_min));
+		    values |= (functionValue(fmatrix, rays.row(sray) + rays.row(index),uses_min,true) - 
+			      functionValue(fmatrix, rays.row(sray),uses_min,true));
 		    break;
 		}
 	      }
@@ -381,7 +551,7 @@ namespace polymake { namespace atint {
       
       //Finally we add the function values on the lineality space
       for(int index = 0; index < linspace.rows(); index++) {
-	values |= functionValue(fmatrix, linspace.row(index), uses_min);
+	values |= functionValue(fmatrix, linspace.row(index), uses_min,true);
       }
       
       return divisorByValueVector(fan, values);
