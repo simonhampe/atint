@@ -321,7 +321,7 @@ object MinMaxFunction {
     $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
     
     my $newt = new polytope::Polytope<Rational>(POINTS=>$pointmatrix);
-    $this->DOMAIN = wfan(fan::normal_fan($newt),1);
+    $this->DOMAIN = wfan(fan::normal_fan($newt),0);
   }
   
   rule USES_MIN : FUNCTION_MATRIX {
