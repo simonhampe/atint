@@ -536,7 +536,7 @@ namespace polymake { namespace atint {
       computeFkLinear(bases,b,m, complement);	      
     }
   }*/
-  
+ 
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Linear algebra"

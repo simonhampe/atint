@@ -24,8 +24,8 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Vector.h"
 
-#ifndef ATINT_REFINEMENT_H
-#define ATINT_REFINEMENT_H
+#ifndef ATINT_COMPLEXIFY_H
+#define ATINT_COMPLEXIFY_H
 
 namespace polymake { namespace atint { 
   
@@ -39,4 +39,4 @@ namespace polymake { namespace atint {
  */
 perl::Object complexify(Matrix<Rational> rays, Vector<Set<int> > max_cones, Vector<Integer> weights, bool uses_homog); 
 }}
-#endif // ATINT_REFINEMENT_H
+#endif // ATINT_COMPLEXIFY_H

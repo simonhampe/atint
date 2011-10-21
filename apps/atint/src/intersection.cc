@@ -26,7 +26,7 @@ Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
 #include "polymake/Vector.h"
 #include "polymake/atint/basicoperations.h"
 #include "polymake/atint/divisor.h"
-#include "polymake/atint/refinement.h"
+#include "polymake/atint/complexify.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/linalg.h"
 

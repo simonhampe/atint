@@ -44,26 +44,26 @@ print RESULT "Matroid on complete graph on n vertices:\n";
 # #     print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";
 # }
 # 
-# print "\nComputing L^n_k's:\n";
-# print RESULT "\n\nUniform matroid U_k,n:\n";
-# 
-# for(my $n = 2; $n <= 10; $n++) {
-#   for(my $k = 1; $k < $n; $k++) {
-#     my $m = $n+1; my $l = $k+1;
-#     print RESULT "n = $m, k = $l:\n";
-#     my $mat = matroid::uniform_matroid($k+1,$n+1);
-#     $t0 = Benchmark->new;
-#     atint::bergman_fan($mat);
-#     $t1 = Benchmark->new;
-#     print "L$n,$k: ", timestr(timediff($t1,$t0)),"\n";	
-#     print RESULT "Original algorithm: ", timestr(timediff($t1,$t0)),"\n";	
-#     $t0 = Benchmark->new;
-#     atint::bergman_fan_matroid($mat);
-#     $t1 = Benchmark->new;
-#     print "Rincon: ", timestr(timediff($t1,$t0)),"\n";
-#     print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";		
-#   }
-# }
+print "\nComputing L^n_k's:\n";
+print RESULT "\n\nUniform matroid U_k,n:\n";
+
+for(my $n = 2; $n <= 10; $n++) {
+  for(my $k = 1; $k < $n; $k++) {
+    my $m = $n+1; my $l = $k+1;
+    print RESULT "n = $m, k = $l:\n";
+    my $mat = matroid::uniform_matroid($k+1,$n+1);
+    $t0 = Benchmark->new;
+    atint::bergman_fan($mat);
+    $t1 = Benchmark->new;
+    print "L$n,$k: ", timestr(timediff($t1,$t0)),"\n";	
+    print RESULT "Original algorithm: ", timestr(timediff($t1,$t0)),"\n";	
+    $t0 = Benchmark->new;
+    atint::bergman_fan_matroid($mat);
+    $t1 = Benchmark->new;
+    print "Rincon: ", timestr(timediff($t1,$t0)),"\n";
+    print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";		
+  }
+}
 
 # print "\nComputing examples from paper:\n";
 # print RESULT "\n\nComputing examples from paper:\n";
@@ -108,36 +108,36 @@ print RESULT "Matroid on complete graph on n vertices:\n";
 #   #print "Fk-computation took ", timestr(timediff($t1,$t0)),"\n";
 # }
 
-print "\n\nComputing linear matroids of random nx2n integer matrices:\n";
-
-for(my $n = 5; $n <= 7; $n++) {
-  print RESULT "n = $n:\n";
-  my $sumorig = 0;
-  my $sumrincon = 0;
-  for(my $k = 1; $k <= 50; $k++) {
-    print "Computing bergman fan $k of 50...";
-    my $mx = new Matrix<Rational>($n,2*$n);
-    my $entries = atint::randomInteger(new Integer(10), new Integer($mx->rows() * $mx->cols()));
-    for(my $r = 0; $r < $mx->rows(); $r++) {
-      for(my $c = 0; $c < $mx->cols(); $c++) {
-	$mx->row($r)->[$c] = $entries->[$c + $r * $mx->cols()];
-      }
-    }
-    @a = @{atint::computeMatrixBases($mx)};
-    my $mat = new matroid::Matroid(N_ELEMENTS=>2*$n,BASES=>\@a);
-    $t0 = Benchmark->new;
-    atint::bergman_fan_linear($mx);
-    $t1 = Benchmark->new;
-    $sumrincon += (timediff($t1,$t0)->[0]);
-
-    $t0 = Benchmark->new;
-    atint::bergman_fan_matroid($mat);
-    $t1 = Benchmark->new;
-    $sumorig += (timediff($t1,$t0)->[0]);
-    print "Done.\n";
-  }
-  print RESULT "Avg. time linear: ", ($sumorig/50),"\n";
-  print RESULT "Avg. time matroid: ", ($sumrincon / 50),"\n";
-}
+# print "\n\nComputing linear matroids of random nx2n integer matrices:\n";
+# 
+# for(my $n = 5; $n <= 7; $n++) {
+#   print RESULT "n = $n:\n";
+#   my $sumorig = 0;
+#   my $sumrincon = 0;
+#   for(my $k = 1; $k <= 50; $k++) {
+#     print "Computing bergman fan $k of 50...";
+#     my $mx = new Matrix<Rational>($n,2*$n);
+#     my $entries = atint::randomInteger(new Integer(10), new Integer($mx->rows() * $mx->cols()));
+#     for(my $r = 0; $r < $mx->rows(); $r++) {
+#       for(my $c = 0; $c < $mx->cols(); $c++) {
+# 	$mx->row($r)->[$c] = $entries->[$c + $r * $mx->cols()];
+#       }
+#     }
+#     @a = @{atint::computeMatrixBases($mx)};
+#     my $mat = new matroid::Matroid(N_ELEMENTS=>2*$n,BASES=>\@a);
+#     $t0 = Benchmark->new;
+#     atint::bergman_fan_linear($mx);
+#     $t1 = Benchmark->new;
+#     $sumrincon += (timediff($t1,$t0)->[0]);
+# 
+#     $t0 = Benchmark->new;
+#     atint::bergman_fan_matroid($mat);
+#     $t1 = Benchmark->new;
+#     $sumorig += (timediff($t1,$t0)->[0]);
+#     print "Done.\n";
+#   }
+#   print RESULT "Avg. time linear: ", ($sumorig/50),"\n";
+#   print RESULT "Avg. time matroid: ", ($sumrincon / 50),"\n";
+# }
 
 close(RESULT);

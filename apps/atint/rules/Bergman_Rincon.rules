@@ -60,4 +60,3 @@ user_function bergman_fan_matroid {
   
     return prepareBergmanMatroid($matroid->N_ELEMENTS,new IncidenceMatrix($matroid->BASES), ($modOutLineality eq TRUE || $modOutLineality == 1)? 1 : 0, $projectionCoordinate);
 }
-
