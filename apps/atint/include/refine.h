@@ -45,7 +45,7 @@ namespace polymake { namespace atint {
   @param perl::Object Y A WeightedComplex (not necessarily with defined TROPICAL_WEIGHTS), such that |X| is contained in |Y|
   @param bool repFromX Whether a representation of the new rays in the generators of X should be computed
   @param bool repFromY Whether a representation of the new rays in the generators of Y should be computed
-  @param bool associatedRep Whether an affine ray sharing a cone should be found for each directional ray
+  @param bool computeAssoc Whether an affine ray sharing a cone should be found for each directional ray
   @param bool refine Whether we actually need to refine X (true) or whether X is already fine in Y (false)
   @return RefinementResult A struct containing the following data (the rep values are only defined, if the corresponding boolean flag was set):
   1) perl::Object complex: The new refined complex X'. It has homog. coordinates, iff X has and it has weights, iff X does
@@ -53,7 +53,7 @@ namespace polymake { namespace atint {
   3) Matrix<Rational> rayRepFromY, linRepFromY: Same as 2),only for Y
   4) Vector<int> associatedRep Gives for each ray the index of a vertex sharing a cone. For each vertex i, associatedRep[i] = i
   */
-  RefinementResult refine(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool associatedRep,bool refine);
+  RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine);
 
 }}
 

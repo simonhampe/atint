@@ -25,34 +25,97 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 #include "polymake/atint/refine.h"
+#include "polymake/atint/LoggingPrinter.h"
+#include "polymake/polytope/cdd_interface.h"
+#include "polymake/IncidenceMatrix.h"
+#include "polymake/Integer.h"
+#include "polymake/linalg.h"
 
 namespace polymake { namespace atint { 
+    
+  using polymake::polytope::cdd_interface::solver;
+
+  //using namespace atintlog::donotlog;
+  //using namespace atintlog::dolog;
+  using namespace atintlog::dotrace;
 
   //Documentation see header
-  RefinementResult refine(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool associatedRep,bool refine) {
-    RefinementResult r; return r;
-//     solver<Rational> sv;
-//     perl::ListReturn result;
-//     
-//     //Extract values of the variety
-//     Matrix<Rational> x_rays = X.give("RAYS");
-//     IncidenceMatrix<> x_cones = X.give("MAXIMAL_CONES");
-//     Matrix<Rational> x_lineality = X.give("LINEALITY_SPACE");
-//     int ambient_dim = x_rays.cols() < x_lineality.cols() ? x_lineality.cols() : x_rays.cols();
-//     bool uses_homog = X.give("USES_HOMOGENEOUS_C");
-//     int dimension = X.give("CMPLX_DIM");	
-//     Array<Integer> weights; bool weightsExist = false;
-//     if(variety.exists("TROPICAL_WEIGHTS")) {
-//       weights = variety.give("TROPICAL_WEIGHTS");
-//       weightsExist = true;	
-//     }
-//     
-//     //Extract values of the container
-//     Matrix<Rational> y_rays = Y.give("RAYS");
-//     IncidenceMatrix<> y_cmplx_cones = Y.give("CMPLX_MAXIMAL_CONES");
-//     IncidenceMatrix<> y_cones = Y.give("MAXIMAL_CONES");
-//     Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
-//     int y_lineality_dim = Y.give("LINEALITY_DIM");
+  RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
+    solver<Rational> sv;
+    
+    //Extract values of the variety
+    bool x_uses_homog = X.give("USES_HOMOGENEOUS_C");
+    Matrix<Rational> x_rays = X.give("RAYS");
+    IncidenceMatrix<> x_cones = X.give("MAXIMAL_CONES");
+    Matrix<Rational> x_lineality = X.give("LINEALITY_SPACE");
+    int ambient_dim = x_rays.cols() < x_lineality.cols() ? x_lineality.cols() : x_rays.cols();
+    int x_dimension = X.give("CMPLX_DIM");	
+    Array<Integer> weights; bool weightsExist = false;
+    if(X.exists("TROPICAL_WEIGHTS")) {
+      weights = X.give("TROPICAL_WEIGHTS");
+      weightsExist = true;	
+    }
+    
+    dbgtrace << "Extracted X-values" << endl;
+    
+    //Extract values of the container
+    bool y_uses_homog = Y.give("USES_HOMOGENEOUS_C");
+    Matrix<Rational> y_rays = Y.give("RAYS");
+    IncidenceMatrix<> y_cmplx_cones = Y.give("CMPLX_MAXIMAL_CONES");
+    IncidenceMatrix<> y_cones = Y.give("MAXIMAL_CONES");
+    Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
+      
+    dbgtrace << "Extracted Y-values" << endl;
+    
+    //Prepare result variables
+    perl::Object complex("WeightedComplex");
+      Matrix<Rational> c_rays(0,ambient_dim);
+      Matrix<Rational> c_lineality;
+      int c_lineality_dim;
+      Vector<Set<int> > c_cones;
+      Vector<Integer> c_weights;
+    Matrix<Rational> rayRepFromX;
+    Matrix<Rational> rayRepFromY;
+    Matrix<Rational> linRepFromX;
+    Matrix<Rational> linRepFromY;
+    Vector<int> associatedRep;
+    
+    dbgtrace << "Prepared result variables" << endl;
+    
+    //Step 1: Compute the lineality space
+    if(refine) {
+      //Compute the intersection of the two spaces
+      Matrix<Rational> i_lineality = T(x_lineality  / (-y_lineality));
+	dbgtrace << "Computing kernel of " << i_lineality << endl;
+      Matrix<Rational> dependence =  null_space(i_lineality);
+      c_lineality = dependence.minor(All,sequence(0,x_lineality.rows())) * x_lineality;
+	dbgtrace << "Result: " << c_lineality << endl;
+      c_lineality_dim = rank(c_lineality);
+      //Compute X-rep if necessary
+      if(repFromX) {
+	linRepFromX = dependence.minor(All,sequence(0,x_lineality.rows()));
+      }
+      if(repFromY) {
+	linRepFromY = dependence.minor(All,sequence(x_lineality.rows(),y_lineality.rows()));
+      }
+    }
+    else {
+      c_lineality = x_lineality;
+      c_lineality_dim = X.give("LINEALITY_DIM");
+      if(repFromX) {
+	linRepFromX = unit_matrix<Rational>(x_lineality.rows());
+      }
+      if(repFromY) {
+	linRepFromY = null_space(T(x_lineality / (-y_lineality))).minor(All,sequence(x_lineality.rows(),y_lineality.rows()));
+      }
+    }
+    
+    dbgtrace << "Computed lineality space" << endl;
+    
+    //Step 2: Compute cone refinement and ray representations.
+    
+    
+    
 //     
 //     
 //     //Prepare result variables
@@ -179,8 +242,46 @@ namespace polymake { namespace atint {
 // 	
 //       }//END iterate container cones
 //     }//END iterate variety cones
-  }
+    
+    //Insert values
+    
+    //Copy return values
+    if(refine) {
+      complex.take("RAYS") << c_rays;
+      complex.take("MAXIMAL_CONES") << c_cones;
+      complex.take("LINEALITY_SPACE") << c_lineality;
+      complex.take("USES_HOMOGENEOUS_C") << x_uses_homog;
+      if(weightsExist) complex.take("TROPICAL_WEIGHTS") << c_weights;
+    }
+    else {
+      complex = X;
+    }
+    RefinementResult result;
+      result.complex = complex;
+      result.rayRepFromX = rayRepFromX;
+      result.rayRepFromY = rayRepFromY;
+      result.linRepFromX = linRepFromX;
+      result.linRepFromY = linRepFromY;
+      result.associatedRep = associatedRep;
+    return result;
+    
+  }//END function refine
   
-}}
+  //TODO: DEBUG. REMOVE
+  perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
+    RefinementResult r;
+    r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
+    pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
+    pm::cout << "Xlinrep: " << r.linRepFromX << endl;
+    pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
+    pm::cout << "Ylinrep: " << r.linRepFromY << endl;
+    pm::cout << "assoc rep: " << r.associatedRep << endl;
+    return r.complex;
+  }
 
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
+
+Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
+
+}}
+

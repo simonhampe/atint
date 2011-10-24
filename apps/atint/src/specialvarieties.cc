@@ -111,6 +111,7 @@ namespace polymake { namespace atint {
       Matrix<Rational> rays = fan_skeleton.give("RAYS");
       
       dbgtrace << "Checking for skeleton faces that correspond to loopfree matroids" << endl;
+      dbglog << "Number of faces: " << maximalCones.rows() << endl;
       
       //Compute a list of those n-rank-dimensional faces whose vertices cover [n]
       Vector<Set<int> > listOfFacets;
