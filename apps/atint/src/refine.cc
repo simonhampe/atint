@@ -47,6 +47,8 @@ namespace polymake { namespace atint {
     bool x_uses_homog = X.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> x_rays = X.give("RAYS");
     IncidenceMatrix<> x_cones = X.give("MAXIMAL_CONES");
+    Matrix<Rational> x_cmplx_rays = repFromX? X.give("CMPLX_RAYS") : Matrix<Rational>();
+    IncidenceMatrix<> x_cmplx_cones = repFromX? X.give("CMPLX_MAXIMAL_CONES") : IncidenceMatrix<>();
     Matrix<Rational> x_lineality = X.give("LINEALITY_SPACE");
     int ambient_dim = x_rays.cols() < x_lineality.cols() ? x_lineality.cols() : x_rays.cols();
     int x_dimension = X.give("CMPLX_DIM");	
@@ -59,9 +61,9 @@ namespace polymake { namespace atint {
     dbgtrace << "Extracted X-values" << endl;
     
     //Extract values of the container
-    bool y_uses_homog = Y.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> y_rays = Y.give("RAYS");
-    IncidenceMatrix<> y_cmplx_cones = Y.give("CMPLX_MAXIMAL_CONES");
+    Matrix<Rational> y_cmplx_rays = repFromY? Y.give("CMPLX_RAYS") : Matrix<Rational>();
+    IncidenceMatrix<> y_cmplx_cones = repFromY? Y.give("CMPLX_MAXIMAL_CONES") : IncidenceMatrix<>();
     IncidenceMatrix<> y_cones = Y.give("MAXIMAL_CONES");
     Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
       
@@ -70,8 +72,8 @@ namespace polymake { namespace atint {
     //Prepare result variables
     perl::Object complex("WeightedComplex");
       Matrix<Rational> c_rays(0,ambient_dim);
-      Matrix<Rational> c_lineality;
-      int c_lineality_dim;
+      Matrix<Rational> c_lineality(0,ambient_dim);
+      int c_lineality_dim = 0;
       Vector<Set<int> > c_cones;
       Vector<Integer> c_weights;
     Matrix<Rational> rayRepFromX;
@@ -80,172 +82,204 @@ namespace polymake { namespace atint {
     Matrix<Rational> linRepFromY;
     Vector<int> associatedRep;
     
+    //If we don't refine, we already know most of the results concerning X
+    if(!refine) {
+      c_rays = x_rays;
+      for(int xr = 0; xr < x_cones.rows(); xr++) c_cones |= x_cones.row(xr);
+      c_weights = weights;
+      if(computeAssoc) associatedRep = Vector<int>(x_cones.rows());
+      if(repFromX) rayRepFromX = unit_matrix<Rational>(x_cmplx_cones.rows()) |
+		    zero_matrix<Rational>(x_cmplx_cones.rows(),x_lineality.rows());
+    }
+    
     dbgtrace << "Prepared result variables" << endl;
     
-    //Step 1: Compute the lineality space
-    if(refine) {
-      //Compute the intersection of the two spaces
-      Matrix<Rational> i_lineality = T(x_lineality  / (-y_lineality));
-	dbgtrace << "Computing kernel of " << i_lineality << endl;
-      Matrix<Rational> dependence =  null_space(i_lineality);
-      c_lineality = dependence.minor(All,sequence(0,x_lineality.rows())) * x_lineality;
-	dbgtrace << "Result: " << c_lineality << endl;
-      c_lineality_dim = rank(c_lineality);
-      //Compute X-rep if necessary
-      if(repFromX) {
-	linRepFromX = dependence.minor(All,sequence(0,x_lineality.rows()));
+    //Step 1: Compute the lineality space ----------------------------------
+    if(x_lineality.rows() != 0 && y_lineality.rows() != 0) {
+      if(refine) {
+	//Compute the intersection of the two spaces
+	//We compute the kernel of (x_lineality | -y_lineality)
+	Matrix<Rational> i_lineality = T(x_lineality  / (-y_lineality));
+	  dbgtrace << "Computing kernel of " << i_lineality << endl;
+	Matrix<Rational> dependence =  null_space(i_lineality);
+	c_lineality = dependence.minor(All,sequence(0,x_lineality.rows())) * x_lineality;
+	  dbgtrace << "Result: " << c_lineality << endl;
+	c_lineality_dim = rank(c_lineality);
+	//Compute X-rep if necessary
+	if(repFromX) {
+	  linRepFromX = dependence.minor(All,sequence(0,x_lineality.rows()));
+	}
+	if(repFromY) {
+	  linRepFromY = dependence.minor(All,sequence(x_lineality.rows(),y_lineality.rows()));
+	}
       }
-      if(repFromY) {
-	linRepFromY = dependence.minor(All,sequence(x_lineality.rows(),y_lineality.rows()));
-      }
-    }
-    else {
-      c_lineality = x_lineality;
-      c_lineality_dim = X.give("LINEALITY_DIM");
-      if(repFromX) {
-	linRepFromX = unit_matrix<Rational>(x_lineality.rows());
-      }
-      if(repFromY) {
-	linRepFromY = null_space(T(x_lineality / (-y_lineality))).minor(All,sequence(x_lineality.rows(),y_lineality.rows()));
+      else {
+	c_lineality = x_lineality;
+	c_lineality_dim = X.give("LINEALITY_DIM");
+	if(repFromX) {
+	  linRepFromX = unit_matrix<Rational>(x_lineality.rows());
+	}
+	if(repFromY) {
+	  //We compute the kernel of (x_lineality | -y_lineality) and invert the first
+	  //half to obtain a description of x_lineality in terms of y_lineality
+	  linRepFromY = null_space(T(x_lineality / (-y_lineality)));
+	  linRepFromY = (inv(linRepFromY.minor(All,sequence(0,x_lineality.rows()))) * linRepFromY).minor(All,sequence(x_lineality.rows(),y_lineality.rows()));
+	}
       }
     }
     
     dbgtrace << "Computed lineality space" << endl;
     
-    //Step 2: Compute cone refinement and ray representations.
+    //Step 2: Compute cone refinement and ray representations. -----------------
     
+    //If any of the two is just a lineality space, we still have to consider this as a single
+    //maximal cone for refinement / representation
+    bool x_onlylineality = x_cones.rows() == 0; 
+    bool y_onlylineality = y_cones.rows() == 0; 
     
+    //Compute a facet representation for the Y-cones
+    Vector<std::pair<Matrix<Rational>,Matrix<Rational> > > y_equations;
+    for(int yc = 0; yc < (y_onlylineality? 1 : y_cones.rows()); yc++) {
+      y_equations |= 
+	sv.enumerate_facets( zero_vector<Rational>() | (
+	   y_onlylineality? Matrix<Rational>(0,y_lineality.cols()) : y_rays.minor(y_cones.row(yc),All)),
+	   zero_vector<Rational>() | y_lineality, true,false);
+    }
     
-//     
-//     
-//     //Prepare result variables
-//     Matrix<Rational> newrays(0,ambient_dim);
-//     Matrix<Rational> newlineality(0,ambient_dim);
-//     Vector<Set<int> > newcones;
-//     Vector<Integer> newweights;
-//     Vector<Rational> newrayvalues;
-//     Vector<Rational> newlinvalues;
-//     //This variable maps indices of cones of the variety to ray index sets occuring in newcones.
-//     //More precisely, for cone i, refinementSet[i] is a set of all new cones
-//     //obtained by intersecting cone i.
-//     Map<int,Set<Set<int> > > refinementSet;
-//     
-//     //Compute lineality space
-//     Matrix<Rational> interlinmatrix = 
-//       lineality_space | zero_matrix<Rational>(lineality_space.rows(),re_lineality_space.cols());    
-//     interlinmatrix /= 
-//       (zero_matrix<Rational>(re_lineality_space.rows(),lineality_space.cols()) | re_lineality_space);
-//     newlineality = null_space(interlinmatrix);
-//     newlineality = newlineality.minor(All,sequence(0,lineality_space.cols()));
-//     int newlineality_dim = rank(newlineality);
-//     
-//     //If the variety or container is only a lineality space, we have to treat it as a cone for intersection
-//     bool fanHasOnlyLineality = cones.rows() == 0;
-//     bool containerOnlyHasLineality = re_cones.rows() == 0;
-//     
-//     //Before we start intersecting, we compute the H-reps of all container cones, so we don't 
-//     //have to do it several times
-//     Vector<Matrix<Rational> > inequalities;
-//     Vector<Matrix<Rational> > equalities;
-//     for(int c = 0; c < re_cones.cols(); c++) {
-//       std::pair<Matrix<Rational>, Matrix<Rational> > facets = sv.enumerate_facets(zero_vector<Rational>() | re_rays.minor(re_cones.row(c),All),zero_vector<Rational>() | re_lineality_space, true,false);
-//       inequalities |= facets.first;
-//       equalities |= facets.second;
-//     }
-//     if(containerOnlyHasLineality) {
-//       equalities |= null_space(re_lineality_space);
-//       inequalities |= Matrix<Rational>(0,equalities[0].cols());
-//     }
-//     
-//     //Iterate all maximal cones of variety
-//     for(int vc = 0; vc < cones.rows() + (fanHasOnlyLineality? 1 : 0); vc++) {
-//       //We compute the H-representation of the variety cone
-//       std::pair<Matrix<Rational>,Matrix<Rational> > vfacet = sv.enumerate_facets(
-// 	fanHasOnlyLineality? Matrix<Rational>(0,ambient_dim) : 
-// 		      zero_vector<Rational>() | rays.minor(cones.row(vc),All),
-// 		      zero_vector<Rational>() | lineality_space,true,false);
-//       //Iterate all maximal cones of the container 
-//       for(int co = 0; co < re_cones.rows() + (containerOnlyHasLineality? 1 : 0); co++) {
-// 	//Compute the intersection rays
-// 	Matrix<Rational> inter = sv.enumerate_vertices(
-// 	    vfacet.first / inequalities[co], vfacet.second / equalities[co],true,true).first;
-// 	inter = inter.minor(All,~scalar2set(0));
-// 	
-// 	//Check if the intersection has the correct dimension
-// 	if(rank(inter) + newlineality_dim == dimension + (uses_homog? 1 : 0)) {
-// 	  //Now we canonicalize the rays
-// 	  for(int rw = 0; rw < inter.rows(); rw++) {
-// 	    //Vertices start with a 1
-// 	    if(uses_homog && inter(rw,0) != 0) {
-// 	      inter.row(rw) /= inter(rw,0);
-// 	    }
-// 	    //The first non-zero entry in a directional ray is +-1
-// 	    else {
-// 	      for(int cl = 0; cl < inter.cols();cl++) {
-// 		if(inter(rw,cl) != 0) {
-// 		  inter.row(rw) /= abs(inter(rw,cl));
-// 		  break;
-// 		}
-// 	      }
-// 	    }
-// 	  } //END canonicalize rays
-// 	  
-// 	  //Now we assign indices to the rays
-// 	  int noOfRays = newrays.rows();
-// 	  Set<int> rayIndices;
-// 	  Set<int> newRayIndices;
-// 	  for(int nr = 0; nr < inter.rows(); nr++) {
-// 	    for(int r = 0; r < noOfRays; r++) {
-// 	      if(newrays.row(r) == inter.row(nr)) {
-// 		  rayIndices += r;
-// 		  break;
-// 	      }
-// 	      if(r == noOfRays-1) {
-// 		  newrays /= inter.row(nr);
-// 		  rayIndices += (newrays.rows()-1);
-// 		  newRayIndices += (newrays.rows()-1);
-// 	      }
-// 	    }
-// 	  } //END assign ray indices
-// 	  
-// 	  //If there are no new rays, we have to check, whether this cone already
-// 	  //exists (in this case we simply jump to the next case)
-// 	  if(newRayIndices.size() == 0) {
-// 	    if(refinementSet[vc].contains(rayIndices)) continue;
-// 	  }
-// 	  
-// 	  //Now we add the new cone
-// 	  newcones |= rayIndices;
-// 	  refinementSet[vc] += rayIndices;
-// 	  if(weightsExist) newweights |= weights[vc];
-// 	  
-// 	  //Now we compute the function values, if necessary
-// 	  if(isFunction) {
-// 	    //Iterate all new rays
-// 	    for(Entire<Set<int> >::iterator nr = entire(newRayIndices); !nr.at_end(); nr++) {
-// 	      //If the function is a general function, we just compute a representation of each
-// 	      //new vector in the old rays and use this to compute its value
-// 	      if(!isMinMaxFunction) {
-// 		Vector<Rational> repv = functionRepresentationVector(re_cmplx_cones.row(co),newrays.row(*nr),							     ambient_dim,uses_homog,re_rays,re_lineality_space,
-// 							    re_lineality_dim);
-// 		newrayvalues |= (repv * values);
-// 	      }
-// 	      //Otherwise compute values for 
-// 	      else {
-// 		
-// 	      }
-// 	    }//END iterate all new rays
-// 	  }//END compute function values
-// 	  
-// 	}//END if full-dimensional
-// 	
-// 	
-//       }//END iterate container cones
-//     }//END iterate variety cones
+    //This saves for each x-cone (index in x_cones) the cones that have been created as refinements.
+    //Since doubles can only occur when the same x-cone is contained in the intersection of several y-cones,
+    //we only have to check the cones in xrefinements[xc]
+    Vector< Set<Set<int> > > xrefinements(x_onlylineality? 1 :  x_cones.rows());
     
-    //Insert values
+    //These variables save for each cone of the intersection the indices of the cones in X and Y containing it
+    Vector<int> xcontainers;
+    Vector<int> ycontainers;
     
-    //Copy return values
+    //Iterate all cones of X
+    for(int xc = 0; xc < (x_onlylineality? 1 : x_cones.rows()); xc++)  {
+      //Initalize refinement cone set
+      xrefinements[xc] = Set<Set<int> >();
+      //Compute a facet representation for the X-cone
+      std::pair<Matrix<Rational>, Matrix<Rational> > x_equations = 
+	sv.enumerate_facets( zero_vector<Rational>() | (
+	   x_onlylineality? Matrix<Rational>(0,x_lineality.cols()) : x_rays.minor(x_cones.row(xc),All)),
+	   zero_vector<Rational>() | x_lineality, true,false);
+	
+      //Iterate all cones of Y
+      for(int yc = 0; yc < (y_onlylineality? 1 : y_cones.rows()); yc++) {
+	//Compute a V-representation of the intersection
+	Matrix<Rational> interrays = sv.enumerate_vertices(x_equations.first / y_equations[yc].first,
+		    x_equations.second / y_equations[yc].second,true,true).first;
+	interrays = interrays.minor(All,~scalar2set(0));
+	
+	//Check if it is full-dimensional (and has at least one ray - lin.spaces are not interesting)
+	if(interrays.rows() > 0 && rank(interrays) + c_lineality_dim - (x_uses_homog? 1 : 0) == x_dimension) {
+	  //If we refine, add the cone. Otherwise just remember the indices
+	  dbgtrace << "Inter rays: " << interrays << endl;
+	  Set<int> interIndices;
+	  if(!refine) {
+	    //Copy indices
+	    interIndices = x_cones.row(xc);
+	    //Compute assoc-rep. and identify new rays
+	    int vertex = -1; Set<int> newDirectionalRays;
+	    for(Entire<Set<int> >::iterator ir = entire(interIndices); !ir.at_end(); ir++) {
+	      if(computeAssoc) {
+		if(c_rays(*ir,0) == 1) {
+		    if(vertex == -1) vertex = *ir;
+		    associatedRep[*ir] = *ir;
+		}
+		else newDirectionalRays += (*ir);
+	      }
+	    }
+	    if(computeAssoc) {
+	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
+		associatedRep[*dr] = vertex;
+	      }
+	    }	    
+	  }
+	  else {
+	    //Now we canonicalize the rays and assign ray indices
+	    //We also use this opportunity to sort the rays and
+	    //compute the assocRep where and if necessary
+	    Set<int> newRays, newDirectionalRays;
+	    int associatedVertex = -1;
+	    for(int rw = 0; rw < interrays.rows(); rw++) {
+	      bool isVertex = false;
+	      //Vertices start with a 1
+	      if(x_uses_homog && interrays(rw,0) != 0) {
+		interrays.row(rw) /= interrays(rw,0);
+		isVertex = true;
+	      }
+	      //The first non-zero entry in a directional ray is +-1
+	      else {
+		for(int cl = 0; cl < interrays.cols();cl++) {
+		  if(interrays(rw,cl) != 0) {
+		    interrays.row(rw) /= abs(interrays(rw,cl));
+		    break;
+		  }
+		}
+	      }
+	      
+	      dbgtrace << "Considering row " << interrays.row(rw) << endl;
+	      
+	      //Go through the existing rays and compare
+	      int nrays = c_rays.rows();
+	      int newrayindex = -1;
+	      for(int oray = 0; oray < nrays; oray++) {
+		if(interrays.row(rw) == c_rays.row(oray)) {
+		    newrayindex = oray;
+		    break;
+		}
+	      }
+	      if(newrayindex == -1) {
+		c_rays /= interrays.row(rw);
+		newrayindex = c_rays.rows()-1;
+		newRays += newrayindex;
+		if(!isVertex) { newDirectionalRays += newrayindex;}
+		//Also add rows/entries in the assoc representation variable
+		if(computeAssoc) associatedRep |= 0;
+	      }
+	      interIndices += newrayindex;
+	      //If this is the first vertex, save the index separately
+	      if(isVertex && computeAssoc) {
+		associatedRep[newrayindex] = newrayindex;
+		if(associatedVertex == -1) associatedVertex = newrayindex;	      		
+	      }
+	    } //END canonicalize rays
+	    
+	    dbgtrace << "Ray indices " << interIndices << endl;
+	    dbgtrace << "new rays: " << newRays << endl;
+	    dbgtrace << "directional: " << newDirectionalRays << endl;
+	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
+	    
+	    //Check if the cone exists - if there are new rays, then the cone must be new as well
+	    bool addCone = newRays.size() > 0;
+	    if(!addCone) addCone = !xrefinements[xc].contains(interIndices);
+	    //If the cone is new, add it
+	    if(addCone) {
+	      dbgtrace << "Adding new cone" << endl;
+	      c_cones |= interIndices;
+	      if(weightsExist) c_weights |= weights[xc];
+	      xrefinements[xc] += interIndices;
+	      xcontainers |= xc;
+	      ycontainers |= yc;
+	    }
+	    
+	    //Compute assocRep
+	    if(computeAssoc) {
+	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
+		associatedRep[*dr] = associatedVertex;
+	      }
+	    }	    
+	  } //END canonicalize intersection cone and add it
+	  	  
+	  //If we do not refine, we only need to find one y-cone containing the x-cone
+	  if(!refine) break;	  
+	} //END if full-dimensional
+      }//END iterate y-cones
+    }//END iterate x-cones
+    
+    //Copy return values into the fan
     if(refine) {
       complex.take("RAYS") << c_rays;
       complex.take("MAXIMAL_CONES") << c_cones;
@@ -256,6 +290,36 @@ namespace polymake { namespace atint {
     else {
       complex = X;
     }
+    
+    //To compute representations of CMPLX_RAYS, we naturally have to compute the CMPLX_RAYS first
+    //TODO: Intialize rep matrices to proper size
+    if((repFromX && refine) || repFromY) {
+      Matrix<Rational> c_cmplx_rays = complex.give("CMPLX_RAYS");
+      IncidenceMatrix<> c_cmplx_cones = complex.give("CMPLX_MAXIMAL_CONES");
+      //Compute representations for X (mode 0) and/or Y (mode 1)
+      for(int mode = 0; mode <= 1; mode++) {	
+	if((mode == 0 && repFromX) || (mode == 1 && repFromY)) {
+	    //Recalls for which ray we already computed a representation
+	    Vector<bool> repComputed(c_cmplx_rays.rows());
+	    Matrix<Rational> raysForComputation = (mode == 0? x_cmplx_rays : y_cmplx_rays);
+	    Matrix<Rational> linForComputation = (mode == 0? x_lineality : y_lineality);
+	    //Go through all complex cones
+	    for(int cone = 0; cone < c_cmplx_cones.rows(); cone++) {
+	      //Go through all rays for which we have not yet computed a representation
+	      Set<int> raysOfCone = c_cmplx_cones.row(cone);
+	      for(Entire<Set<int> >::iterator r = entire(raysOfCone); !r.at_end(); r++) {
+		if(!repComputed[*r]) {
+		  
+		}
+	      }
+	    }
+	}
+      }
+    }//END compute nontrivial representations
+        
+    
+    //Insert values
+    
     RefinementResult result;
       result.complex = complex;
       result.rayRepFromX = rayRepFromX;

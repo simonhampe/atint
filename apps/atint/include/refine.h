@@ -49,8 +49,8 @@ namespace polymake { namespace atint {
   @param bool refine Whether we actually need to refine X (true) or whether X is already fine in Y (false)
   @return RefinementResult A struct containing the following data (the rep values are only defined, if the corresponding boolean flag was set):
   1) perl::Object complex: The new refined complex X'. It has homog. coordinates, iff X has and it has weights, iff X does
-  2) Matrix<Rational> rayRepFromX, linRepFromX: A row in these matrices corresponds to a ray/lin.space generator of X' and gives the coefficients in a linear representation in terms of the rays/lin.space generators of X
-  3) Matrix<Rational> rayRepFromY, linRepFromY: Same as 2),only for Y
+  2) Matrix<Rational> rayRepFromX, linRepFromX: A row in these matrices corresponds to a (cmplx_)ray/lin.space generator of X' and gives the coefficients in a linear representation in terms of the (cmplx_)rays or lin.space generators of X. More precisely, each row of rayRepFromX corresponds to the same row of CMPLX_RAYS of complex. Each row of CMPLX_RAYS is given as a linear combination of (cmplx_)rays AND lin.space generators of X, whose coefficients are stored in the matrix rayRepFromX. The rows of linRepFromX correspond to rows of LINEALITY_SPACE of complex and they are given as linear combinations of the lineality space generators of X.
+  3) Matrix<Rational> rayRepFromY, linRepFromY: Same as 2),only that the linear combinations are given in terms of rays and lineality space generators of Y
   4) Vector<int> associatedRep Gives for each ray the index of a vertex sharing a cone. For each vertex i, associatedRep[i] = i
   */
   RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine);

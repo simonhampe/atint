@@ -367,7 +367,7 @@ object WeightedComplex {
 	# @category Polyhedral geometry
 	# Transforms the fan into homogeneous coordinates
 	# @return If this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
-	# by the following matrix: One affine ray [1,0,...0] and then [0,ray] for any ray of the original fan. In [[MAXIMAL_CONES]]
+	# by the following matrix: [0,ray] for any ray of the original fan and one affine ray [1,0,...0] appended. In [[MAXIMAL_CONES]]
 	# all get the additional affine ray and [[TROPICAL WEIGHTS]] is simply copied
 	user_method homogenize {
 	  my $this = shift;
