@@ -134,6 +134,11 @@ object WeightedComplex {
 	property CMPLX_CODIM_1_FACES : IncidenceMatrix;
 		
 	# @category Polyhedral complex
+	# A vector with an entry for each row in [[CMPLX_RAYS]]. More precisely, the i-th entry gives the row index
+	# of the ray in [[RAYS]] that is equal to the i-th row of [[CMPLX_RAYS]].
+	property CMPLX_CONVERSION_VECTOR : Vector<Int>;	
+	
+	# @category Polyhedral complex
 	# Returns the dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
 	# just DIM, otherwise DIM-1. When computing this property, it is assumed that the complex is pure.
 	property CMPLX_DIM: Int;
@@ -256,7 +261,7 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, FAN_AMBIENT_DIM {
+	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES, CMPLX_CONVERSION_VECTOR : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, FAN_AMBIENT_DIM {
 	  computeComplexData($this);
 	}
 	

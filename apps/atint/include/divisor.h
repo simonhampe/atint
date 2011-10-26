@@ -27,16 +27,6 @@
 namespace polymake { namespace atint {
 
 /**
- @brief This function can be used in two ways (which are chosen via the boolean value isFunction): You can either give it a weighted complex and a rational function or a weighted complex and a polyhedral complex. In the first case it computes a refinement of the complex such that the function is cellwise linear and a new function that is just the restriction of the old one onto the new refinement. In the second case it assumes the variety is contained in the complex and computes a refinement. The function assumes that both variety and container have the same non-homogeneous dimension. I.e. a complex in homog. coordinates in R^3 (i.e. with non-homog. dimension 4) and a fan in non-homog. coordinates in R^3 would not be compatible, the fan would need to be homogenized first.
- @param perl::Object variety A WeightedComplex object. It needn't actually have defined TROPICAL_WEIGHTS. In this case the resulting variety will not have any weights either.
- @param perl::Object container Either a RationalFunction object or a WeightedComplex object. In either case, the function assumes that the variety is contained in the domain of the function or the given complex.
- @param bool isFunction This value indicates whether container is a RationalFunction (true) or a WeightedComplex (false)
- @param bool isMinMaxFunction This value is only relevant if isFunction is true. It indicates whether the rational function container is of type MinMaxFunction
- @return A perl::ListReturn object. In the first case (RationalFunction) it returns first the refined variety and second the new rational function. In the second case it only returns the refined variety.
- */
-perl::ListReturn refine(perl::Object variety, perl::Object container, bool isFunction, bool isMinMaxFunction) ; 
-  
-/**
 @brief Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete (i.e. its support is the whole ambient space) to compute the intersection correctly.
 @param fan An arbitrary polyhedral fan
 @param completeFan A complete polyhedral fan, in non-homog. coordinates
@@ -45,6 +35,15 @@ resulting fan uses homogeneous coordinates if and only fan does. If fan has a pr
 the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned.
 */
 perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan);
+
+
+/**
+  @brief Takes as input a tropical fan / variety and a matrix of rational values. Each row of the matrix is interpreted as a value vector on the (cmplx_)rays and lineality space generators. Hence the column count of the matrix should be exactly the number of CMPLX_RAYS of fan + the dimension of the lineality space. The row count is arbitrary in principle, but should be smaller than or equal to the dimension of fan. The fan will then compute the Weil divisor obtained by intersecting with all the functions described by the rows (starting from top). The result uses homogeneous coordinates, if and only if fan does
+  @param WeightedComplex fan A tropical variety
+  @param Matrix<Rational> values A matrix of rational values
+  @return The divisor r_k * ... * r_1 * fan, where r_i is the function described by the i-th row.
+*/
+perl::Object divisorByValueMatrix(perl::Object fan, Matrix<Rational> values);
 
 /**
   @brief Takes  as input a tropical fan / tropical variety and an array of rational values. The array length should coincide with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational function, where each value has been assigned to the rays given by $fan->CMPLX_RAYS and to the generators given by $fan->LINEALITY_SPACE (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. The function will then compute the corresponding Weil divisor and return it as a tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does. 

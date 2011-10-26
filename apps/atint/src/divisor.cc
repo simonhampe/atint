@@ -54,180 +54,6 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
-    perl::ListReturn refine(perl::Object variety, perl::Object container, bool isFunction, bool isMinMaxFunction) {
-      
-      solver<Rational> sv;
-      perl::ListReturn result;
-      
-      //Extract values of the variety
-      Matrix<Rational> rays = variety.give("RAYS");
-      IncidenceMatrix<> cones = variety.give("MAXIMAL_CONES");
-      Matrix<Rational> lineality_space = variety.give("LINEALITY_SPACE");
-      int ambient_dim = rays.cols() < lineality_space.cols() ? lineality_space.cols() : rays.cols();
-      bool uses_homog = variety.give("USES_HOMOGENEOUS_C");
-      int dimension = variety.give("CMPLX_DIM");	
-      Array<Integer> weights; bool weightsExist = false;
-      if(variety.exists("TROPICAL_WEIGHTS")) {
-	weights = variety.give("TROPICAL_WEIGHTS");
-	weightsExist = true;	
-      }
-      
-      //If the fan is 0-dimensional and we have just a containing fan, we don't need to refine.
-      if(dimension == 0 && !isFunction) {
-	result << variety;
-	return result;
-      }
-      
-      //Extract values of the container
-      perl::Object containerFan = (isFunction? container.give("DOMAIN") : container);
-      Matrix<Rational> re_rays = containerFan.give("RAYS");
-      IncidenceMatrix<> re_cmplx_cones = containerFan.give("CMPLX_MAXIMAL_CONES");
-      IncidenceMatrix<> re_cones = containerFan.give("MAXIMAL_CONES");
-      Matrix<Rational> re_lineality_space = containerFan.give("LINEALITY_SPACE");
-      int re_lineality_dim = containerFan.give("LINEALITY_DIM");
-      Matrix<Rational> values_rays = isFunction && !isMinMaxFunction? containerFan.give("RAY_VALUES") : 
-								      Matrix<Rational>();
-      Matrix<Rational> values_lin = isFunction && !isMinMaxFunction? containerFan.give("LIN_VALUES") :
-								      Matrix<Rational>();
-      Matrix<Rational> values = values_rays | values_lin;
-      Matrix<Rational> function_matrix = isMinMaxFunction && isFunction? containerFan.give("FUNCTION_MATRIX") : 
-								      Matrix<Rational>();
-      
-      //If the container is only a lineality space and we have just a containing fan, we don't need to refine
-      if(re_cones.rows() == 0 && !isFunction) {
-	result << variety;
-	return result;
-      }
-      
-      //Prepare result variables
-      Matrix<Rational> newrays(0,ambient_dim);
-      Matrix<Rational> newlineality(0,ambient_dim);
-      Vector<Set<int> > newcones;
-      Vector<Integer> newweights;
-      Vector<Rational> newrayvalues;
-      Vector<Rational> newlinvalues;
-      //This variable maps indices of cones of the variety to ray index sets occuring in newcones.
-      //More precisely, for cone i, refinementSet[i] is a set of all new cones
-      //obtained by intersecting cone i.
-      Map<int,Set<Set<int> > > refinementSet;
-      
-      //Compute lineality space
-      Matrix<Rational> interlinmatrix = 
-	lineality_space | zero_matrix<Rational>(lineality_space.rows(),re_lineality_space.cols());    
-      interlinmatrix /= 
-	(zero_matrix<Rational>(re_lineality_space.rows(),lineality_space.cols()) | re_lineality_space);
-      newlineality = null_space(interlinmatrix);
-      newlineality = newlineality.minor(All,sequence(0,lineality_space.cols()));
-      int newlineality_dim = rank(newlineality);
-      
-      //If the variety or container is only a lineality space, we have to treat it as a cone for intersection
-      bool fanHasOnlyLineality = cones.rows() == 0;
-      bool containerOnlyHasLineality = re_cones.rows() == 0;
-      
-      //Before we start intersecting, we compute the H-reps of all container cones, so we don't 
-      //have to do it several times
-      Vector<Matrix<Rational> > inequalities;
-      Vector<Matrix<Rational> > equalities;
-      for(int c = 0; c < re_cones.cols(); c++) {
-	std::pair<Matrix<Rational>, Matrix<Rational> > facets = sv.enumerate_facets(zero_vector<Rational>() | re_rays.minor(re_cones.row(c),All),zero_vector<Rational>() | re_lineality_space, true,false);
-	inequalities |= facets.first;
-	equalities |= facets.second;
-      }
-      if(containerOnlyHasLineality) {
-	equalities |= null_space(re_lineality_space);
-	inequalities |= Matrix<Rational>(0,equalities[0].cols());
-      }
-      
-      //Iterate all maximal cones of variety
-      for(int vc = 0; vc < cones.rows() + (fanHasOnlyLineality? 1 : 0); vc++) {
-	//We compute the H-representation of the variety cone
-	std::pair<Matrix<Rational>,Matrix<Rational> > vfacet = sv.enumerate_facets(
-	  fanHasOnlyLineality? Matrix<Rational>(0,ambient_dim) : 
-			zero_vector<Rational>() | rays.minor(cones.row(vc),All),
-			zero_vector<Rational>() | lineality_space,true,false);
-	//Iterate all maximal cones of the container 
-	for(int co = 0; co < re_cones.rows() + (containerOnlyHasLineality? 1 : 0); co++) {
-	  //Compute the intersection rays
-	  Matrix<Rational> inter = sv.enumerate_vertices(
-	      vfacet.first / inequalities[co], vfacet.second / equalities[co],true,true).first;
-	  inter = inter.minor(All,~scalar2set(0));
-	  
-	  //Check if the intersection has the correct dimension
-	  if(rank(inter) + newlineality_dim == dimension + (uses_homog? 1 : 0)) {
-	    //Now we canonicalize the rays
-	    for(int rw = 0; rw < inter.rows(); rw++) {
-	      //Vertices start with a 1
-	      if(uses_homog && inter(rw,0) != 0) {
-		inter.row(rw) /= inter(rw,0);
-	      }
-	      //The first non-zero entry in a directional ray is +-1
-	      else {
-		for(int cl = 0; cl < inter.cols();cl++) {
-		  if(inter(rw,cl) != 0) {
-		    inter.row(rw) /= abs(inter(rw,cl));
-		    break;
-		  }
-		}
-	      }
-	    } //END canonicalize rays
-	    
-	    //Now we assign indices to the rays
-	    int noOfRays = newrays.rows();
-	    Set<int> rayIndices;
-	    Set<int> newRayIndices;
-	    for(int nr = 0; nr < inter.rows(); nr++) {
-	      for(int r = 0; r < noOfRays; r++) {
-		if(newrays.row(r) == inter.row(nr)) {
-		    rayIndices += r;
-		    break;
-		}
-		if(r == noOfRays-1) {
-		    newrays /= inter.row(nr);
-		    rayIndices += (newrays.rows()-1);
-		    newRayIndices += (newrays.rows()-1);
-		}
-	      }
-	    } //END assign ray indices
-	    
-	    //If there are no new rays, we have to check, whether this cone already
-	    //exists (in this case we simply jump to the next case)
-	    if(newRayIndices.size() == 0) {
-	      if(refinementSet[vc].contains(rayIndices)) continue;
-	    }
-	    
-	    //Now we add the new cone
-	    newcones |= rayIndices;
-	    refinementSet[vc] += rayIndices;
-	    if(weightsExist) newweights |= weights[vc];
-	    
-	    //Now we compute the function values, if necessary
-	    if(isFunction) {
-	      //Iterate all new rays
-	      for(Entire<Set<int> >::iterator nr = entire(newRayIndices); !nr.at_end(); nr++) {
-		//If the function is a general function, we just compute a representation of each
-		//new vector in the old rays and use this to compute its value
-		if(!isMinMaxFunction) {
-		  Vector<Rational> repv = functionRepresentationVector(re_cmplx_cones.row(co),newrays.row(*nr),							     ambient_dim,uses_homog,re_rays,re_lineality_space,
-							      re_lineality_dim);
-		  newrayvalues |= (repv * values);
-		}
-		//Otherwise compute values for 
-		else {
-		  
-		}
-	      }//END iterate all new rays
-	    }//END compute function values
-	    
-	  }//END if full-dimensional
-	  
-	  
-	}//END iterate container cones
-      }//END iterate variety cones
-    }//END FUNCTION refine
-    
-    ///////////////////////////////////////////////////////////////////////////////////////
-    
-    //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
       
       dbglog << "Starting refinement..." << endl;
@@ -486,6 +312,108 @@ namespace polymake { namespace atint {
 	result.take("LINEALITY_SPACE") << lineality_space; 
       return result;
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    //Documentation see header -------------------------------------------------------------
+//     perl::Object divisorByValueMatrix(perl::Object complex, Matrix<Rational> values) {
+//       //This complex will have the same ray/lin matrix as fan up until
+//       //the last intersection, but it will always be the n-(current-row)-skeleton
+//       perl::Object result = complex;
+//       //Extract constant properties
+//       bool uses_homog = result.give("USES_HOMOGENEOUS_C");
+//       Matrix<Rational> rays = result.give("RAYS");
+//       Matrix<Rational> cmplx_rays = result.give("CMPLX_RAYS");
+//       Matrix<Rational> lineality_space = complex.give("LINEALITY_SPACE");
+//       
+//       //Extract properties that change in each iteration
+//       Map<int, Map<int, Vector<Integer> > > latticeNormals = complex.give("LATTICE_NORMALS");
+//       IncidenceMatrix<> codimOneCones = complex.give("CODIM_1_FACES");
+//       IncidenceMatrix<> cmplx_codimOneCones = complex.give("CMPLX_CODIM_1_FACES");
+//       IncidenceMatrix<> maximalCones = complex.give("MAXIMAL_CONES");
+//       IncidenceMatrix<> coneIncidences = complex.give("CODIM_1_IN_MAXIMAL_CONES");
+//       Map<int, Map<int, Vector<Rational> > > lnFunctionVector = complex.give("LATTICE_NORMAL_FCT_VECTOR");
+//       Matrix<Rational> lsumFunctionVector = complex.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
+//       Array<Integer> tropicalWeights = complex.give("TROPICAL_WEIGHTS");
+//       
+//       for(int row = 0; row < values.rows(); row++) {
+// 	//If the fan only consists of the lineality space, the divisor is empty
+// 	int noOfRays = rays.rows();
+// 	if(noOfRays == 0) {
+// 	  return CallPolymakeFunction("zero_cycle");
+// 	}
+// 	
+// 	//Result variables
+// 	Vector<Integer> newweights;
+// 	
+// 	dbgtrace << "Computing facet weights" << endl;
+// 	
+// 	//Go through each facet and compute its weight. 
+// 	for(int co = 0; co < codimOneCones.rows(); co++) {
+// 	  dbgtrace << "Codim 1 face " << co << endl;
+// 	  Integer coweight(0);
+// 	  Set<int> adjacentCones = coneIncidences.row(co);
+// 	  for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+// 	    dbgtrace << "Maximal cone " << *mc << endl;
+// 	    coweight = coweight + tropicalWeights[*mc] * (lnFunctionVector[co])[*mc] * values.row(row);
+// 	  }
+// 	  //Now substract the value of the lattice normal sum
+// 	  dbgtrace << "Substracting sum" << endl;
+// 	  coweight = coweight - lsumFunctionVector.row(co) * values.row(row);
+// 	  
+// 	  newweights = newweights | coweight;
+// 	  
+// 	}//END iterate co-1-cones
+// 	
+// 	dbgtrace << "Done\n" << endl;
+// 	
+// 	//If this was the last iteration, we make the ray matrix irredundant and return the result
+// 	if(row == values.rows()-1) {
+// 	  Set<int> usedRays;
+// 	  Set<int> usedCones;
+// 	  for(int co = 0; codimOneCones.rows(); co++) {
+// 	    if(newweights[co] != 0) {
+// 	      usedCones += co;
+// 	      usedRays += codimOneCones.row(co);
+// 	    }
+// 	  }
+// 	  if(usedCones.dim() == 0) {
+// 	    return CallPolymakeFunction("zero_cycle");
+// 	  }
+// 	  complex = perl::Object("WeightedComplex");
+// 	    complex.take("MAXIMAL_CONES") << codimOneCones.minor(usedCones,usedRays);
+// 	    complex.take("RAYS") << rays.minor(usedRays,All);
+// 	    complex.take("LINEALITY_SPACE") << lineality_space;
+// 	    complex.take("TROPICAL_WEIGHTS") << newweights.slice(usedCones);
+// 	    complex.take("USES_HOMOGENEOUS_C") << uses_homog;
+// 	  return complex;
+// 	}
+// 	
+// 	
+// 	//Now we compute the changing properties of the divisor that we need to
+// 	//compute the other changing properties
+// 	
+// 	//Insert known values of divisor
+// 	perl::Object result("WeightedComplex");
+// 	  result.take("RAYS") << rays;
+// 	  result.take("USES_HOMOGENEOUS_C") << uses_homog;
+// 	  result.take("MAXIMAL_CONES") << codimOneCones;
+// 	  result.take("LINEALITY_SPACE") << lineality_space; 
+// 	tropicalWeights = newweights;	  
+// 	maximalCones = codimOneCones;
+// 	  
+// 	//Compute cmplx data for the new codim one cones (in terms of the OLD rays!)
+// 	codimOneCones = result.give("CODIM_1_FACES");
+// 	adjacentCones = result.give("CODIM_1_IN_MAXIMAL_CONES");
+// 	for(int co = 0; co < codimOneCones.rows(); co++) {
+// 	    
+// 	}
+// 		
+// 	    
+//       }//END iterate function rows	
+// 	
+//       return complex; //Actually, we never arrive here, but this avoids a compiler warning
+//     }
     
     ///////////////////////////////////////////////////////////////////////////////////////
     

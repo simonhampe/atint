@@ -25,6 +25,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 #include "polymake/atint/refine.h"
+#include "polymake/atint/normalvector.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/IncidenceMatrix.h"
@@ -35,9 +36,9 @@ namespace polymake { namespace atint {
     
   using polymake::polytope::cdd_interface::solver;
 
-  //using namespace atintlog::donotlog;
+  using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  using namespace atintlog::dotrace;
+  //using namespace atintlog::dotrace;
 
   //Documentation see header
   RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
@@ -50,6 +51,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> x_cmplx_rays = repFromX? X.give("CMPLX_RAYS") : Matrix<Rational>();
     IncidenceMatrix<> x_cmplx_cones = repFromX? X.give("CMPLX_MAXIMAL_CONES") : IncidenceMatrix<>();
     Matrix<Rational> x_lineality = X.give("LINEALITY_SPACE");
+    int x_lineality_dim = X.give("LINEALITY_DIM");
     int ambient_dim = x_rays.cols() < x_lineality.cols() ? x_lineality.cols() : x_rays.cols();
     int x_dimension = X.give("CMPLX_DIM");	
     Array<Integer> weights; bool weightsExist = false;
@@ -66,6 +68,7 @@ namespace polymake { namespace atint {
     IncidenceMatrix<> y_cmplx_cones = repFromY? Y.give("CMPLX_MAXIMAL_CONES") : IncidenceMatrix<>();
     IncidenceMatrix<> y_cones = Y.give("MAXIMAL_CONES");
     Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
+    int y_lineality_dim = Y.give("LINEALITY_DIM");
       
     dbgtrace << "Extracted Y-values" << endl;
     
@@ -292,24 +295,38 @@ namespace polymake { namespace atint {
     }
     
     //To compute representations of CMPLX_RAYS, we naturally have to compute the CMPLX_RAYS first
-    //TODO: Intialize rep matrices to proper size
     if((repFromX && refine) || repFromY) {
+      dbgtrace << "Computing representations" << endl;
       Matrix<Rational> c_cmplx_rays = complex.give("CMPLX_RAYS");
       IncidenceMatrix<> c_cmplx_cones = complex.give("CMPLX_MAXIMAL_CONES");
+      //Initialize rep matrices to proper size
+      rayRepFromX = Matrix<Rational>(c_cmplx_rays.rows(),x_cmplx_rays.rows() + x_lineality.rows());
+      rayRepFromY = Matrix<Rational>(c_cmplx_rays.rows(),y_cmplx_rays.rows() + y_lineality.rows());
       //Compute representations for X (mode 0) and/or Y (mode 1)
-      for(int mode = 0; mode <= 1; mode++) {	
+      for(int mode = 0; mode <= 1; mode++) {
+	dbgtrace << "Computing in mode " << mode << endl;
 	if((mode == 0 && repFromX) || (mode == 1 && repFromY)) {
 	    //Recalls for which ray we already computed a representation
 	    Vector<bool> repComputed(c_cmplx_rays.rows());
 	    Matrix<Rational> raysForComputation = (mode == 0? x_cmplx_rays : y_cmplx_rays);
 	    Matrix<Rational> linForComputation = (mode == 0? x_lineality : y_lineality);
+	    int dimForComputation = (mode == 0? x_lineality_dim : y_lineality_dim);
 	    //Go through all complex cones
 	    for(int cone = 0; cone < c_cmplx_cones.rows(); cone++) {
+	      dbgtrace << "Computing rep in cone " << cone << endl;
 	      //Go through all rays for which we have not yet computed a representation
 	      Set<int> raysOfCone = c_cmplx_cones.row(cone);
 	      for(Entire<Set<int> >::iterator r = entire(raysOfCone); !r.at_end(); r++) {
 		if(!repComputed[*r]) {
-		  
+		  repComputed[*r] = true;
+		  (mode == 0? rayRepFromX : rayRepFromY).row(*r) =
+		      functionRepresentationVector(
+			(mode == 0 ? x_cmplx_cones : y_cmplx_cones).row(mode == 0? xcontainers[cone] : ycontainers[cone]),
+			c_cmplx_rays.row(*r),
+			ambient_dim,
+			false,
+			raysForComputation,
+			linForComputation, dimForComputation); 				   
 		}
 	      }
 	    }
@@ -331,21 +348,21 @@ namespace polymake { namespace atint {
     
   }//END function refine
   
-  //TODO: DEBUG. REMOVE
-  perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
-    RefinementResult r;
-    r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
-    pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
-    pm::cout << "Xlinrep: " << r.linRepFromX << endl;
-    pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
-    pm::cout << "Ylinrep: " << r.linRepFromY << endl;
-    pm::cout << "assoc rep: " << r.associatedRep << endl;
-    return r.complex;
-  }
+  
+//   perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
+//     RefinementResult r;
+//     r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
+//     pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
+//     pm::cout << "Xlinrep: " << r.linRepFromX << endl;
+//     pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
+//     pm::cout << "Ylinrep: " << r.linRepFromY << endl;
+//     pm::cout << "assoc rep: " << r.associatedRep << endl;
+//     return r.complex;
+//   }
 
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
+//Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
 
 }}
 

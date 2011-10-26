@@ -394,6 +394,7 @@ namespace polymake { namespace atint {
       fan.take("CMPLX_RAYS") << fan.give("RAYS");
       fan.take("CMPLX_MAXIMAL_CONES") << fan.give("MAXIMAL_CONES");
       fan.take("CMPLX_CODIM_1_FACES") << fan.give("CODIM_1_FACES");
+      fan.take("CMPLX_CONVERSTION_VECTOR") << Vector<int>(sequence(0,fan.give("N_RAYS")));
       return;
     }
     
@@ -408,6 +409,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> cmplxrays(0,ambient_dim);
     Vector<Set<int> > maxcones(maximalCones.rows());
     Vector<Set<int> > codimone(codimOneCones.rows());
+    Vector<int> conversion;
     
     dbgtrace << "Dividing rays..." << endl;
     
@@ -422,6 +424,7 @@ namespace polymake { namespace atint {
       else {
 	affineRays = affineRays + r;
 	cmplxrays = cmplxrays / rays.row(r);
+	conversion |= r;
 	newAffineIndices[r] = cmplxrays.rows()-1;
       }
     }
@@ -506,6 +509,7 @@ namespace polymake { namespace atint {
       //Now add r once for each connected component to the appropriate cones
       for(int cc = 0; cc < connectedComponents.dim(); cc++) {
 	cmplxrays = cmplxrays / rays.row(*r);
+	conversion |= (*r);
 	int rowindex = cmplxrays.rows()-1;
 	Set<int> ccset = connectedComponents[cc];
 	dbgtrace << "Inserting for component " << cc+1 << endl;
@@ -534,6 +538,7 @@ namespace polymake { namespace atint {
     fan.take("CMPLX_RAYS") << cmplxrays;
     fan.take("CMPLX_MAXIMAL_CONES") << maxcones;
     fan.take("CMPLX_CODIM_1_FACES") << codimone;
+    fan.take("CMPLX_CONVERSION_VECTOR") << conversion;
     
   }
   
