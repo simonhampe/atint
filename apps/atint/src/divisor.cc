@@ -30,6 +30,8 @@
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/linalg.h"
 #include "polymake/atint/normalvector.h"
+#include "polymake/atint/WeightedComplexRules.h"
+#include "polymake/atint/refine.h"
 
 namespace polymake { namespace atint {
 
@@ -53,6 +55,7 @@ namespace polymake { namespace atint {
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
+    //TODO: Replace
     //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
       
@@ -218,6 +221,7 @@ namespace polymake { namespace atint {
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
+    //TODO: Replace
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values) {
       //Extract properties
@@ -316,107 +320,145 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
 
     //Documentation see header -------------------------------------------------------------
-//     perl::Object divisorByValueMatrix(perl::Object complex, Matrix<Rational> values) {
-//       //This complex will have the same ray/lin matrix as fan up until
-//       //the last intersection, but it will always be the n-(current-row)-skeleton
-//       perl::Object result = complex;
-//       //Extract constant properties
-//       bool uses_homog = result.give("USES_HOMOGENEOUS_C");
-//       Matrix<Rational> rays = result.give("RAYS");
-//       Matrix<Rational> cmplx_rays = result.give("CMPLX_RAYS");
-//       Matrix<Rational> lineality_space = complex.give("LINEALITY_SPACE");
-//       
-//       //Extract properties that change in each iteration
-//       Map<int, Map<int, Vector<Integer> > > latticeNormals = complex.give("LATTICE_NORMALS");
-//       IncidenceMatrix<> codimOneCones = complex.give("CODIM_1_FACES");
-//       IncidenceMatrix<> cmplx_codimOneCones = complex.give("CMPLX_CODIM_1_FACES");
-//       IncidenceMatrix<> maximalCones = complex.give("MAXIMAL_CONES");
-//       IncidenceMatrix<> coneIncidences = complex.give("CODIM_1_IN_MAXIMAL_CONES");
-//       Map<int, Map<int, Vector<Rational> > > lnFunctionVector = complex.give("LATTICE_NORMAL_FCT_VECTOR");
-//       Matrix<Rational> lsumFunctionVector = complex.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
-//       Array<Integer> tropicalWeights = complex.give("TROPICAL_WEIGHTS");
-//       
-//       for(int row = 0; row < values.rows(); row++) {
-// 	//If the fan only consists of the lineality space, the divisor is empty
-// 	int noOfRays = rays.rows();
-// 	if(noOfRays == 0) {
-// 	  return CallPolymakeFunction("zero_cycle");
-// 	}
-// 	
-// 	//Result variables
-// 	Vector<Integer> newweights;
-// 	
-// 	dbgtrace << "Computing facet weights" << endl;
-// 	
-// 	//Go through each facet and compute its weight. 
-// 	for(int co = 0; co < codimOneCones.rows(); co++) {
+    perl::Object divisorByValueMatrix(perl::Object complex, Matrix<Rational> values) {
+      //This value carries all the intermediate results.
+      perl::Object result = complex;      
+      
+      //Now we extract the values that we will later recompute by hand or that don't change at all
+      
+      bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+      Matrix<Rational> rays = complex.give("RAYS");
+      Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
+      Matrix<Rational> lineality_space = complex.give("LINEALITY_SPACE");
+      int lineality_dim = complex.give("LINEALITY_DIM");
+      
+      Matrix<Rational> lineality_values = values.minor(All,~(sequence(0,values.cols() - lineality_dim)));
+      
+      //Prepare the additional variables that will be used in all but the first iteration to recompute the
+      //values vector
+      
+      //Contains at position i the row index of ray i in the ray matrix of the iteration before
+      Vector<int> newRaysToOldRays; 
+      
+      //Contains the CMPLX_MAXIMAL_CONES of the iteration before 
+      IncidenceMatrix<> cmplx_oldcones;
+      
+      //Tells which new maximal cone is contained in which old maximal cone (this is essentially the
+      //CODIM_1_IN_MAXIMAL_CONES without the rows for cones of weight 0)
+      IncidenceMatrix<> newConesInOld;
+      
+      //For each cmplx_ray in the LAST iteration, this tells which should be the appropriate
+      //column index in values for function value computation
+      Vector<int> cmplx_origins = sequence(0,values.cols() - lineality_dim);
+      
+      //Contains the conversion vector for the last iteration (this one we recompute during
+      //value recomputation)
+      Vector<int> old_conversion;
+      
+      //Now we iterate through the matrix rows 
+      for(int r = 0; r < values.rows(); r++) {
+	//First we recompute values that we can't/won't compute by hand
+
+	IncidenceMatrix<> codimOneCones = result.give("CODIM_1_FACES");
+	  if(codimOneCones.rows() == 0) return CallPolymakeFunction("zero_cycle");
+	IncidenceMatrix<> coneIncidences = result.give("CODIM_1_IN_MAXIMAL_CONES");
+      
+	Map<int, Map<int, Vector<Rational> > > lnFunctionVector = result.give("LATTICE_NORMAL_FCT_VECTOR");
+	Matrix<Rational> lsumFunctionVector = result.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
+	Map<int, Map<int, Vector<Integer> > > latticeNormals = result.give("LATTICE_NORMALS");
+	
+	//Now we compute the correct value vector:
+	Vector<Rational> currentValues;
+	if(r == 0 || !uses_homog) {
+	  currentValues = values.row(r);
+	}
+	else {
+	  Matrix<Rational> cmplx_rays = result.give("CMPLX_RAYS");
+	  Vector<int> conversion_vector = result.give("CMPLX_CONVERSION_VECTOR");
+	  //Compute the maximal cones containing each cmplx_ray
+	  IncidenceMatrix<> cmplx_cones_t = result.give("CMPLX_MAXIMAL_CONES");
+	    cmplx_cones_t = T(cmplx_cones_t);
+	    
+	  Vector<int> newcmplx_origins;  
+	  for(int cr = 0; cr < cmplx_rays.rows(); cr++) {
+	    //Find the corresponding cmplx_ray in the last iteration
+	    int mc = *(cmplx_cones_t.row(cr).begin()); //A cone containing the ray
+	    int oc = *(newConesInOld.row(mc).begin()); //An old cone containing mc
+	    //Now find the cmplx_ray of the old cone, such that 
+	    Set<int> ocrays = cmplx_oldcones.row(oc);
+	    for(Entire<Set<int> >::iterator ocr = entire(ocrays); !ocr.at_end(); ocr++) {
+	      //If the old ray (in non-complex counting in the old iteration) is the same as 
+	      //the new ray (in non-complex counding in the new iteration, we can
+	      //copy its function column index
+	      if(old_conversion[*ocr] == newRaysToOldRays[conversion_vector[cr]]) {
+		currentValues |= values(r,cmplx_origins[*ocr]);
+		newcmplx_origins |= cmplx_origins[*ocr];
+		break;
+	      }
+	    }
+	  }
+	  cmplx_origins = newcmplx_origins;
+	  //Finally append lineality values
+	  currentValues |= lineality_values.row(r);
+	}
+	
+	//Then we compute the divisor
+	Vector<Integer> newweights; //Contains the new weights
+	Set<int> usedCones; //Contains the codim 1 cones with weight != 0
+	Set<int> usedRays; //Contains the rays in used cones
+	//Go through each facet and compute its weight. 
+	for(int co = 0; co < codimOneCones.rows(); co++) {
 // 	  dbgtrace << "Codim 1 face " << co << endl;
-// 	  Integer coweight(0);
-// 	  Set<int> adjacentCones = coneIncidences.row(co);
-// 	  for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+	  Integer coweight(0);
+	  Set<int> adjacentCones = coneIncidences.row(co);
+	  for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
 // 	    dbgtrace << "Maximal cone " << *mc << endl;
-// 	    coweight = coweight + tropicalWeights[*mc] * (lnFunctionVector[co])[*mc] * values.row(row);
-// 	  }
-// 	  //Now substract the value of the lattice normal sum
+	    coweight = coweight + weights[*mc] * (lnFunctionVector[co])[*mc] * currentValues;
+	  }
+	  //Now substract the value of the lattice normal sum
 // 	  dbgtrace << "Substracting sum" << endl;
-// 	  coweight = coweight - lsumFunctionVector.row(co) * values.row(row);
-// 	  
-// 	  newweights = newweights | coweight;
-// 	  
-// 	}//END iterate co-1-cones
-// 	
-// 	dbgtrace << "Done\n" << endl;
-// 	
-// 	//If this was the last iteration, we make the ray matrix irredundant and return the result
-// 	if(row == values.rows()-1) {
-// 	  Set<int> usedRays;
-// 	  Set<int> usedCones;
-// 	  for(int co = 0; codimOneCones.rows(); co++) {
-// 	    if(newweights[co] != 0) {
-// 	      usedCones += co;
-// 	      usedRays += codimOneCones.row(co);
-// 	    }
-// 	  }
-// 	  if(usedCones.dim() == 0) {
-// 	    return CallPolymakeFunction("zero_cycle");
-// 	  }
-// 	  complex = perl::Object("WeightedComplex");
-// 	    complex.take("MAXIMAL_CONES") << codimOneCones.minor(usedCones,usedRays);
-// 	    complex.take("RAYS") << rays.minor(usedRays,All);
-// 	    complex.take("LINEALITY_SPACE") << lineality_space;
-// 	    complex.take("TROPICAL_WEIGHTS") << newweights.slice(usedCones);
-// 	    complex.take("USES_HOMOGENEOUS_C") << uses_homog;
-// 	  return complex;
-// 	}
-// 	
-// 	
-// 	//Now we compute the changing properties of the divisor that we need to
-// 	//compute the other changing properties
-// 	
-// 	//Insert known values of divisor
-// 	perl::Object result("WeightedComplex");
-// 	  result.take("RAYS") << rays;
-// 	  result.take("USES_HOMOGENEOUS_C") << uses_homog;
-// 	  result.take("MAXIMAL_CONES") << codimOneCones;
-// 	  result.take("LINEALITY_SPACE") << lineality_space; 
-// 	tropicalWeights = newweights;	  
-// 	maximalCones = codimOneCones;
-// 	  
-// 	//Compute cmplx data for the new codim one cones (in terms of the OLD rays!)
-// 	codimOneCones = result.give("CODIM_1_FACES");
-// 	adjacentCones = result.give("CODIM_1_IN_MAXIMAL_CONES");
-// 	for(int co = 0; co < codimOneCones.rows(); co++) {
-// 	    
-// 	}
-// 		
-// 	    
-//       }//END iterate function rows	
-// 	
-//       return complex; //Actually, we never arrive here, but this avoids a compiler warning
-//     }
+	  coweight = coweight - lsumFunctionVector.row(co) * currentValues;
+	  if(coweight != 0) {
+	    newweights = newweights | coweight;	  
+	    usedCones += co;
+	    usedRays += codimOneCones.row(co);
+	  }
+	}//END iterate co-1-cones
+	
+	//Compute the new-to-old maps used for recomputing the value vector in the next iteration
+	if(r != values.rows()-1) {
+	  
+	  newConesInOld = coneIncidences.minor(usedCones,All);	  
+	  //Need this to avoid compiler errors about ambiguos overloads of .give
+	  IncidenceMatrix<> oc = result.give("CMPLX_MAXIMAL_CONES"); 
+	    cmplx_oldcones = oc;
+	  Vector<int> ocv = result.give("CMPLX_CONVERSION_VECTOR");
+	    old_conversion = ocv;
+	  newRaysToOldRays = Vector<int>();
+	  for(Entire<Set<int> >::iterator orays = entire(usedRays); !orays.at_end(); orays++) {
+	    newRaysToOldRays |= (*orays);
+	  }
+	}
+	
+	//Now recompute the rays and maximal cones for re-initialization of the result
+	rays = rays.minor(usedRays,All);
+	weights = newweights;
+	result = perl::Object("WeightedComplex");
+	  result.take("USES_HOMOGENEOUS_C") << uses_homog;
+	  result.take("RAYS") << rays;
+	  result.take("MAXIMAL_CONES") << codimOneCones.minor(usedCones,usedRays);
+	  result.take("TROPICAL_WEIGHTS") << weights;
+	  result.take("LINEALITY_SPACE") << lineality_space;
+	
+	
+      } //END iterate function rows
+      
+      return result;
+    }
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
+    //TODO: Replace   
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByPLF(perl::Object fan, perl::Object function) {
       dbglog << "Preparing computations" << endl;
@@ -486,6 +528,76 @@ namespace polymake { namespace atint {
       
     }
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
+    //Documentation see header
+    perl::Object divisor_minmax(perl::Object complex, perl::Object function, int k) {
+      dbglog << "Preparing computations" << endl;
+      
+      //Homogenize the fan and refine it
+      bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+      if(!uses_homog) complex = complex.CallPolymakeMethod("homogenize");
+      perl::Object linearityDomains = function.give("DOMAIN");
+      
+      dbglog << "Refining fan" << endl;
+      RefinementResult r = refinement(complex,linearityDomains,false,false,true,true);
+      
+      //Extract values
+      Matrix<Rational> rays = r.complex.give("CMPLX_RAYS");	
+      Matrix<Rational> linspace = r.complex.give("LINEALITY_SPACE");
+      Array<Set<int> > maximal = r.complex.give("CMPLX_MAXIMAL_CONES");
+      Vector<int> assocRep = r.associatedRep;
+      
+      Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");
+      bool uses_min = function.give("USES_MIN");
+      
+      dbglog << "Extracted values" << endl;
+      
+      //Now compute function values
+      Vector<Rational> values;    
+      for(int r = 0; r < rays.rows(); r++) {
+	//If it is an affine ray, simply compute the function value at that point
+	if(rays(r,0) == 1) {
+	    values |= functionValue(fmatrix, rays.row(r),uses_min,true);
+	}
+	//Otherwise take the function difference between (x+this ray) and x for an associated vertex x
+	else {
+	    values |=  (functionValue(fmatrix, rays.row(assocRep[r]) + rays.row(r),uses_min,true) - 
+			      functionValue(fmatrix, rays.row(assocRep[r]),uses_min,true));
+	}
+      }
+      //Finally we add the function values on the lineality space
+      for(int index = 0; index < linspace.rows(); index++) {
+	values |= functionValue(fmatrix, linspace.row(index), uses_min,true);
+      }
+      
+      //Glue together to a value matrix
+      Matrix<Rational> vmatrix(0,values.dim());
+      for(int l = 1; l <= k; l++) {
+	vmatrix /= values;
+      }
+      
+      return divisorByValueMatrix(r.complex,vmatrix);
+      
+    }
+    
+    //Documentation see perl wrapper
+    perl::Object divisor_nr(perl::Object complex, perl::Object function, int k) {
+      //Extract function
+      Vector<Rational> rvalues = function.give("RAY_VALUES");
+      Vector<Rational> lvalues = function.give("LIN_VALUES");
+      Vector<Rational> values = rvalues | lvalues;
+      int power = function.give("POWER");
+
+      //Create function matrix
+      Matrix<Rational> fmatrix(0,values.dim());
+      for(int l = 1; l <= (k==-1? power : k); l++) {
+	fmatrix /= values;
+      }
+      
+      return divisorByValueMatrix(complex,fmatrix);
+    }
+    
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Tropical geometry"
@@ -500,6 +612,10 @@ namespace polymake { namespace atint {
     
     Function4perl(&divisorByValueVector,"divisorByValueVector(WeightedComplex, Vector<Rational>)");  
     
+    Function4perl(&divisorByValueMatrix, "divisorByValueMatrix(WeightedComplex, Matrix<Rational>)");
+    
+    Function4perl(&divisor_minmax,"divisor_minmax(WeightedComplex,MinMaxFunction;$=1)");
+    
     UserFunction4perl("# @category Tropical geometry"
 		      "# Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be "
 		      "# in homogeneous coordinates, whether the tropical variety uses them or not. The function "
@@ -510,6 +626,13 @@ namespace polymake { namespace atint {
 		      "# AMBIENT_DIM otherwise."
 		      "# @return The corresponding divisor as a tropical variety in homogeneous coordinates.",
 		      &divisorByPLF, "divisorByPLF(WeightedComplex,MinMaxFunction)");
+    
+   UserFunction4perl("# @category Tropical geometry"
+		     "# Works exactly as divisor(WeightedComplex, RationalFunction;Int). Should be called ONLY,"
+		     "# when the function f is defined on a DOMAIN equal to X (in the sense that all properties"
+		     "# like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not sufficient). In this"
+		     "# case this function will in general be faster.",
+		     &divisor_nr,"divisor_nr(WeightedComplex,RationalFunction;$=-1)");
    
 }
 }

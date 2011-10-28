@@ -29,6 +29,7 @@ This file provides c++ realizations of basic operations on polyhedral complexes
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/specialvarieties.h"
 #include "polymake/atint/divisor.h"
+#include "polymake/atint/WeightedComplexRules.h"
 
 namespace polymake { namespace atint{ 
   
@@ -377,6 +378,55 @@ namespace polymake { namespace atint{
     return result;
     
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  perl::Object skeleton_complex(perl::Object complex, int k, bool preserve = false) {
+    //Extract properties
+    int cmplx_dim = complex.give("CMPLX_DIM");
+    Matrix<Rational> rays = complex.give("RAYS");
+    IncidenceMatrix<> maximalCones = complex.give("MAXIMAL_CONES");
+    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+    Matrix<Rational> lineality = complex.give("LINEALITY_SPACE");
+    int lineality_dim = complex.give("LINEALITY_DIM");
+    
+    //If the skeleton dimension is too small, return the 0-cycle
+    if(k < (uses_homog? 0 : 1) || k < lineality_dim) {
+      return CallPolymakeFunction("zero_cycle");
+    }
+    
+    //If the skeleton dimension is the fans dimension, return the fan
+    if(k == cmplx_dim) {
+      return complex;
+    }
+    
+    //Now we compute the codimension one skeleton of the fan (cmplx_dim - k) times 
+    IncidenceMatrix<> newMaximalCones = maximalCones;
+    for(int i = 1; i <= (cmplx_dim - k); i++) {
+      newMaximalCones = calculateCodimOneData(rays,newMaximalCones, uses_homog, lineality).codimOneCones;
+    }
+    
+    //Now return the result - made irredundant, if preserve is false
+    Matrix<Rational> newrays = rays;
+    if(!preserve) {
+      //Take the union of all cones to see what rays are uses
+      Set<int> usedRays;
+      for(int c = 0; c < newMaximalCones.rows(); c++) {
+	usedRays += newMaximalCones.row(c);
+      }
+      newrays = newrays.minor(usedRays,All);
+      newMaximalCones = newMaximalCones.minor(All,usedRays);
+    }
+    
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << newrays;
+      result.take("MAXIMAL_CONES") << newMaximalCones;
+      result.take("USES_HOMOGENEOUS_C") << uses_homog;
+      result.take("LINEALITY_SPACE") << lineality;
+   
+    return result;
+  }
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
@@ -388,6 +438,8 @@ namespace polymake { namespace atint{
   
   Function4perl(&affineTransformation, "affineTransformation(WeightedComplex, Vector<Rational>, Matrix<Integer>)");
   
+  Function4perl(&skeleton_complex,"calculate_skeleton_complex(WeightedComplex,$;$=1)");
+  
   UserFunction4perl("# @category Tropical geometry"
 		    "# Take a polyhedral complex and returns a list of all the local vertex fans, "
 		    "# i.e. for each affine ray r, the list contains the fan Star_complex(r) "
@@ -398,4 +450,6 @@ namespace polymake { namespace atint{
 		    "# affine ray ( vertex). If the complex is not in homogeneous coordinates, "
 		    "# the list contains just the complex itself ",
     &fan_decomposition,"fan_decomposition(WeightedComplex)");
+  
+  
 }}

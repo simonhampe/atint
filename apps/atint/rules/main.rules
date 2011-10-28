@@ -32,6 +32,8 @@ declare object WeightedComplex : fan::PolyhedralFan<Rational>;
 
 declare object RationalFunction;
 
+declare object CompoundDivisor;
+
 declare object RationalCurve;
 
 declare object MinMaxFunction : RationalFunction;

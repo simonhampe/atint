@@ -90,7 +90,7 @@ namespace polymake { namespace atint {
       c_rays = x_rays;
       for(int xr = 0; xr < x_cones.rows(); xr++) c_cones |= x_cones.row(xr);
       c_weights = weights;
-      if(computeAssoc) associatedRep = Vector<int>(x_cones.rows());
+      //if(computeAssoc) associatedRep = Vector<int>(x_cones.rows());
       if(repFromX) rayRepFromX = unit_matrix<Rational>(x_cmplx_cones.rows()) |
 		    zero_matrix<Rational>(x_cmplx_cones.rows(),x_lineality.rows());
     }
@@ -184,34 +184,35 @@ namespace polymake { namespace atint {
 	    //Copy indices
 	    interIndices = x_cones.row(xc);
 	    //Compute assoc-rep. and identify new rays
-	    int vertex = -1; Set<int> newDirectionalRays;
-	    for(Entire<Set<int> >::iterator ir = entire(interIndices); !ir.at_end(); ir++) {
-	      if(computeAssoc) {
-		if(c_rays(*ir,0) == 1) {
-		    if(vertex == -1) vertex = *ir;
-		    associatedRep[*ir] = *ir;
-		}
-		else newDirectionalRays += (*ir);
-	      }
-	    }
-	    if(computeAssoc) {
-	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
-		associatedRep[*dr] = vertex;
-	      }
-	    }	    
+// 	    int vertex = -1; Set<int> newDirectionalRays;
+// 	    for(Entire<Set<int> >::iterator ir = entire(interIndices); !ir.at_end(); ir++) {
+// 	      if(computeAssoc) {
+// 		if(c_rays(*ir,0) == 1) {
+// 		    if(vertex == -1) vertex = *ir;
+// 		    associatedRep[*ir] = *ir;
+// 		}
+// 		else newDirectionalRays += (*ir);
+// 	      }
+// 	    }
+// 	    if(computeAssoc) {
+// 	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
+// 		associatedRep[*dr] = vertex;
+// 	      }
+// 	    }	    
 	  }
 	  else {
 	    //Now we canonicalize the rays and assign ray indices
 	    //We also use this opportunity to sort the rays and
 	    //compute the assocRep where and if necessary
-	    Set<int> newRays, newDirectionalRays;
-	    int associatedVertex = -1;
+	    Set<int> newRays;
+// 	    , newDirectionalRays;
+// 	    int associatedVertex = -1;
 	    for(int rw = 0; rw < interrays.rows(); rw++) {
-	      bool isVertex = false;
+	      //bool isVertex = false;
 	      //Vertices start with a 1
 	      if(x_uses_homog && interrays(rw,0) != 0) {
 		interrays.row(rw) /= interrays(rw,0);
-		isVertex = true;
+		//isVertex = true;
 	      }
 	      //The first non-zero entry in a directional ray is +-1
 	      else {
@@ -238,22 +239,22 @@ namespace polymake { namespace atint {
 		c_rays /= interrays.row(rw);
 		newrayindex = c_rays.rows()-1;
 		newRays += newrayindex;
-		if(!isVertex) { newDirectionalRays += newrayindex;}
-		//Also add rows/entries in the assoc representation variable
-		if(computeAssoc) associatedRep |= 0;
+// 		if(!isVertex) { newDirectionalRays += newrayindex;}
+// 		//Also add rows/entries in the assoc representation variable
+// 		if(computeAssoc) associatedRep |= 0;
 	      }
 	      interIndices += newrayindex;
 	      //If this is the first vertex, save the index separately
-	      if(isVertex && computeAssoc) {
-		associatedRep[newrayindex] = newrayindex;
-		if(associatedVertex == -1) associatedVertex = newrayindex;	      		
-	      }
+// 	      if(isVertex && computeAssoc) {
+// 		associatedRep[newrayindex] = newrayindex;
+// 		if(associatedVertex == -1) associatedVertex = newrayindex;	      		
+// 	      }
 	    } //END canonicalize rays
 	    
 	    dbgtrace << "Ray indices " << interIndices << endl;
 	    dbgtrace << "new rays: " << newRays << endl;
-	    dbgtrace << "directional: " << newDirectionalRays << endl;
-	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
+// 	    dbgtrace << "directional: " << newDirectionalRays << endl;
+// 	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
 	    
 	    //Check if the cone exists - if there are new rays, then the cone must be new as well
 	    bool addCone = newRays.size() > 0;
@@ -268,12 +269,12 @@ namespace polymake { namespace atint {
 	      ycontainers |= yc;
 	    }
 	    
-	    //Compute assocRep
+	  /*  //Compute assocRep
 	    if(computeAssoc) {
 	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
 		associatedRep[*dr] = associatedVertex;
 	      }
-	    }	    
+	    }*/	    
 	  } //END canonicalize intersection cone and add it
 	  	  
 	  //If we do not refine, we only need to find one y-cone containing the x-cone
@@ -295,7 +296,7 @@ namespace polymake { namespace atint {
     }
     
     //To compute representations of CMPLX_RAYS, we naturally have to compute the CMPLX_RAYS first
-    if((repFromX && refine) || repFromY) {
+    if((repFromX && refine) || repFromY || computeAssoc) {
       dbgtrace << "Computing representations" << endl;
       Matrix<Rational> c_cmplx_rays = complex.give("CMPLX_RAYS");
       IncidenceMatrix<> c_cmplx_cones = complex.give("CMPLX_MAXIMAL_CONES");
@@ -329,9 +330,31 @@ namespace polymake { namespace atint {
 			linForComputation, dimForComputation); 				   
 		}
 	      }
+	    }//END iterate all cones
+	}//END if mode
+      }//END go through X- and Y-mode
+      
+      if(computeAssoc) {
+	//For each cmplx_ray, in which cone does it lie?
+	IncidenceMatrix<> c_cmplx_cones_t = T(c_cmplx_cones);
+	for(int cr = 0; cr < c_cmplx_rays.rows(); cr++) {
+	    if(c_cmplx_rays(cr,0) == 1) {
+	      associatedRep |= cr;
+	    }
+	    else {
+	      //Take a cone containing ray cr
+	      int mc = *(c_cmplx_cones_t.row(cr).begin());
+	      //Find an affine ray in this cone
+	      Set<int> mcrays = c_cmplx_cones.row(mc);
+	      for(Entire<Set<int> >::iterator mcr = entire(mcrays); !mcr.at_end(); mcr++) {
+		if(c_cmplx_rays(*mcr,0) == 1) {
+		    associatedRep |= *mcr;
+		    break;
+		}
+	      }
 	    }
 	}
-      }
+      }//END if computeAssoc      
     }//END compute nontrivial representations
         
     
@@ -349,20 +372,20 @@ namespace polymake { namespace atint {
   }//END function refine
   
   
-//   perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
-//     RefinementResult r;
-//     r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
-//     pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
-//     pm::cout << "Xlinrep: " << r.linRepFromX << endl;
-//     pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
-//     pm::cout << "Ylinrep: " << r.linRepFromY << endl;
-//     pm::cout << "assoc rep: " << r.associatedRep << endl;
-//     return r.complex;
-//   }
+  perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
+    RefinementResult r;
+    r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
+    pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
+    pm::cout << "Xlinrep: " << r.linRepFromX << endl;
+    pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
+    pm::cout << "Ylinrep: " << r.linRepFromY << endl;
+    pm::cout << "assoc rep: " << r.associatedRep << endl;
+    return r.complex;
+  }
 
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-//Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
+Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
 
 }}
 

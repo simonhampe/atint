@@ -62,6 +62,20 @@ perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values);
 perl::Object divisorByPLF(perl::Object fan, perl::Object);
 
 /**
+  @brief Computes the (k-fold) divisor of a MinMaxFunction on a given tropical variety. The result will be in homogeneous coordinates, whether the tropical variety uses them or not. If X is not homogeneous, then the function should be given on the affine coordinates of the variety, NOT the homogeneous ones.
+  @param WeightedComplex fan A tropical variety, on which the divisor is computed
+  @param MinMaxFunction A function whose DOMAIN_DIMENSION should be equal to the affine coordinate space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, AMBIENT_DIM otherwise.
+  @param Int k How many times the function should be applied. Is 1 by default. If given, it overrides the POWER property of the function.
+  @return The corresponding divisor as a tropical variety in homogeneous coordinates.
+*/
+perl::Object divisor_minmax(perl::Object complex, perl::Object function, int k = -1);
+
+/**
+  @brief Works exactly as divisor(WeightedComplex, RationalFunction;Int). Should be called ONLY,when the function f is defined on a DOMAIN equal to X (in the sense that all properties like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not sufficient). In this case this function will in general be faster.
+*/
+perl::Object divisor_nr(perl::Object complex, perl::Object function, int k = -1);
+
+/**
   @brief Computes the function value of a min-max function at a given point
   @param Matrix<Rational> functionMatrix The function matrix of the min-max-function. Each row corresponds to a function, the last column contains the constant coefficients
   @param Vector<Rational> point The point at which the function should be evaluated

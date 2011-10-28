@@ -68,6 +68,15 @@ namespace polymake { namespace atint{
    @return WeightedComplex The transformed complex
    */
   perl::Object affineTransformation(perl::Object complex, Vector<Rational> translate, Matrix<Integer> matrix);
+  
+  /**
+    @brief Takes a polyhedral complex and computes the k-skeleton. Will return an empty fan, if k is larger then the dimension of the given complex or smaller than 1.
+    @param WeightedComplex fan A fan (or polyhedral complex)
+    @param Int k The dimension of the skeleton that should be computed
+    @param Bool preserveRays When true, the function assumes that all rays of the fan remain in the k-skeleton, so it just copies the RAYS, instead of computing a non-redundant list. This property can always be set to true, if fan is not in homogeneous coordinates or if the corresponding complex at x0 = 1 only has vertices. By default, this property is false.
+    @return The k-skeleton of the fan (or complex, if USES_HOMOGENEOUS_C is true)
+   */
+  perl::Object skeleton_complex(perl::Object complex, int k, bool preserve = false);
 }}
 
 #endif

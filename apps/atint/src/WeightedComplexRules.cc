@@ -30,6 +30,7 @@ properties of the PolyhedralFan structure extended to a tropical variety in atin
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/atint/normalvector.h"
 #include "polymake/atint/LoggingPrinter.h"
+#include "polymake/atint/WeightedComplexRules.h"
 #include "polymake/polytope/cdd_interface.h"
 
 namespace polymake { namespace atint { 
@@ -39,6 +40,7 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dotrace;
   
   using polymake::polytope::cdd_interface::solver;
+  
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -52,6 +54,17 @@ namespace polymake { namespace atint {
     Matrix<Rational> rays = fan.give("RAYS");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     
+    CodimensionOneResult r = calculateCodimOneData(rays, maximalCones, uses_homog, linspace);
+    
+    fan.take("CODIM_1_FACES") << r.codimOneCones;
+    fan.take("CODIM_1_IN_MAXIMAL_CONES") << r.codimOneInMaximal;    
+  }
+  
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  CodimensionOneResult calculateCodimOneData(Matrix<Rational> rays, IncidenceMatrix<> maximalCones, bool uses_homog, Matrix<Rational> linspace) {
     dbgtrace << "Computing all facets..." << endl;
     
     //First we construct the set of all facets 
@@ -123,83 +136,11 @@ namespace polymake { namespace atint {
       }
     }
     
-    fan.take("CODIM_1_FACES") << IncidenceMatrix<>(facetArray);
-    fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>(fIncones);
-    
+    CodimensionOneResult r;
+    	r.codimOneCones = IncidenceMatrix<>(facetArray);
+	r.codimOneInMaximal = IncidenceMatrix<>(fIncones);
+    return r;    
   }
-  
-//  /**
-//*    @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically. This function differs from the function computeCodimensionOne in that it does not use the property MAXIMAL_CONES_INCICDENCES, but uses the FACETS_THRU_VERTICES property of polytope::Cone (which seems to make everything a lot faster)
-//     @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
-//     @param std::vector<perl::Object> cones An array of polytope::Cone objects (whose RAYS_IN_FACETS should have been precomputed) that represent the maximal cones of fan (s.t. the i-th cone is the i-th maximal cone)*/
-//   */
-//   void computeCodimensionOneViaCones(perl::Object fan, std::vector<perl::Object> cones) {
-//     
-//     //Extract needed properties
-//     Matrix<Rational> rays = fan.give("RAYS");
-//     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
-//     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
-//     
-//     //This will contain the array of codim-1-cones, which we use to construct the incidence matrix
-//     Vector<Set<int> > facetArray;
-//     //This will define the codim-1-maximal-cone incidence matrix
-//     Vector<Set<int> > facetsInCones;
-//     
-//     dbgtrace << "Going through all maximal cones" << endl;
-//     
-//     //Iterate through all cone objects
-//     for(int i = 0; i < maximalCones.rows(); i++) {
-//       dbgtrace << "Considering maximal cone no. " << i << endl;
-//       //Put its rays in a vector
-//       Vector<int> sortedRayIndices(maximalCones.row(i));
-//       //Retrieve the facets of the cone
-//       IncidenceMatrix<> raysInFacets = cones[i].give("RAYS_IN_FACETS");
-//       //Now go through all facets of the cone and map them back to facets of the fan
-//       for(int irow = 0; irow < raysInFacets.rows(); irow++) {
-// 	dbgtrace << "Considering its facet no. " << irow << endl;
-// 	//Convert ray indices back to fan indices
-// 	Set<int> potentialFacet;
-// 	Set<int> coneRays = raysInFacets.row(irow);
-// 	for(Entire<Set<int> >::iterator iray = entire(coneRays); !iray.at_end(); iray++) {
-// 	    potentialFacet = potentialFacet + sortedRayIndices[*iray];
-// 	}
-// 	dbgtrace << "Converted indices. Now checking for existence" << endl;
-// 	//If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
-// 	//More precisely: Check if at least one of its rays has x0-coord != 0
-// 	if(uses_homog) {
-// 	  Vector<Rational> firstColumn = rays.minor(potentialFacet,All).col(0);
-// 	  if(firstColumn == zero_vector<Rational>(firstColumn.dim())) {
-// 	    continue;
-// 	  }
-// 	}
-// 	//Otherwise check if we already have that facet and remember its index
-// 	int fcIndex = -1;
-// 	for(int existing = 0; existing < facetArray.dim(); existing++) {
-// 	if(facetArray[existing] == potentialFacet) {
-// 	  fcIndex = existing;
-// 	  break;
-// 	}
-// 	}
-// 	//Add the facet if necessary and add its maximal-cone indices
-// 	if(fcIndex == -1) {
-// 	  facetArray = facetArray | potentialFacet;
-// 	  Set<int> singlecone;
-// 	    singlecone = singlecone + i;
-// 	  facetsInCones = facetsInCones | singlecone;
-// 	}
-// 	else {
-// 	  facetsInCones[fcIndex] = facetsInCones[fcIndex] + i;
-// 	}
-// 	
-// 	
-//       }
-//       
-//     }
-    
-//     //Finally: Insert values
-//     fan.take("CODIM_1_FACES") << IncidenceMatrix<>(facetArray);
-//     fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>(facetsInCones);    
-//   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -389,16 +330,16 @@ namespace polymake { namespace atint {
   void computeComplexData(perl::Object fan) {
     //Extract properties of fan
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+    Matrix<Rational> rays = fan.give("RAYS");
     
     if(!uses_homog) {
-      fan.take("CMPLX_RAYS") << fan.give("RAYS");
+      fan.take("CMPLX_RAYS") << rays;
       fan.take("CMPLX_MAXIMAL_CONES") << fan.give("MAXIMAL_CONES");
       fan.take("CMPLX_CODIM_1_FACES") << fan.give("CODIM_1_FACES");
-      fan.take("CMPLX_CONVERSTION_VECTOR") << Vector<int>(sequence(0,fan.give("N_RAYS")));
+      fan.take("CMPLX_CONVERSION_VECTOR") << Vector<int>(sequence(0,rays.rows()));
       return;
     }
-    
-    Matrix<Rational> rays = fan.give("RAYS");
+        
     int ambient_dim = fan.give("FAN_AMBIENT_DIM");
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
@@ -779,6 +720,7 @@ namespace polymake { namespace atint {
 	// label it
 	if(showWeights) {
 	  Vector<Rational> barycenter = average(rows(polyRays));
+	    barycenter /= barycenter[0];
 	  centermatrix = centermatrix / barycenter;
 	  std::ostringstream wlabel;
 	  wlabel << "# " << mc << ": " << weights[mc];

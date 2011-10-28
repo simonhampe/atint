@@ -22,6 +22,8 @@
 
 object RationalFunction {
   
+#   use overload('^' => 'powerf');
+  
   # @category Tropical geometry
   # This property describes the linearity domains of the function. I.e. the function is
   # affine integral linear on each maximal cone of [[DOMAIN]]. It is of type WeightedComplex, but
@@ -37,6 +39,45 @@ object RationalFunction {
   # @category Tropical geometry
   # The value at index i describes the function value of [[DOMAIN]]->LINEALITY_SPACE->row(i)
   property LIN_VALUES : Vector<Rational>; 
+  
+  # @category Tropical geometry / Rational functions
+  # This property describes how many times a function should be applied, if it occurs in a divisor term
+  # E.g. if you create a MinMaxFunction f and you set its POWER property to 2, a call to
+  # divisor(X,f) actually computes f*f*X
+  property POWER : Int;
+  
+  ############################### RULES #######################################
+  
+  rule RAY_VALUES : LIN_VALUES {
+    $this->RAY_VALUES = new Vector<Rational>();
+  }
+  
+  rule LIN_VALUES : RAY_VALUES {
+    $this->LIN_VALUES = new Vector<Rational>();
+  }
+  
+  rule POWER : {
+    $this->POWER = 1;
+  }
+  
+  
+  # @category Rational functions
+  # This creates a RationalFunction from this one, simply by changing the power
+  # @param Int k
+  # @return Returns the function f with a power set to k. Note that the original power of f is ignored.
+  user_method pow {
+    my ($this,$k) = @_;
+    return new RationalFunction(DOMAIN=>$this->DOMAIN,RAY_VALUES=>$this->RAY_VALUES,LIN_VALUES=>$this->LIN_VALUES,POWER=>$k);
+  }
+
+# ----------------------------- OVERLOADED OPERATORS -----------------
+#   
+#   sub powerf {
+#     my ($f,$k) = @_;
+#     return $f->to_the($k);
+#   }
+
+  
 }
 
 # @category Rational functions
@@ -48,3 +89,35 @@ user_function wfan {
   my ($fan,$homog) = @_;
   return new WeightedComplex(RAYS=>$fan->RAYS,MAXIMAL_CONES=>$fan->MAXIMAL_CONES,LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$homog);
 }
+
+# @category Rational functions
+# This creates a RationalFunction by directly defining it on the rays of a given domain. It is simply shorter then
+# using the constructor.
+# @param WeightedComplex X The DOMAIN of the function
+# @param Rational An arbitrarily long list of function values. It should be as long as 
+# X->CMPXL_RAYS->rows + X->LINEALITY_DIM. Function values will be assigned in this order 
+# (first rays, then linspace). Superfluous values are ignored, missing ones replaced by zero
+# @return RationalFunction
+user_function function_value {
+  my ($X,@values) = @_;
+  
+  my $nrays = $X->CMPLX_RAYS->rows;
+  my $nlin = $X->LINEALITY_DIM;
+  
+  #Adjust value length
+  if(scalar(@values) > $nrays + $nlin) {
+    @values = @values[0..($nrays+$nlin-1)];
+  }
+  while(scalar(@values) < $nrays + $nlin ) {
+    @values = (@values,0);
+  }
+  my @rvalues = @values[0..($nrays-1)];
+  my @lvalues = @values[$nrays..(scalar(@values)-1)];
+  
+  return new RationalFunction(DOMAIN=>$X,
+			      RAY_VALUES=>(new Vector<Rational>(@rvalues)),
+			      LIN_VALUES=>(new Vector<Rational>(@lvalues)),POWER=>1);
+}
+
+
+
