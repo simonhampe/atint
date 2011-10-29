@@ -27,9 +27,9 @@
 namespace polymake { namespace atint {
 
 /**
-@brief Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete (i.e. its support is the whole ambient space) to compute the intersection correctly.
+@brief Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan contains the first one to compute the intersection correctly. 
 @param fan An arbitrary polyhedral fan
-@param completeFan A complete polyhedral fan, in non-homog. coordinates
+@param completeFan A polyhedral fan containing the first one. If this fan is in homog. coordinates, then fan must be too. (the converse needn't be true)
 @return WeightedComplex The intersection of both fans (whose support is equal to the support of fan). The 
 resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, 
 the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned.
@@ -82,7 +82,7 @@ perl::Object divisor_nr(perl::Object complex, perl::Object function, int k = -1)
   @param bool uses_min True, if we take the mininum over all function rows, otherwise we take the maximum
   @param bool uses_homog Whether point is given in homogeneous coordinates
 */
-inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog);
+Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog);
 
 }}
 

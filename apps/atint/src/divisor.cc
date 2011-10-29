@@ -44,7 +44,7 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
-    inline Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog) {
+    Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog) {
       //Remove the first coordinate and add a 1 at the end of point for the constant coefficient
       if(uses_homog) point = point.slice(~scalar2set(0));
       point |= 1;
@@ -55,168 +55,169 @@ namespace polymake { namespace atint {
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
-    //TODO: Replace
     //Documentation see header -------------------------------------------------------------
     perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
-      
-      dbglog << "Starting refinement..." << endl;
-      
-      dbglog << "Extracting values" << endl;
-      
-      //Extract values
-      dbglog << "Computing rays " << endl;
-      Matrix<Rational> rays = fan.give("RAYS");
-      dbglog << "Done." << endl;
-      Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
-      int ambient_dim = rays.cols() < linspace.cols() ? linspace.cols() : rays.cols();
-      IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
-      bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
-      int dimension = fan.give("CMPLX_DIM");
-	//If fan is zero-dimensional, no refinement is necessary anyway, we just return fan	
-	if(dimension == 0) return fan;
-	//We actually want to compute with the homogeneous dimension
-	if(uses_homog) dimension++;
-      
-      Array<Integer> weights;
-      bool weightsExist = false;
-      if(fan.exists("TROPICAL_WEIGHTS")) {
-	weights = fan.give("TROPICAL_WEIGHTS");
-	weightsExist = true;
-      }
-      
-      
-      Matrix<Rational> compRays = completeFan.give("RAYS");
-      IncidenceMatrix<> compMaximalCones = completeFan.give("MAXIMAL_CONES");
-      Matrix<Rational> compLinealitySpace = completeFan.give("LINEALITY_SPACE");
-
-      dbglog << "Done. Computing intersection" << endl;
-      
-      //Result variables
-      Matrix<Rational> newRays(0,ambient_dim);
-      Vector<Set<int> > newCones;
-      Set<Set<int> > newConeSet;//This is kept to check for doubles. It has the same content as maximalCones
-      Matrix<Rational> newLineality(0,ambient_dim);
-	bool computedLineality = false;
-      Vector<Integer> newWeights;
-            
-      //If the complete fan is only a lineality space, it is the whole space, so we return fan
-      if(compMaximalCones.rows() == 0) {
-	return fan;
-      }
-      
-      //If the fan, however, is only a lineality space, we have to take care that it is considered
-      // as a maximal cone of fan (note that at this point, the lineality dimension must then be > 0,
-      // since the fan dimension is > 0
-      bool fanHasOnlyLineality = maximalCones.rows() == 0;
-      int fanUpperBound = fanHasOnlyLineality? 1 : maximalCones.rows();
-      
-      dbgtrace << "Intersecting cones" << endl;
-      
-      //Now intersect all pairs of maximal cones.
-      for(int fanIndex = 0; fanIndex < fanUpperBound; fanIndex++) {
-	//Compute inequalities and equations for the fan cone
-	std::pair<Matrix<Rational>, Matrix<Rational> > fanEqs =
-	    solver<Rational>().enumerate_facets(fanHasOnlyLineality? Matrix<Rational>(0,ambient_dim) :
-				zero_vector<Rational>() | rays.minor(maximalCones.row(fanIndex),All),
-				zero_vector<Rational>() | linspace,true);
-	for(int cIndex = 0; cIndex < compMaximalCones.rows(); cIndex++) {
-	    std::pair<Matrix<Rational>, Matrix<Rational> > compEqs =
-		solver<Rational>().enumerate_facets(
-			      zero_vector<Rational>() | compRays.minor(compMaximalCones.row(cIndex),All),
-			      zero_vector<Rational>() | compLinealitySpace,true);
-	    
-	    Matrix<Rational> interinequalities = fanEqs.first / compEqs.first;
-	    Matrix<Rational> interequalities = fanEqs.second / compEqs.second;
-	    std::pair<Matrix<Rational>, Matrix<Rational> > s = 	
-		  solver<Rational>().enumerate_vertices(interinequalities, fanEqs.second / compEqs.second,true);
-	    s.first = s.first.minor(All, range(1,s.first.cols()-1));
-	    s.second = s.second.minor(All,range(1,s.second.cols()-1));
-	    
-	    dbgtrace << "Computed rays of intersection" << endl;
-		  
-	    int coneDimension = rank(s.first) + rank(s.second);
-	    
-	    //Only consider intersections that have the correct dimension
-	    if(coneDimension == dimension) {
-		dbgtrace << "Rays: " << s.first << endl;
-		dbgtrace << "Lineality: " << s.second << endl;
-		//The first time we compute this, the lineality space of the intersection is copied as the lineality space of the resulting fan
-		if(!computedLineality) {
-		  newLineality = s.second;
-		  //Make sure the lineality space has the right dimension
-		  if(newLineality.cols() <= 0) {
-		    newLineality = Matrix<Rational>(0,ambient_dim);
-		  }
-		  computedLineality = true;
-		  dbgtrace << "Setting lineality space to " << newLineality << endl;
-		  
-		}
-		
-		//Now go through the rays of the intersection to find those already added
-		Matrix<Rational> interRays = s.first;//inter.give("RAYS");
-		
-		dbgtrace << "Checking rays" << endl;
-		
-		Set<int> remainingRows;
-		Set<int> newMaximalCone;
-		for(int ray = 0; ray < interRays.rows(); ray++) {
-		  int raysIndex = -1;
-		  //Compare it to all existing rays
-		  for(int testRay = 0; testRay < newRays.rows(); testRay++) {
-		    if(interRays.row(ray) == newRays.row(testRay)) {
-		      raysIndex = testRay;
-		      break;
-		    }
-		  }
-		  //If we found the ray, add the index to the maximal cone, otherwise
-		  //keep track of the row to create new rays later
-		  if(raysIndex >= 0) {
-		    newMaximalCone += raysIndex;
-		  }
-		  else {
-		    remainingRows += ray;
-		  }
-		}//END go through all intersection rays
-		
-		//Now add remaining rays and the corresponding cone (if it doesn't exist yet)
-		bool addCone = false;
-		if(remainingRows.size() > 0) {
-		  addCone = true;
-		}
-		else {
-		  addCone = !(newConeSet.contains(newMaximalCone));
-		}
-		
-		if(addCone) {
-		    dbgtrace << "Adding cone" << endl;		  
-		    newRays = newRays / interRays.minor(remainingRows,All);
-		    for(int i = newRays.rows() - remainingRows.size(); i < newRays.rows(); i++) {
-		      newMaximalCone += i;
-		    }
-		    newCones = newCones | newMaximalCone;
-		    newConeSet += newMaximalCone;
-		    if(weightsExist) {
-			newWeights = newWeights | weights[fanIndex];
-		    }
-		}
-	    }//End check intersection cone
-	    
-	   
-	}//END iterate over complete fan cones
-      }//END iterate over fan cones
-      
-      //Return result
-      perl::Object result("WeightedComplex");
-	result.take("RAYS") << newRays;
-	result.take("MAXIMAL_CONES") << newCones;
-	result.take("USES_HOMOGENEOUS_C") << uses_homog;
-	result.take("LINEALITY_SPACE") << newLineality;
-	  int cmplx_dim = uses_homog? dimension-1 : dimension;
-	result.take("CMPLX_DIM") << cmplx_dim;
-	if(weightsExist) result.take("TROPICAL_WEIGHTS") << newWeights;
-      return result;
-      
-      
+	  
+	 RefinementResult r = refinement(fan,completeFan,false,false,false,true);
+	 return r.complex;
+//       dbglog << "Starting refinement..." << endl;
+//       
+//       dbglog << "Extracting values" << endl;
+//       
+//       //Extract values
+//       dbglog << "Computing rays " << endl;
+//       Matrix<Rational> rays = fan.give("RAYS");
+//       dbglog << "Done." << endl;
+//       Matrix<Rational> linspace = fan.give("LINEALITY_SPACE");
+//       int ambient_dim = rays.cols() < linspace.cols() ? linspace.cols() : rays.cols();
+//       IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+//       bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
+//       int dimension = fan.give("CMPLX_DIM");
+// 	//If fan is zero-dimensional, no refinement is necessary anyway, we just return fan	
+// 	if(dimension == 0) return fan;
+// 	//We actually want to compute with the homogeneous dimension
+// 	if(uses_homog) dimension++;
+//       
+//       Array<Integer> weights;
+//       bool weightsExist = false;
+//       if(fan.exists("TROPICAL_WEIGHTS")) {
+// 	weights = fan.give("TROPICAL_WEIGHTS");
+// 	weightsExist = true;
+//       }
+//       
+//       
+//       Matrix<Rational> compRays = completeFan.give("RAYS");
+//       IncidenceMatrix<> compMaximalCones = completeFan.give("MAXIMAL_CONES");
+//       Matrix<Rational> compLinealitySpace = completeFan.give("LINEALITY_SPACE");
+// 
+//       dbglog << "Done. Computing intersection" << endl;
+//       
+//       //Result variables
+//       Matrix<Rational> newRays(0,ambient_dim);
+//       Vector<Set<int> > newCones;
+//       Set<Set<int> > newConeSet;//This is kept to check for doubles. It has the same content as maximalCones
+//       Matrix<Rational> newLineality(0,ambient_dim);
+// 	bool computedLineality = false;
+//       Vector<Integer> newWeights;
+//             
+//       //If the complete fan is only a lineality space, it is the whole space, so we return fan
+//       if(compMaximalCones.rows() == 0) {
+// 	return fan;
+//       }
+//       
+//       //If the fan, however, is only a lineality space, we have to take care that it is considered
+//       // as a maximal cone of fan (note that at this point, the lineality dimension must then be > 0,
+//       // since the fan dimension is > 0
+//       bool fanHasOnlyLineality = maximalCones.rows() == 0;
+//       int fanUpperBound = fanHasOnlyLineality? 1 : maximalCones.rows();
+//       
+//       dbgtrace << "Intersecting cones" << endl;
+//       
+//       //Now intersect all pairs of maximal cones.
+//       for(int fanIndex = 0; fanIndex < fanUpperBound; fanIndex++) {
+// 	//Compute inequalities and equations for the fan cone
+// 	std::pair<Matrix<Rational>, Matrix<Rational> > fanEqs =
+// 	    solver<Rational>().enumerate_facets(fanHasOnlyLineality? Matrix<Rational>(0,ambient_dim) :
+// 				zero_vector<Rational>() | rays.minor(maximalCones.row(fanIndex),All),
+// 				zero_vector<Rational>() | linspace,true);
+// 	for(int cIndex = 0; cIndex < compMaximalCones.rows(); cIndex++) {
+// 	    std::pair<Matrix<Rational>, Matrix<Rational> > compEqs =
+// 		solver<Rational>().enumerate_facets(
+// 			      zero_vector<Rational>() | compRays.minor(compMaximalCones.row(cIndex),All),
+// 			      zero_vector<Rational>() | compLinealitySpace,true);
+// 	    
+// 	    Matrix<Rational> interinequalities = fanEqs.first / compEqs.first;
+// 	    Matrix<Rational> interequalities = fanEqs.second / compEqs.second;
+// 	    std::pair<Matrix<Rational>, Matrix<Rational> > s = 	
+// 		  solver<Rational>().enumerate_vertices(interinequalities, fanEqs.second / compEqs.second,true);
+// 	    s.first = s.first.minor(All, range(1,s.first.cols()-1));
+// 	    s.second = s.second.minor(All,range(1,s.second.cols()-1));
+// 	    
+// 	    dbgtrace << "Computed rays of intersection" << endl;
+// 		  
+// 	    int coneDimension = rank(s.first) + rank(s.second);
+// 	    
+// 	    //Only consider intersections that have the correct dimension
+// 	    if(coneDimension == dimension) {
+// 		dbgtrace << "Rays: " << s.first << endl;
+// 		dbgtrace << "Lineality: " << s.second << endl;
+// 		//The first time we compute this, the lineality space of the intersection is copied as the lineality space of the resulting fan
+// 		if(!computedLineality) {
+// 		  newLineality = s.second;
+// 		  //Make sure the lineality space has the right dimension
+// 		  if(newLineality.cols() <= 0) {
+// 		    newLineality = Matrix<Rational>(0,ambient_dim);
+// 		  }
+// 		  computedLineality = true;
+// 		  dbgtrace << "Setting lineality space to " << newLineality << endl;
+// 		  
+// 		}
+// 		
+// 		//Now go through the rays of the intersection to find those already added
+// 		Matrix<Rational> interRays = s.first;//inter.give("RAYS");
+// 		
+// 		dbgtrace << "Checking rays" << endl;
+// 		
+// 		Set<int> remainingRows;
+// 		Set<int> newMaximalCone;
+// 		for(int ray = 0; ray < interRays.rows(); ray++) {
+// 		  int raysIndex = -1;
+// 		  //Compare it to all existing rays
+// 		  for(int testRay = 0; testRay < newRays.rows(); testRay++) {
+// 		    if(interRays.row(ray) == newRays.row(testRay)) {
+// 		      raysIndex = testRay;
+// 		      break;
+// 		    }
+// 		  }
+// 		  //If we found the ray, add the index to the maximal cone, otherwise
+// 		  //keep track of the row to create new rays later
+// 		  if(raysIndex >= 0) {
+// 		    newMaximalCone += raysIndex;
+// 		  }
+// 		  else {
+// 		    remainingRows += ray;
+// 		  }
+// 		}//END go through all intersection rays
+// 		
+// 		//Now add remaining rays and the corresponding cone (if it doesn't exist yet)
+// 		bool addCone = false;
+// 		if(remainingRows.size() > 0) {
+// 		  addCone = true;
+// 		}
+// 		else {
+// 		  addCone = !(newConeSet.contains(newMaximalCone));
+// 		}
+// 		
+// 		if(addCone) {
+// 		    dbgtrace << "Adding cone" << endl;		  
+// 		    newRays = newRays / interRays.minor(remainingRows,All);
+// 		    for(int i = newRays.rows() - remainingRows.size(); i < newRays.rows(); i++) {
+// 		      newMaximalCone += i;
+// 		    }
+// 		    newCones = newCones | newMaximalCone;
+// 		    newConeSet += newMaximalCone;
+// 		    if(weightsExist) {
+// 			newWeights = newWeights | weights[fanIndex];
+// 		    }
+// 		}
+// 	    }//End check intersection cone
+// 	    
+// 	   
+// 	}//END iterate over complete fan cones
+//       }//END iterate over fan cones
+//       
+//       //Return result
+//       perl::Object result("WeightedComplex");
+// 	result.take("RAYS") << newRays;
+// 	result.take("MAXIMAL_CONES") << newCones;
+// 	result.take("USES_HOMOGENEOUS_C") << uses_homog;
+// 	result.take("LINEALITY_SPACE") << newLineality;
+// 	  int cmplx_dim = uses_homog? dimension-1 : dimension;
+// 	result.take("CMPLX_DIM") << cmplx_dim;
+// 	if(weightsExist) result.take("TROPICAL_WEIGHTS") << newWeights;
+//       return result;
+//       
+//       
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -598,6 +599,42 @@ namespace polymake { namespace atint {
       return divisorByValueMatrix(complex,fmatrix);
     }
     
+    perl::Object divisor_rational(perl::Object complex, perl::Object function, int k=1) {
+      //Homogenize the fan if necessary and then refine it
+      bool cmplx_uses_homog = complex.give("USES_HOMOGENEOUS_C");
+      perl::Object domain = function.give("DOMAIN");
+      bool fct_uses_homog = domain.give("USES_HOMOGENEOUS_C");
+      if(fct_uses_homog && !cmplx_uses_homog) {
+	complex = complex.CallPolymakeMethod("homogenize");
+      }
+      RefinementResult r = refinement(complex,domain, false,true,false,true);
+      
+      Vector<Rational> rvalues = function.give("RAY_VALUES");
+      Vector<Rational> lvalues = function.give("LIN_VALUES");
+      Vector<Rational> values = rvalues | lvalues;
+      
+      //Compute the ray values on the new complex
+      Matrix<Rational> rayRep = r.rayRepFromY;
+      Matrix<Rational> linRep = r.linRepFromY;
+      
+      Vector<Rational> newvalues;
+      for(int ray = 0; ray < rayRep.rows(); ray++) {
+	newvalues |= (rayRep.row(ray) * values);
+      }
+      for(int lin = 0; lin < linRep.rows(); lin++) {
+	newvalues |= (linRep.row(lin) * lvalues);
+      }
+      
+      //Glue together to a matrix
+      Matrix<Rational> fmatrix(0,newvalues.dim());
+      for(int l = 1; l <= k; l++) {
+	fmatrix /= newvalues;
+      }
+      
+      return divisorByValueMatrix(r.complex, fmatrix);
+      
+    }
+    
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Tropical geometry"
@@ -615,6 +652,8 @@ namespace polymake { namespace atint {
     Function4perl(&divisorByValueMatrix, "divisorByValueMatrix(WeightedComplex, Matrix<Rational>)");
     
     Function4perl(&divisor_minmax,"divisor_minmax(WeightedComplex,MinMaxFunction;$=1)");
+    
+    Function4perl(&divisor_rational, "divisor_rational(WeightedComplex,RationalFunction; $=1)");
     
     UserFunction4perl("# @category Tropical geometry"
 		      "# Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be "

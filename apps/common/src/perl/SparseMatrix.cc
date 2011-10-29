@@ -38,5 +38,6 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Unary_neg, perl::Canned< const Wary< pm::ColChain<pm::SingleCol<pm::SparseVector<pm::Rational, pm::conv<pm::Rational, bool> > const&>, pm::SparseMatrix<pm::Rational, pm::NonSymmetric> const&> > >);
    FunctionInstance4perl(new_X, SparseMatrix< Rational, NonSymmetric >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::SparseMatrix<pm::Rational, pm::NonSymmetric> const&> >);
    OperatorInstance4perl(Binary__or, perl::Canned< const Wary< pm::DiagMatrix<pm::SameElementVector<pm::Rational>, true> > >, perl::Canned< const Matrix<Rational> >);
+   FunctionInstance4perl(new_X, SparseMatrix< int, NonSymmetric >, perl::Canned< const SparseMatrix< int, NonSymmetric > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

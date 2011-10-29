@@ -708,6 +708,10 @@ namespace polymake { namespace atint {
       //Compute the polytope vertices from that
       Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(zero_vector<Rational>()| facets, zero_vector<Rational>() | linspan).first;
       polyRays = polyRays.minor(All,~scalar2set(0));
+      //Normalize
+      for(int r = 0; r < polyRays.rows(); r++) {
+	if(polyRays(r,0) != 0) polyRays.row(r) /= polyRays(r,0);
+      }
       //We have to make sure that the polytope has
       //at least dim +1 vertices after cutting, otherwise its a point set or graph to the
       //visualization and all the Facet options don't work
@@ -720,7 +724,7 @@ namespace polymake { namespace atint {
 	// label it
 	if(showWeights) {
 	  Vector<Rational> barycenter = average(rows(polyRays));
-	    barycenter /= barycenter[0];
+	    //barycenter /= barycenter[0];
 	  centermatrix = centermatrix / barycenter;
 	  std::ostringstream wlabel;
 	  wlabel << "# " << mc << ": " << weights[mc];
@@ -733,7 +737,7 @@ namespace polymake { namespace atint {
 // 	pm::cout << "Test" << endl;
 //       }
       
-    }
+    }//END iterate rendered polyhedra
     
     if(showWeights) {
       weightCenters.take("POINTS") << centermatrix;

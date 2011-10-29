@@ -42,7 +42,7 @@ user_function divisorByValue {
 # Takes as input a tropical variety X , a rational function f and optionally a positive integer k. It then computes
 # f^k * X
 # @param WeightedComplex X A tropical variety
-# @param RationalFunction f A rational function, defined on a DOMAIN that contains X
+# @param RationalFunction f A rational function, defined on a DOMAIN that contains X. It can be in non-homog. coordinates, even if X is in homog. coordinates, but then its AMBIENT_DIM has to be equal to X->AMBIENT_DIM. Otherwise you will have to homogenize the function first.
 # @param Int k Optional. A positive integer. Note that if k is given, this will actually ignore f->POWER. Is 1 by default.
 # @return WeightedComplex The divisor f^k * X. It is given in homogeneous coordinates, if and only if: Either X is already in homogeneous coordinates or f is defined on a homogeneous DOMAIN (which is implicitly the case for ALL MinMaxFunctions)
 user_function divisor {
@@ -54,8 +54,7 @@ user_function divisor {
     return divisor_minmax($X,$f,($k == -1? $f->POWER : $k));
   }
   else {
-    print "General functions do not work yet. Returning zero cycle.";
-    return zero_cycle();
+    return divisor_rational($X,$f,($k == -1? $f->POWER : $k));
   }
   
 }

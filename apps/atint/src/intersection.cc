@@ -28,7 +28,9 @@ Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
 #include "polymake/atint/divisor.h"
 #include "polymake/atint/complexify.h"
 #include "polymake/atint/LoggingPrinter.h"
+#include "polymake/atint/refine.h"
 #include "polymake/linalg.h"
+#include "polymake/PowerSet.h"
 
 namespace polymake { namespace atint {
 
@@ -42,8 +44,129 @@ namespace polymake { namespace atint {
      @brief Compute the intersection product of two tropical cycles
      @param perl::Object X A WeightedComplex, assumed to be balanced
      @param perl::Object Y A balances WeightedComplex with the same ambient dimension as X
+     @param
      */
     perl::Object cycle_intersection(perl::Object X, perl::Object Y) {
+// 	//Extract values
+// 	int Xcodim = X.give("CMPLX_CODIMENSION");
+// 	int Ycodim = Y.give("CMPLX_CODIMENSION");
+// 	int Xambi  = X.give("CMPLX_AMBIENT_DIM");
+// 	
+// 	dbgtrace << "Checking codimension" << endl;
+// 	
+// 	//If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
+// 	if(Xcodim + Ycodim > Xambi) {
+// 	  return CallPolymakeFunction("zero_cycle");
+// 	}
+//       
+//       
+// 	//First we create the common linearity domain of the diagonal functions
+// 	bool x_uses_homog = X.give("USES_HOMOGENEOUS_C");
+// 	bool y_uses_homog = Y.give("USES_HOMOGENEOUS_C");
+// 	if(!x_uses_homog) X = X.CallPolymakeMethod("homogenize");
+// 	if(!y_uses_homog) Y = Y.CallPolymakeMethod("homogenize");
+// 	
+// 	Matrix<Rational> common_rays(0, Xambi + 1);
+// 	common_rays /= (unit_matrix<Rational>(Xambi) | Matrix<Rational>(Xambi,Xambi));
+// 	common_rays /= (-unit_matrix<Rational>(Xambi) | Matrix<Rational>(Xambi,Xambi));
+// 	common_rays = zero_vector<Rational>() | common_rays;
+// 	common_rays = unit_vector<Rational>(common_rays.cols(),0) / common_rays;
+// 	
+// 	
+// 	Matrix<Rational> common_lin = (unit_matrix<Rational>(Xambi) | unit_matrix<Rational>(Xambi));
+// 	common_lin = zero_vector<Rational>() | common_lin;
+// 	
+// 	dbgtrace << "Common linearity rays: " << common_rays << endl;
+// 	dbgtrace << "Common linearity linspace: " << common_lin << endl;
+// 	
+// 	//Create cones, one for each choice of signs on the rays
+// 	Array<Set<int> > signChoices = 
+// 		    pm::AllSubsets<Set<int> >(sequence(0,Xambi));
+// 	Vector<Set<int> > cones;
+// 	for(int s = 0; s < signChoices.size(); s++) {
+// 	  Set<int> sc = signChoices[s];
+// 	  Vector<int> conevector(sequence(0,Xambi+1));
+// 	  //For all s in SC, we choose the inverted ray
+// 	  for(Entire<Set<int> >::iterator inv = entire(sc); !inv.at_end(); inv++) {
+// 	    conevector[*inv + 1] = *inv + Xambi + 1;
+// 	  }
+// 	  cones |= Set<int>(conevector);
+// 	}
+// 	dbgtrace << "Cones " << cones << endl;
+// 	perl::Object common_domain("WeightedComplex");
+// 	  common_domain.take("RAYS") << common_rays;
+// 	  common_domain.take("MAXIMAL_CONES") << cones;
+// 	  common_domain.take("LINEALITY_SPACE") << common_lin;
+// 	  common_domain.take("USES_HOMOGENEOUS_C") << true;
+// 	
+// 	dbgtrace << "Computing product" << endl;
+// 	
+// 	//Compute the cross product
+// 	std::vector<perl::Object> XandY;
+// 	  XandY.push_back(X); XandY.push_back(Y);
+// 	  dbgtrace << "Computed list for product..." << endl;
+// 	perl::Object Z = compute_product_complex(XandY);
+// 	
+// 	//Refining the cross product
+// 	RefinementResult r = refinement(Z,common_domain,false,false,true,true);
+// 	
+// 	dbgtrace << "Computed refinement" << endl;
+// 	
+// 	//Compute the ray values on the new complex
+// 	Matrix<Rational> rays = r.complex.give("CMPLX_RAYS");	
+// 	Matrix<Rational> linspace = r.complex.give("LINEALITY_SPACE");
+// 	Array<Set<int> > maximal = r.complex.give("CMPLX_MAXIMAL_CONES");
+// 	Vector<int> assocRep = r.associatedRep;
+// 	
+// 	//Compute the diagonal functions
+// 	perl::ListResult psi = ListCallPolymakeFunction("atint::diagonal_functions",Xambi);
+// 	
+// 	//Compute the new value matrix
+// 	Matrix<Rational> newmatrix(0,rays.rows() + linspace.rows());
+// 	for(int f = 0; f < Xambi; f++) {
+// 	  perl::Object p = psi[f];
+// 	  Matrix<Rational> fmatrix = p.give("FUNCTION_MATRIX");
+// 	  //Now compute function values for each diagonal function
+// 	  Vector<Rational> values;    
+// 	  for(int r = 0; r < rays.rows(); r++) {
+// 	    //If it is an affine ray, simply compute the function value at that point
+// 	    if(rays(r,0) == 1) {
+// 		values |= functionValue(fmatrix, rays.row(r),false,true);
+// 	    }
+// 	    //Otherwise take the function difference between (x+this ray) and x for an associated vertex x
+// 	    else {
+// 		values |=  (functionValue(fmatrix, rays.row(assocRep[r]) + rays.row(r),false,true) - 
+// 				  functionValue(fmatrix, rays.row(assocRep[r]),false,true));
+// 	    }
+// 	  }
+// 	  //Finally we add the function values on the lineality space
+// 	  for(int index = 0; index < linspace.rows(); index++) {
+// 	    values |= functionValue(fmatrix, linspace.row(index), false,true);
+// 	  }
+// 	  newmatrix /= values;
+// 	}
+// 	
+// 	dbgtrace << "Value matrix is " << newmatrix << endl;
+// 	
+// 	perl::Object div = divisorByValueMatrix(r.complex, newmatrix);
+// 
+// 	//Finally project
+// 	Matrix<Rational> raymatrix = div.give("RAYS");
+// 	  raymatrix = raymatrix.minor(All,sequence(0,Xambi+1 ));
+// 	Matrix<Rational> linmatrix = div.give("LINEALITY_SPACE");
+// 	  if(linmatrix.rows() > 0) {
+// 	    linmatrix = linmatrix.minor(All,sequence(0,Xambi+1));
+// 	  }
+// 	IncidenceMatrix<> mcones = div.give("MAXIMAL_CONES");
+// 	Vector<Integer> weights = div.give("TROPICAL_WEIGHTS");
+// 	perl::Object result("WeightedComplex");
+// 	  result.take("RAYS") << raymatrix;
+// 	  result.take("LINEALITY_SPACE") << linmatrix,
+// 	  result.take("MAXIMAL_CONES") << mcones;
+// 	  result.take("TROPICAL_WEIGHTS") << weights;
+// 	  result.take("USES_HOMOGENEOUS_C") << true;
+// 	return result;
+	
       dbgtrace << "Extracting values" << endl;
       //Extract values
       int Xcodim = X.give("CMPLX_CODIMENSION");
@@ -272,7 +395,8 @@ namespace polymake { namespace atint {
 		      "# @param WeightedComplex Y The second tropical variety. Should have the same actual ambient "
 		      "# dimension (homogeneous coordinates don't count) as X."
 		      "# @return WeightedComplex Z The intersection product X*Y in V = R^n, where n is the ambient "
-		      "# dimension of X and Y. The result has homogeneous coordinates, if and only if X or Y has homog. " "# coordinates.",
+		      "# dimension of X and Y. The result has homogeneous coordinates in any case"
+		      "# coordinates.",
 		      &cycle_intersection,"cycle_intersection(WeightedComplex, WeightedComplex)");
 
     UserFunction4perl("# @category Tropical geometry"

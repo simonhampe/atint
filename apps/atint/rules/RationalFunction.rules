@@ -69,6 +69,30 @@ object RationalFunction {
     my ($this,$k) = @_;
     return new RationalFunction(DOMAIN=>$this->DOMAIN,RAY_VALUES=>$this->RAY_VALUES,LIN_VALUES=>$this->LIN_VALUES,POWER=>$k);
   }
+  
+  # @category Rational functions
+  # If the domain of the function is in homogeneous coordinates, it returns the function. Otherwise it homogenizes
+  # the domain and assigns the value 0 to the additional vertex at the origin
+  user_method homogenize {
+    my $this = shift;
+    if($this->DOMAIN->USES_HOMOGENEOUS_C) { return $this;}
+    my @v = @{$this->RAY_VALUES};
+    my $ndomain = $this->DOMAIN->homogenize;
+    my $crays = $ndomain->CMPLX_RAYS;
+    my $index = 0;
+    #Find the new ray with x0 = 1
+    for(my $i = 0; $i < $crays->rows(); $i++) {
+      if($crays->row($i)->[0] != 0) {
+	$index = $i;
+	last;
+      }
+    }
+    #Insert the 0-value at the right position
+    @v = (@v[0..($index-1)],0,@v[$index..(scalar(@v)-1)]);
+    
+    return new RationalFunction(DOMAIN=>$ndomain, RAY_VALUES=>\@v, LIN_VALUES=>$this->LIN_VALUES,POWER=>$this->POWER);
+    
+  }
 
 # ----------------------------- OVERLOADED OPERATORS -----------------
 #   
