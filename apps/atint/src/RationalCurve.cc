@@ -35,9 +35,9 @@
 
 namespace polymake { namespace atint { 
   
-  using namespace atintlog::donotlog;
+  //using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+  using namespace atintlog::dotrace;
 
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -50,14 +50,135 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
-   @brief Computes a rational curve (in the v_I-representation) and its graph from a given metric. Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
+   @brief Takes three integer values and checks whether two of them are equal and >= than the third
+   */
+  inline bool fpcCheck(int a, int b, int c) {
+    if(a == b && a >= c) return true;
+    if(a == c && a >= b) return true;
+    if(b == c && b >= a) return true;
+    return false;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper of wrapTestFourPointCondition (does the same except that it returns
+  // a vector of int)
+  Vector<int> testFourPointCondition(Vector<Rational> v) {
+    //Convert metric into map
+    int n = moduliDimensionFromLength(v.dim());
+    Matrix<Rational> d(n+1,n+1);
+    
+    int mindex = 0;
+    for(int i = 1; i < n; i++) {
+      for(int j = i+1; j <= n; j++) {
+	d(i,j) = d(j,i) = v[mindex];
+	mindex++;
+      }
+    }
+    
+    //First we test all 4-element subsets
+    Set<int> complete = sequence(1,n);
+    Array<Set<int> > fours =  pm::Subsets_of_k<Set<int> > ( complete,4 );
+    for(int f = 0; f < fours.size(); f++) {
+      Vector<int> l(fours[f]);
+      int a = d(l[0],l[1]) + d(l[2],l[3]);
+      int b = d(l[0],l[2]) + d(l[1],l[3]);
+      int c = d(l[0],l[3]) + d(l[1],l[2]);
+      //Check that two of a,b,c are equal and not less than the third
+      if(!fpcCheck(a,b,c)) {
+	Vector<int> fault;
+	  fault |= l[0];
+	  fault |= l[1];
+	  fault |= l[2];
+	  fault |= l[3];
+	return fault;
+      }
+    }
+    //Now we check all 3-element subsets
+    Array<Set<int> > threes = pm::Subsets_of_k<Set<int> >(complete, 3);
+    for(int f = 0; f < threes.size(); f++) {
+      Vector<int> l(threes[f]);
+      //Now check the three possibilities, where the fourth element is equal to any of the three
+      for(int t = 0; t < l.size(); t++) {
+	int a = d(l[0],l[1]) + d(l[2],l[t]);
+	int b = d(l[0],l[2]) + d(l[1],l[t]);
+	int c = d(l[0],l[t]) + d(l[1],l[2]);
+	//Check that two of a,b,c are equal and not less than the third
+	if(!fpcCheck(a,b,c)) {
+	  Vector<int> fault;
+	  fault |= l[0];
+	  fault |= l[1];
+	  fault |= l[2];
+	  fault |= l[t];
+	  return fault;
+	}
+      }
+    }
+    //Now we check all 2-element subsets
+    Array<Set<int> > twos = pm::Subsets_of_k<Set<int> >(complete, 2);
+    for(int f = 0; f < twos.size(); f++) {
+      Vector<int> l(twos[f]);
+      //We have three possibilites for the other two z,t: t=x,z=y or t=z=x or t=z=y
+      for(int p = 1; p <= 3; p++) {
+	int t = p < 3? l[0] : l[1];
+	int z = p != 2? l[1] : l[0];
+	int a = d(l[0],l[1]) + d(z,t);
+	int b = d(l[0],z) + d(l[1],t);
+	int c = d(l[0],t) + d(l[1],z);
+	//Check that two of a,b,c are equal and not less than the third
+	if(!fpcCheck(a,b,c)) {
+	  Vector<int> fault;
+	  fault |= l[0];
+	  fault |= l[1];
+	  fault |= z;
+	  fault |= t;
+	  return fault;
+	}
+      }
+    }
+    Vector<int> result;
+    return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::ListReturn wrapTestFourPointCondition(Vector<Rational> v) {
+    Vector<int> fault = testFourPointCondition(v);
+    perl::ListReturn result;
+    for(int i = 0; i < fault.dim(); i++) {
+      result << fault[i];
+    }
+    return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
+   @brief Computes a rational curve (in the v_I-representation) and its graph from a given metric (or more precisely a vector equivalent to a metric). Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
    */
   perl::Object curveAndGraphFromMetric(Vector<Rational> metric) {
     // We prepare the metric by making sure, all entries are > 0
-    // and by adding Phi(sum of unit vectors) to ensure all leaves have
-    // positive distance
     int n = moduliDimensionFromLength(metric.dim());
-    metric += 2*ones_vector<Rational>(metric.dim());
+    
+    //We now add Phi(sum of unit vectors) to the metric until it fulfills the four-point-condition
+    //and is positive
+    //Then we add it once more to make sure every leaf has positive distance to its vertex
+    //Note that adding Phi(..) is the same as adding 2 to every entry in the matrix
+    bool hasBeenfpced = false;
+    bool hasBeenStretched = false;
+    while(!(hasBeenfpced && hasBeenStretched)) {
+	metric += 2*ones_vector<Rational>(metric.dim());
+	//If it already had been 4-point-cond-compatible and positive, this was the stretching
+	if(hasBeenfpced) hasBeenStretched = true;
+	//Check if everything is positive	
+	if (accumulate(Set<Rational>(metric), operations::min()) <= 0) {
+	    continue;
+	}
+	//Check if it fulfills the 4-pc
+	if(testFourPointCondition(metric).dim() == 0) hasBeenfpced = true;
+    }
+    
     //For simplicity we ignore the first row and column and start counting at 1
     Matrix<Rational> d(n+1,n+1); 
     int mindex = 0;
@@ -68,17 +189,23 @@ namespace polymake { namespace atint {
 	mindex++;
       }
     }
-    //Now check for nonpositive entries
-    for(int i = 1; i < n; i++) {
-      for(int j = i+1; j <= n; j++) {
-	if(d(i,j) <= 0) {
-	  Vector<Rational> add = (d(i,j) +1) * ones_vector<Rational>(d.cols());
-	  d.row(i) += add;
-	  d.col(i) += add;
-	  d(i,i) = 0;
-	}
-      }
-    }
+    
+//     //Now check for nonpositive entries
+//     dbgtrace << "Distance metric before making positive" << d <<  endl;
+//     for(int i = 1; i < n; i++) {
+//       for(int j = i+1; j <= n; j++) {
+// 	if(d(i,j) <= 0) {
+// 	  Vector<Rational> add = (-d(i,j) +1) * ones_vector<Rational>(d.cols());
+// 	  d.row(i) += add;
+// 	  d.col(i) += add;
+// 	  d(i,i) = 0;
+// 	}
+//       }
+//     }
+//     dbgtrace << "Positive distance metric: " << d << endl;
+    
+    
+    
       
     dbgtrace << "Starting with metric matrix\n" << d << endl;
     
@@ -281,6 +408,12 @@ namespace polymake { namespace atint {
 	labels[i] = "";
       }
     }
+    
+    dbgtrace << "Graph: " << endl;
+      dbgtrace << "Nodes. " << G.nodes() << endl;
+      dbgtrace << "Adjacency: " << G << endl;
+      dbgtrace << "Labels: " << labels << endl;
+    
     perl::Object graph("graph::Graph");
       graph.take("N_NODES") << G.nodes();
       graph.take("ADJACENCY") << G;
@@ -386,6 +519,7 @@ namespace polymake { namespace atint {
 	}
       }
     }
+    dbgtrace << metric << endl;
     
     return curveFromMetric(metric); 
   }
@@ -457,18 +591,6 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  /**
-   @brief Takes three integer values and checks whether two of them are equal and >= than the third
-   */
-  inline bool fpcCheck(int a, int b, int c) {
-    if(a == b && a >= c) return true;
-    if(a == c && a >= b) return true;
-    if(b == c && b >= a) return true;
-    return false;
-  }
-  
-  ///////////////////////////////////////////////////////////////////////////////////////
-  
   //Documentation see perl wrapper
   perl::ListReturn curveFromMetricMatrix(Matrix<Rational> m) {
     perl::ListReturn result;
@@ -477,77 +599,6 @@ namespace polymake { namespace atint {
       result << curveFromMetric(m.row(i));
     }
     
-    return result;
-  }
-  
-  ///////////////////////////////////////////////////////////////////////////////////////
-  
-  //Documentation see perl wrapper
-  perl::ListReturn testFourPointCondition(Vector<Rational> v) {
-    //Convert metric into map
-    int n = moduliDimensionFromLength(v.dim());
-    Matrix<Rational> d(n+1,n+1);
-    
-    int mindex = 0;
-    for(int i = 1; i < n; i++) {
-      for(int j = i+1; j <= n; j++) {
-	d(i,j) = d(j,i) = v[mindex];
-	mindex++;
-      }
-    }
-    
-    //First we test all 4-element subsets
-    Set<int> complete = sequence(1,n);
-    Array<Set<int> > fours =  pm::Subsets_of_k<Set<int> > ( complete,4 );
-    for(int f = 0; f < fours.size(); f++) {
-      Vector<int> l(fours[f]);
-      int a = d(l[0],l[1]) + d(l[2],l[3]);
-      int b = d(l[0],l[2]) + d(l[1],l[3]);
-      int c = d(l[0],l[3]) + d(l[1],l[2]);
-      //Check that two of a,b,c are equal and not less than the third
-      if(!fpcCheck(a,b,c)) {
-	perl::ListReturn fault;
-	  fault << l[0] << l[1] << l[2] << l[3];
-	return fault;
-      }
-    }
-    //Now we check all 3-element subsets
-    Array<Set<int> > threes = pm::Subsets_of_k<Set<int> >(complete, 3);
-    for(int f = 0; f < threes.size(); f++) {
-      Vector<int> l(threes[f]);
-      //Now check the three possibilities, where the fourth element is equal to any of the three
-      for(int t = 0; t < l.size(); t++) {
-	int a = d(l[0],l[1]) + d(l[2],l[t]);
-	int b = d(l[0],l[2]) + d(l[1],l[t]);
-	int c = d(l[0],l[t]) + d(l[1],l[2]);
-	//Check that two of a,b,c are equal and not less than the third
-	if(!fpcCheck(a,b,c)) {
-	  perl::ListReturn fault;
-	    fault << l[0] << l[1] << l[2] << l[t];
-	  return fault;
-	}
-      }
-    }
-    //Now we check all 2-element subsets
-    Array<Set<int> > twos = pm::Subsets_of_k<Set<int> >(complete, 2);
-    for(int f = 0; f < twos.size(); f++) {
-      Vector<int> l(twos[f]);
-      //We have three possibilites for the other two z,t: t=x,z=y or t=z=x or t=z=y
-      for(int p = 1; p <= 3; p++) {
-	int t = p < 3? l[0] : l[1];
-	int z = p != 2? l[1] : l[0];
-	int a = d(l[0],l[1]) + d(z,t);
-	int b = d(l[0],z) + d(l[1],t);
-	int c = d(l[0],t) + d(l[1],z);
-	//Check that two of a,b,c are equal and not less than the third
-	if(!fpcCheck(a,b,c)) {
-	  perl::ListReturn fault;
-	    fault << l[0] << l[1] << z << t;
-	  return fault;
-	}
-      }
-    }
-    perl::ListReturn result;
     return result;
   }
   
@@ -611,7 +662,7 @@ namespace polymake { namespace atint {
 		    "# @param Vector<Rational> v The vector to be checked"
 		    "# @return Int A quadruple (array) of indices, where the four-point condition "
 		    "# is violated or an empty list, if the vector is indeed in M_0,n",
-		    &testFourPointCondition, "testFourPointCondition(Vector<Rational>)");
+		    &wrapTestFourPointCondition, "testFourPointCondition(Vector<Rational>)");
 		    
   
   Function4perl(&metricFromCurve, "metric_from_curve(IncidenceMatrix, Vector<Rational>, $)");
