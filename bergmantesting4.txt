@@ -1,0 +1,10 @@
+Matroid on complete graph on n vertices:
+n = 3:Combinatorial:  0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)
+TropLi:  0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)
+n = 4:Combinatorial:  0 wallclock secs ( 0.01 usr +  0.00 sys =  0.01 CPU)
+TropLi:  0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)
+n = 5:Combinatorial:  0 wallclock secs ( 0.00 usr +  0.00 sys =  0.00 CPU)
+TropLi:  0 wallclock secs ( 0.05 usr +  0.00 sys =  0.05 CPU)
+n = 6:Combinatorial:  0 wallclock secs ( 0.02 usr +  0.00 sys =  0.02 CPU)
+TropLi:  9 wallclock secs ( 8.49 usr +  0.03 sys =  8.52 CPU)
+n = 7:Combinatorial:  1 wallclock secs ( 1.00 usr +  0.01 sys =  1.01 CPU)

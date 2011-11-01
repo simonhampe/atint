@@ -35,9 +35,9 @@
 
 namespace polymake { namespace atint { 
   
-  //using namespace atintlog::donotlog;
+  using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  using namespace atintlog::dotrace;
+  //using namespace atintlog::dotrace;
 
   ///////////////////////////////////////////////////////////////////////////////////////
   
