@@ -23,6 +23,7 @@
 object RationalFunction {
   
 #   use overload('^' => 'powerf');
+  use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'powerf');
   
   # @category Tropical geometry
   # This property describes the linearity domains of the function. I.e. the function is
@@ -48,18 +49,21 @@ object RationalFunction {
   
   ############################### RULES #######################################
   
-  rule RAY_VALUES : LIN_VALUES {
-    $this->RAY_VALUES = new Vector<Rational>();
+  label rfunction
+  
+  rule rfunction : RAY_VALUES : LIN_VALUES, DOMAIN {
+    $this->RAY_VALUES = new Vector<Rational>($this->DOMAIN->CMPLX_RAYS->rows());
   }
   
-  rule LIN_VALUES : RAY_VALUES {
-    $this->LIN_VALUES = new Vector<Rational>();
+  rule rfunction : LIN_VALUES : RAY_VALUES, DOMAIN {
+    $this->LIN_VALUES = new Vector<Rational>($this->DOMAIN->LINEALITY_DIM);
   }
   
   rule POWER : {
     $this->POWER = 1;
   }
   
+  ############################## METHODS #######################################
   
   # @category Rational functions
   # This creates a RationalFunction from this one, simply by changing the power
@@ -95,12 +99,26 @@ object RationalFunction {
   }
 
 # ----------------------------- OVERLOADED OPERATORS -----------------
-#   
-#   sub powerf {
-#     my ($f,$k) = @_;
-#     return $f->to_the($k);
-#   }
+  
+  sub powerf {
+    my ($f,$k) = @_;
+    return $f->pow($k);
+  }
 
+  sub bool {
+      my $this = shift;
+      return !undef($this);
+  }
+
+  sub mult {
+      my ($f,$r ) = @_;
+      return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>$r * ($f->RAY_VALUES), LIN_VALUES=>$r * ($f->LIN_VALUES), POWER=>$f->POWER);
+  }
+  
+  sub to_string {
+    my $this = shift;  
+    return "Function on (", $this->DOMAIN->DESCRIPTION,") with values: ", join(",",$this->RAY_VALUES),"/",join(",",$this->LIN_VALUES);
+  }
   
 }
 
@@ -141,6 +159,16 @@ user_function function_value {
   return new RationalFunction(DOMAIN=>$X,
 			      RAY_VALUES=>(new Vector<Rational>(@rvalues)),
 			      LIN_VALUES=>(new Vector<Rational>(@lvalues)),POWER=>1);
+}
+
+# @category Rational functions
+# This function takes a RationalFunction f and a Rational value r and returns the RationalFunction r*f
+# @param RationalFunction f
+# @param Rational r
+# @return RationalFunction
+user_function function_mult {
+  my ($f,$r) = @_;
+  return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>($r * $f->RAY_VALUES), LIN_VALUES=>($r* $f->LIN_VALUES));
 }
 
 

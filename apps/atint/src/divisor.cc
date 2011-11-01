@@ -333,6 +333,14 @@ namespace polymake { namespace atint {
       Matrix<Rational> lineality_space = complex.give("LINEALITY_SPACE");
       int lineality_dim = complex.give("LINEALITY_DIM");
       
+      dbgtrace << "Rays: " << rays << endl;
+      dbgtrace << "Values: " << values << endl;
+      
+      //Do a compatibility check on the value matrix to avoid segfaults in the case of faulty input
+      if(values.cols() != rays.rows() + lineality_space.rows()) {
+	  throw std::runtime_error("Value matrix is not compatible with variety. Aborting computation");
+      }
+      
       Matrix<Rational> lineality_values = values.minor(All,~(sequence(0,values.cols() - lineality_dim)));
       
       //Prepare the additional variables that will be used in all but the first iteration to recompute the
@@ -356,8 +364,14 @@ namespace polymake { namespace atint {
       //value recomputation)
       Vector<int> old_conversion;
       
+      //When computing the codim-one-weights, this contains the correct function value vector for the current iteration
+      //When computing the new function vector for the current iteration, this means it contains the function
+      //values of the old iteration
+      Vector<Rational> currentValues;
+      
       //Now we iterate through the matrix rows 
       for(int r = 0; r < values.rows(); r++) {
+	dbgtrace << "Computing on row " << r << endl;
 	//First we recompute values that we can't/won't compute by hand
 
 	IncidenceMatrix<> codimOneCones = result.give("CODIM_1_FACES");
@@ -369,11 +383,19 @@ namespace polymake { namespace atint {
 	Map<int, Map<int, Vector<Integer> > > latticeNormals = result.give("LATTICE_NORMALS");
 	
 	//Now we compute the correct value vector:
-	Vector<Rational> currentValues;
+	
 	if(r == 0 || !uses_homog) {
-	  currentValues = values.row(r);
+	  if(r == 0) {
+	    currentValues = values.row(r);
+	  }
+	  else {
+	    //In the case of fans we don't get any new rays, so we just take the entries
+	    //corresponding to the remaining rays.
+	    currentValues = currentValues.slice(Set<int>(newRaysToOldRays));
+	  }
 	}
 	else {
+	  currentValues = Vector<Rational>();
 	  Matrix<Rational> cmplx_rays = result.give("CMPLX_RAYS");
 	  Vector<int> conversion_vector = result.give("CMPLX_CONVERSION_VECTOR");
 	  //Compute the maximal cones containing each cmplx_ray
@@ -402,6 +424,7 @@ namespace polymake { namespace atint {
 	  //Finally append lineality values
 	  currentValues |= lineality_values.row(r);
 	}
+	dbgtrace << "Value vector is: " << currentValues << endl;
 	
 	//Then we compute the divisor
 	Vector<Integer> newweights; //Contains the new weights
@@ -426,6 +449,8 @@ namespace polymake { namespace atint {
 	  }
 	}//END iterate co-1-cones
 	
+	dbgtrace << "Computed codim one weights" << endl;
+	
 	//Compute the new-to-old maps used for recomputing the value vector in the next iteration
 	if(r != values.rows()-1) {
 	  
@@ -440,6 +465,8 @@ namespace polymake { namespace atint {
 	    newRaysToOldRays |= (*orays);
 	  }
 	}
+	dbgtrace << "newConesInOld: " << newConesInOld << endl;
+	dbgtrace << "newRaysToOldRays:" << newRaysToOldRays << endl;
 	
 	//Now recompute the rays and maximal cones for re-initialization of the result
 	rays = rays.minor(usedRays,All);
@@ -453,6 +480,8 @@ namespace polymake { namespace atint {
 	
 	
       } //END iterate function rows
+      
+      dbgtrace << "Done. Returning divisor" << endl;
       
       return result;
     }
@@ -604,14 +633,24 @@ namespace polymake { namespace atint {
       bool cmplx_uses_homog = complex.give("USES_HOMOGENEOUS_C");
       perl::Object domain = function.give("DOMAIN");
       bool fct_uses_homog = domain.give("USES_HOMOGENEOUS_C");
-      if(fct_uses_homog && !cmplx_uses_homog) {
-	complex = complex.CallPolymakeMethod("homogenize");
-      }
-      RefinementResult r = refinement(complex,domain, false,true,false,true);
-      
       Vector<Rational> rvalues = function.give("RAY_VALUES");
       Vector<Rational> lvalues = function.give("LIN_VALUES");
       Vector<Rational> values = rvalues | lvalues;
+      
+      //Before we do anything, we check that the function is sane to avoid /0 divisions and segfaults
+      Matrix<Rational> fnrays = domain.give("CMPLX_RAYS");
+      Matrix<Rational> fnlin = domain.give("LINEALITY_SPACE");
+      if(rvalues.dim() != fnrays.rows() || lvalues.dim() != fnlin.rows()) {
+	  throw std::runtime_error("Function is not valid: Wrong number of values. Aborting computation. ");
+      }
+      
+      if(fct_uses_homog && !cmplx_uses_homog) {
+	complex = complex.CallPolymakeMethod("homogenize");
+      }
+      dbgtrace << "Refining... " << endl;
+      RefinementResult r = refinement(complex,domain, false,true,false,true);
+      dbgtrace << "Done. " << endl;
+      
       
       //Compute the ray values on the new complex
       Matrix<Rational> rayRep = r.rayRepFromY;

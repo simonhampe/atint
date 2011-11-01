@@ -328,6 +328,12 @@ object MinMaxFunction {
     $this->USES_MIN = FALSE;
   }
   
+  rule RAY_VALUES, LIN_VALUES : FUNCTION_MATRIX, USES_MIN, DOMAIN {
+    
+  }
+  #Make sure RAY_VALUES and LIN_VALUES are computed in a special way for MinMaxFunction
+  override : SUPER::rfunction;
+  
   ## METHODS #################################################################################################
   
   # @category Tropical geometry
