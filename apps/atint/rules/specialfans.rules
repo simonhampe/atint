@@ -176,7 +176,7 @@ user_function is_zerocycle {
   if($wc->CMPLX_AMBIENT_DIM == 0) {
     return new Bool(TRUE);
   }
-  if($wc->RAYS->rows() > 0 || $wc->LINEALITY_SPACE->rows() > 0) {
+  if($wc->MAXIMAL_CONES->rows() > 0) {
     return new Bool(FALSE);
   }
   return new Bool(TRUE);

@@ -53,6 +53,14 @@ namespace polymake { namespace atint {
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> rays = fan.give("RAYS");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    //Special case: fan is only origin
+    if(maximalCones.rows() == 1) {
+      if(maximalCones.row(0).size() == 0) {
+	fan.take("CODIM_1_FACES") << IncidenceMatrix<>();
+	fan.take("CODIM_1_IN_MAXIMAL_CONES") << IncidenceMatrix<>();
+	return;
+      }
+    }
     
     CodimensionOneResult r = calculateCodimOneData(rays, maximalCones, uses_homog, linspace);
     
@@ -706,7 +714,7 @@ namespace polymake { namespace atint {
       dbgtrace << "Facets are " << facets << "Equalities are " << linspan << endl;
       
       //Compute the polytope vertices from that
-      Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(zero_vector<Rational>()| facets, zero_vector<Rational>() | linspan).first;
+      Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(zero_vector<Rational>()| facets, zero_vector<Rational>() | linspan, true,true).first;
       polyRays = polyRays.minor(All,~scalar2set(0));
       //Normalize
       for(int r = 0; r < polyRays.rows(); r++) {

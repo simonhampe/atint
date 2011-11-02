@@ -29,5 +29,7 @@ namespace polymake { namespace common {
    };
 
    FunctionInstance4perl(new_X, Matrix<Rational>, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
+   OperatorInstance4perl(convert, Matrix<Rational>, perl::Canned< const Vector< Rational > >);
+   OperatorInstance4perl(BinaryAssign_div, perl::Canned< Wary< Matrix<Rational> > >, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::Vector<pm::Rational> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

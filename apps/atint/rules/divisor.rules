@@ -24,6 +24,7 @@
 #USE fan polytope
 
 # @category Tropical geometry
+# NOTE: Deprecated. Use divisor(...) or divisor_nr(...) in conjunction with function_value instead
 # Takes as input a tropical fan / tropical variety and an array of rational values. The array length should coincide 
 # with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational
 # function, where each value has been assigned to the rays given by $fan->CMPLX_RAYS and to the generators given by $fan->LINEALITY_SPACE  
@@ -56,5 +57,52 @@ user_function divisor {
   else {
     return divisor_rational($X,$f,($k == -1? $f->POWER : $k));
   }
+}
+
+# @category Tropical geometry
+# Takes as input a tropical variety and an arbitrarily long list of RationalFunction objects f_1,...,f_k. It will 
+## then compute f_k^a_k * ... * f_1^a_1 * X, where a_i = f_i->POWER
+# @param WeightedComplex X
+# @param RationalFunction A list f_1,...,f_k
+# @return WeightedComplex The divisor f_k * ... * f_1 * X. It is in homogeneous coordinates, if and only if: 
+# Either X is in homog. coordinates or one of the functions is defined on a homogeneous domain.
+user_function divisor_list {
+  my ($X,@functions) = @_;
+  
+  if(scalar(@functions) == 0) { return $X;}
+  if(scalar(@functions) > $X->CMPLX_DIM) {
+    return zero_cycle();
+  }
+  
+  for my $f (@functions) {
+      $X = divisor($X,$f,$f->POWER);
+  }
+  return $X;
+}
+
+# @category Tropical geometry
+# Works exactly as divisor_list(WeightedComplex;RationalFunction,...). Should be called
+# ONLY,when every occuring function f is defined on a DOMAIN equal to X (in the sense that
+# all properties like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not
+# sufficient). In this case this function will in general be faster.
+user_function divisor_list_nr {
+  my ($X,@functions) = @_;
+  if(scalar(@functions) == 0) { return $X; }
+  if(scalar(@functions) > $X->CMPLX_DIM) {
+    return zero_cycle();
+  }
+  
+  my $fmatrix = new Matrix<Rational>(0,$functions[0]->RAY_VALUES->dim() + $functions[0]->LIN_VALUES->dim());
+  
+  for my $f (@functions) {
+    my $rvalues = $f->RAY_VALUES;
+    my $lvalues = $f->LIN_VALUES;
+    my $values = $rvalues | $lvalues;
+    for(my $p = 1; $p <= $f->POWER; $p++) {
+      $fmatrix /= $values;
+    }
+  }
+  
+  return divisorByValueMatrix($X,$fmatrix);
   
 }

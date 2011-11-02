@@ -23,7 +23,7 @@
 object RationalFunction {
   
 #   use overload('^' => 'powerf');
-  use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'powerf');
+  use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'powerf', '+' => 'sum');
   
   # @category Tropical geometry
   # This property describes the linearity domains of the function. I.e. the function is
@@ -118,6 +118,11 @@ object RationalFunction {
   sub to_string {
     my $this = shift;  
     return "Function on (", $this->DOMAIN->DESCRIPTION,") with values: ", join(",",$this->RAY_VALUES),"/",join(",",$this->LIN_VALUES);
+  }
+  
+  sub sum {
+    my ($f,$g) = @_;
+    return add_rational_functions($f,$g);
   }
   
 }

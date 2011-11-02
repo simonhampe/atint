@@ -67,7 +67,7 @@ object MinMaxFunction {
   
   # @category Basic properties
   # This will give a nice string representation of the function, where all variables are of the form 'x_i',
-  # i = 1,..,[[DOMAIN]]. There are no redundancies and terms are sorted in ascending alphabetic order of their variable,
+  # i = 1,..,[[DOMAIN_DIMENSION]]. There are no redundancies and terms are sorted in ascending alphabetic order of their variable,
   # with the constant term at the end
   property STANDARD_FORM : String;
   
@@ -93,6 +93,12 @@ object MinMaxFunction {
   # @category Basic properties
   # This is simply the concatenation of [[LINEAR_COEFFICIENTS]] and [[CONSTANT_COEFFICIENTS]]
   property FUNCTION_MATRIX : Matrix<Rational>;
+  
+  # @category Basic properties
+  # This computes the normal fan of the polytope conv( (c_i,a_i) ) in Q^{n+1}, where the function is 
+  # max/min(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q. (For min it actually computes the negative
+  # of the normal fan
+  property NORMAL_FAN : WeightedComplex;
   
   # @category Tropical geometry
   # This computes the (homogenized version of the) domains of linearity of the function. More precisely, it computes the 
@@ -308,7 +314,7 @@ object MinMaxFunction {
       $this->STANDARD_FORM = $this->USES_MIN? "min($functionList)" : "max($functionList)";
   }
   
-  rule DOMAIN: LINEAR_COEFFICIENTS, CONSTANT_COEFFICIENTS, USES_MIN {
+  rule NORMAL_FAN: LINEAR_COEFFICIENTS, CONSTANT_COEFFICIENTS, USES_MIN {
     #The constant coefficients correspond to the homogenizing coordinate in a tropical variety, so we place it at the front
     my $pointmatrix = $this->CONSTANT_COEFFICIENTS | $this->LINEAR_COEFFICIENTS;
     if(!($this->USES_MIN)) {
@@ -321,7 +327,13 @@ object MinMaxFunction {
     $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
     
     my $newt = new polytope::Polytope<Rational>(POINTS=>$pointmatrix);
-    $this->DOMAIN = wfan(fan::normal_fan($newt),0);
+    $this->NORMAL_FAN = wfan(fan::normal_fan($newt),0);
+  }
+  
+  rule DOMAIN : NORMAL_FAN, DOMAIN_DIMENSION {
+    my $F = intersect_complete_fan(linear_nspace($this->DOMAIN_DIMENSION)->homogenize,$this->NORMAL_FAN);
+    #Forget the weights: 
+    $this->DOMAIN = new WeightedComplex(RAYS=>$F->RAYS,MAXIMAL_CONES=>$F->MAXIMAL_CONES,LINEALITY_SPACE=>$F->LINEALITY_SPACE,USES_HOMOGENEOUS_C=>TRUE);
   }
   
   rule USES_MIN : FUNCTION_MATRIX {
@@ -329,7 +341,7 @@ object MinMaxFunction {
   }
   
   rule RAY_VALUES, LIN_VALUES : FUNCTION_MATRIX, USES_MIN, DOMAIN {
-    
+    computeMinMaxFunctionData($this);
   }
   #Make sure RAY_VALUES and LIN_VALUES are computed in a special way for MinMaxFunction
   override : SUPER::rfunction;
@@ -341,12 +353,11 @@ object MinMaxFunction {
   # normal fan of the polytope defined by this function in the following way:
   # If the standard form reads max(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q, then the polytope is
   # conv( (c_i,a_i) ) in Q^{n+1} (in homog. coordinates its actually in n+2 coordinates).
-  # In fact, this returns the property [[DOMAIN]], but with USES_HOMOGENEOUS_C set to TRUE
+  # In fact, this returns the property [[DOMAIN]].
   # @return WeightedComplex
   user_method linearityDomains {
     my $this = shift;
-    my $fan = $this->DOMAIN;
-    return new WeightedComplex(RAYS=>$fan->RAYS,MAXIMAL_CONES=>$fan->MAXIMAL_CONES,LINEALITY_SPACE=>$fan->LINEALITY_SPACE,USES_HOMOGENEOUS_C=>TRUE);
+    return $this->DOMAIN;
   }
   
   # @category Tropical geometry

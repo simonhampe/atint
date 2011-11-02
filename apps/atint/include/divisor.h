@@ -31,7 +31,7 @@ namespace polymake { namespace atint {
 @param fan An arbitrary polyhedral fan
 @param completeFan A polyhedral fan containing the first one. If this fan is in homog. coordinates, then fan must be too. (the converse needn't be true)
 @return WeightedComplex The intersection of both fans (whose support is equal to the support of fan). The 
-resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, 
+resulting fan uses homogeneous coordinates if and only if fan does. If fan has a property TROPICAL_WEIGHTS, 
 the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned.
 */
 perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan);

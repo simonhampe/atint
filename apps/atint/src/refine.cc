@@ -158,130 +158,131 @@ namespace polymake { namespace atint {
     Vector<int> xcontainers;
     Vector<int> ycontainers;
     
-    //Iterate all cones of X
-    for(int xc = 0; xc < (x_onlylineality? 1 : x_cones.rows()); xc++)  {
-      //Initalize refinement cone set
-      xrefinements[xc] = Set<Set<int> >();
-      //Compute a facet representation for the X-cone
-      std::pair<Matrix<Rational>, Matrix<Rational> > x_equations = 
-	sv.enumerate_facets( zero_vector<Rational>() | (
-	   x_onlylineality? Matrix<Rational>(0,x_lineality.cols()) : x_rays.minor(x_cones.row(xc),All)),
-	   zero_vector<Rational>() | x_lineality, true,false);
-	
-      //Iterate all cones of Y
-      for(int yc = 0; yc < (y_onlylineality? 1 : y_cones.rows()); yc++) {
-	//Compute a V-representation of the intersection
-	Matrix<Rational> interrays = sv.enumerate_vertices(x_equations.first / y_equations[yc].first,
-		    x_equations.second / y_equations[yc].second,true,true).first;
-	interrays = interrays.minor(All,~scalar2set(0));
-	
-	//Check if it is full-dimensional (and has at least one ray - lin.spaces are not interesting)
-	if(interrays.rows() > 0 && rank(interrays) + c_lineality_dim - (x_uses_homog? 1 : 0) == x_dimension) {
-	  //If we refine, add the cone. Otherwise just remember the indices
-	  dbgtrace << "Inter rays: " << interrays << endl;
-	  Set<int> interIndices;
-	  if(!refine) {
-	    //Copy indices
-	    interIndices = x_cones.row(xc);
-	    //Compute assoc-rep. and identify new rays
-// 	    int vertex = -1; Set<int> newDirectionalRays;
-// 	    for(Entire<Set<int> >::iterator ir = entire(interIndices); !ir.at_end(); ir++) {
-// 	      if(computeAssoc) {
-// 		if(c_rays(*ir,0) == 1) {
-// 		    if(vertex == -1) vertex = *ir;
-// 		    associatedRep[*ir] = *ir;
-// 		}
-// 		else newDirectionalRays += (*ir);
-// 	      }
-// 	    }
-// 	    if(computeAssoc) {
-// 	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
-// 		associatedRep[*dr] = vertex;
-// 	      }
-// 	    }	    
-	  }
-	  else {
-	    //Now we canonicalize the rays and assign ray indices
-	    //We also use this opportunity to sort the rays and
-	    //compute the assocRep where and if necessary
-	    Set<int> newRays;
-// 	    , newDirectionalRays;
-// 	    int associatedVertex = -1;
-	    for(int rw = 0; rw < interrays.rows(); rw++) {
-	      //bool isVertex = false;
-	      //Vertices start with a 1
-	      if(x_uses_homog && interrays(rw,0) != 0) {
-		interrays.row(rw) /= interrays(rw,0);
-		//isVertex = true;
-	      }
-	      //The first non-zero entry in a directional ray is +-1
-	      else {
-		for(int cl = 0; cl < interrays.cols();cl++) {
-		  if(interrays(rw,cl) != 0) {
-		    interrays.row(rw) /= abs(interrays(rw,cl));
-		    break;
+    if(refine || repFromX || repFromY) {
+      //Iterate all cones of X
+      for(int xc = 0; xc < (x_onlylineality? 1 : x_cones.rows()); xc++)  {
+	//Initalize refinement cone set
+	xrefinements[xc] = Set<Set<int> >();
+	//Compute a facet representation for the X-cone
+	std::pair<Matrix<Rational>, Matrix<Rational> > x_equations = 
+	  sv.enumerate_facets( zero_vector<Rational>() | (
+	    x_onlylineality? Matrix<Rational>(0,x_lineality.cols()) : x_rays.minor(x_cones.row(xc),All)),
+	    zero_vector<Rational>() | x_lineality, true,false);
+	  
+	//Iterate all cones of Y
+	for(int yc = 0; yc < (y_onlylineality? 1 : y_cones.rows()); yc++) {
+	  //Compute a V-representation of the intersection
+	  Matrix<Rational> interrays = sv.enumerate_vertices(x_equations.first / y_equations[yc].first,
+		      x_equations.second / y_equations[yc].second,true,true).first;
+	  interrays = interrays.minor(All,~scalar2set(0));
+	  
+	  //Check if it is full-dimensional (and has at least one ray - lin.spaces are not interesting)
+	  if(interrays.rows() > 0 && rank(interrays) + c_lineality_dim - (x_uses_homog? 1 : 0) == x_dimension) {
+	    //If we refine, add the cone. Otherwise just remember the indices
+	    dbgtrace << "Inter rays: " << interrays << endl;
+	    Set<int> interIndices;
+	    if(!refine) {
+	      //Copy indices
+	      interIndices = x_cones.row(xc);
+	      //Compute assoc-rep. and identify new rays
+  // 	    int vertex = -1; Set<int> newDirectionalRays;
+  // 	    for(Entire<Set<int> >::iterator ir = entire(interIndices); !ir.at_end(); ir++) {
+  // 	      if(computeAssoc) {
+  // 		if(c_rays(*ir,0) == 1) {
+  // 		    if(vertex == -1) vertex = *ir;
+  // 		    associatedRep[*ir] = *ir;
+  // 		}
+  // 		else newDirectionalRays += (*ir);
+  // 	      }
+  // 	    }
+  // 	    if(computeAssoc) {
+  // 	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
+  // 		associatedRep[*dr] = vertex;
+  // 	      }
+  // 	    }	    
+	    }
+	    else {
+	      //Now we canonicalize the rays and assign ray indices
+	      //We also use this opportunity to sort the rays 
+	      Set<int> newRays;
+  // 	    , newDirectionalRays;
+  // 	    int associatedVertex = -1;
+	      for(int rw = 0; rw < interrays.rows(); rw++) {
+		//bool isVertex = false;
+		//Vertices start with a 1
+		if(x_uses_homog && interrays(rw,0) != 0) {
+		  interrays.row(rw) /= interrays(rw,0);
+		  //isVertex = true;
+		}
+		//The first non-zero entry in a directional ray is +-1
+		else {
+		  for(int cl = 0; cl < interrays.cols();cl++) {
+		    if(interrays(rw,cl) != 0) {
+		      interrays.row(rw) /= abs(interrays(rw,cl));
+		      break;
+		    }
 		  }
 		}
-	      }
-	      
-	      dbgtrace << "Considering row " << interrays.row(rw) << endl;
-	      
-	      //Go through the existing rays and compare
-	      int nrays = c_rays.rows();
-	      int newrayindex = -1;
-	      for(int oray = 0; oray < nrays; oray++) {
-		if(interrays.row(rw) == c_rays.row(oray)) {
-		    newrayindex = oray;
-		    break;
+		
+		dbgtrace << "Considering row " << interrays.row(rw) << endl;
+		
+		//Go through the existing rays and compare
+		int nrays = c_rays.rows();
+		int newrayindex = -1;
+		for(int oray = 0; oray < nrays; oray++) {
+		  if(interrays.row(rw) == c_rays.row(oray)) {
+		      newrayindex = oray;
+		      break;
+		  }
 		}
+		if(newrayindex == -1) {
+		  c_rays /= interrays.row(rw);
+		  newrayindex = c_rays.rows()-1;
+		  newRays += newrayindex;
+  // 		if(!isVertex) { newDirectionalRays += newrayindex;}
+  // 		//Also add rows/entries in the assoc representation variable
+  // 		if(computeAssoc) associatedRep |= 0;
+		}
+		interIndices += newrayindex;
+		//If this is the first vertex, save the index separately
+  // 	      if(isVertex && computeAssoc) {
+  // 		associatedRep[newrayindex] = newrayindex;
+  // 		if(associatedVertex == -1) associatedVertex = newrayindex;	      		
+  // 	      }
+	      } //END canonicalize rays
+	      
+	      dbgtrace << "Ray indices " << interIndices << endl;
+	      dbgtrace << "new rays: " << newRays << endl;
+  // 	    dbgtrace << "directional: " << newDirectionalRays << endl;
+  // 	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
+	      
+	      //Check if the cone exists - if there are new rays, then the cone must be new as well
+	      bool addCone = newRays.size() > 0;
+	      if(!addCone) addCone = !xrefinements[xc].contains(interIndices);
+	      //If the cone is new, add it
+	      if(addCone) {
+		dbgtrace << "Adding new cone" << endl;
+		c_cones |= interIndices;
+		if(weightsExist) c_weights |= weights[xc];
+		xrefinements[xc] += interIndices;
+		xcontainers |= xc;
+		ycontainers |= yc;
 	      }
-	      if(newrayindex == -1) {
-		c_rays /= interrays.row(rw);
-		newrayindex = c_rays.rows()-1;
-		newRays += newrayindex;
-// 		if(!isVertex) { newDirectionalRays += newrayindex;}
-// 		//Also add rows/entries in the assoc representation variable
-// 		if(computeAssoc) associatedRep |= 0;
-	      }
-	      interIndices += newrayindex;
-	      //If this is the first vertex, save the index separately
-// 	      if(isVertex && computeAssoc) {
-// 		associatedRep[newrayindex] = newrayindex;
-// 		if(associatedVertex == -1) associatedVertex = newrayindex;	      		
-// 	      }
-	    } //END canonicalize rays
-	    
-	    dbgtrace << "Ray indices " << interIndices << endl;
-	    dbgtrace << "new rays: " << newRays << endl;
-// 	    dbgtrace << "directional: " << newDirectionalRays << endl;
-// 	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
-	    
-	    //Check if the cone exists - if there are new rays, then the cone must be new as well
-	    bool addCone = newRays.size() > 0;
-	    if(!addCone) addCone = !xrefinements[xc].contains(interIndices);
-	    //If the cone is new, add it
-	    if(addCone) {
-	      dbgtrace << "Adding new cone" << endl;
-	      c_cones |= interIndices;
-	      if(weightsExist) c_weights |= weights[xc];
-	      xrefinements[xc] += interIndices;
-	      xcontainers |= xc;
-	      ycontainers |= yc;
-	    }
-	    
-	  /*  //Compute assocRep
-	    if(computeAssoc) {
-	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
-		associatedRep[*dr] = associatedVertex;
-	      }
-	    }*/	    
-	  } //END canonicalize intersection cone and add it
-	  	  
-	  //If we do not refine, we only need to find one y-cone containing the x-cone
-	  if(!refine) break;	  
-	} //END if full-dimensional
-      }//END iterate y-cones
-    }//END iterate x-cones
+	      
+	    /*  //Compute assocRep
+	      if(computeAssoc) {
+		for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
+		  associatedRep[*dr] = associatedVertex;
+		}
+	      }*/	    
+	    } //END canonicalize intersection cone and add it
+		    
+	    //If we do not refine, we only need to find one y-cone containing the x-cone
+	    if(!refine) break;	  
+	  } //END if full-dimensional
+	}//END iterate y-cones
+      }//END iterate x-cones
+    } //END if intersection is necessary?
     
     //Copy return values into the fan
     if(refine) {
