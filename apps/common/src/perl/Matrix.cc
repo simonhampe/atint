@@ -20,6 +20,7 @@
 #include "polymake/Rational.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Vector.h"
+#include "polymake/Array.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -31,5 +32,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, Matrix<Rational>, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
    OperatorInstance4perl(convert, Matrix<Rational>, perl::Canned< const Vector< Rational > >);
    OperatorInstance4perl(BinaryAssign_div, perl::Canned< Wary< Matrix<Rational> > >, perl::Canned< const pm::VectorChain<pm::Vector<pm::Rational> const&, pm::Vector<pm::Rational> const&> >);
+   FunctionInstance4perl(new_X, Matrix<Rational>, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::Array<int, void> const&, pm::all_selector const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

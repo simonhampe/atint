@@ -321,9 +321,17 @@ namespace polymake { namespace atint {
 	      for(Entire<Set<int> >::iterator r = entire(raysOfCone); !r.at_end(); r++) {
 		if(!repComputed[*r]) {
 		  repComputed[*r] = true;
+		  //The ray used for computing the representation are the rays of the containing
+		  //cone (or none, if the corr. fan is only a lineality space)
+		  Set<int> rfc;
+		  if(mode == 0 && !x_onlylineality) 
+		      rfc = x_cmplx_cones.row(xcontainers[cone]);
+		  if(mode == 1 && !y_onlylineality)
+		      rfc = y_cmplx_cones.row(ycontainers[cone]);
+		  //Compute representation vector
 		  (mode == 0? rayRepFromX : rayRepFromY).row(*r) =
 		      functionRepresentationVector(
-			(mode == 0 ? x_cmplx_cones : y_cmplx_cones).row(mode == 0? xcontainers[cone] : ycontainers[cone]),
+			rfc,
 			c_cmplx_rays.row(*r),
 			ambient_dim,
 			false,
