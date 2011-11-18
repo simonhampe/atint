@@ -37,9 +37,9 @@ namespace polymake { namespace atint {
 
     using polymake::polytope::cdd_interface::solver;
 
-    using namespace atintlog::donotlog;
+    //using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
-    //using namespace atintlog::dotrace;
+    using namespace atintlog::dotrace;
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -125,6 +125,7 @@ namespace polymake { namespace atint {
 	Map<int, Map<int, Vector<Rational> > > lnFunctionVector = result.give("LATTICE_NORMAL_FCT_VECTOR");
 	Matrix<Rational> lsumFunctionVector = result.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
 	Map<int, Map<int, Vector<Integer> > > latticeNormals = result.give("LATTICE_NORMALS");
+	Vector<bool> balancedFaces = result.give("BALANCED_FACES");
 	
 	//Now we compute the correct value vector:
 	
@@ -176,20 +177,22 @@ namespace polymake { namespace atint {
 	Set<int> usedRays; //Contains the rays in used cones
 	//Go through each facet and compute its weight. 
 	for(int co = 0; co < codimOneCones.rows(); co++) {
-// 	  dbgtrace << "Codim 1 face " << co << endl;
-	  Integer coweight(0);
-	  Set<int> adjacentCones = coneIncidences.row(co);
-	  for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
-// 	    dbgtrace << "Maximal cone " << *mc << endl;
-	    coweight = coweight + weights[*mc] * (lnFunctionVector[co])[*mc] * currentValues;
-	  }
-	  //Now substract the value of the lattice normal sum
-// 	  dbgtrace << "Substracting sum" << endl;
-	  coweight = coweight - lsumFunctionVector.row(co) * currentValues;
-	  if(coweight != 0) {
-	    newweights = newweights | coweight;	  
-	    usedCones += co;
-	    usedRays += codimOneCones.row(co);
+	  if(balancedFaces[co]) { //Only compute values at balanced codim-1-cones
+  // 	  dbgtrace << "Codim 1 face " << co << endl;
+	    Integer coweight(0);
+	    Set<int> adjacentCones = coneIncidences.row(co);
+	    for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
+  // 	    dbgtrace << "Maximal cone " << *mc << endl;
+	      coweight = coweight + weights[*mc] * (lnFunctionVector[co])[*mc] * currentValues;
+	    }
+	    //Now substract the value of the lattice normal sum
+  // 	  dbgtrace << "Substracting sum" << endl;
+	    coweight = coweight - lsumFunctionVector.row(co) * currentValues;
+	    if(coweight != 0) {
+	      newweights = newweights | coweight;	  
+	      usedCones += co;
+	      usedRays += codimOneCones.row(co);
+	    }
 	  }
 	}//END iterate co-1-cones
 	

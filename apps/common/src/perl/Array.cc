@@ -22,7 +22,14 @@
 #include "polymake/Set.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0, typename T1>
+   FunctionInterface4perl( new_X, T0,T1 ) {
+      perl::Value arg0(stack[1]);
+      WrapperReturnNew(T0, (arg0.get<T1>()) );
+   };
+
    Class4perl("Polymake::common::Array__Integer", Array< Integer >);
    OperatorInstance4perl(convert, Array< Integer >, perl::Canned< const Vector< Integer > >);
+   FunctionInstance4perl(new_X, Array< Set< int > >, perl::Canned< const Vector< Set< int > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

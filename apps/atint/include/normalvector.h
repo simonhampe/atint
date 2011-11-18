@@ -92,6 +92,7 @@ Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Ra
 @param linealitySpace A matrix of generators of the lineality space
 @param lineality_dim The dimension of the lineality space
 @return A vector of length [[N_RAYS]] + [[LINEALITY_DIM]] (or [[CMPLX_RAYS]]->rows() + [[LINEALITY_DIM]] in the homogeneous case) with linear coefficients of a representation in the generators chosen via s. The last elements always refer to the lineality space.
+@throw std::runtime_error If the vector is not in the linear span of the give vectors
 */
 Vector<Rational> functionRepresentationVector(const Set<int> &rayIndices, const Vector<Rational> &v,
 					      int ambient_dim, bool uses_homog, 

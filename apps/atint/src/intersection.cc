@@ -31,19 +31,168 @@ Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
 #include "polymake/atint/refine.h"
 #include "polymake/linalg.h"
 #include "polymake/PowerSet.h"
+#include "polymake/polytope/cdd_interface.h"
 
 namespace polymake { namespace atint {
 
-    using namespace atintlog::donotlog;
+    using polymake::polytope::cdd_interface::solver;
+  
+    //using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
-    //using namespace atintlog::dotrace;
+    using namespace atintlog::dotrace;
+    
+    /**
+     @brief Computes the intersection product of two cycles in R^n
+     @param perl::Object X A WeightedComplex
+     @param perl::Object Y A WeightedComplex, living in the same ambient space as X
+     @return perl::Object Their intersection product, always in homogeneous coordinates.
+     */
+    perl::Object selective_cycle_intersection(perl::Object X, perl::Object Y) {
+      //Extract values
+      int Xcodim = X.give("CMPLX_CODIMENSION");
+      int Ycodim = Y.give("CMPLX_CODIMENSION");
+      int Xambi  = X.give("CMPLX_AMBIENT_DIM");
+      
+      dbgtrace << "Checking codimension" << endl;
+      
+      //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
+      if(Xcodim + Ycodim > Xambi) {
+	return CallPolymakeFunction("zero_cycle");
+      }
+      
+      dbgtrace << "Homogenizing where necessary" << endl;
+      
+      //Make sure,both are homogeneous
+      bool x_uses_homog = X.give("USES_HOMOGENEOUS_C");
+      bool y_uses_homog = Y.give("USES_HOMOGENEOUS_C");
+      
+      if(!x_uses_homog) X = X.CallPolymakeMethod("homogenize");
+      if(!y_uses_homog) Y = Y.CallPolymakeMethod("homogenize");
+      
+      dbgtrace << "Computing diagonal" << endl;
+      
+      //Create diagonal equalities and diagonal functions
+      Matrix<Rational> diagLin = zero_vector<Rational>() | (zero_vector<Rational>() | 
+	  ( - unit_matrix<Rational>(Xambi)) | unit_matrix<Rational>(Xambi));
+      	
+      perl::ListResult psi = ListCallPolymakeFunction("atint::diagonal_functions",Xambi);
+      
+      dbgtrace << "Computing lineality space intersection" << endl;
+      
+      //The lineality space of the intersection product is the intersection of the lineality spaces
+      //Compute the intersection of the two spaces
+      Matrix<Rational> x_lineality = X.give("LINEALITY_SPACE");
+      Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
+      Matrix<Rational> r_lineality(0,Xambi + 1);      
+      if(x_lineality.rows() != 0 && y_lineality.rows() != 0){
+	//We compute the kernel of (x_lineality | -y_lineality)
+ 	Matrix<Rational> i_lineality = T(x_lineality  / (-y_lineality));
+ 	Matrix<Rational> dependence =  null_space(i_lineality);
+	r_lineality = dependence.minor(All,sequence(0,x_lineality.rows())) * x_lineality;
+	r_lineality = zero_vector<Rational>() | r_lineality;
+      }
+      int r_lineality_dim = rank(r_lineality);
+      
+      //Compute the expected dimension of the intersection product (in the possibly homogeneous coordinates)
+      // Substract the lineality dimension, since we compute without it
+      int expectedDimension = Xambi - (Xcodim + Ycodim) - r_lineality_dim;
+     
+      dbgtrace << "Result: " << r_lineality << endl;
+      
+      dbgtrace << "Computing product complex" << endl;
+            
+      //Compute the product complex
+      std::vector<perl::Object> XandY;
+	XandY.push_back(X); XandY.push_back(Y);
+      perl::Object Z = compute_product_complex(XandY);
+      
+      //Reduce to those cones that intersect the diagonal at least in the expectedDimension -----------------------
+      
+      solver<Rational> sv;
+      IncidenceMatrix<> maximalCones = Z.give("MAXIMAL_CONES");
+      Matrix<Rational> rays = Z.give("RAYS");
+      Vector<Integer> weights = Z.give("TROPICAL_WEIGHTS");
+      Matrix<Rational> lineality = Z.give("LINEALITY_SPACE");
+      
+      //If we only have lineality spaces, we're done
+      if(rays.rows() == 0) {
+	perl::Object result("WeightedComplex");
+	  result.take("RAYS") << Matrix<Rational>(0,r_lineality.cols());
+	  result.take("MAXIMAL_CONES") << maximalCones;
+	  result.take("LINEALITY_SPACE") << r_lineality;
+	  result.take("TROPICAL_WEIGHTS") << Z.give("TROPICAL_WEIGHTS");
+	  result.take("USES_HOMOGENEOUS_C") << true;
+	return result;
+      }
+      
+      //Now intersect with the functions -------------------------------------------------------------
+      for(int i = 0; i <= Xambi; i++) {
+	
+	//Remove cones that have too low dimension with the diagonal before computing a divisor
+	dbgtrace << "Reducing to cones that intersect diagonal in appropriate dimension" << endl;
+	dbgtrace << "Have " << maximalCones.rows() << " maximal cones" << endl;
+	
+	Set<int> remainingCones;
+	Set<int> usedRays;
+	for(int mc = 0; mc < maximalCones.rows(); mc++) {
+	  //Compute intersection with diagonal 
+	  std::pair<Matrix<Rational>, Matrix<Rational> > mcFacets = 
+	    sv.enumerate_facets(zero_vector<Rational>() | rays.minor(maximalCones.row(mc),All), Matrix<Rational>(0,Xambi +2), true,false);
+	    Matrix<Rational> inrays = sv.enumerate_vertices(mcFacets.first, mcFacets.second / diagLin, true,true).first.minor(All,~scalar2set(0));
+	  if(rank(inrays) - 1 >= expectedDimension) {
+	      remainingCones += mc;
+	      usedRays += maximalCones.row(mc);
+	  }
+	}//END for all maximal cones mc
+	dbgtrace << "Remaining cones: " << remainingCones << endl;
+	dbgtrace << "Used rays: " << usedRays << endl;
+	
+	rays = rays.minor(usedRays,All);
+	maximalCones = maximalCones.minor(remainingCones,usedRays);
+	weights = weights.slice(remainingCones);
+      	
+	//First of all we check if any cones are left - Otherwise we return the zero cycle
+	if(maximalCones.rows() == 0) {
+	    return CallPolymakeFunction("zero_cycle");
+	}
+	
+	//Now intersect the current complex with the linearity domains of the current function
+	if(i < Xambi) {
+	  dbgtrace << "Computing divisor of function " << (i+1) << endl;
+	  perl::Object currentComplex("WeightedComplex");
+	    currentComplex.take("RAYS") << rays;
+	    currentComplex.take("MAXIMAL_CONES") << maximalCones;
+	    currentComplex.take("TROPICAL_WEIGHTS") << weights;
+	    currentComplex.take("USES_HOMOGENEOUS_C") << true;
+	  perl::Object divisor = divisor_minmax(currentComplex,psi[i],1); 
+	  
+	  Matrix<Rational> divrays = divisor.give("RAYS");
+	  IncidenceMatrix<> divmaximalCones = divisor.give("MAXIMAL_CONES");
+	  Vector<Integer> divweights = divisor.give("TROPICAL_WEIGHTS");
+	    rays = divrays; maximalCones = divmaximalCones; weights = divweights;
+	}
+	
+      }//END for all functions psi[i]
+      
+      
+      
+      perl::Object result("WeightedComplex");
+ 	result.take("RAYS") << rays.minor(All, sequence(0,Xambi+1));
+ 	result.take("MAXIMAL_CONES") << maximalCones;
+ 	result.take("TROPICAL_WEIGHTS") << weights;
+ 	result.take("LINEALITY_SPACE") << r_lineality;
+ 	result.take("USES_HOMOGENEOUS_C") << true;
+       
+      return result;
+      
+    }
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
     /**
      @brief Compute the intersection product of two tropical cycles
      @param perl::Object X A WeightedComplex, assumed to be balanced
-     @param perl::Object Y A balances WeightedComplex with the same ambient dimension as X
+     @param perl::Object Y A balanced WeightedComplex with the same ambient dimension as X
      @param
      */
     perl::Object cycle_intersection(perl::Object X, perl::Object Y) {
@@ -171,7 +320,7 @@ namespace polymake { namespace atint {
       //Extract values
       int Xcodim = X.give("CMPLX_CODIMENSION");
       int Ycodim = Y.give("CMPLX_CODIMENSION");
-      int Xambi  = X.give("CMPLX_AMBIENT_DIM");
+      int Xambi  = X.give("CMPLX_AMBIENT_DIM");      
       
       dbgtrace << "Checking codimension" << endl;
       
@@ -412,6 +561,7 @@ namespace polymake { namespace atint {
 		      "# @param WeightedComplex complex"
 		      "# @return Int",
 		      &degree, "degree(WeightedComplex)");
+    Function4perl(&selective_cycle_intersection,"selective_cycle_intersection(WeightedComplex,WeightedComplex)");
     
 //     Function4perl(&check_smoothness,"check_smoothness(;@)");
     

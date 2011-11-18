@@ -38,7 +38,7 @@ perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan);
 
 
 /**
-  @brief Takes as input a tropical fan / variety and a matrix of rational values. Each row of the matrix is interpreted as a value vector on the (cmplx_)rays and lineality space generators. Hence the column count of the matrix should be exactly the number of CMPLX_RAYS of fan + the dimension of the lineality space. The row count is arbitrary in principle, but should be smaller than or equal to the dimension of fan. The fan will then compute the Weil divisor obtained by intersecting with all the functions described by the rows (starting from top). The result uses homogeneous coordinates, if and only if fan does
+  @brief Takes as input a tropical fan / variety and a matrix of rational values. Each row of the matrix is interpreted as a value vector on the (cmplx_)rays and lineality space generators. Hence the column count of the matrix should be exactly the number of CMPLX_RAYS of fan + the dimension of the lineality space. The row count is arbitrary in principle, but should be smaller than or equal to the dimension of fan. The fan will then compute the Weil divisor obtained by intersecting with all the functions described by the rows (starting from top). The result uses homogeneous coordinates, if and only if fan does.<br> Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which f is balanced and computing weights there.
   @param WeightedComplex fan A tropical variety
   @param Matrix<Rational> values A matrix of rational values
   @return The divisor r_k * ... * r_1 * fan, where r_i is the function described by the i-th row.

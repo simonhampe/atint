@@ -169,6 +169,10 @@ namespace polymake { namespace atint {
     
     //This will contain the result
     Map<int, Map<int, Vector<Integer> > > latticeNormals;
+    if(codimOneCones.rows() == 0) {
+      fan.take("LATTICE_NORMALS") << latticeNormals;
+      return;
+    }
     
     //This equation is added to all cone linear span matrices (and stands for intersecting
     // with (x0 = 1), if we use homogeneous coordinates, to ensure that the lattice normal
@@ -282,7 +286,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
-  @brief Takes a polyhedral fan and computes the function vectors for the lattice normals (and their sums). Sets the corresponding properties LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR automatically.
+  @brief Takes a polyhedral fan and computes the function vectors for the lattice normals (and their sums). Sets the corresponding properties LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR, BALANCED_FACES automatically.
   @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
   */
   void computeFunctionVectors(perl::Object fan) {
@@ -304,6 +308,7 @@ namespace polymake { namespace atint {
     //Result variables
     Map<int, Map<int, Vector<Rational> > > summap;
     Matrix<Rational> summatrix;
+    Vector<bool> balancedFaces(codimOneCones.rows());
     
     //Iterate over all codim 1 faces
     for(int fct = 0; fct < codimOneCones.rows(); fct++) {
@@ -320,13 +325,21 @@ namespace polymake { namespace atint {
       }
       
       //Now compute the representation of the sum of the normals
-      summatrix = summatrix / functionRepresentationVector(codimOneCones.row(fct), normalsums.row(fct),
+      try {
+	summatrix = summatrix / functionRepresentationVector(codimOneCones.row(fct), normalsums.row(fct),
 				  ambient_dim, uses_homog, rays, linealitySpace, lineality_dim);
+	balancedFaces[fct] = true;
+      }
+      catch(std::runtime_error &e) { //This goes wrong, if X is not balanced at a given codim 1 face
+	summatrix /= zero_vector<Rational>(rays.rows() + lineality_dim);
+	balancedFaces[fct] = false;
+      }
     }
     
     //Set fan properties
     fan.take("LATTICE_NORMAL_FCT_VECTOR") << summap;
     fan.take("LATTICE_NORMAL_SUM_FCT_VECTOR") << summatrix; 
+    fan.take("BALANCED_FACES") << balancedFaces;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////

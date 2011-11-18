@@ -36,7 +36,7 @@ user_function linear_space_by_matrix {
   }
   my @weightarray = ($weight);
   
-  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[],LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
+  return new WeightedComplex(LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
   
 }
 
@@ -54,7 +54,7 @@ user_function linear_space_by_basis {
   }
   my @weightarray = ($weight);
   
-  return new WeightedComplex(INPUT_RAYS=>[],INPUT_CONES=>[],LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
+  return new WeightedComplex(LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
 }
 
 # @category Tropical geometry
@@ -73,8 +73,6 @@ user_function linear_nspace {
   my $m = new Matrix<Rational>(unit_matrix($n));
   
   return new WeightedComplex(
-    INPUT_RAYS=>[],
-    INPUT_CONES=>[],
     LINEALITY_SPACE=> $m,
     TROPICAL_WEIGHTS=>\@weightarray); 
 }

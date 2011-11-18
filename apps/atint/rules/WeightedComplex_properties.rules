@@ -80,7 +80,14 @@ object WeightedComplex {
 	# Rows of this matrix correspond to [[CODIM_1_FACES]] (or [[CMPLX_CODIM_1_FACES]] in the homog. case), and each row 
 	# contains a function vector for the corresponding row of [[LATTICE_NORMAL_SUM]]. This function vector is computed 
 	# in the same way as described under [[LATTICE_NORMAL_FCT_VECTOR]].
+	# Note that for any codim-1-faces at which the complex is not balanced, the corresponding row is a zero row
+	# If a face is balanced can be checked under [[BALANCED_FACES]].
 	property LATTICE_NORMAL_SUM_FCT_VECTOR : Matrix<Rational>;
+	
+	# @category Tropical geometry
+	# A vector whose entries correspond to the rows of CODIM_1_FACES. The i-th entry is true, if and only 
+	# if the complex is balanced at that face
+	property BALANCED_FACES : Vector<Bool>;
 	
 	# @category Polyhedral complex
 	# A matrix of the rays of the fan. This should be used *instead of* [[INPUT_RAYS]], if the coordinates of the
@@ -221,6 +228,15 @@ object WeightedComplex {
 	}
 	weight 0.02;
 	
+	#------------------------------------------------------------------------#
+	
+	rule RAYS, MAXIMAL_CONES: LINEALITY_SPACE {
+	  my @a = ();
+	  my $s = new Set<Int>();
+	  @a = (@a,$s);
+	  $this->MAXIMAL_CONES = \@a;
+	  $this->RAYS = new Matrix<Rational>(0,$this->LINEALITY_SPACE->cols());
+	}
 	
 	#------------------------------------------------------------------------#
 	
@@ -249,7 +265,7 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_SPACE, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES, FAN_AMBIENT_DIM {
+	rule LATTICE_NORMAL_FCT_VECTOR, LATTICE_NORMAL_SUM_FCT_VECTOR, BALANCED_FACES : LATTICE_NORMAL_SUM, LATTICE_NORMALS, TROPICAL_WEIGHTS, N_RAYS, LINEALITY_SPACE, LINEALITY_DIM, CMPLX_RAYS, CMPLX_CODIM_1_FACES, CMPLX_MAXIMAL_CONES, FAN_AMBIENT_DIM {
 	  computeFunctionVectors($this);
 	}
 	
@@ -408,6 +424,16 @@ object WeightedComplex {
 	  return new WeightedComplex(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
 				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE);
 	}
+	
+# 	# @category Polyhedral geometry
+# 	# Removes the lineality space of the weighted complex
+# 	# @return WeightedComplex The same fan, but without its lineality space
+# 	user_method remove_lineality {
+# 	  my $this = shift;
+# 	  return defined($this->lookup("TROPICAL_WEIGHTS")) ? 
+# 	    new WeightedComplex(RAYS=>$this->RAYS,MAXIMAL_CONES=>$this->MAXIMAL_CONES, TROPICAL_WEIGHTS=>$this->TROPICAL_WEIGHTS, USES_HOMOGENEOUS_C=>$this->USES_HOMOGENEOUS_C) :
+# 	    new WeightedComplex(RAYS=>$this->RAYS,MAXIMAL_CONES=>$this->MAXIMAL_CONES, USES_HOMOGENEOUS_C=>$this->USES_HOMOGENEOUS_C) ;
+# 	}
 	
 # 	user_method adjHomology {
 # 	  my $this = shift;

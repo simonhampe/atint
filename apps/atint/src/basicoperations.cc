@@ -154,6 +154,8 @@ namespace polymake { namespace atint{
 	  if(rayMatrix.rows() > 0) rayMatrix = zero_vector<Rational>(rayMatrix.rows()) | rayMatrix;
 	  if(linMatrix.rows() > 0) linMatrix = zero_vector<Rational>(linMatrix.rows()) | linMatrix;
 	}
+	
+	dbgtrace << "Adding directional rays" << endl;
 	//Now add the directional rays of both cones
 	Map<int,int> pdirIndices;
 	Map<int,int> cdirIndices; //For index conversion
@@ -167,7 +169,7 @@ namespace polymake { namespace atint{
 	  newRays = newRays / (product_zero | prerays.row(*crays));
 	  cdirIndices[*crays] = newRays.rows()-1;
 	}
-	Set<int> newDirectional = sequence(newRays.rows()-1,newRays.rows() - product_affine.size());
+	Set<int> newDirectional = sequence(newRays.rows()-1,product_directional.size() + complex_directional.size());
 	
 	dbgtrace << "Creating lineality matrix" << endl;
 	
