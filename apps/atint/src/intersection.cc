@@ -37,16 +37,11 @@ namespace polymake { namespace atint {
 
     using polymake::polytope::cdd_interface::solver;
   
-    //using namespace atintlog::donotlog;
+    using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
-    using namespace atintlog::dotrace;
+    //using namespace atintlog::dotrace;
     
-    /**
-     @brief Computes the intersection product of two cycles in R^n
-     @param perl::Object X A WeightedComplex
-     @param perl::Object Y A WeightedComplex, living in the same ambient space as X
-     @return perl::Object Their intersection product, always in homogeneous coordinates.
-     */
+    //Documentation see perl wrapper
     perl::Object selective_cycle_intersection(perl::Object X, perl::Object Y) {
       //Extract values
       int Xcodim = X.give("CMPLX_CODIMENSION");
@@ -89,7 +84,7 @@ namespace polymake { namespace atint {
  	Matrix<Rational> i_lineality = T(x_lineality  / (-y_lineality));
  	Matrix<Rational> dependence =  null_space(i_lineality);
 	r_lineality = dependence.minor(All,sequence(0,x_lineality.rows())) * x_lineality;
-	r_lineality = zero_vector<Rational>() | r_lineality;
+	//r_lineality = zero_vector<Rational>() | r_lineality;
       }
       int r_lineality_dim = rank(r_lineality);
       
@@ -137,7 +132,7 @@ namespace polymake { namespace atint {
 	for(int mc = 0; mc < maximalCones.rows(); mc++) {
 	  //Compute intersection with diagonal 
 	  std::pair<Matrix<Rational>, Matrix<Rational> > mcFacets = 
-	    sv.enumerate_facets(zero_vector<Rational>() | rays.minor(maximalCones.row(mc),All), Matrix<Rational>(0,Xambi +2), true,false);
+	    sv.enumerate_facets(zero_vector<Rational>() | rays.minor(maximalCones.row(mc),All), zero_vector<Rational>() | lineality, true,false);
 	    Matrix<Rational> inrays = sv.enumerate_vertices(mcFacets.first, mcFacets.second / diagLin, true,true).first.minor(All,~scalar2set(0));
 	  if(rank(inrays) - 1 >= expectedDimension) {
 	      remainingCones += mc;
@@ -164,12 +159,14 @@ namespace polymake { namespace atint {
 	    currentComplex.take("MAXIMAL_CONES") << maximalCones;
 	    currentComplex.take("TROPICAL_WEIGHTS") << weights;
 	    currentComplex.take("USES_HOMOGENEOUS_C") << true;
+	    currentComplex.take("LINEALITY_SPACE") << lineality;
 	  perl::Object divisor = divisor_minmax(currentComplex,psi[i],1); 
 	  
 	  Matrix<Rational> divrays = divisor.give("RAYS");
 	  IncidenceMatrix<> divmaximalCones = divisor.give("MAXIMAL_CONES");
 	  Vector<Integer> divweights = divisor.give("TROPICAL_WEIGHTS");
-	    rays = divrays; maximalCones = divmaximalCones; weights = divweights;
+	  Matrix<Rational> divlin = divisor.give("LINEALITY_SPACE");
+	    rays = divrays; maximalCones = divmaximalCones; weights = divweights; lineality = divlin;
 	}
 	
       }//END for all functions psi[i]
@@ -189,13 +186,13 @@ namespace polymake { namespace atint {
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
-    /**
-     @brief Compute the intersection product of two tropical cycles
-     @param perl::Object X A WeightedComplex, assumed to be balanced
-     @param perl::Object Y A balanced WeightedComplex with the same ambient dimension as X
-     @param
-     */
-    perl::Object cycle_intersection(perl::Object X, perl::Object Y) {
+//     /**
+//      @brief Compute the intersection product of two tropical cycles
+//      @param perl::Object X A WeightedComplex, assumed to be balanced
+//      @param perl::Object Y A balanced WeightedComplex with the same ambient dimension as X
+//      @param
+//      */
+//     perl::Object cycle_intersection(perl::Object X, perl::Object Y) {
 // 	//Extract values
 // 	int Xcodim = X.give("CMPLX_CODIMENSION");
 // 	int Ycodim = Y.give("CMPLX_CODIMENSION");
@@ -316,63 +313,63 @@ namespace polymake { namespace atint {
 // 	  result.take("USES_HOMOGENEOUS_C") << true;
 // 	return result;
 	
-      dbgtrace << "Extracting values" << endl;
-      //Extract values
-      int Xcodim = X.give("CMPLX_CODIMENSION");
-      int Ycodim = Y.give("CMPLX_CODIMENSION");
-      int Xambi  = X.give("CMPLX_AMBIENT_DIM");      
-      
-      dbgtrace << "Checking codimension" << endl;
-      
-      //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
-      if(Xcodim + Ycodim > Xambi) {
-	Matrix<Rational> norays(0,Xambi);
-	Vector<Set<int> > nofacets;
-	perl::Object zerocycle("WeightedComplex");
-	  zerocycle.take("INPUT_RAYS") << norays;
-	  zerocycle.take("INPUT_CONES") << nofacets;
-	return zerocycle;
-      }
-      
-      dbgtrace << "Computing product" << endl;
-      
-      //Compute the cross product
-      std::vector<perl::Object> XandY;
-	XandY.push_back(X); XandY.push_back(Y);
-	dbgtrace << "Computed list for product..." << endl;
-      perl::Object Z = compute_product_complex(XandY);
-      
-      dbgtrace << "Computing functions" << endl;
-      
-      //Compute the diagonal functions
-      perl::ListResult psi = ListCallPolymakeFunction("atint::diagonal_functions",Xambi);
-      
-      //Now intersect with the product
-      for(int i = 0; i < Xambi; i++) {
-	dbgtrace << "Intersecting function" << i+1 << endl;
-	Z = divisorByPLF(Z,psi[i]);  
-      }
-      
-      dbgtrace << "Projecting" << endl;
-      
-      //Finally project
-      bool uses_homog = Z.give("USES_HOMOGENEOUS_C");
-      Matrix<Rational> raymatrix = Z.give("RAYS");
-	raymatrix = raymatrix.minor(All,sequence(0,uses_homog? Xambi+1 : Xambi));
-      Matrix<Rational> linmatrix = Z.give("LINEALITY_SPACE");
-	if(linmatrix.rows() > 0) {
-	  linmatrix = linmatrix.minor(All,sequence(0,uses_homog? Xambi+1 : Xambi));
-	}
-      IncidenceMatrix<> cones = Z.give("MAXIMAL_CONES");
-      Vector<Integer> weights = Z.give("TROPICAL_WEIGHTS");
-      perl::Object result("WeightedComplex");
-	result.take("RAYS") << raymatrix;
-	result.take("LINEALITY_SPACE") << linmatrix,
-	result.take("MAXIMAL_CONES") << cones;
-	result.take("TROPICAL_WEIGHTS") << weights;
-	result.take("USES_HOMOGENEOUS_C") << uses_homog;
-      return result;
-    }
+//       dbgtrace << "Extracting values" << endl;
+//       //Extract values
+//       int Xcodim = X.give("CMPLX_CODIMENSION");
+//       int Ycodim = Y.give("CMPLX_CODIMENSION");
+//       int Xambi  = X.give("CMPLX_AMBIENT_DIM");      
+//       
+//       dbgtrace << "Checking codimension" << endl;
+//       
+//       //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
+//       if(Xcodim + Ycodim > Xambi) {
+// 	Matrix<Rational> norays(0,Xambi);
+// 	Vector<Set<int> > nofacets;
+// 	perl::Object zerocycle("WeightedComplex");
+// 	  zerocycle.take("INPUT_RAYS") << norays;
+// 	  zerocycle.take("INPUT_CONES") << nofacets;
+// 	return zerocycle;
+//       }
+//       
+//       dbgtrace << "Computing product" << endl;
+//       
+//       //Compute the cross product
+//       std::vector<perl::Object> XandY;
+// 	XandY.push_back(X); XandY.push_back(Y);
+// 	dbgtrace << "Computed list for product..." << endl;
+//       perl::Object Z = compute_product_complex(XandY);
+//       
+//       dbgtrace << "Computing functions" << endl;
+//       
+//       //Compute the diagonal functions
+//       perl::ListResult psi = ListCallPolymakeFunction("atint::diagonal_functions",Xambi);
+//       
+//       //Now intersect with the product
+//       for(int i = 0; i < Xambi; i++) {
+// 	dbgtrace << "Intersecting function" << i+1 << endl;
+// 	Z = divisorByPLF(Z,psi[i]);  
+//       }
+//       
+//       dbgtrace << "Projecting" << endl;
+//       
+//       //Finally project
+//       bool uses_homog = Z.give("USES_HOMOGENEOUS_C");
+//       Matrix<Rational> raymatrix = Z.give("RAYS");
+// 	raymatrix = raymatrix.minor(All,sequence(0,uses_homog? Xambi+1 : Xambi));
+//       Matrix<Rational> linmatrix = Z.give("LINEALITY_SPACE");
+// 	if(linmatrix.rows() > 0) {
+// 	  linmatrix = linmatrix.minor(All,sequence(0,uses_homog? Xambi+1 : Xambi));
+// 	}
+//       IncidenceMatrix<> cones = Z.give("MAXIMAL_CONES");
+//       Vector<Integer> weights = Z.give("TROPICAL_WEIGHTS");
+//       perl::Object result("WeightedComplex");
+// 	result.take("RAYS") << raymatrix;
+// 	result.take("LINEALITY_SPACE") << linmatrix,
+// 	result.take("MAXIMAL_CONES") << cones;
+// 	result.take("TROPICAL_WEIGHTS") << weights;
+// 	result.take("USES_HOMOGENEOUS_C") << uses_homog;
+//       return result;
+//     }
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -544,9 +541,8 @@ namespace polymake { namespace atint {
 		      "# @param WeightedComplex Y The second tropical variety. Should have the same actual ambient "
 		      "# dimension (homogeneous coordinates don't count) as X."
 		      "# @return WeightedComplex Z The intersection product X*Y in V = R^n, where n is the ambient "
-		      "# dimension of X and Y. The result has homogeneous coordinates in any case"
-		      "# coordinates.",
-		      &cycle_intersection,"cycle_intersection(WeightedComplex, WeightedComplex)");
+		      "# dimension of X and Y. The result has homogeneous coordinates in any case",
+		      &selective_cycle_intersection,"cycle_intersection(WeightedComplex, WeightedComplex)");
 
     UserFunction4perl("# @category Tropical geometry"
 		      "# Computes the recession fan of a tropical variety"

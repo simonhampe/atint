@@ -31,6 +31,7 @@
 # (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. 
 # The function will then compute the corresponding Weil divisor and return it as a 
 # tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does.
+# Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which the complex is balanced and computing weights there.
 # @param WeightedComplex A tropical variety on which the divisor is computed. 
 # @param values An array of rational values that define an integer affine map on the fan. 
 # @return The divisor of the function defined by values on the given fan, as a tropical variety.
@@ -42,6 +43,7 @@ user_function divisorByValue {
 # @category Tropical geometry
 # Takes as input a tropical variety X , a rational function f and optionally a positive integer k. It then computes
 # f^k * X
+#Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which the complex is balanced and computing weights there.
 # @param WeightedComplex X A tropical variety
 # @param RationalFunction f A rational function, defined on a DOMAIN that contains X. It can be in non-homog. coordinates, even if X is in homog. coordinates, but then its AMBIENT_DIM has to be equal to X->AMBIENT_DIM. Otherwise you will have to homogenize the function first.
 # @param Int k Optional. A positive integer. Note that if k is given, this will actually ignore f->POWER. Is 1 by default.

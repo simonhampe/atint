@@ -175,7 +175,7 @@ object WeightedComplex {
 	# operations that produce a WeightedComplex automatically set this property to something
 	# informative.
 	property DESCRIPTION : String;
-	
+
 	## RULES ################################################################
 	
 	# The different weights for the following two rules make sure that existence of INPUT_HOM_* is checked first (since INPUT_* will always be set by INPUT_HOM_*
@@ -227,7 +227,7 @@ object WeightedComplex {
 	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
 	}
 	weight 0.02;
-	
+		
 	#------------------------------------------------------------------------#
 	
 	rule RAYS, MAXIMAL_CONES: LINEALITY_SPACE {
@@ -237,7 +237,8 @@ object WeightedComplex {
 	  $this->MAXIMAL_CONES = \@a;
 	  $this->RAYS = new Matrix<Rational>(0,$this->LINEALITY_SPACE->cols());
 	}
-	
+	weight 6.10;
+		
 	#------------------------------------------------------------------------#
 	
 	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, FAN_AMBIENT_DIM, LINEALITY_SPACE {
@@ -282,11 +283,11 @@ object WeightedComplex {
 	}
 	
 	#------------------------------------------------------------------------#
-	
-	rule INPUT_RAYS, INPUT_CONES : LINEALITY_SPACE {
-	  $this->INPUT_RAYS = new Matrix<Rational>(0,$this->LINEALITY_SPACE->cols());
-	  $this->INPUT_CONES = new Vector<Set<Int>>();
-	}
+# 	
+# 	rule INPUT_RAYS, INPUT_CONES : LINEALITY_SPACE {
+# 	  $this->INPUT_RAYS = new Matrix<Rational>(0,$this->LINEALITY_SPACE->cols());
+# 	  $this->INPUT_CONES = new Vector<Set<Int>>();
+# 	}
 	
 	#------------------------------------------------------------------------#
 	
