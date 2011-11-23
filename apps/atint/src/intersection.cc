@@ -557,7 +557,7 @@ namespace polymake { namespace atint {
 		      "# @param WeightedComplex complex"
 		      "# @return Int",
 		      &degree, "degree(WeightedComplex)");
-    Function4perl(&selective_cycle_intersection,"selective_cycle_intersection(WeightedComplex,WeightedComplex)");
+    //Function4perl(&selective_cycle_intersection,"selective_cycle_intersection(WeightedComplex,WeightedComplex)");
     
 //     Function4perl(&check_smoothness,"check_smoothness(;@)");
     

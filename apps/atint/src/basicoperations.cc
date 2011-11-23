@@ -81,7 +81,8 @@ namespace polymake { namespace atint{
 	product_has_weights = true;
       }
       bool product_uses_homog = firstComplex.give("USES_HOMOGENEOUS_C");
-      int product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
+      //int product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
+      int product_dim = rayMatrix.rows() > 0? rayMatrix.cols() : linMatrix.cols();
       //Sort rays by affine and directional
       Set<int> product_affine;
       Set<int> product_directional;
@@ -117,8 +118,13 @@ namespace polymake { namespace atint{
 	if(uses_homog) {
 	  if(prerays.rows() > 0) prerays = prerays.minor(All,~scalar2set(0));
 	  if(prelin.rows() > 0) prelin = prelin.minor(All,~scalar2set(0));
+	  dbgtrace << "prerays: " << prerays << endl;
+	  dbgtrace << "rcols: " << prerays.cols() << endl;
+	  dbgtrace << "lcols: " << prelin.cols() << endl;
 	}
-	int dim = prerays.cols() > prelin.cols() ? prerays.cols() : prelin.cols();
+	//int dim = prerays.cols() > prelin.cols() ? prerays.cols() : prelin.cols();
+	int dim = prerays.rows() > 0? prerays.cols() : prelin.cols();
+	dbgtrace << "dim: " << dim << endl;
 		
 	dbgtrace << "Creating ray matrix" << endl;
 	//dbgtrace << "Affine rays of product are " << rayMatrix.minor(product_affine,All) << endl;

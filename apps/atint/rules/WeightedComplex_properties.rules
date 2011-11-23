@@ -28,9 +28,8 @@ object WeightedComplex {
   
 	# @category Tropical properties
 	# Vector of (integer) weights for maximal cones. Indices refer to (the rows of) [[MAXIMAL_CONES]]
-	# If, however, the fan only consists of a lineality space, specifying the weight of this single maximal
-	# cone is only necessary, if you want to compute refinements of this fan later on (e.g. for computing
-	# divisors of rational functions)
+	# Note that, if the fan only consists of a lineality space, it specifies the weight of the single empty maximal
+	# cone 
 	property TROPICAL_WEIGHTS : Vector<Integer>;
 
 	# @category Tropical properties
