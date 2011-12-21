@@ -277,7 +277,7 @@ object RationalCurve {
 
 # @category Tropical geometry
 # This function takes a vector of coefficients a_i and a list of RationalCurves c_i and computes
-# sum(a_i * c_i). In particular, it also checks, whether the result lies in M_0,n. If not, it returns unded
+# sum(a_i * c_i). In particular, it also checks, whether the result lies in M_0,n. If not, it returns undef
 # @param RationalCurve An arbitrary list of RationalCurve objects
 # @param Vector<Rational> v A list of coefficients. Superfluous coefficients are ignored, missing ones replaced
 # by +1(!)
@@ -323,3 +323,19 @@ user_function sum_curves {
   }
 }
 
+# user_function tauspan {
+#   my $curve = shift;
+#   my @a = adjacentRays($curve);
+#   my @c = ();
+#   my $m = new Matrix<Rational>();
+#   for my $x (@a) {
+#     my $c = new RationalCurve(N_LEAVES=>$curve->N_LEAVES, SETS=>($x), COEFFS=>[1]);
+#     if($m->rows() == 0) {
+#       $m = new Matrix<Rational>($c->matroid_vector);
+#     }
+#     else {
+#       $m = new Matrix<Rational>($m / $c->matroid_vector);
+#     }
+#   }
+#   return $m;
+# }

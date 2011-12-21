@@ -27,6 +27,8 @@ This file provides the functionality necessary to compute tropical moduli spaces
 #include "polymake/Set.h"
 #include "polymake/Rational.h"
 #include "polymake/Integer.h"
+#include "polymake/PowerSet.h"
+#include "polymake/Array.h"
 
 namespace polymake { namespace atint {
 
@@ -278,6 +280,52 @@ namespace polymake { namespace atint {
     return result;
     
   }
+  
+//   perl::ListReturn adjacentRays(perl::Object curve) {
+//     //Extract values
+//     Vector<Set<int> > sets = curve.give("SETS");
+//     int n = curve.give("N_LEAVES");
+//     
+//     Vector<Set<Set<int> > > adjacent;
+//     
+//     //For each ray, compute the compatible rays
+//     for(int s = 0; s < sets.dim(); s++) {
+//       adjacent |= Set<Set<int> >();
+//       //Make sure, 1 is in sets[s]
+//       if(!sets[s].contains(1)) sets[s] = sequence(1,n) - sets[s];
+// 	
+//       Array<Set<int> > ssubsets = pm::AllSubsets<Set<int> >(sets[s]);
+//       Array<Set<int> > csubsets = pm::AllSubsets<Set<int> >(sequence(1,n) - sets[s]);
+//       //For all J and J^c in I...
+//       for(int j = 0; j < ssubsets.size(); j++) {
+// 	if(ssubsets[j].size() >= 2 && ssubsets[j].size() <= n-2) {
+// 	  if(ssubsets[j].contains(1)) adjacent[s] += ssubsets[j];
+// 	  else adjacent[s] += (sequence(1,n) - ssubsets[j]);
+// 	}
+//       }
+//       //For all J^c in I^c
+//       for(int j = 0; j < csubsets.size(); j++) {
+// 	if(csubsets[j].size() >= 2 && csubsets[j].size() <= n-2 && !csubsets[j].contains(1)) {
+// 	  adjacent[s] += (sequence(1,n) - csubsets[j]);
+// 	}
+//       }
+//     }
+//     
+//     //At the end, intersect
+//     Set<Set<int> > result = adjacent[0];
+//     for(int x = 1; x < adjacent.dim(); x++) {
+//       result *= adjacent[x];
+//     }
+//     
+//     perl::ListReturn ret;
+//     for(Entire<Set<Set<int> > >::iterator r = entire(result); !r.at_end(); r++) {
+//       ret << *r;
+//     }
+//     return ret;
+//     
+//   }
+  
+  
 
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
@@ -300,5 +348,6 @@ namespace polymake { namespace atint {
 		    "# @param Int n The number of leaves. Should be at least 4"
 		    "# @return WeightedComplex The tropical moduli space M_0,n",
 		    &tropical_mn, "tropical_m0n($)");
+//   UserFunction4perl("",&adjacentRays,"adjacentRays(RationalCurve)");
   
 }}

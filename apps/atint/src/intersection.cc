@@ -512,10 +512,11 @@ namespace polymake { namespace atint {
       perl::Object function("MinMaxFunction");
 	function.take("FUNCTION_MATRIX") << functionmatrix;
 	function.take("USES_MIN") << false;
-      perl::Object div = fan;
-      for(int i = 1; i <= ambient_dim - codim; i++) {
-	div = divisorByPLF(div,function);
-      }
+      perl::Object div = divisor_minmax(fan,function,ambient_dim-codim);
+//       fan;
+//       for(int i = 1; i <= ambient_dim - codim; i++) {
+// 	div = divisorByPLF(div,function);
+//       }
       return degree(div);
     }
     
