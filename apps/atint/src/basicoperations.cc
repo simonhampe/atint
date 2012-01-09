@@ -81,6 +81,7 @@ namespace polymake { namespace atint{
 	product_has_weights = true;
       }
       bool product_uses_homog = firstComplex.give("USES_HOMOGENEOUS_C");
+      Array<Set<int> > local_restriction = firstComplex.give("LOCAL_RESTRICTION");
       //int product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
       int product_dim = rayMatrix.rows() > 0? rayMatrix.cols() : linMatrix.cols();
       //Sort rays by affine and directional
@@ -101,7 +102,8 @@ namespace polymake { namespace atint{
 	bool uses_weights = false;
 	Matrix<Rational> prerays = complexes[i].give("RAYS");
 	Matrix<Rational> prelin = complexes[i].give("LINEALITY_SPACE");
-	IncidenceMatrix<> premax = complexes[i].give("MAXIMAL_CONES");
+	Vector<Set<int> > premax = complexes[i].give("MAXIMAL_CONES");
+	Array<Set<int> > pre_local_restriction = complexes[i].give("LOCAL_RESTRICTION");
 	
 	Array<Integer> preweights;
 	if(complexes[i].exists("TROPICAL_WEIGHTS")) {
@@ -201,14 +203,14 @@ namespace polymake { namespace atint{
 	Vector<Integer> newWeights;
 	//Make sure, we have at least one "cone" in each fan, even if it is empty
 	if(maximalCones.dim() == 0) { maximalCones = maximalCones | Set<int>();}
-	if(premax.rows() == 0) { premax = premax / Set<int>();}
+	if(premax.dim() == 0) { premax = premax | Set<int>();}
 	for(int pmax = 0; pmax < maximalCones.dim(); pmax++) {
 	    Set<int> product_cone = maximalCones[pmax];
 	    if(!product_uses_homog && uses_homog) {
 	      product_cone = product_cone + (-1);
 	    }
-	    for(int cmax = 0; cmax < premax.rows(); cmax++) {
-	      Set<int> complex_cone = premax.row(cmax);
+	    for(int cmax = 0; cmax < premax.dim(); cmax++) {
+	      Set<int> complex_cone = premax[cmax];
 	      if(!uses_homog && product_uses_homog) {
 		complex_cone = complex_cone + (-1);
 	      }
@@ -239,6 +241,51 @@ namespace polymake { namespace atint{
 	    }
 	}
 	
+	//Compute the cross product of the local_restrictions
+	Vector<Set<int> > new_local_restriction;
+	if(local_restriction.size() > 0 || pre_local_restriction.size() > 0) {
+	  //If one variety is not local, we take all its vertices for the product
+	  Vector<Set<int> > product_locality = Vector<Set<int> >(local_restriction);
+	  if(product_locality.size() == 0) {
+	    for(Entire<Set<int> >::iterator aRay = entire(product_affine); !aRay.at_end(); aRay++) {
+	      Set<int> single; single += *aRay;
+	      product_locality |= single;
+	    }
+	  }
+	  Vector<Set<int> > pre_locality = Vector<Set<int> >(pre_local_restriction);
+	  if(pre_locality.size() == 0) {
+	    for(Entire<Set<int> >::iterator aRay = entire(complex_affine); !aRay.at_end(); aRay++) {
+	      Set<int> single; single += *aRay;
+	      pre_locality |= single;
+	    }
+	  }
+	  
+	  for(int i = 0; i < product_locality.size(); i++) {
+	    Set<int> pAffine = product_locality[i] * product_affine;
+	    Set<int> pDirectional = product_locality[i] * product_directional;
+	    for(int j = 0; j < pre_locality.size(); j++) {
+	      Set<int> local_cone;
+	      Set<int> cAffine = pre_locality[j] * complex_affine;
+	      Set<int> cDirectional = pre_locality[j] * complex_directional;
+	      //First add the affine rays: For each pair of affine rays add the corresponding index from
+	      //affineIndices
+	      for(Entire<Set<int> >::iterator pa = entire(pAffine); !pa.at_end(); pa++) {
+		for(Entire<Set<int> >::iterator ca = entire(cAffine); !ca.at_end(); ca++) {
+		    local_cone = local_cone + affineIndices[std::make_pair(*pa,*ca)];
+		}		
+	      }
+	      //Now add the directional indices
+	      for(Entire<Set<int> >::iterator pd = entire(pDirectional); !pd.at_end(); pd++) {
+		local_cone = local_cone + pdirIndices[*pd];
+	      }
+	      for(Entire<Set<int> >::iterator cd = entire(cDirectional); !cd.at_end(); cd++) {
+		local_cone = local_cone + cdirIndices[*cd];
+	      }
+	      new_local_restriction = new_local_restriction | local_cone;
+	    }
+	  }
+	}
+	
 	//Copy values
 	product_affine = newAffine;
 	product_directional = newDirectional;
@@ -246,6 +293,7 @@ namespace polymake { namespace atint{
 	weights = newWeights;
 	product_uses_homog = product_uses_homog || uses_homog;
 	product_has_weights = product_has_weights ||  uses_weights;
+	local_restriction = Array<Set<int> > (new_local_restriction);
       }
     
       //Fill fan with result
@@ -255,6 +303,7 @@ namespace polymake { namespace atint{
 	result.take("MAXIMAL_CONES") << maximalCones;
 	if(product_has_weights) result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << product_uses_homog;
+	result.take("LOCAL_RESTRICTION") << local_restriction;
 	
       return result;
          
@@ -308,6 +357,12 @@ namespace polymake { namespace atint{
     Set<int> affine = complex.give("VERTICES");
     Set<int> directional = complex.give("DIRECTIONAL_RAYS");
     int ambient_dim = complex.give("CMPLX_AMBIENT_DIM");
+    Array<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    
+    if(local_restriction.size() > 0) {
+      affine *= accumulate(local_restriction,operations::add());
+    }
+    
     
     //Now go through all affine rays
     perl::ListReturn result;
@@ -369,6 +424,7 @@ namespace polymake { namespace atint{
     IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
     Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+    Array<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
     //Transform rays and lin space
     linspace = linspace * matrix;
@@ -383,6 +439,7 @@ namespace polymake { namespace atint{
       result.take("TROPICAL_WEIGHTS") << weights;
       result.take("LINEALITY_SPACE") << linspace;
       result.take("USES_HOMOGENEOUS_C") << uses_homog;
+      result.take("LOCAL_RESTRICTION") << local_restriction;
     return result;
     
   }
@@ -412,7 +469,7 @@ namespace polymake { namespace atint{
     //Now we compute the codimension one skeleton of the fan (cmplx_dim - k) times 
     IncidenceMatrix<> newMaximalCones = maximalCones;
     for(int i = 1; i <= (cmplx_dim - k); i++) {
-      newMaximalCones = calculateCodimOneData(rays,newMaximalCones, uses_homog, lineality).codimOneCones;
+      newMaximalCones = calculateCodimOneData(rays,newMaximalCones, uses_homog, lineality, Array<Set<int> >()).codimOneCones;
     }
     
     //Now return the result - made irredundant, if preserve is false

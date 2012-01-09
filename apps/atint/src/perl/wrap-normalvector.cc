@@ -15,17 +15,11 @@
 
 namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( pm::Vector<pm::Integer> (perl::Object const&, perl::Object const&) ) {
+   FunctionWrapper4perl( pm::Vector<pm::Rational> (pm::Vector<pm::Rational> const&, pm::Matrix<pm::Rational> const&) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0, arg1 );
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< Rational > > >(), arg1.get< perl::TryCanned< const Matrix<Rational> > >() );
    }
-   FunctionWrapperInstance4perl( pm::Vector<pm::Integer> (perl::Object const&, perl::Object const&) );
-
-   FunctionWrapper4perl( pm::Vector<pm::Integer> (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Vector<pm::Rational> const&) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix<Rational> > >(), arg1.get< perl::TryCanned< const Matrix<Rational> > >(), arg2.get< perl::TryCanned< const Vector< Rational > > >() );
-   }
-   FunctionWrapperInstance4perl( pm::Vector<pm::Integer> (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Vector<pm::Rational> const&) );
+   FunctionWrapperInstance4perl( pm::Vector<pm::Rational> (pm::Vector<pm::Rational> const&, pm::Matrix<pm::Rational> const&) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

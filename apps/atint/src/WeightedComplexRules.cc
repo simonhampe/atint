@@ -44,6 +44,19 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
+  //Documentation see header
+  bool is_coneset_compatible(const Set<int> &cone, const Array<Set<int> > &local_restriction) {
+    for(int i = 0; i < local_restriction.size(); i++) { 
+	Set<int> inter = cone * local_restriction[i];
+	if(inter.size() == cone.size() || inter.size() == local_restriction[i].size()) {
+	  return true;
+	}
+    }
+    return false;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
     @brief Takes a polyhedral fan and computes its codimension one cones and an incidence matrix indicating which codim one cones lie in which maximal cone. The corresponding properties in the fan are set automatically.
     @param WeightedComplex fan A polyhedral fan, extended by atint to a tropical variety
@@ -53,6 +66,7 @@ namespace polymake { namespace atint {
     bool uses_homog = fan.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> rays = fan.give("RAYS");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    Array<Set<int> > local_restriction = fan.give("LOCAL_RESTRICTION");
     //Special case: fan is only origin
     if(maximalCones.rows() == 1) {
       if(maximalCones.row(0).size() == 0) {
@@ -62,7 +76,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    CodimensionOneResult r = calculateCodimOneData(rays, maximalCones, uses_homog, linspace);
+    CodimensionOneResult r = calculateCodimOneData(rays, maximalCones, uses_homog, linspace, local_restriction);
     
     fan.take("CODIM_1_FACES") << r.codimOneCones;
     fan.take("CODIM_1_IN_MAXIMAL_CONES") << r.codimOneInMaximal;    
@@ -72,7 +86,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
-  CodimensionOneResult calculateCodimOneData(Matrix<Rational> rays, IncidenceMatrix<> maximalCones, bool uses_homog, Matrix<Rational> linspace) {
+  CodimensionOneResult calculateCodimOneData(Matrix<Rational> rays, IncidenceMatrix<> maximalCones, bool uses_homog, Matrix<Rational> linspace, Array<Set<int> > local_restriction) {
     dbgtrace << "Computing all facets..." << endl;
     
     //First we construct the set of all facets 
@@ -115,32 +129,36 @@ namespace polymake { namespace atint {
       IncidenceMatrix<> fcts = maximal_cone_incidence[maxcone];
       for(int facet = 0; facet < fcts.rows(); facet++) {
 	Set<int> facetToCheck = fcts.row(facet);
-	 //If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
-	 //More precisely: Check if at least one of its rays has x0-coord != 0
-	 if(uses_homog) {
-	  Vector<Rational> firstColumn = rays.minor(facetToCheck,All).col(0);
-	  if(firstColumn == zero_vector<Rational>(firstColumn.dim())) {
-	    continue;
-	  }
-	 }
-	 //Otherwise check if we already have that facet and remember its index
-	 int fcIndex = -1;
-	 for(int existing = 0; existing < facetArray.dim(); existing++) {
-	  if(facetArray[existing] == facetToCheck) {
-	    fcIndex = existing;
-	    break;
-	  }
-	 }
-	 //Add the facet if necessary and add its maximal-cone indices
-	 if(fcIndex == -1) {
-	    facetArray = facetArray | facetToCheck;
-	    Set<int> singlecone;
-	      singlecone = singlecone + maxcone;
-	    fIncones = fIncones | singlecone;
-	 }
-	 else {
-	  fIncones[fcIndex] = fIncones[fcIndex] + maxcone;
-	 }
+	//If there is a local restriction, check if the facet is compatible
+	if(local_restriction.size() > 0) {
+	  if(!is_coneset_compatible(facetToCheck, local_restriction)) continue;
+	}
+	//If we use homog. coords: Check if this facet intersects x0 = 1, otherwise go to the next one 
+	//More precisely: Check if at least one of its rays has x0-coord != 0
+	if(uses_homog) {
+	Vector<Rational> firstColumn = rays.minor(facetToCheck,All).col(0);
+	if(firstColumn == zero_vector<Rational>(firstColumn.dim())) {
+	  continue;
+	}
+	}
+	//Otherwise check if we already have that facet and remember its index
+	int fcIndex = -1;
+	for(int existing = 0; existing < facetArray.dim(); existing++) {
+	if(facetArray[existing] == facetToCheck) {
+	  fcIndex = existing;
+	  break;
+	}
+	}
+	//Add the facet if necessary and add its maximal-cone indices
+	if(fcIndex == -1) {
+	  facetArray = facetArray | facetToCheck;
+	  Set<int> singlecone;
+	    singlecone = singlecone + maxcone;
+	  fIncones = fIncones | singlecone;
+	}
+	else {
+	fIncones[fcIndex] = fIncones[fcIndex] + maxcone;
+	}
       }
     }
     
@@ -366,6 +384,7 @@ namespace polymake { namespace atint {
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     IncidenceMatrix<> facet_incidences = fan.give("CODIM_1_IN_MAXIMAL_CONES");
       facet_incidences = T(facet_incidences);
+    Array<Set<int> > local_restriction = fan.give("LOCAL_RESTRICTION");
       
     //Result variables
     Matrix<Rational> cmplxrays(0,ambient_dim);
@@ -407,6 +426,12 @@ namespace polymake { namespace atint {
       for(Entire<Set<int> >::iterator e = entire( mcrays); !e.at_end(); ++e) {
 	maxcones[mc] = maxcones[mc] + newAffineIndices[*e];
       }
+    }
+    
+    //If there is a local restriction, we keep only compatible affine rays
+    //for equivalence computation
+    if(local_restriction.size() > 0) {
+      affineRays *= accumulate(local_restriction,operations::add());
     }
     
     dbgtrace << "Added affine rays to cones" << endl;

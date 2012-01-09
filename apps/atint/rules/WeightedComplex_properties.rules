@@ -33,12 +33,14 @@ object WeightedComplex {
 	property TROPICAL_WEIGHTS : Vector<Integer>;
 
 	# @category Tropical properties
-	# Indicates whether the fan is balanced with the given [[TROPICAL_WEIGHTS]].
+	# Indicates whether the fan is balanced with the given [[TROPICAL_WEIGHTS]]. If there is a 
+	# [[LOCAL_RESTRICTION]], this will only be checked at the compatible codim one faces.
 	property IS_BALANCED : Bool;	
 
 	# @category Basic properties
 	# An incidence matrix of all codimension one faces. Each row is a face and column indices refer to [[RAYS]].
 	# If the fan uses homogeneous coordinates, only those faces that intersect {x0 = 1} are listed here.
+	# If there is a [[LOCAL_RESTRICTION]], only compatible codimension one faces are kept.
 	property CODIM_1_FACES : IncidenceMatrix;
 	
 	# @category Basic properties
@@ -48,10 +50,12 @@ object WeightedComplex {
 	
 	# @category Tropical properties
 	# A list of lattice normal vectors. They are associated to the faces and maximal cones in the following 
-	# way: For face i and adjacent maximal cone j, the element [[LATTICE_NORMALS]]->{i}->{j} is the corresp.
+	# way: For codimension one face i and adjacent maximal cone j, the element [[LATTICE_NORMALS]]->{i}->{j} is the corresp.
 	# lattice normal vector. There is a convenience method lattice_normal(i,j)
 	# If [[USES_HOMOGENEOUS_C]] is TRUE, this actually computes a lattice normal of the cone (face i)\cap {x0 =1} wrt the
 	# cone (maximal cone j) \cap {x0=1} to ensure that the normal is of the form (0,...)
+	# If there is a [[LOCAL_RESTRICTION]], only lattice normals for compatible codim one faces
+	# are computed (naturally, since [[CODIM_1_FACES]] only contains those)
 	property LATTICE_NORMALS : Map<Int,Map<Int,Vector<Integer>>>; 
 	
 	# @category Tropical geometry
@@ -121,6 +125,9 @@ object WeightedComplex {
 	# The reason for this is that, when specifying a piecewise affine linear function on a polyhedral complex, the same directional ray with 
 	# x0 = 0 might be assigned two different values, if it is contained in two "non-connected" maximal cones (where connectedness is to be 
 	# understood as described above).
+	# If there is a [[LOCAL_RESTRICTION]] the above equivalence relation is changed in such a 
+	# way that the affine ray s with s_0 = 1 that must be contained in the intersection of
+	# two subsequent cones must be a compatible ray. 
 	property CMPLX_RAYS : Matrix<Rational>;
 	
 	# @category Polyhedral complex
@@ -174,6 +181,19 @@ object WeightedComplex {
 	# operations that produce a WeightedComplex automatically set this property to something
 	# informative.
 	property DESCRIPTION : String;
+	
+	# @category Tropical geometry/Local computations
+	# This contains a list of sets of ray indices (referring to RAYS). All of these sets should 
+	# describe cones of the polyhedral complex (though not necessarily maximal ones).
+	# A cone is now called compatible with this property, if contains one of these cones or is 
+	# contained in one of these cones. If this list is not empty, all computations will be
+	# done only on (or around) compatible cones. The documentation of each property will explain
+	# in what way this restriction is enforced. 
+	# If this list is empty or not defined, there is no restriction.
+	# Careful: The implementation assumes that ALL maximal cones are compatible. If in doubt,
+	# you can create a complex with a local restriction from a given complex by using one of
+	# the "local_..." creation methods
+	property LOCAL_RESTRICTION : Array<Set<Int>>;
 
 	## RULES ################################################################
 	
@@ -193,6 +213,12 @@ object WeightedComplex {
 	  $this->USES_HOMOGENEOUS_C = FALSE;
 	}
 	weight 0.3;
+	
+	#------------------------------------------------------------------------#
+	
+	rule LOCAL_RESTRICTION : {
+	  $this->LOCAL_RESTRICTION = new Array<Set<Int>>();
+	}
 	
 	#------------------------------------------------------------------------#
 	
@@ -222,7 +248,10 @@ object WeightedComplex {
 		if($this->INPUT_HOM_LINEALITY->row($r)->[0] != 0) {
 		    die "Invalid coordinates for lineality space, x0 should be 0";
 		}
-	    }
+	    }# If there is a [[LOCAL_RESTRICTION]] the above equivalence relation is changed in such a 
+	# way that the affine ray s with s_0 = 1 that must be contained in the intersection of
+	# two subsequent cones must be a compatible ray. 
+	
 	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
 	}
 	weight 0.02;
@@ -240,7 +269,7 @@ object WeightedComplex {
 		
 	#------------------------------------------------------------------------#
 	
-	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, FAN_AMBIENT_DIM, LINEALITY_SPACE {
+	rule CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES : MAXIMAL_CONES, USES_HOMOGENEOUS_C, FAN_AMBIENT_DIM, LINEALITY_SPACE, LOCAL_RESTRICTION{
 	  computeCodimensionOne($this);
 # 	  my @cones = ();
 # 	  for my $c (0 .. $this->MAXIMAL_CONES->rows()-1) {
@@ -277,7 +306,7 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES, CMPLX_CONVERSION_VECTOR : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, FAN_AMBIENT_DIM {
+	rule CMPLX_RAYS, CMPLX_MAXIMAL_CONES, CMPLX_CODIM_1_FACES, CMPLX_CONVERSION_VECTOR : RAYS, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, FAN_AMBIENT_DIM, LOCAL_RESTRICTION {
 	  computeComplexData($this);
 	}
 	
@@ -373,7 +402,7 @@ object WeightedComplex {
 # 	}
 	
 	# @category Tropical methods
-	# Convenience method, returns LATTICE_NORMALS->[i]->[j]
+	# Convenience method, returns LATTICE_NORMALS->{i}->{j}
 	# @param Int i The index of the facet
 	# @param Int j The index of the maximal cone
 	# @return The lattice normal vector of cone j wrt. facet i

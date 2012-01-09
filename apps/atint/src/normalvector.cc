@@ -29,8 +29,8 @@
 namespace polymake { namespace atint { 
 	
       using namespace atintlog::donotlog;
-    //using namespace atintlog::dolog;
-    //using namespace atintlog::dotrace;
+//     using namespace atintlog::dolog;
+//     using namespace atintlog::dotrace;
   
       
       ///////////////////////////////////////////////////////////////////////////////////////
@@ -292,6 +292,7 @@ namespace polymake { namespace atint {
 		  coeff = w[c] / A(r,c);
 		  solution += coeff * U.row(r);
 		  w -= coeff * A.row(r);
+		  dbgtrace << "Solution now " << solution << endl;
 		  if(w == zv) return solution;
 		}
 		//Actually we first move the row to the end
@@ -319,6 +320,12 @@ namespace polymake { namespace atint {
 		dbgtrace << "Not in linear span" << endl;
 		return Vector<Rational>(0);
 	      }
+	    }
+	    //If we arrive here, there were no more rows in A we could use
+	    //Hence w can not be reduced, it is not in the linear span
+	    if(w[c] != 0) {
+	      dbgtrace << "Not in linear span" << endl;
+	      return Vector<Rational>(0);
 	    }
 	  }
 	  
@@ -374,13 +381,13 @@ namespace polymake { namespace atint {
 	    m = m / zero_vector<Rational>(ambient_dim);
 	  }
 	  
-	  dbgtrace << "Generator matrix is " << m << endl;
-	  dbgtrace << "Vector is " << v << endl;
+	  dbglog << "Generator matrix is " << m << endl;
+	  dbglog << "Vector is " << v << endl;
 	  
 	  //Now compute the representation
 	  Vector<Rational> repv = linearRepresentation(v,m);
 	  
-	  dbgtrace << "Representation vector: " << repv << endl;
+	  dbglog << "Representation vector: " << repv << endl;
 	  
 	  if(repv.dim() == 0) {
 	    throw std::runtime_error("Error: vector not in linear span of generators");

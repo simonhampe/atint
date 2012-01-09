@@ -40,7 +40,7 @@ namespace polymake { namespace atint{
   inline std::pair<Set<int>, Set<int> > separateRays(Matrix<Rational> m, Set<int> &affine, Set<int> &directional, bool uses_homog);
   
   /**
-    @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1.
+    @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1. The [[LOCAL_RESTRICTION]] of the result will be the cartesian product of the [[LOCAL_RESTRICTION]]s of each complex. (If a complex does not have any restrictions, the new local restriction is the (pairwise) product of all local restriction cones with the vertices of the next complex)
     @return The cartesian product of the complexes
   */
   perl::Object compute_product_complex(std::vector<perl::Object> complexes) ;
@@ -54,14 +54,14 @@ namespace polymake { namespace atint{
   perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets);
   
   /**
-   @brief Takes a polyhedral complex and returns a list of all the local vertex fans, i.e. for each affine ray r, the list contains the fan Star_complex(r) (in non-homogeneous coordinates)
+   @brief Takes a polyhedral complex and returns a list of all the local vertex fans, i.e. for each affine ray r, the list contains the fan Star_complex(r) (in non-homogeneous coordinates). If the complex has a non-trivial [[LOCAL_RESTRICTION]], only the local fans at compatible vertices are computed.
    @param WeightedComplex complex A tropical variety
    @return perl::ListReturn A list of WeightedComplex objects in non-homogeneous coordinates. The i-th complex corresponds to the i-th affine ray ( vertex). If the complex is not in homogeneous coordinates, the list contains just the complex itself
    */
   perl::ListReturn fan_decomposition(perl::Object complex);
   
   /**
-   @brief Takes a polyhedral complex and applies an affine linear transformation, given by a translate vector and a matrix. The method assumes the function is bijective and preserves cones, i.e. it just applies the transformation to the rays and lineality space and leaves the cones and weights unchanged.
+   @brief Takes a polyhedral complex and applies an affine linear transformation, given by a translate vector and a matrix. The method assumes the function is bijective and preserves cones, i.e. it just applies the transformation to the rays and lineality space and leaves the cones and weights unchanged. If there is a nontrivial [[LOCAL_RESTRICTION]], it is simply copied.
    @param WeightedComplex complex The complex to be transformed, supposed to be in homogeneous coordinates (if translate != 0)
    @param Vector<Rational> translate A vector whose dimension should be equal to the column dimension of the transformation matrix
    @param Matrix<Integer> matrix An integer (square) invertible matrix. 

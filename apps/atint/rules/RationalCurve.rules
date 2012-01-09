@@ -301,20 +301,20 @@ user_function sum_curves {
   my $n = binomial($curves[0]->N_LEAVES,2);
   my $v = new Vector<Rational>($n);
   
-  my $isets = new IncidenceMatrix();
+  my @isets = ();
   my @icoeffs = ();
   
   for my $i (0 .. (scalar(@curves)-1)) {
     my $c = $i < $coeff->dim()? $coeff->[$i] : 1;
     $v = $v + $c * $curves[$i]->metric_vector();
     @icoeffs = (@icoeffs,$c);
-    $isets = $isets / ($curves[$i]->SETS);
+    @isets = (@isets, @{$curves[$i]->SETS});
   }
   my @test = testFourPointCondition($v);
   if(scalar(@test) == 0) {
     my $result = rational_curve_from_metric($v);
     my $cvector = new Vector<Rational>(\@icoeffs);
-    return new RationalCurve(SETS=>$result->SETS,COEFFS=>$result->COEFFS, INPUT_SETS=>$isets,
+    return new RationalCurve(SETS=>$result->SETS,COEFFS=>$result->COEFFS, INPUT_SETS=>\@isets,
 			     INPUT_COEFFS=>$cvector,
 			     N_LEAVES=>$result->N_LEAVES);
   }
