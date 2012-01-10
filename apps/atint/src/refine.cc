@@ -59,6 +59,7 @@ namespace polymake { namespace atint {
       weights = X.give("TROPICAL_WEIGHTS");
       weightsExist = true;	
     }
+    Array<Set<int> > local_restriction = X.give("LOCAL_RESTRICTION");
     
     dbgtrace << "Extracted X-values" << endl;
     
@@ -158,9 +159,27 @@ namespace polymake { namespace atint {
     Vector<int> xcontainers;
     Vector<int> ycontainers;
     
+    //Data on local restriction
+    //This variable declares whether local cone i has been subdivided yet
+    Array<bool> local_subdivided(local_restriction.size());
+    //The list of new local cones
+    Vector<Set<int> > new_local_restriction;
+    
     if(refine || repFromX || repFromY) {
       //Iterate all cones of X
       for(int xc = 0; xc < (x_onlylineality? 1 : x_cones.rows()); xc++)  {
+	//If we have local restriction, we have to find all not-yet-subdivided local cones 
+	//contained in xc
+	Vector<Set<int> > xc_local_cones;
+	if(local_restriction.size() > 0) {
+	  for(int lc = 0; lc < local_restriction.size(); lc++) {
+	    if(!local_subdivided[lc]) {
+	      if((local_restriction[lc] * x_cones.row(xc)).size() == local_restriction[lc].size()) {
+		xc_local_cones |= local_restriction[lc];
+	      }
+	    }
+	  }
+	}
 	//Initalize refinement cone set
 	xrefinements[xc] = Set<Set<int> >();
 	//Compute a facet representation for the X-cone
@@ -184,35 +203,14 @@ namespace polymake { namespace atint {
 	    if(!refine) {
 	      //Copy indices
 	      interIndices = x_cones.row(xc);
-	      //Compute assoc-rep. and identify new rays
-  // 	    int vertex = -1; Set<int> newDirectionalRays;
-  // 	    for(Entire<Set<int> >::iterator ir = entire(interIndices); !ir.at_end(); ir++) {
-  // 	      if(computeAssoc) {
-  // 		if(c_rays(*ir,0) == 1) {
-  // 		    if(vertex == -1) vertex = *ir;
-  // 		    associatedRep[*ir] = *ir;
-  // 		}
-  // 		else newDirectionalRays += (*ir);
-  // 	      }
-  // 	    }
-  // 	    if(computeAssoc) {
-  // 	      for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
-  // 		associatedRep[*dr] = vertex;
-  // 	      }
-  // 	    }	    
 	    }
 	    else {
 	      //Now we canonicalize the rays and assign ray indices
-	      //We also use this opportunity to sort the rays 
 	      Set<int> newRays;
-  // 	    , newDirectionalRays;
-  // 	    int associatedVertex = -1;
-	      for(int rw = 0; rw < interrays.rows(); rw++) {
-		//bool isVertex = false;
+  	      for(int rw = 0; rw < interrays.rows(); rw++) {
 		//Vertices start with a 1
 		if(x_uses_homog && interrays(rw,0) != 0) {
 		  interrays.row(rw) /= interrays(rw,0);
-		  //isVertex = true;
 		}
 		//The first non-zero entry in a directional ray is +-1
 		else {
@@ -239,16 +237,8 @@ namespace polymake { namespace atint {
 		  c_rays /= interrays.row(rw);
 		  newrayindex = c_rays.rows()-1;
 		  newRays += newrayindex;
-  // 		if(!isVertex) { newDirectionalRays += newrayindex;}
-  // 		//Also add rows/entries in the assoc representation variable
-  // 		if(computeAssoc) associatedRep |= 0;
-		}
+  		}
 		interIndices += newrayindex;
-		//If this is the first vertex, save the index separately
-  // 	      if(isVertex && computeAssoc) {
-  // 		associatedRep[newrayindex] = newrayindex;
-  // 		if(associatedVertex == -1) associatedVertex = newrayindex;	      		
-  // 	      }
 	      } //END canonicalize rays
 	      
 	      dbgtrace << "Ray indices " << interIndices << endl;
@@ -268,19 +258,20 @@ namespace polymake { namespace atint {
 		xcontainers |= xc;
 		ycontainers |= yc;
 	      }
-	      
-	    /*  //Compute assocRep
-	      if(computeAssoc) {
-		for(Entire<Set<int> >::iterator dr = entire(newDirectionalRays); !dr.at_end(); dr++) {
-		  associatedRep[*dr] = associatedVertex;
-		}
-	      }*/	    
+	    	    
 	    } //END canonicalize intersection cone and add it
 		    
 	    //If we do not refine, we only need to find one y-cone containing the x-cone
 	    if(!refine) break;	  
 	  } //END if full-dimensional
 	}//END iterate y-cones
+	
+	//Now compute new local cones: Go through all subdivison cones of xc,
+	// go through all local cones in xc. Check which ray of the subdivision cone
+	// lies in the local cone. If the cone spanned by these has the right dimension
+	// add it as a local cone
+	
+	
       }//END iterate x-cones
     } //END if intersection is necessary?
     

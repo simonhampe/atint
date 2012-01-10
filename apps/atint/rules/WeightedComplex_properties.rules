@@ -441,6 +441,14 @@ object WeightedComplex {
 	  for my $set (@mcones) {
 	    @newmcones = (@newmcones, $set + $affineIndex);
 	  }
+	  
+	  #Now add the last ray to all local restriction cones
+	  my @local_restriction = @{$this->LOCAL_RESTRICTION};
+	  my @new_local_restriction = ();
+	  for my $lr (@local_restriction) {
+	    @new_local_restriction = (@new_local_restriction, $lr + $affineIndex);
+	  }
+	  
 	  #If there are no maximal cones (because the fan is only lineality space),we add a maximal cone
 	  # with just the origin
 	  if(scalar(@newmcones) == 0) {
@@ -451,7 +459,7 @@ object WeightedComplex {
 	  my @weight = defined($this->lookup("TROPICAL_WEIGHTS"))? @{$this->TROPICAL_WEIGHTS} : ();
 	  
 	  return new WeightedComplex(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
-				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE);
+				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE, LOCAL_RESTRICTION=>\@new_local_restriction);
 	}
 	
 # 	# @category Polyhedral geometry

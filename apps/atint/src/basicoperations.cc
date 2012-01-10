@@ -455,6 +455,7 @@ namespace polymake { namespace atint{
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> lineality = complex.give("LINEALITY_SPACE");
     int lineality_dim = complex.give("LINEALITY_DIM");
+    Array<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
     //If the skeleton dimension is too small, return the 0-cycle
     if(k < (uses_homog? 0 : 1) || k < lineality_dim) {
@@ -466,10 +467,12 @@ namespace polymake { namespace atint{
       return complex;
     }
     
+    Vector<Set<int> > new_local_restriction;
+    
     //Now we compute the codimension one skeleton of the fan (cmplx_dim - k) times 
     IncidenceMatrix<> newMaximalCones = maximalCones;
     for(int i = 1; i <= (cmplx_dim - k); i++) {
-      newMaximalCones = calculateCodimOneData(rays,newMaximalCones, uses_homog, lineality, Array<Set<int> >()).codimOneCones;
+      newMaximalCones = calculateCodimOneData(rays,newMaximalCones, uses_homog, lineality, local_restriction).codimOneCones;
     }
     
     //Now return the result - made irredundant, if preserve is false
@@ -480,6 +483,21 @@ namespace polymake { namespace atint{
       for(int c = 0; c < newMaximalCones.rows(); c++) {
 	usedRays += newMaximalCones.row(c);
       }
+      
+      if(local_restriction.size() > 0) {
+	  Map<int,int> index_map; //Maps indices of old rays to indices of new rays
+	  int newIndex = 0;
+	  for(Entire<Set<int> >::iterator uR = entire(usedRays); !uR.at_end(); uR++) {
+	      index_map[*uR] = newIndex;
+	      newIndex++;
+	  }
+	  for(int i = 0; i < local_restriction.size(); i++) {
+	      new_local_restriction |= attach_operation(local_restriction[i] * usedRays, pm::operations::associative_access<Map<int,int>,int>(&index_map));
+	  }
+      }
+      
+      
+      
       newrays = newrays.minor(usedRays,All);
       newMaximalCones = newMaximalCones.minor(All,usedRays);
     }
@@ -489,6 +507,7 @@ namespace polymake { namespace atint{
       result.take("MAXIMAL_CONES") << newMaximalCones;
       result.take("USES_HOMOGENEOUS_C") << uses_homog;
       result.take("LINEALITY_SPACE") << lineality;
+      result.take("LOCAL_RESTRICTION") << Array<Set<int> >(new_local_restriction);
    
     return result;
   }
