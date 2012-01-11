@@ -31,6 +31,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Integer.h"
 #include "polymake/linalg.h"
+#include "polymake/atint/WeightedComplexRules.h"
 
 namespace polymake { namespace atint { 
     
@@ -40,6 +41,22 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
 
+  bool is_ray_in_cone(Matrix<Rational> rays, Matrix<Rational> lineality, Vector<Rational> ray) {
+    std::pair<Matrix<Rational>, Matrix<Rational> > facets = 
+      solver<Rational>().enumerate_facets(zero_vector<Rational>() | rays, zero_vector<Rational>() | lineality,
+				true,false);
+    ray = 0 | ray;
+    //Check equations
+    for(int l = 0; l < facets.second.rows(); l++) {
+      if(facets.second.row(l) * ray != 0) return false;
+    }
+    //Check facets
+    for(int f = 0; f < facets.first.rows(); f++) {
+      if(facets.first.row(f) * ray < 0) return false;
+    }
+    return true;
+  }
+  
   //Documentation see header
   RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
     solver<Rational> sv;
@@ -165,17 +182,18 @@ namespace polymake { namespace atint {
     //The list of new local cones
     Vector<Set<int> > new_local_restriction;
     
-    if(refine || repFromX || repFromY) {
+    // -----------------------------------------------------------------------------------
+    if(refine || repFromX || repFromY) { 
       //Iterate all cones of X
       for(int xc = 0; xc < (x_onlylineality? 1 : x_cones.rows()); xc++)  {
 	//If we have local restriction, we have to find all not-yet-subdivided local cones 
 	//contained in xc
-	Vector<Set<int> > xc_local_cones;
+	Vector<int> xc_local_cones; //Saves position indices in array local_restriction
 	if(local_restriction.size() > 0) {
 	  for(int lc = 0; lc < local_restriction.size(); lc++) {
 	    if(!local_subdivided[lc]) {
 	      if((local_restriction[lc] * x_cones.row(xc)).size() == local_restriction[lc].size()) {
-		xc_local_cones |= local_restriction[lc];
+		xc_local_cones |= lc;
 	      }
 	    }
 	  }
@@ -270,18 +288,59 @@ namespace polymake { namespace atint {
 	// go through all local cones in xc. Check which ray of the subdivision cone
 	// lies in the local cone. If the cone spanned by these has the right dimension
 	// add it as a local cone
-	
-	
+	if(local_restriction.size() > 0 && refine) {
+	  for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
+	      for(int t = 0; t < xc_local_cones.dim(); t++) {
+		//Check which rays of refinement cone lie in local cone
+		Set<int> cone_subset;
+		Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
+		int local_cone_dim = rank(lrays) + x_lineality_dim;
+		for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
+		  if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs))) {
+		      cone_subset += *cs;				      
+		  }
+		}
+		//If the dimension is correct, add the new local cone
+		if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
+		  new_local_restriction |= cone_subset;
+		}
+		local_subdivided[xc_local_cones[t]] = true;
+	      }	      
+	  }
+	}//END refine local cones and remove non compatible maximal cones
       }//END iterate x-cones
     } //END if intersection is necessary?
+    
+    IncidenceMatrix<> c_cones_result(c_cones); //Copy result cones for local restriction clean-up
+    
+    //At the end we still have to check if all maximal cones are still compatible
+    //and remove those that aren't
+    if(local_restriction.size() > 0 && refine) {
+      Set<int> removableCones;
+      for(int c = 0; c < c_cones.dim(); c++) {
+	if(!is_coneset_compatible(c_cones[c],new_local_restriction)) {
+	    removableCones += c;
+	}
+      }
+      //Remove cones
+      c_cones = c_cones.slice(~removableCones);
+      c_weights = c_weights.slice(~removableCones);
+      xcontainers = xcontainers.slice(~removableCones);
+      ycontainers = ycontainers.slice(~removableCones);
+      //Remove unused rays
+      Set<int> used_rays = accumulate(c_cones, operations::add());
+      c_rays = c_rays.minor(used_rays,All);
+      c_cones_result = c_cones_result.minor(~removableCones,used_rays);
+    }
     
     //Copy return values into the fan
     if(refine) {
       complex.take("RAYS") << c_rays;
-      complex.take("MAXIMAL_CONES") << c_cones;
+      complex.take("MAXIMAL_CONES") << c_cones_result;
       complex.take("LINEALITY_SPACE") << c_lineality;
       complex.take("USES_HOMOGENEOUS_C") << x_uses_homog;
       if(weightsExist) complex.take("TROPICAL_WEIGHTS") << c_weights;
+      complex.take("LOCAL_RESTRICTION") << new_local_restriction;
     }
     else {
       complex = X;
@@ -372,20 +431,21 @@ namespace polymake { namespace atint {
   }//END function refine
   
   
-  perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
-    RefinementResult r;
-    r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
-    pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
-    pm::cout << "Xlinrep: " << r.linRepFromX << endl;
-    pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
-    pm::cout << "Ylinrep: " << r.linRepFromY << endl;
-    pm::cout << "assoc rep: " << r.associatedRep << endl;
-    return r.complex;
-  }
+//   perl::Object reftest(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
+//     RefinementResult r;
+//     r = refinement(X, Y, repFromX, repFromY,computeAssoc,refine);
+//     pm::cout << "Xrayrep: " << r.rayRepFromX << endl;
+//     pm::cout << "Xlinrep: " << r.linRepFromX << endl;
+//     pm::cout << "Yrayrep: " << r.rayRepFromY << endl;
+//     pm::cout << "Ylinrep: " << r.linRepFromY << endl;
+//     pm::cout << "assoc rep: " << r.associatedRep << endl;
+//     return r.complex;
+//   }
 
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
+// Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
+// Function4perl(&is_ray_in_cone, "iric(Matrix<Rational>, Matrix<Rational>,Vector<Rational>)");
 
 }}
 
