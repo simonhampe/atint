@@ -37,9 +37,9 @@ namespace polymake { namespace atint {
 
     using polymake::polytope::cdd_interface::solver;
 
-    using namespace atintlog::donotlog;
+//     using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
-    //using namespace atintlog::dotrace;
+    using namespace atintlog::dotrace;
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -76,6 +76,7 @@ namespace polymake { namespace atint {
       Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
       Matrix<Rational> lineality_space = complex.give("LINEALITY_SPACE");
       int lineality_dim = complex.give("LINEALITY_DIM");
+      IncidenceMatrix<> local_restriction = complex.give("LOCAL_RESTRICTION");
       
       dbgtrace << "Rays: " << rays << endl;
       dbgtrace << "Values: " << values << endl;
@@ -153,10 +154,11 @@ namespace polymake { namespace atint {
 	    int mc = *(cmplx_cones_t.row(cr).begin()); //A cone containing the ray
 	    int oc = *(newConesInOld.row(mc).begin()); //An old cone containing mc
 	    //Now find the cmplx_ray of the old cone, such that 
+	    //its corresponding ray is equal to the corresponding ray of the new ray
 	    Set<int> ocrays = cmplx_oldcones.row(oc);
 	    for(Entire<Set<int> >::iterator ocr = entire(ocrays); !ocr.at_end(); ocr++) {
 	      //If the old ray (in non-complex counting in the old iteration) is the same as 
-	      //the new ray (in non-complex counding in the new iteration, we can
+	      //the new ray (in non-complex counting) in the new iteration, we can
 	      //copy its function column index
 	      if(old_conversion[*ocr] == newRaysToOldRays[conversion_vector[cr]]) {
 		currentValues |= values(r,cmplx_origins[*ocr]);
@@ -197,12 +199,13 @@ namespace polymake { namespace atint {
 	}//END iterate co-1-cones
 	
 	dbgtrace << "Computed codim one weights" << endl;
+	dbgtrace << "Weights are " << newweights << endl;
 	
 	//Compute the new-to-old maps used for recomputing the value vector in the next iteration
 	if(r != values.rows()-1) {
 	  
 	  newConesInOld = coneIncidences.minor(usedCones,All);	  
-	  //Need this to avoid compiler errors about ambiguos overloads of .give
+	  //Need this to avoid compiler errors about ambiguous overloads of .give
 	  IncidenceMatrix<> oc = result.give("CMPLX_MAXIMAL_CONES"); 
 	    cmplx_oldcones = oc;
 	  Vector<int> ocv = result.give("CMPLX_CONVERSION_VECTOR");
@@ -218,13 +221,31 @@ namespace polymake { namespace atint {
 	//Now recompute the rays and maximal cones for re-initialization of the result
 	rays = rays.minor(usedRays,All);
 	weights = newweights;
+	IncidenceMatrix<> newMaximal = codimOneCones.minor(usedCones,usedRays);
+	//Recompute local restriction cones
+	if(local_restriction.rows() > 0) {
+	  //We need to adapt rays indices and remove old maximal local cones
+	  IncidenceMatrix<> maxCones = result.give("MAXIMAL_CONES");
+	  Set<int> removableCones;
+	  for(int lc = 0; lc < local_restriction.rows(); lc++) {
+	    for(int mc = 0; mc < maxCones.rows(); mc++) {
+	      if((local_restriction.row(lc) * maxCones.row(mc)).size() == maxCones.row(mc).size()) {
+		removableCones += lc;
+	      }
+	    }
+	  }
+	  
+	  local_restriction = local_restriction.minor(~removableCones, usedRays);
+	  
+	}//END adapt local restriction	
+	
 	result = perl::Object("WeightedComplex");
 	  result.take("USES_HOMOGENEOUS_C") << uses_homog;
 	  result.take("RAYS") << rays;
-	  result.take("MAXIMAL_CONES") << codimOneCones.minor(usedCones,usedRays);
+	  result.take("MAXIMAL_CONES") << newMaximal;
 	  result.take("TROPICAL_WEIGHTS") << weights;
 	  result.take("LINEALITY_SPACE") << lineality_space;
-	
+	  result.take("LOCAL_RESTRICTION") << local_restriction;
 	
       } //END iterate function rows
       
@@ -238,6 +259,7 @@ namespace polymake { namespace atint {
     //Kept for backward compatibility
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values) {
+      pm::cout << "divisorByValue is considered deprecated. Use \"divisor\" and \"function_value\" instead. For details please consult the documentation." << endl;
       Matrix<Rational> vmatrix(0,values.dim());
 	vmatrix /= values;
       return divisorByValueMatrix(fan,vmatrix);
@@ -301,6 +323,7 @@ namespace polymake { namespace atint {
     //Kept for backward compatibility
     //Documentation see header -------------------------------------------------------------
     perl::Object divisorByPLF(perl::Object fan, perl::Object function) {
+      pm::cout << "divisorByPLF is considered deprecated. Use \"divisor\" instead. For details please consult the documentation." << endl;
       return divisor_minmax(fan,function,1);
     }
     

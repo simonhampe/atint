@@ -203,6 +203,9 @@ object WeightedComplex {
     my ($this,$decor,$cutoff_decor)=@_;
      
     #Take care of self-defined decor options and delete them
+    if(is_zerocycle($this)) {
+      die "Cannot draw zero cycle";
+    }
     
     my $showWeights = 1;
     if(defined($$decor{"WeightLabels"})) {

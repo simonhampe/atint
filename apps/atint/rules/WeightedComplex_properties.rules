@@ -193,7 +193,7 @@ object WeightedComplex {
 	# Careful: The implementation assumes that ALL maximal cones are compatible. If in doubt,
 	# you can create a complex with a local restriction from a given complex by using one of
 	# the "local_..." creation methods
-	property LOCAL_RESTRICTION : Array<Set<Int>>;
+	property LOCAL_RESTRICTION : IncidenceMatrix;
 
 	## RULES ################################################################
 	
@@ -217,7 +217,7 @@ object WeightedComplex {
 	#------------------------------------------------------------------------#
 	
 	rule LOCAL_RESTRICTION : {
-	  $this->LOCAL_RESTRICTION = new Array<Set<Int>>();
+	  $this->LOCAL_RESTRICTION = new IncidenceMatrix();
 	}
 	
 	#------------------------------------------------------------------------#
@@ -248,9 +248,7 @@ object WeightedComplex {
 		if($this->INPUT_HOM_LINEALITY->row($r)->[0] != 0) {
 		    die "Invalid coordinates for lineality space, x0 should be 0";
 		}
-	    }# If there is a [[LOCAL_RESTRICTION]] the above equivalence relation is changed in such a 
-	# way that the affine ray s with s_0 = 1 that must be contained in the intersection of
-	# two subsequent cones must be a compatible ray. 
+	    }
 	
 	    $this->LINEALITY_SPACE = $this->INPUT_HOM_LINEALITY;
 	}

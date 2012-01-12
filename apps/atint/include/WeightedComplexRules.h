@@ -42,21 +42,21 @@ struct CodimensionOneResult {
  @param IncidenceMatrix<> maximalCones The incidence matrix of the maximal cells
  @param bool uses_homog Whether the rays are given in homogeneous coordinates
  @param Matrix<Rational> linspace The generators of the lineality space
- @param Array<Set<int>> local_restriction The local restriction of the complex
+ @param IncidenceMatrix<> local_restriction The local restriction of the complex
  @return CodimensionOneResult A struct containing:
  1) An IncidenceMatrix<> called codimOneCones describing the codimension one cells in terms of the rays
  2) An IncidenceMatrix<> called codimOneInMaximal describing which codim one cell lies in which maximal cells
 */
-CodimensionOneResult calculateCodimOneData(Matrix<Rational> rays, IncidenceMatrix<> maximalCones, bool uses_homog, Matrix<Rational> linspace, Array<Set<int> > local_restriction);
+CodimensionOneResult calculateCodimOneData(Matrix<Rational> rays, IncidenceMatrix<> maximalCones, bool uses_homog, Matrix<Rational> linspace, IncidenceMatrix<> local_restriction);
 
 /**
  @brief Check whether a given cone set is compatible with a given set of local restrictions
  @param Set<int> cone A set of (ray) indices
- @param Array<Set<int>>  local_restriction A list of sets of ray indices
+ @param IncidenceMatrix<> local_restriction A list of sets of ray indices
  @return true, if and only if cone is either contained in one of the sets of local_restriction or
  contains one of them
  */
- bool is_coneset_compatible(const Set<int> &cone, const Array<Set<int> > &local_restriction);
+ bool is_coneset_compatible(const Set<int> &cone, const IncidenceMatrix<> &local_restriction);
 
 }}
 

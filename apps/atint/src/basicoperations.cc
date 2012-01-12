@@ -81,7 +81,7 @@ namespace polymake { namespace atint{
 	product_has_weights = true;
       }
       bool product_uses_homog = firstComplex.give("USES_HOMOGENEOUS_C");
-      Array<Set<int> > local_restriction = firstComplex.give("LOCAL_RESTRICTION");
+      Vector<Set<int> > local_restriction = firstComplex.give("LOCAL_RESTRICTION");
       //int product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
       int product_dim = rayMatrix.rows() > 0? rayMatrix.cols() : linMatrix.cols();
       //Sort rays by affine and directional
@@ -103,7 +103,7 @@ namespace polymake { namespace atint{
 	Matrix<Rational> prerays = complexes[i].give("RAYS");
 	Matrix<Rational> prelin = complexes[i].give("LINEALITY_SPACE");
 	Vector<Set<int> > premax = complexes[i].give("MAXIMAL_CONES");
-	Array<Set<int> > pre_local_restriction = complexes[i].give("LOCAL_RESTRICTION");
+	Vector<Set<int> > pre_local_restriction = complexes[i].give("LOCAL_RESTRICTION");
 	
 	Array<Integer> preweights;
 	if(complexes[i].exists("TROPICAL_WEIGHTS")) {
@@ -243,27 +243,27 @@ namespace polymake { namespace atint{
 	
 	//Compute the cross product of the local_restrictions
 	Vector<Set<int> > new_local_restriction;
-	if(local_restriction.size() > 0 || pre_local_restriction.size() > 0) {
+	if(local_restriction.dim() > 0 || pre_local_restriction.dim() > 0) {
 	  //If one variety is not local, we take all its vertices for the product
-	  Vector<Set<int> > product_locality = Vector<Set<int> >(local_restriction);
-	  if(product_locality.size() == 0) {
+	  Vector<Set<int> > product_locality(local_restriction);
+	  if(product_locality.dim() == 0) {
 	    for(Entire<Set<int> >::iterator aRay = entire(product_affine); !aRay.at_end(); aRay++) {
 	      Set<int> single; single += *aRay;
 	      product_locality |= single;
 	    }
 	  }
-	  Vector<Set<int> > pre_locality = Vector<Set<int> >(pre_local_restriction);
-	  if(pre_locality.size() == 0) {
+	  Vector<Set<int> > pre_locality(pre_local_restriction);
+	  if(pre_locality.dim() == 0) {
 	    for(Entire<Set<int> >::iterator aRay = entire(complex_affine); !aRay.at_end(); aRay++) {
 	      Set<int> single; single += *aRay;
 	      pre_locality |= single;
 	    }
 	  }
 	  
-	  for(int i = 0; i < product_locality.size(); i++) {
+	  for(int i = 0; i < product_locality.dim(); i++) {
 	    Set<int> pAffine = product_locality[i] * product_affine;
 	    Set<int> pDirectional = product_locality[i] * product_directional;
-	    for(int j = 0; j < pre_locality.size(); j++) {
+	    for(int j = 0; j < pre_locality.dim(); j++) {
 	      Set<int> local_cone;
 	      Set<int> cAffine = pre_locality[j] * complex_affine;
 	      Set<int> cDirectional = pre_locality[j] * complex_directional;
@@ -293,7 +293,7 @@ namespace polymake { namespace atint{
 	weights = newWeights;
 	product_uses_homog = product_uses_homog || uses_homog;
 	product_has_weights = product_has_weights ||  uses_weights;
-	local_restriction = Array<Set<int> > (new_local_restriction);
+	local_restriction = Vector<Set<int> > (new_local_restriction);
       }
     
       //Fill fan with result
@@ -357,9 +357,9 @@ namespace polymake { namespace atint{
     Set<int> affine = complex.give("VERTICES");
     Set<int> directional = complex.give("DIRECTIONAL_RAYS");
     int ambient_dim = complex.give("CMPLX_AMBIENT_DIM");
-    Array<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
-    if(local_restriction.size() > 0) {
+    if(local_restriction.dim() > 0) {
       affine *= accumulate(local_restriction,operations::add());
     }
     
@@ -424,7 +424,7 @@ namespace polymake { namespace atint{
     IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
     Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
-    Array<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
     //Transform rays and lin space
     linspace = linspace * matrix;
@@ -455,7 +455,7 @@ namespace polymake { namespace atint{
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> lineality = complex.give("LINEALITY_SPACE");
     int lineality_dim = complex.give("LINEALITY_DIM");
-    Array<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
     //If the skeleton dimension is too small, return the 0-cycle
     if(k < (uses_homog? 0 : 1) || k < lineality_dim) {
@@ -484,14 +484,14 @@ namespace polymake { namespace atint{
 	usedRays += newMaximalCones.row(c);
       }
       
-      if(local_restriction.size() > 0) {
+      if(local_restriction.dim() > 0) {
 	  Map<int,int> index_map; //Maps indices of old rays to indices of new rays
 	  int newIndex = 0;
 	  for(Entire<Set<int> >::iterator uR = entire(usedRays); !uR.at_end(); uR++) {
 	      index_map[*uR] = newIndex;
 	      newIndex++;
 	  }
-	  for(int i = 0; i < local_restriction.size(); i++) {
+	  for(int i = 0; i < local_restriction.dim(); i++) {
 	      new_local_restriction |= attach_operation(local_restriction[i] * usedRays, pm::operations::associative_access<Map<int,int>,int>(&index_map));
 	  }
       }
@@ -507,7 +507,7 @@ namespace polymake { namespace atint{
       result.take("MAXIMAL_CONES") << newMaximalCones;
       result.take("USES_HOMOGENEOUS_C") << uses_homog;
       result.take("LINEALITY_SPACE") << lineality;
-      result.take("LOCAL_RESTRICTION") << Array<Set<int> >(new_local_restriction);
+      result.take("LOCAL_RESTRICTION") << new_local_restriction;
    
     return result;
   }

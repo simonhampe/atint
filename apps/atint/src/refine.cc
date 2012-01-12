@@ -76,7 +76,7 @@ namespace polymake { namespace atint {
       weights = X.give("TROPICAL_WEIGHTS");
       weightsExist = true;	
     }
-    Array<Set<int> > local_restriction = X.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = X.give("LOCAL_RESTRICTION");
     
     dbgtrace << "Extracted X-values" << endl;
     
@@ -178,7 +178,7 @@ namespace polymake { namespace atint {
     
     //Data on local restriction
     //This variable declares whether local cone i has been subdivided yet
-    Array<bool> local_subdivided(local_restriction.size());
+    Array<bool> local_subdivided(local_restriction.dim());
     //The list of new local cones
     Vector<Set<int> > new_local_restriction;
     
@@ -189,8 +189,8 @@ namespace polymake { namespace atint {
 	//If we have local restriction, we have to find all not-yet-subdivided local cones 
 	//contained in xc
 	Vector<int> xc_local_cones; //Saves position indices in array local_restriction
-	if(local_restriction.size() > 0) {
-	  for(int lc = 0; lc < local_restriction.size(); lc++) {
+	if(local_restriction.dim() > 0) {
+	  for(int lc = 0; lc < local_restriction.dim(); lc++) {
 	    if(!local_subdivided[lc]) {
 	      if((local_restriction[lc] * x_cones.row(xc)).size() == local_restriction[lc].size()) {
 		xc_local_cones |= lc;
@@ -288,7 +288,7 @@ namespace polymake { namespace atint {
 	// go through all local cones in xc. Check which ray of the subdivision cone
 	// lies in the local cone. If the cone spanned by these has the right dimension
 	// add it as a local cone
-	if(local_restriction.size() > 0 && refine) {
+	if(local_restriction.dim() > 0 && refine) {
 	  for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
 	      for(int t = 0; t < xc_local_cones.dim(); t++) {
 		//Check which rays of refinement cone lie in local cone
@@ -312,13 +312,14 @@ namespace polymake { namespace atint {
     } //END if intersection is necessary?
     
     IncidenceMatrix<> c_cones_result(c_cones); //Copy result cones for local restriction clean-up
+    IncidenceMatrix<> local_restriction_result(new_local_restriction);
     
     //At the end we still have to check if all maximal cones are still compatible
     //and remove those that aren't
-    if(local_restriction.size() > 0 && refine) {
+    if(local_restriction.dim() > 0 && refine) {
       Set<int> removableCones;
       for(int c = 0; c < c_cones.dim(); c++) {
-	if(!is_coneset_compatible(c_cones[c],new_local_restriction)) {
+	if(!is_coneset_compatible(c_cones[c],local_restriction_result)) {
 	    removableCones += c;
 	}
       }
@@ -331,6 +332,7 @@ namespace polymake { namespace atint {
       Set<int> used_rays = accumulate(c_cones, operations::add());
       c_rays = c_rays.minor(used_rays,All);
       c_cones_result = c_cones_result.minor(~removableCones,used_rays);
+      local_restriction_result = local_restriction_result.minor(All,used_rays);
     }
     
     //Copy return values into the fan
@@ -340,7 +342,7 @@ namespace polymake { namespace atint {
       complex.take("LINEALITY_SPACE") << c_lineality;
       complex.take("USES_HOMOGENEOUS_C") << x_uses_homog;
       if(weightsExist) complex.take("TROPICAL_WEIGHTS") << c_weights;
-      complex.take("LOCAL_RESTRICTION") << new_local_restriction;
+      complex.take("LOCAL_RESTRICTION") << local_restriction_result;
     }
     else {
       complex = X;
