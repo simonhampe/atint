@@ -35,7 +35,7 @@ namespace polymake { namespace atint{
   
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+//   using namespace atintlog::dotrace;
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -102,7 +102,7 @@ namespace polymake { namespace atint{
 	bool uses_weights = false;
 	Matrix<Rational> prerays = complexes[i].give("RAYS");
 	Matrix<Rational> prelin = complexes[i].give("LINEALITY_SPACE");
-	Vector<Set<int> > premax = complexes[i].give("MAXIMAL_CONES");
+	IncidenceMatrix<> premax = complexes[i].give("MAXIMAL_CONES");
 	Vector<Set<int> > pre_local_restriction = complexes[i].give("LOCAL_RESTRICTION");
 	
 	Array<Integer> preweights;
@@ -135,9 +135,11 @@ namespace polymake { namespace atint{
 	//Create new ray matrix
 	Matrix<Rational> newRays(0,product_dim + dim);
 	//First create affine rays
-	Map<std::pair<int,int>,int> affineIndices; //For index conversion
+// 	Map<std::pair<int,int>,int> affineIndices; //For index conversion
+	Map<int, Map<int,int> > affineIndices;
 	if(product_uses_homog || uses_homog) {
 	  for(Entire<Set<int> >::iterator prays = entire(product_affine); !prays.at_end(); prays++)  {
+	      affineIndices[*prays] = Map<int,int>();
 	      Vector<Rational> pRay;
 	      if(*prays >= 0) pRay = rayMatrix.row(*prays);
 	      else pRay = zero_vector<Rational>(product_dim);
@@ -146,7 +148,8 @@ namespace polymake { namespace atint{
 		if(*crays >= 0) cRay = prerays.row(*crays);
 		else cRay = zero_vector<Rational>(dim);
 		newRays = newRays / (pRay | cRay);
-		affineIndices[std::make_pair(*prays,*crays)] = newRays.rows()-1;
+		affineIndices[*prays][*crays] = newRays.rows()-1;
+// 		affineIndices(*prays,*crays) = newRays.rows()-1;
 	      }
 	  }
 	}
@@ -198,32 +201,41 @@ namespace polymake { namespace atint{
 		
 	dbgtrace << "Creating cones" << endl;
 	
+// 	dbgtrace << "Ray matrix is " << newRays << endl;
+// 	dbgtrace << "Affine indices " << affineIndices << endl;
+// 	dbgtrace << "Directional indices product" << pdirIndices << endl;
+// 	dbgtrace << "Directional indices complex" << cdirIndices << endl;
+// 	
 	//Now create the new cones and weights:
 	Vector<Set<int> > newMaxCones;
 	Vector<Integer> newWeights;
 	//Make sure, we have at least one "cone" in each fan, even if it is empty
 	if(maximalCones.dim() == 0) { maximalCones = maximalCones | Set<int>();}
-	if(premax.dim() == 0) { premax = premax | Set<int>();}
+	if(premax.rows() == 0) { premax = premax / Set<int>();}
 	for(int pmax = 0; pmax < maximalCones.dim(); pmax++) {
 	    Set<int> product_cone = maximalCones[pmax];
 	    if(!product_uses_homog && uses_homog) {
 	      product_cone = product_cone + (-1);
 	    }
-	    for(int cmax = 0; cmax < premax.dim(); cmax++) {
-	      Set<int> complex_cone = premax[cmax];
+	    dbgtrace << "Product cone: " << product_cone << endl;
+	    for(int cmax = 0; cmax < premax.rows(); cmax++) {
+	      Set<int> complex_cone = premax.row(cmax);
 	      if(!uses_homog && product_uses_homog) {
 		complex_cone = complex_cone + (-1);
 	      }
+	      dbgtrace << "Complex cone: " << complex_cone << endl;
 	      Set<int> newcone;
 	      Set<int> pAffine = product_cone * product_affine;
 	      Set<int> pDirectional = product_cone * product_directional;
 	      Set<int> cAffine = complex_cone * complex_affine;
 	      Set<int> cDirectional = complex_cone * complex_directional;
+	      
 	      //First add the affine rays: For each pair of affine rays add the corresponding index from
 	      //affineIndices
 	      for(Entire<Set<int> >::iterator pa = entire(pAffine); !pa.at_end(); pa++) {
 		for(Entire<Set<int> >::iterator ca = entire(cAffine); !ca.at_end(); ca++) {
-		    newcone = newcone + affineIndices[std::make_pair(*pa,*ca)];
+// 		    if(cmax + pmax == 0) dbgtrace << *pa << "," << *ca << ": " << affineIndices[std::make_pair(*pa,*ca)] << endl;
+		    newcone = newcone + affineIndices[*pa][*ca];
 		}		
 	      }
 	      //Now add the directional indices
@@ -233,6 +245,7 @@ namespace polymake { namespace atint{
 	      for(Entire<Set<int> >::iterator cd = entire(cDirectional); !cd.at_end(); cd++) {
 		newcone = newcone + cdirIndices[*cd];
 	      }
+	      dbgtrace << "Result: " << newcone << endl;
 	      newMaxCones = newMaxCones | newcone;
 	      //Compute weight
 	      if(product_has_weights || uses_weights) {
@@ -240,6 +253,8 @@ namespace polymake { namespace atint{
 	      }
 	    }
 	}
+	
+// 	dbgtrace << "Maximal cones now: " << newMaxCones << endl;
 	
 	//Compute the cross product of the local_restrictions
 	Vector<Set<int> > new_local_restriction;
@@ -271,7 +286,7 @@ namespace polymake { namespace atint{
 	      //affineIndices
 	      for(Entire<Set<int> >::iterator pa = entire(pAffine); !pa.at_end(); pa++) {
 		for(Entire<Set<int> >::iterator ca = entire(cAffine); !ca.at_end(); ca++) {
-		    local_cone = local_cone + affineIndices[std::make_pair(*pa,*ca)];
+		    local_cone = local_cone + affineIndices[*pa][*ca];
 		}		
 	      }
 	      //Now add the directional indices
@@ -417,13 +432,19 @@ namespace polymake { namespace atint{
   
   //Documentation see header
   perl::Object affineTransformation(perl::Object complex, Vector<Rational> translate, Matrix<Integer> matrix) {
+    //Homogenize first
+    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+    if(!uses_homog) complex = complex.CallPolymakeMethod("homogenize");
+    matrix = zero_vector<Integer>() / matrix;
+    matrix = unit_vector<Integer>(matrix.rows(),0) | matrix;
+    translate = 0 | translate;
+    
     //Extract values
     Matrix<Rational> rays = complex.give("RAYS");
     Set<int> affine = complex.give("VERTICES");
     Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
     IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
     Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
-    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
     Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
     //Transform rays and lin space
@@ -438,7 +459,7 @@ namespace polymake { namespace atint{
       result.take("MAXIMAL_CONES") << cones;
       result.take("TROPICAL_WEIGHTS") << weights;
       result.take("LINEALITY_SPACE") << linspace;
-      result.take("USES_HOMOGENEOUS_C") << uses_homog;
+      result.take("USES_HOMOGENEOUS_C") << true;
       result.take("LOCAL_RESTRICTION") << local_restriction;
     return result;
     

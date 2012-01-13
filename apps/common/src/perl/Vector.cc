@@ -41,7 +41,6 @@ namespace polymake { namespace common {
    Class4perl("Polymake::common::Vector__Set__Int", Vector< Set< int > >);
    Class4perl("Polymake::common::Vector__String", Vector< std::string >);
    OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::SameElementVector<pm::Rational> >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const Matrix<Rational> >);
    OperatorInstance4perl(Binary_mul, perl::Canned< const Wary< pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> > >, perl::Canned< const Rational >);
    OperatorInstance4perl(assign, pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational>&>, pm::Series<int, true>, void>, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >);
    OperatorInstance4perl(convert, Vector< Set< int > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
@@ -75,5 +74,6 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Binary__or, perl::Canned< const pm::VectorChain<pm::VectorChain<pm::VectorChain<pm::VectorChain<pm::VectorChain<pm::VectorChain<pm::VectorChain<pm::VectorChain<pm::Vector<pm::Rational> const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > const&, pm::SingleElementVector<pm::Rational> > >, perl::Canned< const Integer >);
    FunctionInstance4perl(new_X, Vector< Integer >, perl::Canned< const Vector< Integer > >);
    FunctionInstance4perl(new_X, Vector< int >, perl::Canned< const Vector< int > >);
+   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const Matrix<Rational> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

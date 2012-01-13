@@ -40,8 +40,17 @@ namespace polymake { namespace atint {
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
+    void arghtest() {
+      Map<std::pair<int,int>,int > map;
+      map[std::make_pair(-1,2)] = 4;
+      pm::cout << map[std::make_pair(-1,2)] << endl;
+      
+    }
+    
     //Documentation: see specialvarieties.h
     perl::Object tropical_lnk(const int n, const int k) {
+      
+      dbgtrace << "Checking dimensions" << endl;
       
       //Ensure that dimensions match
       if(k > n) {
@@ -63,6 +72,8 @@ namespace polymake { namespace atint {
 	  return result;
       }
       
+      dbgtrace << "Creating rays" << endl;
+      
       //Create rays
       Matrix<Rational> rayMatrix(0,n);
       Vector<Rational> e0(n);
@@ -74,10 +85,15 @@ namespace polymake { namespace atint {
       }
       rayMatrix = rayMatrix / e0;
       
+      dbgtrace << "Creating cones" << endl;
+      
       //Create cones
-      Set<int> indices;
-	for(int i = 0; i <= n; i++) { indices += i;}
+      Set<int> indices = sequence(0,n+1);
+      dbgtrace << "Indices: " << indices << endl;
       Array<Set<int> >  kSets = pm::Subsets_of_k<Set<int> > ( indices,k );
+      dbgtrace << "ksets " << kSets << endl;
+      
+      dbgtrace << "Creating cones" << endl;
       
       //Create weights
       Array<int> weights(kSets.size());
@@ -85,15 +101,23 @@ namespace polymake { namespace atint {
 	  weights[i] = 1;
       }
         
+      dbgtrace << "Creating description" << endl;  
+        
       std::ostringstream dsc;
 	dsc << "Tropical linear space L^" << n << "_" <<k;
-        
+	  
+      dbgtrace << "Creating return value" << endl;
+	
       perl::Object fan("WeightedComplex");
+	dbgtrace << "a" << endl;
 	fan.take("RAYS") << rayMatrix;
-	fan.take("MAXIMAL_CONES") << kSets;
+	dbgtrace << "a" << endl;
+	fan.take("MAXIMAL_CONES") << IncidenceMatrix<>( kSets);
 	fan.take("TROPICAL_WEIGHTS") << weights;
 	fan.take("USES_HOMOGENEOUS_C") << false;
 	fan.take("DESCRIPTION") << dsc.str();
+	
+	dbgtrace << "Returning fan" << endl;
 	
       return fan;
       
@@ -452,5 +476,6 @@ namespace polymake { namespace atint {
     
     Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
     Function4perl(&binaryMatrix,"binaryMatrix($)");
+    Function4perl(&arghtest,"arghtest");
 }
 }

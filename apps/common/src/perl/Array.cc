@@ -31,5 +31,6 @@ namespace polymake { namespace common {
    Class4perl("Polymake::common::Array__Integer", Array< Integer >);
    OperatorInstance4perl(convert, Array< Integer >, perl::Canned< const Vector< Integer > >);
    FunctionInstance4perl(new_X, Array< Set< int > >, perl::Canned< const Vector< Set< int > > >);
+   FunctionInstance4perl(new_X, Array< std::string >, perl::Canned< const Vector< std::string > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

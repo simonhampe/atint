@@ -151,7 +151,7 @@ user_function random_minmaxdivisor {
   
   my $f = new MinMaxFunction(FUNCTION_MATRIX=>$m,USES_MIN=>0);
   if(!$onlyFunction) {
-    my $div = divisorByPLF(linear_nspace($ambient_dim),$f);
+    my $div = divisor_minmax(linear_nspace($ambient_dim),$f);
     return ($f,$div);
   }
   else {
