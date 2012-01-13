@@ -39,13 +39,13 @@ namespace polymake { namespace atint {
     //using namespace atintlog::dotrace;
     
     ///////////////////////////////////////////////////////////////////////////////////////
-    
+    /*
     void arghtest() {
       Map<std::pair<int,int>,int > map;
       map[std::make_pair(-1,2)] = 4;
       pm::cout << map[std::make_pair(-1,2)] << endl;
       
-    }
+    }*/
     
     //Documentation: see specialvarieties.h
     perl::Object tropical_lnk(const int n, const int k) {
@@ -476,6 +476,6 @@ namespace polymake { namespace atint {
     
     Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
     Function4perl(&binaryMatrix,"binaryMatrix($)");
-    Function4perl(&arghtest,"arghtest");
+//     Function4perl(&arghtest,"arghtest");
 }
 }

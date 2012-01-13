@@ -27,49 +27,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i78">affineTransform</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a/>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i32">al_bmatrix</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a/>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i34">al_circuits</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a/>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i33">al_dependency</a>
+          <a href="atint.html#i76">affineTransform</a>
         </b>
       </td>
       <td>function</td>
@@ -97,7 +55,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i72">atint_testrun</a>
+          <a href="atint.html#i70">atint_testrun</a>
         </b>
       </td>
       <td>function</td>
@@ -111,7 +69,21 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i94">BB_VISUAL</a>
+          <a href="atint.html#i125">BALANCED_FACES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i20">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i92">BB_VISUAL</a>
         </b>
       </td>
       <td>function</td>
@@ -125,7 +97,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i52">bergman_fan</a>
+          <a href="atint.html#i50">bergman_fan</a>
         </b>
       </td>
       <td>function</td>
@@ -139,7 +111,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i42">bergman_fan_linear</a>
+          <a href="atint.html#i40">bergman_fan_linear</a>
         </b>
       </td>
       <td>function</td>
@@ -153,7 +125,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i46">bergman_fan_matroid</a>
+          <a href="atint.html#i44">bergman_fan_matroid</a>
         </b>
       </td>
       <td>function</td>
@@ -181,7 +153,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i110">boundingBox</a>
+          <a href="atint.html#i109">boundingBox</a>
         </b>
       </td>
       <td>function</td>
@@ -223,7 +195,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i95">characteristic</a>
+          <a href="atint.html#i93">characteristic</a>
         </b>
       </td>
       <td>function</td>
@@ -237,7 +209,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i123">CMPLX_AMBIENT_DIM</a>
+          <a href="atint.html#i122">CMPLX_AMBIENT_DIM</a>
         </b>
       </td>
       <td>property</td>
@@ -251,7 +223,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i122">CMPLX_CODIM_1_FACES</a>
+          <a href="atint.html#i121">CMPLX_CODIM_1_FACES</a>
         </b>
       </td>
       <td>property</td>
@@ -265,7 +237,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i113">CMPLX_CODIMENSION</a>
+          <a href="atint.html#i112">CMPLX_CODIMENSION</a>
         </b>
       </td>
       <td>property</td>
@@ -279,7 +251,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i114">CMPLX_CONVERSION_VECTOR</a>
+          <a href="atint.html#i113">CMPLX_CONVERSION_VECTOR</a>
         </b>
       </td>
       <td>property</td>
@@ -293,7 +265,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i115">CMPLX_DIM</a>
+          <a href="atint.html#i114">CMPLX_DIM</a>
         </b>
       </td>
       <td>property</td>
@@ -307,7 +279,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i124">CMPLX_MAXIMAL_CONES</a>
+          <a href="atint.html#i123">CMPLX_MAXIMAL_CONES</a>
         </b>
       </td>
       <td>property</td>
@@ -321,7 +293,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i116">CMPLX_RAYS</a>
+          <a href="atint.html#i115">CMPLX_RAYS</a>
         </b>
       </td>
       <td>property</td>
@@ -335,7 +307,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i109">CMPLX_VISUAL</a>
+          <a href="atint.html#i108">CMPLX_VISUAL</a>
         </b>
       </td>
       <td>function</td>
@@ -377,7 +349,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i150">COEFFS</a>
+          <a href="atint.html#i151">COEFFS</a>
         </b>
       </td>
       <td>property</td>
@@ -405,7 +377,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i76">computeMatrixBases</a>
+          <a href="atint.html#i74">computeMatrixBases</a>
         </b>
       </td>
       <td>function</td>
@@ -419,7 +391,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i75">computeMatrixColoops</a>
+          <a href="atint.html#i73">computeMatrixColoops</a>
         </b>
       </td>
       <td>function</td>
@@ -433,7 +405,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i143">CONSTANT_COEFFICIENTS</a>
+          <a href="atint.html#i144">CONSTANT_COEFFICIENTS</a>
         </b>
       </td>
       <td>property</td>
@@ -461,7 +433,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i35">count_mn_cones</a>
+          <a href="atint.html#i33">count_mn_cones</a>
         </b>
       </td>
       <td>function</td>
@@ -475,7 +447,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i38">count_mn_rays</a>
+          <a href="atint.html#i36">count_mn_rays</a>
         </b>
       </td>
       <td>function</td>
@@ -489,7 +461,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i67">curve_graph_from_metric</a>
+          <a href="atint.html#i65">curve_graph_from_metric</a>
         </b>
       </td>
       <td>function</td>
@@ -503,7 +475,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i59">cycle_intersection</a>
+          <a href="atint.html#i57">cycle_intersection</a>
         </b>
       </td>
       <td>function</td>
@@ -517,7 +489,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i51">degree</a>
+          <a href="atint.html#i49">degree</a>
         </b>
       </td>
       <td>function</td>
@@ -545,7 +517,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i66">diagonal_functions</a>
+          <a href="atint.html#i64">diagonal_functions</a>
         </b>
       </td>
       <td>function</td>
@@ -559,7 +531,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i119">DIRECTIONAL_RAYS</a>
+          <a href="atint.html#i118">DIRECTIONAL_RAYS</a>
         </b>
       </td>
       <td>property</td>
@@ -587,7 +559,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i60">divisor</a>
+          <a href="atint.html#i58">divisor</a>
         </b>
       </td>
       <td>function</td>
@@ -601,7 +573,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i57">divisorByPLF</a>
+          <a href="atint.html#i55">divisorByPLF</a>
         </b>
       </td>
       <td>function</td>
@@ -615,7 +587,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i41">divisorByValue</a>
+          <a href="atint.html#i39">divisorByValue</a>
         </b>
       </td>
       <td>function</td>
@@ -629,7 +601,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i55">divisor_list</a>
+          <a href="atint.html#i53">divisor_list</a>
         </b>
       </td>
       <td>function</td>
@@ -643,7 +615,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i63">divisor_list_nr</a>
+          <a href="atint.html#i61">divisor_list_nr</a>
         </b>
       </td>
       <td>function</td>
@@ -657,7 +629,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i45">divisor_nr</a>
+          <a href="atint.html#i43">divisor_nr</a>
         </b>
       </td>
       <td>function</td>
@@ -671,7 +643,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i159">DOMAIN</a>
+          <a href="atint.html#i160">DOMAIN</a>
         </b>
       </td>
       <td>property</td>
@@ -685,7 +657,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i137">DOMAIN_DIMENSION</a>
+          <a href="atint.html#i138">DOMAIN_DIMENSION</a>
         </b>
       </td>
       <td>property</td>
@@ -713,7 +685,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i70">fan_decomposition</a>
+          <a href="atint.html#i68">fan_decomposition</a>
         </b>
       </td>
       <td>function</td>
@@ -727,7 +699,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i141">FUNCTION_MATRIX</a>
+          <a href="atint.html#i142">FUNCTION_MATRIX</a>
         </b>
       </td>
       <td>property</td>
@@ -741,7 +713,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i79">function_mult</a>
+          <a href="atint.html#i77">function_mult</a>
         </b>
       </td>
       <td>function</td>
@@ -755,7 +727,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i80">function_value</a>
+          <a href="atint.html#i78">function_value</a>
         </b>
       </td>
       <td>function</td>
@@ -769,7 +741,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i73">gcdext</a>
+          <a href="atint.html#i71">gcdext</a>
         </b>
       </td>
       <td>function</td>
@@ -783,7 +755,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i152">GRAPH</a>
+          <a href="atint.html#i153">GRAPH</a>
         </b>
       </td>
       <td>property</td>
@@ -797,7 +769,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i151">GRAPH_EDGE_LENGTHS</a>
+          <a href="atint.html#i152">GRAPH_EDGE_LENGTHS</a>
         </b>
       </td>
       <td>property</td>
@@ -811,7 +783,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i37">halfspace_complex</a>
+          <a href="atint.html#i35">halfspace_complex</a>
         </b>
       </td>
       <td>function</td>
@@ -825,7 +797,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i111">homogenize</a>
+          <a href="atint.html#i110">homogenize</a>
         </b>
       </td>
       <td>function</td>
@@ -839,7 +811,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i156">homogenize</a>
+          <a href="atint.html#i157">homogenize</a>
         </b>
       </td>
       <td>function</td>
@@ -853,7 +825,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i148">INPUT_COEFFS</a>
+          <a href="atint.html#i149">INPUT_COEFFS</a>
         </b>
       </td>
       <td>property</td>
@@ -867,7 +839,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i120">INPUT_HOM_LINEALITY</a>
+          <a href="atint.html#i119">INPUT_HOM_LINEALITY</a>
         </b>
       </td>
       <td>property</td>
@@ -881,7 +853,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i117">INPUT_HOM_RAYS</a>
+          <a href="atint.html#i116">INPUT_HOM_RAYS</a>
         </b>
       </td>
       <td>property</td>
@@ -895,7 +867,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i153">INPUT_SETS</a>
+          <a href="atint.html#i154">INPUT_SETS</a>
         </b>
       </td>
       <td>property</td>
@@ -909,7 +881,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i147">INPUT_STRING</a>
+          <a href="atint.html#i148">INPUT_STRING</a>
         </b>
       </td>
       <td>property</td>
@@ -923,7 +895,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i139">INPUT_STRING</a>
+          <a href="atint.html#i140">INPUT_STRING</a>
         </b>
       </td>
       <td>property</td>
@@ -937,7 +909,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i140">INPUT_VARS</a>
+          <a href="atint.html#i141">INPUT_VARS</a>
         </b>
       </td>
       <td>property</td>
@@ -951,7 +923,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i62">intersect_complete_fan</a>
+          <a href="atint.html#i60">intersect_complete_fan</a>
         </b>
       </td>
       <td>function</td>
@@ -979,7 +951,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i58">is_zerocycle</a>
+          <a href="atint.html#i56">is_zerocycle</a>
         </b>
       </td>
       <td>function</td>
@@ -993,7 +965,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i65">latticeBasis</a>
+          <a href="atint.html#i63">latticeBasis</a>
         </b>
       </td>
       <td>function</td>
@@ -1007,7 +979,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i68">latticeNormal</a>
+          <a href="atint.html#i66">latticeNormal</a>
         </b>
       </td>
       <td>function</td>
@@ -1021,7 +993,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i112">lattice_normal</a>
+          <a href="atint.html#i111">lattice_normal</a>
         </b>
       </td>
       <td>function</td>
@@ -1035,7 +1007,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i39">latticeNormalByCone</a>
+          <a href="atint.html#i37">latticeNormalByCone</a>
         </b>
       </td>
       <td>function</td>
@@ -1049,7 +1021,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i125">LATTICE_NORMAL_FCT_VECTOR</a>
+          <a href="atint.html#i124">LATTICE_NORMAL_FCT_VECTOR</a>
         </b>
       </td>
       <td>property</td>
@@ -1119,7 +1091,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i142">LINEAR_COEFFICIENTS</a>
+          <a href="atint.html#i143">LINEAR_COEFFICIENTS</a>
         </b>
       </td>
       <td>property</td>
@@ -1133,7 +1105,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i135">linearityDomains</a>
+          <a href="atint.html#i136">linearityDomains</a>
         </b>
       </td>
       <td>function</td>
@@ -1147,7 +1119,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i61">linear_nspace</a>
+          <a href="atint.html#i59">linear_nspace</a>
         </b>
       </td>
       <td>function</td>
@@ -1161,7 +1133,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i77">linearRepresentation</a>
+          <a href="atint.html#i75">linearRepresentation</a>
         </b>
       </td>
       <td>function</td>
@@ -1175,7 +1147,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i71">linear_space_by_basis</a>
+          <a href="atint.html#i69">linear_space_by_basis</a>
         </b>
       </td>
       <td>function</td>
@@ -1189,7 +1161,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i47">linear_space_by_matrix</a>
+          <a href="atint.html#i45">linear_space_by_matrix</a>
         </b>
       </td>
       <td>function</td>
@@ -1203,7 +1175,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i160">LIN_VALUES</a>
+          <a href="atint.html#i161">LIN_VALUES</a>
         </b>
       </td>
       <td>property</td>
@@ -1217,7 +1189,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i74">lllHNF</a>
+          <a href="atint.html#i72">lllHNF</a>
         </b>
       </td>
       <td>function</td>
@@ -1231,7 +1203,35 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i145">matroid_vector</a>
+          <a href="atint.html#i31">local_restrict</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i134">LOCAL_RESTRICTION</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i20">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i146">matroid_vector</a>
         </b>
       </td>
       <td>function</td>
@@ -1245,7 +1245,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i146">metric_vector</a>
+          <a href="atint.html#i147">metric_vector</a>
         </b>
       </td>
       <td>function</td>
@@ -1273,7 +1273,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i54">moduliDimensionFromLength</a>
+          <a href="atint.html#i52">moduliDimensionFromLength</a>
         </b>
       </td>
       <td>function</td>
@@ -1287,7 +1287,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i149">N_LEAVES</a>
+          <a href="atint.html#i150">N_LEAVES</a>
         </b>
       </td>
       <td>property</td>
@@ -1301,7 +1301,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i136">NORMAL_FAN</a>
+          <a href="atint.html#i137">NORMAL_FAN</a>
         </b>
       </td>
       <td>property</td>
@@ -1315,7 +1315,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i155">pow</a>
+          <a href="atint.html#i156">pow</a>
         </b>
       </td>
       <td>function</td>
@@ -1329,7 +1329,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i100">pow</a>
+          <a href="atint.html#i99">pow</a>
         </b>
       </td>
       <td>function</td>
@@ -1343,7 +1343,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i157">POWER</a>
+          <a href="atint.html#i158">POWER</a>
         </b>
       </td>
       <td>property</td>
@@ -1385,7 +1385,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i53">random_minmaxdivisor</a>
+          <a href="atint.html#i51">random_minmaxdivisor</a>
         </b>
       </td>
       <td>function</td>
@@ -1413,7 +1413,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i82">rational_curve_from_metric</a>
+          <a href="atint.html#i80">rational_curve_from_metric</a>
         </b>
       </td>
       <td>function</td>
@@ -1427,7 +1427,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i49">rational_curve_from_moduli</a>
+          <a href="atint.html#i47">rational_curve_from_moduli</a>
         </b>
       </td>
       <td>function</td>
@@ -1441,7 +1441,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i43">rational_curve_list_from_metric</a>
+          <a href="atint.html#i41">rational_curve_list_from_metric</a>
         </b>
       </td>
       <td>function</td>
@@ -1455,7 +1455,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i40">rational_curve_list_from_moduli</a>
+          <a href="atint.html#i38">rational_curve_list_from_moduli</a>
         </b>
       </td>
       <td>function</td>
@@ -1483,7 +1483,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i158">RAY_VALUES</a>
+          <a href="atint.html#i159">RAY_VALUES</a>
         </b>
       </td>
       <td>property</td>
@@ -1497,7 +1497,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i50">recession_fan</a>
+          <a href="atint.html#i48">recession_fan</a>
         </b>
       </td>
       <td>function</td>
@@ -1511,7 +1511,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i154">SETS</a>
+          <a href="atint.html#i155">SETS</a>
         </b>
       </td>
       <td>property</td>
@@ -1539,7 +1539,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i31">spanning_complete</a>
+          <a href="atint.html#i32">spanning_complete</a>
         </b>
       </td>
       <td>function</td>
@@ -1553,7 +1553,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i144">STANDARD_FORM</a>
+          <a href="atint.html#i145">STANDARD_FORM</a>
         </b>
       </td>
       <td>property</td>
@@ -1567,7 +1567,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i56">sum_curves</a>
+          <a href="atint.html#i54">sum_curves</a>
         </b>
       </td>
       <td>function</td>
@@ -1581,7 +1581,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i44">testFourPointCondition</a>
+          <a href="atint.html#i42">testFourPointCondition</a>
         </b>
       </td>
       <td>function</td>
@@ -1595,7 +1595,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i36">tropical_cube</a>
+          <a href="atint.html#i34">tropical_cube</a>
         </b>
       </td>
       <td>function</td>
@@ -1609,7 +1609,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i48">tropical_lnk</a>
+          <a href="atint.html#i46">tropical_lnk</a>
         </b>
       </td>
       <td>function</td>
@@ -1623,7 +1623,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i69">tropical_m0n</a>
+          <a href="atint.html#i67">tropical_m0n</a>
         </b>
       </td>
       <td>function</td>
@@ -1651,7 +1651,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i121">USES_HOMOGENEOUS_C</a>
+          <a href="atint.html#i120">USES_HOMOGENEOUS_C</a>
         </b>
       </td>
       <td>property</td>
@@ -1665,7 +1665,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i138">USES_MIN</a>
+          <a href="atint.html#i139">USES_MIN</a>
         </b>
       </td>
       <td>property</td>
@@ -1679,7 +1679,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i134">valueAt</a>
+          <a href="atint.html#i135">valueAt</a>
         </b>
       </td>
       <td>function</td>
@@ -1693,7 +1693,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i118">VERTICES</a>
+          <a href="atint.html#i117">VERTICES</a>
         </b>
       </td>
       <td>property</td>
@@ -1707,7 +1707,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i103">VISUAL</a>
+          <a href="atint.html#i102">VISUAL</a>
         </b>
       </td>
       <td>function</td>
@@ -1791,7 +1791,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i81">wfan</a>
+          <a href="atint.html#i79">wfan</a>
         </b>
       </td>
       <td>function</td>
@@ -1805,7 +1805,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i64">zero_cycle</a>
+          <a href="atint.html#i62">zero_cycle</a>
         </b>
       </td>
       <td>function</td>
