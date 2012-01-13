@@ -37,9 +37,9 @@ namespace polymake { namespace atint {
 
     using polymake::polytope::cdd_interface::solver;
 
-//     using namespace atintlog::donotlog;
+    using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
-    using namespace atintlog::dotrace;
+//     using namespace atintlog::dotrace;
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -180,18 +180,20 @@ namespace polymake { namespace atint {
 	//Go through each facet and compute its weight. 
 	for(int co = 0; co < codimOneCones.rows(); co++) {
 	  if(balancedFaces[co]) { //Only compute values at balanced codim-1-cones
-  // 	  dbgtrace << "Codim 1 face " << co << endl;
-	    Integer coweight(0);
+//   	  dbgtrace << "Codim 1 face " << co << endl;
+	    Rational coweight(0); //Have to take rational since intermediate values may be rational
 	    Set<int> adjacentCones = coneIncidences.row(co);
 	    for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
   // 	    dbgtrace << "Maximal cone " << *mc << endl;
 	      coweight = coweight + weights[*mc] * (lnFunctionVector[co])[*mc] * currentValues;
+	      dbgtrace <<(lnFunctionVector[co])[*mc] * currentValues << endl; 
 	    }
 	    //Now substract the value of the lattice normal sum
   // 	  dbgtrace << "Substracting sum" << endl;
+// 	    dbgtrace << lsumFunctionVector.row(co) * currentValues << endl;
 	    coweight = coweight - lsumFunctionVector.row(co) * currentValues;
 	    if(coweight != 0) {
-	      newweights = newweights | coweight;	  
+	      newweights = newweights | Integer(coweight);	  
 	      usedCones += co;
 	      usedRays += codimOneCones.row(co);
 	    }
@@ -236,7 +238,7 @@ namespace polymake { namespace atint {
 	  }
 	  
 	  local_restriction = local_restriction.minor(~removableCones, usedRays);
-	  
+	  dbgtrace << "Adapted local cones" << endl;
 	}//END adapt local restriction	
 	
 	result = perl::Object("WeightedComplex");
