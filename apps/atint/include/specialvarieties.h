@@ -56,6 +56,14 @@ perl::Object computeBergmanFan(perl::Object fan_skeleton, perl::Object matroid_p
 */
 perl::Object halfspace_complex(Rational a, Vector<Rational> g );
 
+/**
+  @brief Takes an n-dimensional vector and creates a subdivision of R^n into 2^n orthants with apex at the given vertex. This can for example be used to subdivide a given variety such that a certain vertex is contained in its polyhedral structure by intersecting with this variety
+  @param Vector<Rational> point The apex of the variety in homogeneous coordinates
+  @param Int weight Optional. All cones will have this weight. 1 by default
+  @return WeightedComplex The variety described above
+*/
+perl::Object point_variety(Vector<Rational> point, int weight = 1);
+
 }}
 
 #endif

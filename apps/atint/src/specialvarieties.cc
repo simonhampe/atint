@@ -444,6 +444,51 @@ namespace polymake { namespace atint {
       return result;	
     }
     
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
+    //Documentation see perl wrapper
+    perl::Object point_variety(Vector<Rational> point, int weight = 1) {
+      int dim = point.dim() -1;
+      if(dim <= 0) {
+	throw std::runtime_error("Cannot create point variety: Vector dimension too small");
+      }
+      
+      //Create ray matrix - first positive rays, then negative rays
+      Matrix<Rational> rays = unit_matrix<Rational>(dim);
+      rays /= (-unit_matrix<Rational>(dim));
+      //Prepend a zero and set the vertex as last ray
+      rays = zero_vector<Rational>() | rays; 
+      rays = rays / point;
+      
+      //Create cones
+      Set<int> seq = sequence(0,dim);
+      Array<Set<int> > all_sets = pm::all_subsets(seq); //All possible sign choices
+      Vector<Set<int> > cones;
+      for(int s = 0; s < all_sets.size(); s++) {
+	Set<int> rayset;
+	Set<int> complement = seq - all_sets[s];
+	//Add all rays from the current set with positive sign and all the others with negative sign
+	rayset += all_sets[s];
+	for(Entire<Set<int> >::iterator c = entire(complement); !c.at_end(); c++) {
+	    rayset += (*c + dim);
+	}
+	//Finally add the vertex
+	rayset += (rays.rows()-1);
+	cones |= rayset;
+      }//END create cones
+      
+      Vector<Integer> weights = weight * ones_vector<Integer>(cones.dim());
+      
+      //Create result
+      perl::Object result("WeightedComplex");
+	result.take("RAYS") << rays;
+	result.take("MAXIMAL_CONES") << cones;
+	result.take("USES_HOMOGENEOUS_C") << true;
+	result.take("TROPICAL_WEIGHTS") << weights;
+	
+      return result;
+    }
+    
     // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Tropical geometry"
@@ -473,6 +518,16 @@ namespace polymake { namespace atint {
 		      "# @param Int k The dimension of the cube"
 		      "# @return WeightedComplex cube",
 		      &tropical_cube,"tropical_cube($,$)");
+    
+    UserFunction4perl("# @category Tropical geometry / Create from scratch"
+		      "# Takes an n-dimensional vector and creates a subdivision of R^n into"
+		      "# 2^n orthants with apex at the given vertex. This can for example"
+		      "# be used to subdivide a given variety such that a certain vertex is "
+		      "# contained in its polyhedral structure by intersecting with this variety"
+		      "# @param Vector<Rational> point The apex of the variety in homogeneous coordinates"
+		      "# @param Int weight Optional. All cones will have this weight. 1 by default"
+		      "# @return WeightedComplex The variety described above",
+		      point_variety, "point_variety(Vector<Rational>;$=1)");
     
     Function4perl(&computeBergmanFan,"computeBergmanFan(WeightedComplex, polytope::Polytope,$,$)");
     Function4perl(&binaryMatrix,"binaryMatrix($)");

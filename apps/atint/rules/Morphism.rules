@@ -1,0 +1,173 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2012, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+#  This file describes the object representing a morphism of tropical varieties
+########################################################################
+
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+# This file contains the description of the type RationalFunction
+########################################################################
+
+object Morphism {
+  
+# #   use overload('^' => 'powerf');
+#   use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'powerf', '+' => 'sum','-' => 'minus','neg'=>'neg');
+  
+  # @category Tropical geometry
+  # This property describes the domain of the morphism. I.e. the morphism is
+  # defined on this complex and is locally affine integral linear. It is of type WeightedComplex, but
+  # actually only the basic geometric properties [[RAYS]]/[[CMPLX_RAYS]],[[MAXIMAL_CONES]]/[[CMPLX_MAXIMAL_CONES]],[[LINEALITY_SPACE]] and [[USES_HOMOGENEOUS_C]] are of any interest. Further properties are ignored and can be omitted during generation.
+  property DOMAIN : WeightedComplex;
+  
+  # @category Tropical geometry
+  # The vector at row i describes the function value of ray [[DOMAIN]]->CMPLX_RAYS->row(i). More precisely, if the
+  # corresponding ray is a vertex, it describes its function value. If it is a directional ray, it describes 
+  # the slope on that ray.
+  property RAY_VALUES : Matrix<Rational>;
+  
+  # @category Tropical geometry
+  # The vector in row i describes the function value (slope) of [[DOMAIN]]->LINEALITY_SPACE->row(i)
+  property LIN_VALUES : Matrix<Rational>; 
+  
+  # @category Tropical geometry / Morphism
+  # Is TRUE, iff the morphism is a global affine linear integral map
+  # In this case, the morphism's description can be read off from the properties
+  # [[MATRIX]] and [[TRANSLATE]]. Setting any of these properties during initialization 
+  # will make this TRUE by default.
+  property IS_GLOBAL : Bool;
+  
+  # @category Tropical geometry / Morphism
+  # If the morphism is a global affine linear map x |-> Ax+v, i.e. IS_GLOBAL is or should be true, 
+  # then this contains the matrix A (in non-homog. coordinates). If [[TRANSLATE]] is set, but this property is not set, then it
+  # is the identity by default.
+  property MATRIX : Matrix<Rational>;
+  
+  # @category Tropical geometry / Morphism
+  # If the morphism is a global affine linear map x |-> Ax+v, i.e. IS_GLOBAL is or should be true, 
+  # then this contains the translation vector v (in non-homog. coordinates). If [[MATRIX]] is set, but this property is not set,
+  # then it is the zero vector by default.
+  property TRANSLATE : Vector<Rational>;
+  
+  
+  ############################### RULES #######################################
+  
+  
+  rule RAY_VALUES : LIN_VALUES, DOMAIN {
+    $this->RAY_VALUES = new Vector<Rational>($this->DOMAIN->CMPLX_RAYS->rows());
+  }
+  
+  rule LIN_VALUES : RAY_VALUES, DOMAIN {
+    $this->LIN_VALUES = new Vector<Rational>($this->DOMAIN->LINEALITY_DIM);
+  }
+  
+  rule IS_GLOBAL : MATRIX | TRANSLATE {
+    $this->IS_GLOBAL = TRUE;
+  }
+  weight 0.01;
+  
+  rule IS_GLOBAL : {
+    $this->IS_GLOBAL = FALSE;
+  }
+  weight 0.02;
+  
+  rule MATRIX : TRANSLATE {
+    $this->MATRIX = unit_matrix($this->TRANSLATE->dim());
+  }
+  
+  rule TRANSLATE : MATRIX {
+    $this->TRANSLATE = zero_vector<Rational>($this->MATRIX->cols());
+  }
+  
+  rule DOMAIN, RAY_VALUES, LIN_VALUES : MATRIX,TRANSLATE {
+    $this->DOMAIN = linear_nspace($this->MATRIX->cols())->homogenize;
+    my $raymatrix = new Matrix<Rational>(0,$this->TRANSLATE->dim());
+      $raymatrix = $raymatrix / $this->TRANSLATE;
+    $this->RAY_VALUES = $raymatrix;
+    $this->LIN_VALUES = $this->MATRIX;
+  }
+  
+  ############################## METHODS #######################################
+   
+  # @category Rational functions
+  # If the domain of the function is in homogeneous coordinates, it returns the function. Otherwise it homogenizes
+  # the domain and assigns the value 0 to the additional vertex at the origin
+#   user_method homogenize {
+#     my $this = shift;
+#     if($this->DOMAIN->USES_HOMOGENEOUS_C) { return $this;}
+#     my @v = @{$this->RAY_VALUES};
+#     my $ndomain = $this->DOMAIN->homogenize;
+#     my $crays = $ndomain->CMPLX_RAYS;
+#     my $index = 0;
+#     #Find the new ray with x0 = 1
+#     for(my $i = 0; $i < $crays->rows(); $i++) {
+#       if($crays->row($i)->[0] != 0) {
+# 	$index = $i;
+# 	last;
+#       }
+#     }
+#     #Insert the 0-value at the right position
+#     @v = (@v[0..($index-1)],,@v[$index..(scalar(@v)-1)]);
+#     
+#     return new RationalFunction(DOMAIN=>$ndomain, RAY_VALUES=>\@v, LIN_VALUES=>$this->LIN_VALUES,POWER=>$this->POWER);
+#     
+#   }
+
+# ----------------------------- OVERLOADED OPERATORS -----------------
+  
+  
+  
+}
+
+######################################## FUNCTIONS ###################################
+
+# @category Tropical geometry / Rational functions
+# Computes the pull back of a rational function along a morphism
+# @param Morphism f A morphism
+# @param RationalFunction phi A rational function whose [[DOMAIN]] contains the image of f
+# @return RationalFunction The pull-back of phi along f.
+user_function pull_back {
+  my ($f,$phi) = @_;
+  
+  #Distinguish cases
+  if($f->IS_GLOBAL) {
+    if($phi->isa("MinMaxFunction")) {
+      return pb_minmax_global($f,$phi);
+    }
+  }
+  
+  die "Not implemented yet\n";
+}

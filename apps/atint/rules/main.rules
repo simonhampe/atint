@@ -36,6 +36,8 @@ declare object RationalFunction;
 
 declare object MinMaxFunction : RationalFunction;
 
+declare object Morphism;
+
 INCLUDE
   WeightedComplex_properties.rules
   RationalFunction.rules
@@ -48,6 +50,7 @@ INCLUDE
   RationalCurve.rules
   RationalCurve_visual.rules
   Bergman_Rincon.rules
+  Morphism.rules
   
 ## TESTRUN FUNCTION #######################
 

@@ -33,5 +33,11 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( perl::Object (pm::Rational, pm::Vector<pm::Rational>) );
 
+   FunctionWrapper4perl( perl::Object (pm::Vector<pm::Rational>, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< Rational > > >(), arg1 );
+   }
+   FunctionWrapperInstance4perl( perl::Object (pm::Vector<pm::Rational>, int) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
