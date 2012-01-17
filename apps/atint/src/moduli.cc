@@ -29,6 +29,7 @@ This file provides the functionality necessary to compute tropical moduli spaces
 #include "polymake/Integer.h"
 #include "polymake/PowerSet.h"
 #include "polymake/Array.h"
+#include "polymake/atint/moduli.h"
 
 namespace polymake { namespace atint {
 
@@ -64,6 +65,21 @@ namespace polymake { namespace atint {
       result = result + Integer::binom(nint-1,i);
     }
     return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  Matrix<int> pair_index_map(int n) {
+    Matrix<int> E(n,n);
+    int nextindex = 0;
+    for(int i = 0; i < n-1; i++) {
+      for(int j = i+1; j < n; j++) {
+	E(i,j) = E(j,i) = nextindex;
+	nextindex++;
+      }
+    }
+    return E;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -345,6 +361,10 @@ namespace polymake { namespace atint {
 		    "# Creates the moduli space of abstract rational n-marked curves. Its coordinates are"
 		    "# given as the coordinates of the bergman fan of the matroid of the complete graph on "
 		    "# n-1 nodes (but not computed as such)"
+		    "# The lineality space (1,..,1) is modded out by setting the last coordinate"
+		    "# equal to minus the sum of the others"
+		    "# The isomorphism to the space of curve metrics is obtained by choosing"
+		    "# the last leaf as special leaf"
 		    "# @param Int n The number of leaves. Should be at least 4"
 		    "# @return WeightedComplex The tropical moduli space M_0,n",
 		    &tropical_mn, "tropical_m0n($)");

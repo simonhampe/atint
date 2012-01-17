@@ -109,7 +109,7 @@ object Morphism {
   }
   
   rule TRANSLATE : MATRIX {
-    $this->TRANSLATE = zero_vector<Rational>($this->MATRIX->cols());
+    $this->TRANSLATE = zero_vector<Rational>($this->MATRIX->rows());
   }
   
   rule DOMAIN, RAY_VALUES, LIN_VALUES : MATRIX,TRANSLATE {

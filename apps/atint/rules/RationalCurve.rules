@@ -194,6 +194,8 @@ object RationalCurve {
   
   # @category Tropical geometry
   # Computes the coordinates of the curve in the moduli space given in matroid coordinates.
+  # In the isomorphism of the metric curve space and the moduli coordinates
+  # the last leaf is considered as the special leaf
   # @return Vector<Rational>
   user_method matroid_vector {
     my $this = shift;

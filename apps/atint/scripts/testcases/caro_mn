@@ -1,0 +1,27 @@
+use application "common";
+use application "atint";
+use Benchmark qw(:all);
+
+my $f1 = atint::evaluation_map(2,3,(new Matrix<Rational>([[1,-1,-1],[-2,0,2],[-1,1,-1],[2,1,0],[1,-2,-1],[-1,1,1]])),1);
+my $f2 = atint::evaluation_map(2,3,(new Matrix<Rational>([[1,-1,-1],[-2,0,2],[-1,1,-1],[2,1,0],[1,-2,-1],[-1,1,1]])),2);
+my $g = new atint::Morphism(MATRIX=>$f1->MATRIX - $f2->MATRIX);
+
+my $mn = atint::tropical_m0n(8);
+my $p = atint::product_complex($mn,linear_nspace(3));
+my $phi1 = new atint::MinMaxFunction(INPUT_STRING=>"max(x,0)",INPUT_VARS=>["x","y","z"]);
+my $psi1 = pull_back($g,$phi1);
+my $phi2 = new atint::MinMaxFunction(INPUT_STRING=>"max(y,0)",INPUT_VARS=>["x","y","z"]);
+my $psi2 = pull_back($g,$phi2);
+my $phi3 = new atint::MinMaxFunction(INPUT_STRING=>"max(z,0)",INPUT_VARS=>["x","y","z"]);
+my $psi3 = pull_back($g,$phi3);
+my @psi = ($psi1,$psi2,$psi3);
+
+for(my $i = 1; $i <= 3; $i++) {
+  my $t0 = Benchmark->new;
+  print "Computing divisor $i\n";
+  $p = divisor($p,$psi[$i-1]);
+  my $t1 = Benchmark->new;
+  print "Done after ", timestr(timediff($t1,$t0)),"\n";
+}
+save($p,"caro_result.atint");
+

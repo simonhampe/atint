@@ -635,6 +635,8 @@ namespace polymake { namespace atint {
   UserFunction4perl("# @category Tropical geometry"
 		    "# Takes a vector from Q^((n over 2) - n) that lies in M_0,n (in its matroid coordinates "
 		    "# and computes the corresponding rational curve."
+		    "# In the isomorphism of the metric curve space and the moduli coordinates"
+		    "# the last leaf is considered as the special leaf"
 		    "# @param Vector<Rational> v A vector in the moduli space"
 		    "# @return RationalCurve",
 		    &curveFromModuli,"rational_curve_from_moduli(Vector<Rational>)");
