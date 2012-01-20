@@ -48,7 +48,7 @@ namespace polymake { namespace atint {
   bool is_coneset_compatible(const Set<int> &cone, const IncidenceMatrix<> &local_restriction) {
     for(int i = 0; i < local_restriction.rows(); i++) { 
 	Set<int> inter = cone * local_restriction[i];
-	if(inter.size() == cone.size() || inter.size() == local_restriction.row(i).size()) {
+	if(inter.size() == local_restriction.row(i).size()) {
 	  return true;
 	}
     }
@@ -86,7 +86,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
-  CodimensionOneResult calculateCodimOneData(Matrix<Rational> rays, IncidenceMatrix<> maximalCones, bool uses_homog, Matrix<Rational> linspace, IncidenceMatrix<> local_restriction) {
+  CodimensionOneResult calculateCodimOneData(const Matrix<Rational> &rays, const IncidenceMatrix<> &maximalCones, bool uses_homog, const Matrix<Rational> &linspace, const IncidenceMatrix<> &local_restriction) {
     dbgtrace << "Computing all facets..." << endl;
     
     //First we construct the set of all facets 
@@ -431,7 +431,15 @@ namespace polymake { namespace atint {
     //If there is a local restriction, we keep only compatible affine rays
     //for equivalence computation
     if(local_restriction.rows() > 0) {
-      affineRays *= accumulate(rows(local_restriction),operations::add());
+//       affineRays *= accumulate(rows(local_restriction),operations::add());
+      Set<int> compatible;
+      for(Entire<Set<int> >::iterator af = entire(affineRays); !af.at_end(); af++) {
+	Set<int> single; single += *af;
+	if(is_coneset_compatible(single, local_restriction)) {
+	    compatible += *af;
+	}
+      }
+      affineRays = compatible;
     }
     
     dbgtrace << "Added affine rays to cones" << endl;

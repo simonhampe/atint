@@ -374,8 +374,17 @@ namespace polymake { namespace atint{
     int ambient_dim = complex.give("CMPLX_AMBIENT_DIM");
     Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
     
+    //Take only compatible vertices
     if(local_restriction.dim() > 0) {
-      affine *= accumulate(local_restriction,operations::add());
+//       affine *= accumulate(local_restriction,operations::add());
+      Set<int> compatible;
+      for(Entire<Set<int> >::iterator af = entire(affine); !af.at_end(); af++) {
+	Set<int> single; single += *af;
+	if(is_coneset_compatible(single, local_restriction)) {
+	    compatible += *af;
+	}
+      }
+      affine = compatible;
     }
     
     
@@ -549,6 +558,8 @@ namespace polymake { namespace atint{
 		    "# Take a polyhedral complex and returns a list of all the local vertex fans, "
 		    "# i.e. for each affine ray r, the list contains the fan Star_complex(r) "
 		    "# (in non-homogeneous coordinates)"
+		    "# If the complex has a non-trivial [[LOCAL_RESTRICTION]], only the local fans"
+		    "# at compatible vertices are computed"
 		    "# @param WeightedComplex complex A tropical variety"
 		    "# @return perl::ListReturn A list of WeightedComplex objects in "
 		    "# non-homogeneous coordinates. The i-th complex corresponds to the i-th "

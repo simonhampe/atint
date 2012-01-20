@@ -37,11 +37,20 @@ namespace polymake { namespace atint {
     
   using polymake::polytope::cdd_interface::solver;
 
-  using namespace atintlog::donotlog;
+//   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+  using namespace atintlog::dotrace;
 
-  bool is_ray_in_cone(Matrix<Rational> rays, Matrix<Rational> lineality, Vector<Rational> ray) {
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
+   @brief Helper function for the refinement function. Given a polyhedral cell in terms of rays and lineality space, it computes, whether a given ray is contained in this cell (works equally well for homog. and non-homog. coordinates)
+   @param Matrix<Rational> rays The rays of the cell
+   @param Matrix<Rational> lineality The lineality space of the cell
+   @param Vector<Rational> ray The ray to be tested
+   @returns true, if and only if ray lies in the cone
+   */
+  bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, Vector<Rational> ray) {
     std::pair<Matrix<Rational>, Matrix<Rational> > facets = 
       solver<Rational>().enumerate_facets(zero_vector<Rational>() | rays, zero_vector<Rational>() | lineality,
 				true,false);
@@ -56,6 +65,75 @@ namespace polymake { namespace atint {
     }
     return true;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
+    @brief Helper function for the refinement function. Given a polyhedral complex in terms of rays and cones, it computes all minimal interior cones, i.e. all cones whose relative interior is contained in the relative interior of the complex and which have no proper face fulfilling this condition. The function assumes the support of the complex is a polyhedron (of which the complex is a subdivision)
+    @param Matrix<Rational> rays The rays of the complex
+    @param IncidenceMatrix<> cones The cones in terms of the rays
+    @param bool uses_homog Whether the rays are given in homog. coordinates
+    @returns Vector<Set<int> > A list of cones (in terms of rays) which are minimal interior cones
+  */
+  Vector<Set<int> > minimal_interior(const Matrix<Rational> &rays, const IncidenceMatrix<> &cones, bool uses_homog) {
+    Vector<Set<int> > result;
+    //If there is only one cone, it is already minimal
+    if(cones.rows() == 1) {
+      result |= cones.row(0);
+      return result;
+    }
+    //First we need to compute the interior codimension one cells
+    CodimensionOneResult codim = calculateCodimOneData(rays, cones, uses_homog, Matrix<Rational>(0,rays.cols()), IncidenceMatrix<>());
+    Set<int> interior_codim_indices;
+    for(int c = 0; c < codim.codimOneInMaximal.rows(); c++) {
+      if(codim.codimOneInMaximal.row(c).size() == 2) interior_codim_indices += c;
+    }
+    IncidenceMatrix<> interior_codim = codim.codimOneCones.minor(interior_codim_indices,All);
+    
+    dbgtrace << "Interior codim one: " << interior_codim << endl;
+    
+    //Now we compute the minimal faces in a backtrack algorithm
+    //We compute these as intersections of interior codim one cells
+    int k = interior_codim.rows();
+    Vector<int> currentSet; //ordered set of indices of codim one cells we intersect 
+    Array<int> lastTried(k,-1); //at position i index of codim one face last inserted there
+				//in currentSet
+    int currentIndex = 0; //The current index at which we should try to intersect with the nex face
+    Array<Set<int> > isection(k+1, Set<int>()); //At position i: intersection of faces 0,..,i-1
+						//is the complete set of rays for i = 0
+      isection[0] = sequence(0,rays.rows());
+    while(!(currentIndex == 0 && lastTried[0] == k-1)) {
+      //If the intersection of ALL codim one faces is not empty, it is the unique minimal face
+      if(currentIndex == k) {
+	dbgtrace << isection << endl;
+	result |= isection[currentIndex];
+	return result;
+      }
+      dbgtrace << "cI: " << currentIndex << ", " << "lT[cI]: " << lastTried[currentIndex] << endl;
+      //If we have tried all faces at this position, we have found a solution
+      if(lastTried[currentIndex] == k-1) {
+	result |= isection[currentIndex];
+	currentIndex--;
+	continue;
+      }
+      //Compute intersection with next set
+      Set<int> inter = isection[currentIndex] * interior_codim.row(lastTried[currentIndex]+1);
+      lastTried[currentIndex] = lastTried[currentIndex] + 1;
+      //If the intersection is not empty, go on to the next index
+      //otherwise we simply try the next face
+      if(inter.size() > 0) {
+	currentSet[currentIndex] = lastTried[currentIndex];
+	currentIndex++;
+	isection[currentIndex] = inter;
+      }
+      
+    }//END backtrack
+    
+    return result;
+    
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
   RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
@@ -213,6 +291,8 @@ namespace polymake { namespace atint {
 		      x_equations.second / y_equations[yc].second,true,true).first;
 	  interrays = interrays.minor(All,~scalar2set(0));
 	  
+	  dbgtrace << interrays << endl;
+	  
 	  //Check if it is full-dimensional (and has at least one ray - lin.spaces are not interesting)
 	  if(interrays.rows() > 0 && rank(interrays) + c_lineality_dim - (x_uses_homog? 1 : 0) == x_dimension) {
 	    //If we refine, add the cone. Otherwise just remember the indices
@@ -316,6 +396,9 @@ namespace polymake { namespace atint {
     
     //At the end we still have to check if all maximal cones are still compatible
     //and remove those that aren't
+    //Also we'll have to add interior subdivison codim-1-cells of old
+    //maximal cells, i.e. all codim-1-cells that have exactly two adjacent maximal cells,
+    //both of which lie in the same old maximal cone
     if(local_restriction.dim() > 0 && refine) {
       Set<int> removableCones;
       for(int c = 0; c < c_cones.dim(); c++) {
@@ -333,7 +416,23 @@ namespace polymake { namespace atint {
       c_rays = c_rays.minor(used_rays,All);
       c_cones_result = c_cones_result.minor(~removableCones,used_rays);
       local_restriction_result = local_restriction_result.minor(All,used_rays);
-    }
+      
+      //Now we add interior codim-1-cells as described above
+      Vector<Set<int> > interior_cells;
+      CodimensionOneResult cr = calculateCodimOneData(c_rays, c_cones_result, x_uses_homog, c_lineality, IncidenceMatrix<>());
+      IncidenceMatrix<> coInMax = cr.codimOneInMaximal;
+      IncidenceMatrix<> coCells = cr.codimOneCones;
+      for(int co = 0; co < coInMax.rows(); co++) {
+	Vector<int> adjCones(coInMax.row(co));
+	if(adjCones.dim() ==2) {
+	  if(xcontainers[adjCones[0]] == xcontainers[adjCones[1]]) {
+	    interior_cells |= coCells.row(co);
+	  }
+	}
+      }//END go through all codimension one cells
+      local_restriction_result /= IncidenceMatrix<>(interior_cells);
+      
+    }//END finish up locality computation
     
     //Copy return values into the fan
     if(refine) {
@@ -449,6 +548,7 @@ namespace polymake { namespace atint {
 // Function4perl(&reftest,"reftest(WeightedComplex,WeightedComplex,$,$,$,$)");
 // Function4perl(&is_ray_in_cone, "iric(Matrix<Rational>, Matrix<Rational>,Vector<Rational>)");
 
+Function4perl(&minimal_interior,"minint(Matrix<Rational>, IncidenceMatrix,$)");
   
 
 }}

@@ -8,6 +8,7 @@ my $g = new atint::Morphism(MATRIX=>$f1->MATRIX - $f2->MATRIX);
 
 my $mn = atint::tropical_m0n(8);
 my $p = atint::product_complex($mn,linear_nspace(3));
+$p = local_codim_1($p,11188);
 my $phi1 = new atint::MinMaxFunction(INPUT_STRING=>"max(x,0)",INPUT_VARS=>["x","y","z"]);
 my $psi1 = pull_back($g,$phi1);
 my $phi2 = new atint::MinMaxFunction(INPUT_STRING=>"max(y,0)",INPUT_VARS=>["x","y","z"]);
@@ -23,5 +24,5 @@ for(my $i = 1; $i <= 3; $i++) {
   my $t1 = Benchmark->new;
   print "Done after ", timestr(timediff($t1,$t0)),"\n";
 }
-save($p,"caro_result.atint");
+save($p,"caro_result_codim.atint");
 

@@ -180,13 +180,13 @@ namespace polymake { namespace atint {
 	//Go through each facet and compute its weight. 
 	for(int co = 0; co < codimOneCones.rows(); co++) {
 	  if(balancedFaces[co]) { //Only compute values at balanced codim-1-cones
-//   	  dbgtrace << "Codim 1 face " << co << endl;
+  	  dbgtrace << "Codim 1 face " << co << endl;
 	    Rational coweight(0); //Have to take rational since intermediate values may be rational
 	    Set<int> adjacentCones = coneIncidences.row(co);
 	    for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
-  // 	    dbgtrace << "Maximal cone " << *mc << endl;
+  	    dbgtrace << "Maximal cone " << *mc << endl;
 	      coweight = coweight + weights[*mc] * (lnFunctionVector[co])[*mc] * currentValues;
-	      dbgtrace <<(lnFunctionVector[co])[*mc] * currentValues << endl; 
+// 	      dbgtrace <<(lnFunctionVector[co])[*mc] * currentValues << endl; 
 	    }
 	    //Now substract the value of the lattice normal sum
   // 	  dbgtrace << "Substracting sum" << endl;
@@ -227,18 +227,46 @@ namespace polymake { namespace atint {
 	//Recompute local restriction cones
 	if(local_restriction.rows() > 0) {
 	  //We need to adapt rays indices and remove old maximal local cones
+	  // and codimension one cones that have weight 0
+	  dbgtrace << "Local restriction before: " << local_restriction << endl;
 	  IncidenceMatrix<> maxCones = result.give("MAXIMAL_CONES");
 	  Set<int> removableCones;
+	  Set<int> weightzerocones = sequence(0,codimOneCones.rows()) - usedCones;
+	  Set<int> codimToReplace; //Indices of used codim one cones that are local
 	  for(int lc = 0; lc < local_restriction.rows(); lc++) {
 	    for(int mc = 0; mc < maxCones.rows(); mc++) {
 	      if((local_restriction.row(lc) * maxCones.row(mc)).size() == maxCones.row(mc).size()) {
 		removableCones += lc;
 	      }
 	    }
+	    for(Entire<Set<int> >::iterator cz = entire(weightzerocones); !cz.at_end(); cz++) {
+	      if((local_restriction.row(lc) * codimOneCones.row(*cz)).size() == codimOneCones.row(*cz).size()) {
+		removableCones += lc;
+	      }
+	    }
+
 	  }
 	  
+	  //Remove cones
 	  local_restriction = local_restriction.minor(~removableCones, usedRays);
-	  dbgtrace << "Adapted local cones" << endl;
+	  
+// 	  //Replace all local codim one cones
+// 	  Vector<Set<int> > interior_cones;
+// 	  for(Entire<Set<int> >::iterator rc = entire(codimToReplace); !rc.at_end(); rc++) {
+// 	    //Compute all intersections with remaining local cones
+// 	    for(int lr = 0; lr < local_restriction.rows(); lr++) {
+// 	      Set<int> isection = codimOneCones.row(*rc) * local_restriction.row(lr);
+// 	      if(isection.size() > 0) {
+// 		//Check for doubles and sets that contain this set (or vice versa)
+// 		bool iscontained = false;
+// 		Set<int> containedInSet;
+// 		
+// 	      }
+// 	    }
+// 	    
+// 	  }
+// 	  
+	  dbgtrace << "Adapted local cones: " << local_restriction << endl;
 	}//END adapt local restriction	
 	
 	result = perl::Object("WeightedComplex");
