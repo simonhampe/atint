@@ -82,55 +82,102 @@ namespace polymake { namespace atint {
       result |= cones.row(0);
       return result;
     }
-    //First we need to compute the interior codimension one cells
+    //First we need to compute the interior and exterior codimension one cells
     CodimensionOneResult codim = calculateCodimOneData(rays, cones, uses_homog, Matrix<Rational>(0,rays.cols()), IncidenceMatrix<>());
     Set<int> interior_codim_indices;
     for(int c = 0; c < codim.codimOneInMaximal.rows(); c++) {
       if(codim.codimOneInMaximal.row(c).size() == 2) interior_codim_indices += c;
     }
     IncidenceMatrix<> interior_codim = codim.codimOneCones.minor(interior_codim_indices,All);
+    IncidenceMatrix<> exterior_codim = codim.codimOneCones.minor(~interior_codim_indices,All);
+    IncidenceMatrix<> interior_in_max = T(codim.codimOneInMaximal.minor(interior_codim_indices,All));
     
-    dbgtrace << "Interior codim one: " << interior_codim << endl;
+    dbgtrace << "Interior codim 1 faces " << interior_codim << endl;
+    dbgtrace << "Exterior codim 1 faces " << exterior_codim << endl;
     
-    //Now we compute the minimal faces in a backtrack algorithm
-    //We compute these as intersections of interior codim one cells
-    int k = interior_codim.rows();
-    Vector<int> currentSet; //ordered set of indices of codim one cells we intersect 
-    Array<int> lastTried(k,-1); //at position i index of codim one face last inserted there
-				//in currentSet
-    int currentIndex = 0; //The current index at which we should try to intersect with the nex face
-    Array<Set<int> > isection(k+1, Set<int>()); //At position i: intersection of faces 0,..,i-1
-						//is the complete set of rays for i = 0
-      isection[0] = sequence(0,rays.rows());
-    while(!(currentIndex == 0 && lastTried[0] == k-1)) {
-      //If the intersection of ALL codim one faces is not empty, it is the unique minimal face
-      if(currentIndex == k) {
-	dbgtrace << isection << endl;
-	result |= isection[currentIndex];
-	return result;
-      }
-      dbgtrace << "cI: " << currentIndex << ", " << "lT[cI]: " << lastTried[currentIndex] << endl;
-      //If we have tried all faces at this position, we have found a solution
-      if(lastTried[currentIndex] == k-1) {
-	result |= isection[currentIndex];
-	currentIndex--;
-	continue;
-      }
-      //Compute intersection with next set
-      Set<int> inter = isection[currentIndex] * interior_codim.row(lastTried[currentIndex]+1);
-      lastTried[currentIndex] = lastTried[currentIndex] + 1;
-      //If the intersection is not empty, go on to the next index
-      //otherwise we simply try the next face
-      if(inter.size() > 0) {
-	currentSet[currentIndex] = lastTried[currentIndex];
-	currentIndex++;
-	isection[currentIndex] = inter;
-      }
+    //For each maximal cone, we compute all its minimal interior faces as maximal intersections
+    //of interior codimension one faces. However, we only use codim-1-faces, that we haven't used
+    //in another maximal cone so far (Since any minimal face in such a face is hence also a minimal
+    //face of this other maximal cone, so we already computed it).
+    
+    Set<int> markedFaces;
+    
+    for(int mc = 0; mc < cones.rows(); mc++) {
+      dbgtrace << "Computing for cone " << mc << ": " << cones.row(mc) << endl;
+      dbgtrace << "Faces of this cone: " << interior_in_max.row(mc) << endl;
+      dbgtrace << "Marked faces: " << markedFaces << endl;
+      //Compute all non-marked codim-1-cells of mc. If there are none left, go to the next cone
+      Vector<int> nonmarked(interior_in_max.row(mc) - markedFaces);
+      if(nonmarked.dim() == 0) continue;
+      dbgtrace << "Remaining interior cells are: " << nonmarked << endl;
+      int k = nonmarked.dim();
+      //ordered list of indices of interior codim-1-cells (in nonmarked)
+      //indices != -1 correspond to codim-1-cells that we intersect to obtain a minimal face
+      Vector<int> currentSet(k,-1); 
+	currentSet[0] = 0;
+      //Indicates the index below the next cone index (in nonmarked) we should try to add. Is always
+      //larger equal than the last element != -1 in currentSet
+      int lowerBound = 0;
+      //Indicates the current position in currentSet we're trying to fill
+      int currentPosition = 1;
+      //Indicates at position i < currentPosition the intersection of the cones specified by the
+      // elements currentSet[0] .. currentSet[i]
+      Vector<Set<int> > currentIntersections(k);
+	currentIntersections[0] = interior_codim.row(nonmarked[0]);
+      //Now iterate all intersections in a backtrack algorithm:
+      //If an intersection is maximal, we don't need to go any further
+      //We stop when we have tried all possibilities at the first position
+      while(!(currentPosition == 0 && lowerBound == k-1)) {
+	//Try the next posssible index
+	int j = lowerBound+1;
+	//If we're already beyond k-1, we have found a maximal intersection	
+	//Check if it is a minimal face, then go back one step
+	if(j == k) {
+	  //We test, if the set is not contained in any border face and does not contain
+	  //any existing minimal face
+	  Set<int> potentialMinimal(currentIntersections[currentPosition-1]);
+	  bool invalid = false;
+	  for(int ec = 0; ec < exterior_codim.rows(); ec++) {
+	    if(potentialMinimal.size() == (potentialMinimal * exterior_codim.row(ec)).size()) {
+	      invalid = true; break;
+	    }
+	  }
+	  for(int mf = 0; mf < result.dim() && !invalid; mf++) {
+	    if(result[mf].size() == (result[mf] * potentialMinimal).size()) {
+	      invalid = true; break;
+	    }
+	  }
+	  if(!invalid) result |= potentialMinimal;
+	  //Go back one step
+	  lowerBound = currentSet[currentPosition-1];
+	  currentPosition--;
+	}
+	else {
+	  //Compute the intersection with the next codim 1 cell
+	  //(If we're at the first position, we just insert a cell)
+	  Set<int> intersection;
+	    if(currentPosition == 0) intersection = interior_codim.row(nonmarked[j]);
+	    else intersection = 
+		currentIntersections[currentPosition-1] * interior_codim.row(nonmarked[j]);
+	  //If its still not empty, go forward one step
+	  if(intersection.size() > 0) {
+	    currentSet[currentPosition] = j;
+	    currentIntersections[currentPosition] = intersection;
+	    currentPosition++;
+	    lowerBound = j;
+	  }
+	  else { //Otherwise go up one step
+	    lowerBound++;
+	  }
+	}//END if j == k
+      }//END while(...)
       
-    }//END backtrack
-    
+      //Now mark all codim -1-faces of mc
+      markedFaces += interior_in_max.row(mc);
+      
+    }//END iterate maximal cones
+
     return result;
-    
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
