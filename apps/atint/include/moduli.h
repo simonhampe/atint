@@ -33,6 +33,9 @@ namespace polymake { namespace atint {
  */
 Matrix<int> pair_index_map(int n);
 
+//Documentation see perl wrapper
+Integer count_mn_cones(int n);
+
 }}
 
 #endif // ATINT_MODULI_H_

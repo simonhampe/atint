@@ -75,5 +75,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, Vector< Integer >, perl::Canned< const Vector< Integer > >);
    FunctionInstance4perl(new_X, Vector< int >, perl::Canned< const Vector< int > >);
    OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const Matrix<Rational> >);
+   Class4perl("Polymake::common::Vector__Vector__Int", Vector< Vector< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

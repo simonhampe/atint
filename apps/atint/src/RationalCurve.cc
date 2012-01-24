@@ -32,12 +32,13 @@
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Graph.h"
+#include "polymake/permutations.h"
 
 namespace polymake { namespace atint { 
   
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+//   using namespace atintlog::dotrace;
 
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -155,7 +156,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
-   @brief Computes a rational curve (in the v_I-representation) and its graph from a given metric (or more precisely a vector equivalent to a metric). Is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric
+   @brief Computes a rational curve (in the v_I-representation) and its graph from a given metric (or more precisely a vector equivalent to a metric). It is wrapped by curveFromMetric and graphFromMetric, which should be called instead and whose documentation can be found in the corr. perl wrappers rational_curve_from_metric and curve_graph_from_metric. Note that the order of the [[EDGES]] of the graph object that do not contain leaf vertices is the same as the order of the corresponding [[SETS]] of the curve. Furthermore, the first n vertices of the graph are the end vertices of the leave edges (in order 1 .. n)
    */
   perl::Object curveAndGraphFromMetric(Vector<Rational> metric) {
     // We prepare the metric by making sure, all entries are > 0
@@ -418,7 +419,12 @@ namespace polymake { namespace atint {
       graph.take("N_NODES") << G.nodes();
       graph.take("ADJACENCY") << G;
       graph.take("NODE_LABELS") << labels;
-	
+    
+    if(sets.dim() == 0) {
+      sets |= Set<int>();
+      coeffs |= 0;
+    }
+      
     perl::Object curve("RationalCurve");
       curve.take("SETS") << sets;
       curve.take("COEFFS") << coeffs;
@@ -602,6 +608,90 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
+   @brief This computes the properties [[NODES_BY_SETS]] and [[NODES_BY_LEAVES]] of a RationalCurve object
+   */
+  void computeNodeData(perl::Object curve) {
+    Vector<Rational> metric = curve.CallPolymakeMethod("metric_vector");
+    dbgtrace << "Recomputing curve" << endl;
+    //We recompute the curve to make sure the graph edges have the same order
+    //as the curve sets
+    perl::Object newcurve = curveAndGraphFromMetric(metric);
+    
+    dbgtrace << "Computing sets permutation" << endl;
+    
+    //We might have to permute the column indices in , since the sets might be in a different order
+    //in the actual curve
+    
+    Vector<Set<int> > newsets = newcurve.give("SETS");
+    Vector<Set<int> > oldsets = curve.give("SETS");
+    dbgtrace << "newsets: " << newsets << endl;
+    dbgtrace << "oldsets: " << oldsets << endl;
+    Array<int> perm = find_permutation(newsets,oldsets);
+    
+    //Extract values
+    int n = newcurve.give("N_LEAVES");
+    perl::Object graph = newcurve.give("GRAPH");
+    IncidenceMatrix<> edges = graph.CallPolymakeMethod("EDGES");
+    IncidenceMatrix<> edges_at_vertices = T(edges);
+    Set<int> leaves = sequence(0,n);
+    Vector<Set<int> > nodes_by_sets, nodes_by_leaves;
+    
+    dbgtrace << "Identifying edges" << endl;
+    
+    //First we go through all edges and compute whether they are a leaf edge (and we then save
+    //the leaf index) or whether they are a set edge (and we then save the index of this set)
+    int setindex = 0;
+    Map<int, int> edge_leaf_index; //-1 means is a set edge
+    Map<int, int> edge_set_index; //-1 means is a leaf edge
+    for(int er = 0; er < edges.rows(); er++) {
+      //Extract nodes of this edge
+      Vector<int> nodes(edges.row(er));
+      //It is a leaf edge, if and only if the first node has index < n
+      if(nodes[0] < n) {
+	edge_leaf_index[er] = nodes[0]+1;
+	edge_set_index[er] = -1;
+      }
+      else {
+	edge_leaf_index[er] = -1;
+	edge_set_index[er] = perm[setindex];
+	setindex++;
+      }
+    }
+    
+    dbgtrace << "Creating vertex matrices " << endl;
+    
+    //The first n vertices are leaf vertices, so we ignore them
+    for(int i = n; i < edges_at_vertices.rows(); i++) {
+      Set<int> sAtv, lAtv;
+      //Iterate the edges at this node
+      Set<int> eAtv = edges_at_vertices.row(i);
+      for(Entire<Set<int> >::iterator e = entire(eAtv); !e.at_end(); e++) {
+	if(edge_leaf_index[*e] != -1) {
+	    lAtv += edge_leaf_index[*e];
+	}
+	else {
+	    sAtv += edge_set_index[*e];
+	}
+      }
+      nodes_by_leaves |= lAtv;
+      nodes_by_sets |= sAtv;
+    }
+    
+    //Finally compute node degrees
+    Vector<int> node_degrees(nodes_by_leaves.dim());
+    for(int i = 0; i < node_degrees.dim(); i++) {
+      node_degrees[i] = nodes_by_leaves[i].size() + nodes_by_sets[i].size();
+    }
+    
+    curve.take("NODES_BY_LEAVES") << nodes_by_leaves;
+    curve.take("NODES_BY_SETS") << nodes_by_sets;
+    curve.take("NODE_DEGREES") << node_degrees;
+    
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
   UserFunction4perl("# @category Tropical geometry"
@@ -669,5 +759,6 @@ namespace polymake { namespace atint {
   
   Function4perl(&metricFromCurve, "metric_from_curve(IncidenceMatrix, Vector<Rational>, $)");
   Function4perl(&moduliFromCurve, "moduli_from_curve(RationalCurve)");
+  Function4perl(&computeNodeData, "compute_node_data(RationalCurve)");
   
 }}

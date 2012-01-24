@@ -45,6 +45,8 @@ object RationalCurve {
   # the corresponding partition of the n leaves. These should be irredundant. If you want to input
   # a possibly redundant list, use [[INPUT_SETS]] and [[INPUT_COEFFS]] instead. The number of marked leaves
   # should always be given by [[N_LEAVES]]. The sets are subsets of {1,...,n} (NOT {0,..,n-1}!)
+  # Note that the zero curve (i.e. no bounded edges, only leaves) is represented by one empty set
+  # with corresponding lenghth 0.
   property SETS : IncidenceMatrix;
   
   # @category Basic properties
@@ -52,6 +54,8 @@ object RationalCurve {
   # contain only entries > 0. The i-th entry then gives the length of the bounded edge defined by
   # the i-th partition. If you're not sure if all your coefficients are > 0, use [[INPUT_SETS]] and
   # [[INPUT_COEFFS]] instead.
+  # Note that the zero curve (i.e. no bounded edges, only leaves) is represented by one empty set
+  # with corresponding lenghth 0.
   property COEFFS : Vector<Rational>;
   
   # @category Basic properties
@@ -82,12 +86,30 @@ object RationalCurve {
   # @category Basic properties
   # Contains the abstract graph (non-metric) corresponding to the curve. All unbounded leaves are modelled
   # as bounded edges.
+  # The vertices at the ends of the "leaves" are always the first [[N_LEAVES]] vertices.
   property GRAPH : graph::Graph;
   
   # @category Basic properties
   # Contains the lengths of the edges of [[GRAPH]] that represent bounded edges of the curve.
   # The coefficients appear in the order that the corr. edges appear in [[EDGES]].
   property GRAPH_EDGE_LENGTHS : Vector<Rational>;
+  
+  # @category Basic properties
+  # This incidence matrix gives a list of the vertices of the curve
+  # Each row corresponds to a vertex and contains as a set the row indices of the [[SETS]] that
+  # correspond to edges attached to that vertex
+  property NODES_BY_SETS : IncidenceMatrix;
+  
+  # @category Basic properties
+  # This incidence matrix gives a list of the vertices of the curve
+  # Each row corresponds to a vertex and contains as a set the [[LEAVES] that are
+  # attached to that vertex (again, counting from 1!)
+  property NODES_BY_LEAVES : IncidenceMatrix;
+  
+  # @category Basic properties
+  # This gives a list of the vertices of the curve in terms of their valences
+  # They appear in the same order as in [[NODES_BY_LEAVES]] or [[NODES_BY_SETS]]
+  property NODE_DEGREES : Vector<Int>;
   
   # ----------------------- RULES -------------------------------------
   
@@ -181,6 +203,10 @@ object RationalCurve {
     my @a = curve_graph_from_metric($this->metric_vector());
     $this->GRAPH = $a[0];
     $this->GRAPH_EDGE_LENGTHS = $a[1];
+  }
+  
+  rule NODES_BY_LEAVES, NODES_BY_SETS, NODE_DEGREES : SETS, COEFFS, N_LEAVES {
+    compute_node_data($this);
   }
   
   # -------------------------- METHODS --------------------------------
