@@ -2,6 +2,8 @@ use application "common";
 use application "atint";
 use Benchmark qw(:all);
 
+print "Preparing...\n";
+
 my $f1 = atint::evaluation_map(2,3,(new Matrix<Rational>([[1,-1,-1],[-2,0,2],[-1,1,-1],[2,1,0],[1,-2,-1],[-1,1,1]])),1);
 my $f2 = atint::evaluation_map(2,3,(new Matrix<Rational>([[1,-1,-1],[-2,0,2],[-1,1,-1],[2,1,0],[1,-2,-1],[-1,1,1]])),2);
 my $g = new atint::Morphism(MATRIX=>$f1->MATRIX - $f2->MATRIX);
@@ -17,12 +19,33 @@ my $phi3 = new atint::MinMaxFunction(INPUT_STRING=>"max(z,0)",INPUT_VARS=>["x","
 my $psi3 = pull_back($g,$phi3);
 my @psi = ($psi1,$psi2,$psi3);
 
-for(my $i = 1; $i <= 3; $i++) {
-  my $t0 = Benchmark->new;
-  print "Computing divisor $i\n";
-  $p = divisor($p,$psi[$i-1]);
-  my $t1 = Benchmark->new;
-  print "Done after ", timestr(timediff($t1,$t0)),"\n";
-}
-save($p,"caro_result_codim.atint");
+print "done.\n";
 
+my ($t0,$t1);
+#First we do the computation on the local complex
+print "Computing locally...\n";
+$t0 = Benchmark->new;
+my $localdiv = divisor_list($p,@psi);
+$t1 = Benchmark->new;
+print "Done after ", timestr(timediff($t1,$t0)),"\n";
+
+#Then we compute on the truncated complex
+my $ptrunc = new WeightedComplex(RAYS=>$p->RAYS,MAXIMAL_CONES=>$p->MAXIMAL_CONES,TROPICAL_WEIGHTS=>$p->TROPICAL_WEIGHTS, USES_HOMOGENEOUS_C=>$p->USES_HOMOGENEOUS_C);
+print "Computing on the truncated complex...\n";
+$t0 = Benchmark->new;
+my $truncdiv = divisor_list($ptrunc,@psi);
+$t1 = Benchmark->new;
+print "Done after ", timestr(timediff($t1,$t0)),"\n";
+
+save($localdiv,"caro_local_div.atint");
+save($truncdiv,"caro_trunc_div.atint");
+
+# for(my $i = 1; $i <= 3; $i++) {
+#   my $t0 = Benchmark->new;
+#   print "Computing divisor $i\n";
+#   $p = divisor($p,$psi[$i-1]);
+#   my $t1 = Benchmark->new;
+#   print "Done after ", timestr(timediff($t1,$t0)),"\n";
+# }
+# save($p,"caro_result_codim.atint");
+# 

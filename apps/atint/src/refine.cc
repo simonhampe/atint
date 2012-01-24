@@ -37,9 +37,9 @@ namespace polymake { namespace atint {
     
   using polymake::polytope::cdd_interface::solver;
 
-//   using namespace atintlog::donotlog;
+  using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  using namespace atintlog::dotrace;
+//   using namespace atintlog::dotrace;
 
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -304,7 +304,7 @@ namespace polymake { namespace atint {
     //Data on local restriction
     //This variable declares whether local cone i has been subdivided yet
     Array<bool> local_subdivided(local_restriction.dim());
-    //The list of new local cones
+    //The list of new local cones. 
     Vector<Set<int> > new_local_restriction;
     
     // -----------------------------------------------------------------------------------
@@ -416,8 +416,10 @@ namespace polymake { namespace atint {
 	// lies in the local cone. If the cone spanned by these has the right dimension
 	// add it as a local cone
 	if(local_restriction.dim() > 0 && refine) {
-	  for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
-	      for(int t = 0; t < xc_local_cones.dim(); t++) {
+	  //Will contain the subdivision cones of the local cone we currently study
+	  Vector<Set<int> > local_subdivision_cones;
+	  for(int t = 0; t < xc_local_cones.dim(); t++) {
+	    for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
 		//Check which rays of refinement cone lie in local cone
 		Set<int> cone_subset;
 		Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
@@ -429,12 +431,15 @@ namespace polymake { namespace atint {
 		}
 		//If the dimension is correct, add the new local cone
 		if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
-		  new_local_restriction |= cone_subset;
+		  local_subdivision_cones |= cone_subset;
 		}
 		local_subdivided[xc_local_cones[t]] = true;
-	      }	      
-	  }
+	    }//END iterate all refinement cones of xc
+	    //Finally we add the minimal interior faces of the subdivision as new local cones
+	    new_local_restriction |= minimal_interior(c_rays, local_subdivision_cones, x_uses_homog);
+	  }//END iterate all remaining local cones in xc
 	}//END refine local cones and remove non compatible maximal cones
+	
       }//END iterate x-cones
     } //END if intersection is necessary?
     
@@ -443,9 +448,6 @@ namespace polymake { namespace atint {
     
     //At the end we still have to check if all maximal cones are still compatible
     //and remove those that aren't
-    //Also we'll have to add interior subdivison codim-1-cells of old
-    //maximal cells, i.e. all codim-1-cells that have exactly two adjacent maximal cells,
-    //both of which lie in the same old maximal cone
     if(local_restriction.dim() > 0 && refine) {
       Set<int> removableCones;
       for(int c = 0; c < c_cones.dim(); c++) {
@@ -462,23 +464,7 @@ namespace polymake { namespace atint {
       Set<int> used_rays = accumulate(c_cones, operations::add());
       c_rays = c_rays.minor(used_rays,All);
       c_cones_result = c_cones_result.minor(~removableCones,used_rays);
-      local_restriction_result = local_restriction_result.minor(All,used_rays);
-      
-      //Now we add interior codim-1-cells as described above
-      Vector<Set<int> > interior_cells;
-      CodimensionOneResult cr = calculateCodimOneData(c_rays, c_cones_result, x_uses_homog, c_lineality, IncidenceMatrix<>());
-      IncidenceMatrix<> coInMax = cr.codimOneInMaximal;
-      IncidenceMatrix<> coCells = cr.codimOneCones;
-      for(int co = 0; co < coInMax.rows(); co++) {
-	Vector<int> adjCones(coInMax.row(co));
-	if(adjCones.dim() ==2) {
-	  if(xcontainers[adjCones[0]] == xcontainers[adjCones[1]]) {
-	    interior_cells |= coCells.row(co);
-	  }
-	}
-      }//END go through all codimension one cells
-      local_restriction_result /= IncidenceMatrix<>(interior_cells);
-      
+      local_restriction_result = local_restriction_result.minor(All,used_rays);      
     }//END finish up locality computation
     
     //Copy return values into the fan
