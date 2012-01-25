@@ -216,6 +216,8 @@ namespace polymake { namespace atint {
     //The algorithm possibly produces "double" vertices when creating a new vertex t
     // that has distance 0 to p or q. In this case we have to remember the original index p (or q)
     // to be able to create the graph correctly
+    // So, at position i, it gives the number of the vertex (starting at 1), the virtual vertex i
+    // actually represents. When creating a new vertex, this should be the maximum over the list + 1
     Vector<int> orig(n+1);
     for(int i = 1; i <= n; i++) { orig[i] = i;}
     
@@ -322,8 +324,8 @@ namespace polymake { namespace atint {
 	// If d(t,p) or d(t,q) = 0, identify t with p (or q)
 	// Otherwise give t the next available node index
 	if(dtp != 0 && dtx[q] != 0) {
-	  G.add_node();
-	  orig |= (orig[orig.dim()-1]+1);
+	  int node_number = G.add_node();
+	  orig |= (node_number+1);//(orig[orig.dim()-1]+1);
 	}
 	if(dtp == 0) {
 	  orig |= orig[p];
@@ -341,6 +343,7 @@ namespace polymake { namespace atint {
     
     //Now treat the basic cases of size 2 and 3
     Vector<int> vAsList(V);
+    dbgtrace << "G before rest cases: " << G << endl;
     if(V.size() == 3) {
       dbgtrace << "Remaining: " << vAsList << endl;
       //Solve the linear system given by the pairwise distances
@@ -384,6 +387,7 @@ namespace polymake { namespace atint {
 	}
       }
     }//End case size == 3
+    dbgtrace << "G after case 3: " << G << endl;
     if(V.size() == 2) {    
       if(leaves[vAsList[0]].size() > 1 && leaves[vAsList[0]].size() < n-1) {
 	if(d(vAsList[0],vAsList[1]) != 0) {
@@ -394,6 +398,7 @@ namespace polymake { namespace atint {
       //Graph case
       G.edge(orig[vAsList[0]]-1,orig[vAsList[1]]-1);
     }
+    
     
     //Now we're done, so we create the result
     
@@ -412,6 +417,7 @@ namespace polymake { namespace atint {
     
     dbgtrace << "Graph: " << endl;
       dbgtrace << "Nodes. " << G.nodes() << endl;
+      dbgtrace << "Edges: " << G.edges() << endl;
       dbgtrace << "Adjacency: " << G << endl;
       dbgtrace << "Labels: " << labels << endl;
     
@@ -445,6 +451,7 @@ namespace polymake { namespace atint {
   
   //Documentation see perl wrapper
   perl::ListReturn graphFromMetric(Vector<Rational> metric) {
+    dbgtrace << "Recomputing curve with graph" << endl;
     perl::Object curve = curveAndGraphFromMetric(metric);
     perl::Object graph = curve.give("GRAPH"); 
     Vector<Rational> lengths = curve.give("COEFFS");
@@ -624,19 +631,26 @@ namespace polymake { namespace atint {
     
     //We might have to permute the column indices in , since the sets might be in a different order
     //in the actual curve
+    //For this we have to normalize both set descriptions to contain the element 1
     
+    int n = newcurve.give("N_LEAVES");
+    Set<int> all_leaves = sequence(1,n);
     Vector<Set<int> > newsets = newcurve.give("SETS");
+      for(int ns = 0; ns < newsets.dim(); ns++) {
+	if(*(newsets[ns].begin()) != 1) newsets[ns] = all_leaves - newsets[ns];
+      }
     Vector<Set<int> > oldsets = curve.give("SETS");
+      for(int os = 0; os < oldsets.dim(); os++) {
+	if(*(oldsets[os].begin()) != 1) oldsets[os] = all_leaves - oldsets[os];
+      }
     dbgtrace << "newsets: " << newsets << endl;
     dbgtrace << "oldsets: " << oldsets << endl;
     Array<int> perm = find_permutation(newsets,oldsets);
     
     //Extract values
-    int n = newcurve.give("N_LEAVES");
     perl::Object graph = newcurve.give("GRAPH");
     IncidenceMatrix<> edges = graph.CallPolymakeMethod("EDGES");
     IncidenceMatrix<> edges_at_vertices = T(edges);
-    Set<int> leaves = sequence(0,n);
     Vector<Set<int> > nodes_by_sets, nodes_by_leaves;
     
     dbgtrace << "Identifying edges" << endl;
