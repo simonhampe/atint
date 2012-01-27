@@ -39,12 +39,12 @@ namespace polymake { namespace atint {
 Integer gcdext(Integer a, Integer b, Integer &s, Integer &t);
 
 /**
-@brief Takes a rational matrix and multiplies each row with a minimal integer such that it becomes a primitive vector in Z^n
+@brief Takes a rational matrix and makes each row a primitive vector in Z^n
 */
 Matrix<Integer> makePrimitiveInteger(const Matrix<Rational> &m);
 
 /**
-@brief Takes a rational vector and multiplies it with a minimal integer such that it becomes a primitive vector in Z^n
+@brief Takes a rational vector and transforms it into a primitive vector in Z^n
 */
 Vector<Integer> makePrimitiveInteger(const Vector<Rational> &v);
 

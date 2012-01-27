@@ -127,10 +127,37 @@ namespace polymake { namespace atint {
 
 	///////////////////////////////////////////////////////////////////////////////////////
 	
-	/*
-		Takes a rational nxm matrix and multiplies each row with a minimal integer such that it becomes 
-		a primitive vector in Z^m 
-	*/
+	/**
+	 @brief Takes a rational matrix and makes each row integer by multiplying it with a minimal integer
+	 */
+	Matrix<Integer> makeInteger(const Matrix<Rational> &m) {
+	  Matrix<Integer> result(m.rows(), m.cols());
+	  for(int r = 0; r < m.rows(); r++) { 
+		  Integer lc = 1;
+		  for(int c = 0; c < m.cols(); c++) {
+			  lc = lcm(lc,denominator(m(r,c)));
+		  }
+		  result.row(r) = lc* m.row(r);
+	  }
+	  return result;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	Vector<Integer> makeInteger(const Vector<Rational> &v) {
+	  Vector<Integer> result(v.dim());
+	  Integer lc = 1;
+	  for(int c = 0; c < v.dim(); c++) {
+		lc = lcm(lc,denominator(v[c]));
+	  }
+	  result = lc* v;
+	  
+	  return result;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+
 	Matrix<Integer> makePrimitiveInteger(const Matrix<Rational> &m) {
 		Matrix<Integer> result(m.rows(), m.cols());
 		for(int r = 0; r < m.rows(); r++) { 
@@ -139,6 +166,11 @@ namespace polymake { namespace atint {
 				lc = lcm(lc,denominator(m(r,c)));
 			}
 			result.row(r) = lc* m.row(r);
+			Rational gc = result(r,0);
+			for(int c = 1; c < m.cols(); c++) {
+			  gc = gcd(gc,result(r,c));
+			}
+			result.row(r) = (1/gc) * result.row(r);
 		}
 		return result;
 	}
@@ -152,6 +184,11 @@ namespace polymake { namespace atint {
 		lc = lcm(lc,denominator(v[c]));
 	  }
 	  result = lc* v;
+	  Rational gc = result[0];
+	  for(int c = 1; c < result.dim(); c++) {
+	    gc = gcd(gc,result[c]);
+	  }
+	  result = (1/gc) * result;
 	  
 	  return result;
 	}
@@ -165,8 +202,8 @@ namespace polymake { namespace atint {
 	*/
 	Vector<Integer> latticeNormal(const Matrix<Rational> &tmatrix, const Matrix<Rational> &smatrix, const Vector<Rational> &additionalRay) {
 	      dbgtrace << "Making the matrices integer" << endl;
-	      Matrix<Integer> taumatrix = makePrimitiveInteger(tmatrix);
-	      Matrix<Integer> sigmamatrix = makePrimitiveInteger(smatrix);
+	      Matrix<Integer> taumatrix = makeInteger(tmatrix);
+	      Matrix<Integer> sigmamatrix = makeInteger(smatrix);
 	      dbgtrace << "Taumatrix = \n" << taumatrix << "\nSigmamatrix = \n" << sigmamatrix << endl;
 	      int rk = rank(sigmamatrix);
 	      int rowcount = taumatrix.rows();

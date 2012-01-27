@@ -26,6 +26,7 @@
 #include "polymake/Vector.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/atint/LoggingPrinter.h"
+#include "polymake/atint/normalvector.h"
 
 namespace polymake { namespace atint { 
   
@@ -55,6 +56,7 @@ namespace polymake { namespace atint {
     //NODES_BY_*
     Matrix<Rational> rays(nodes_by_leaves.rows(),ambient_dim+1); 
     Vector<Set<int> > cones;
+    Vector<Integer> weights;
     
     //This vector tells us whether the position of a vertex has already been computed
     Array<bool> computed(nodes_by_leaves.rows());
@@ -113,8 +115,20 @@ namespace polymake { namespace atint {
 	sum_of_leaves += delta.row(*d-1);
       }
       sum_of_leaves = 0 | sum_of_leaves;
-      rays.row(nextv) = rays.row(neighbour) + coeffs[edge_index] * sign * sum_of_leaves;
+      //Compute the weight of the bounded edge as the mulitplicity of the 
+      //directional ray wrt to the primitive one
+      Vector<Rational> direction = sign * sum_of_leaves;
+      Vector<Integer> primitive_direction = makePrimitiveInteger(direction);
+      Integer mult; 
+      for(int x = 0; x < direction.dim(); x++) {
+	if(direction[x] != 0) { mult = Integer(direction[x] / primitive_direction[x]); break;}
+      }
+      rays.row(nextv) = rays.row(neighbour) + coeffs[edge_index] * primitive_direction;
       computed[nextv] = true;
+      weights |= mult;
+      dbgtrace << "Dir: " << direction << endl;
+      dbgtrace << "PDir: " << primitive_direction << endl;
+      dbgtrace << "mult: " << mult << endl;
       
       //Create the cone
       Set<int> cone_set;
@@ -127,6 +141,12 @@ namespace polymake { namespace atint {
     Map<int, int> leaf_ray_index;
     for(int l = 0; l < leaves.rows(); l++) {
       int index = -1;
+      Vector<Integer> primitive_leaf = makePrimitiveInteger(leaves.row(l));
+      Integer mult;
+      for(int x = 0; x < primitive_leaf.dim(); x++) {
+	if(primitive_leaf[x] != 0) { mult = Integer(leaves(l,x) / primitive_leaf[x]); break;}
+      }
+      weights |= mult;
       for(int r = nodes_by_leaves.rows(); r < rays.rows(); r++) {
 	if(rays.row(r) == leaves.row(l)) {
 	  index = r; break;
@@ -153,7 +173,8 @@ namespace polymake { namespace atint {
       }
     }
     
-    Vector<Integer> weights = ones_vector<Integer>(cones.dim());
+    
+    
     
     dbgtrace << "Rays: " << rays << endl;
     dbgtrace << "Cones: "<< cones << endl;
