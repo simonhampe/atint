@@ -176,20 +176,26 @@ namespace polymake { namespace atint {
     Vector<Set<int> > cones; //Cone list in terms of ray indices
     Vector<Set<int> > local_cones; 
     
+    int n_leaves = curves[0].give("N_LEAVES");
+    Set<int> all_leaves = sequence(1,n_leaves);
+    
     //First we add all the curve rays and construct the corresponding local cones
     for(unsigned int cu = 0; cu < curves.size(); cu++) {
       IncidenceMatrix<> set_list = curves[cu].give("SETS");
       Set<int> l_cone;
       //For each ray, check if it exists already
       for(int cu_ray = 0; cu_ray < set_list.rows(); cu_ray++) {
+	//Normalize
+	Set<int> cu_set = set_list.row(cu_ray);
+	if(cu_set.contains(n_leaves)) cu_set = all_leaves - cu_set;
 	int ray_index = -1;
 	for(int oray = 0; oray < rays.dim(); oray++) {
-	  if(rays[oray] == set_list.row(cu_ray)) {
+	  if(rays[oray] == cu_set) {
 	    ray_index = oray; break;
 	  }
 	}
 	if(ray_index == -1) {
-	    rays |= set_list.row(cu_ray);
+	    rays |= cu_set;
 	    ray_index = rays.dim()-1;
 	}
 	l_cone += ray_index;
@@ -197,7 +203,7 @@ namespace polymake { namespace atint {
       local_cones |= l_cone;
     }//END create curve rays and local cones
     
-     int n_leaves = curves[0].give("N_LEAVES");
+
     
     //Then we construct the actual cones
     for(unsigned int cu = 0; cu < curves.size(); cu++) {
@@ -215,7 +221,6 @@ namespace polymake { namespace atint {
 	  //We have to translate the cones of the M_0,val(node) first
 	  Vector<Set<int> > translated_cones;
 	  Vector<Vector<Set<int> > > valence_cones = combinatorial_mns[degrees[node]];
-	  Set<int> all_leaves = sequence(1,n_leaves);
 	  //The semantics are the following: The edges adjacent to node are numbered
 	  //in this order: First the leaves ordered from lowest to highest number, then the 
 	  //bounded edges, ordered according to the order of their appearance in NODES_BY_SETS
@@ -292,8 +297,8 @@ namespace polymake { namespace atint {
 	}
       }
       cones |= cones_so_far.slice(~double_cones);
-      dbgtrace << "Cones: " << cones << endl;
-      dbgtrace << "Rays: " << rays << endl;
+//       dbgtrace << "Cones: " << cones << endl;
+//       dbgtrace << "Rays: " << rays << endl;
     }//END iterate curves
     
     //Finally we convert the rays to matroid coordinates
@@ -324,7 +329,9 @@ namespace polymake { namespace atint {
     }
     
     Vector<Integer> weights = ones_vector<Integer>(cones.dim());
-        
+    
+    dbgtrace << "Rays " << rays << endl;
+    
     perl::Object result("WeightedComplex");
       result.take("RAYS") << bergman_rays;
       result.take("MAXIMAL_CONES") << cones;

@@ -45,7 +45,12 @@ namespace polymake { namespace atint {
   //Documentation see perl wrapper
   int moduliDimensionFromLength(int length) {
     Rational s = sqrt(1 + 8*length);
-    return (1+s) / 2;
+    int r = (1+s) / 2; 
+    //Test for validity
+    if((r*(r-1)/2) != length) {
+      throw std::runtime_error("Length is not of the form (n over 2)");
+    }
+    return r;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -168,16 +173,23 @@ namespace polymake { namespace atint {
     //Note that adding Phi(..) is the same as adding 2 to every entry in the matrix
     bool hasBeenfpced = false;
     bool hasBeenStretched = false;
+    int tryCount = 0;
     while(!(hasBeenfpced && hasBeenStretched)) {
+	//Since we cannot predict, how many tries we need to ensure 4-point-condition,
+	//we insert a maximum bound to avoid endless looping on metrics that don't lie in M_n
+	if(tryCount >= 1000000) {
+	  throw std::runtime_error("Cannot make metric four-point-condition-compatible: Maybe it's not in the moduli space?");
+	}
 	metric += 2*ones_vector<Rational>(metric.dim());
-	//If it already had been 4-point-cond-compatible and positive, this was the stretching
-	if(hasBeenfpced) hasBeenStretched = true;
 	//Check if everything is positive	
 	if (accumulate(Set<Rational>(metric), operations::min()) <= 0) {
 	    continue;
 	}
+	//If it already had been 4-point-cond-compatible and positive, this was the stretching
+	if(hasBeenfpced) hasBeenStretched = true;
 	//Check if it fulfills the 4-pc
 	if(testFourPointCondition(metric).dim() == 0) hasBeenfpced = true;
+	else tryCount++;
     }
     
     //For simplicity we ignore the first row and column and start counting at 1
@@ -232,6 +244,9 @@ namespace polymake { namespace atint {
       Set<int> singleset; singleset += i;
       leaves[i] = singleset;
     }
+    //These variables will contain the node data
+    Vector<Set<int> > nodes_by_leaves(n), nodes_by_sets(n);
+    
     dbgtrace << "Starting with leaf map " << leaves << endl;
     
     //Now inductively remove pairs of vertices until only 3 are left
@@ -287,45 +302,34 @@ namespace polymake { namespace atint {
 	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
 	  coeffs |= d(p,x);
 	  sets |= leaves[p];
+	  nodes_by_sets[orig[p]-1] += (sets.dim()-1);
+	  nodes_by_sets[orig[x]-1] += (sets.dim()-1);
 	}
 	if(leaves[q].size() > 1 && leaves[q].size() < n-1) {
 	  coeffs |= d(q,x);
 	  sets |= leaves[q];
+	  nodes_by_sets[orig[q]-1] += (sets.dim()-1);
+	  nodes_by_sets[orig[x]-1] += (sets.dim()-1);
 	}
+	//If p or q are leaves, add them to the node leaves of x
+	if(leaves[p].size() == 1) nodes_by_leaves[orig[x]-1] += leaves[p];
+	if(leaves[q].size() == 1) nodes_by_leaves[orig[x]-1] += leaves[q];
 	//Graph case
 	G.edge(orig[p]-1,orig[x]-1);
 	G.edge(orig[q]-1,orig[x]-1);
       }
       else {
+	//Note: It can not be possible that t=q and q is a leaf, since the removal
+	//of p would then yield a disconnected graph
 	dbgtrace << "Creating new vertex" << endl;
-	//We update the distance matrix, since we add a new element
-	d = d | zero_vector<Rational>();
-	d = d / zero_vector<Rational>();
-	int t = d.cols() -1;
-	for(Entire<Set<int> >::iterator i = entire(V); !i.at_end(); i++) {
-	    d(*i,t) = d(t,*i) = dtx[*i];
-	}
-	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
-	  if(dtp != 0) {
-	    coeffs |= dtp;
-	    sets |= leaves[p];
-	  }
-	}
-	if(leaves[q].size() > 1 && leaves[q].size() < n-1) {
-	  if(dtx[q] != 0) {
-	    coeffs |= dtx[q];
-	    sets |= leaves[q];
-	  }
-	}
-	//Now add the new vertex
-	V += t;
-	leaves[t] = leaves[p] + leaves[q];
 	// Graph case
 	// If d(t,p) or d(t,q) = 0, identify t with p (or q)
 	// Otherwise give t the next available node index
 	if(dtp != 0 && dtx[q] != 0) {
 	  int node_number = G.add_node();
-	  orig |= (node_number+1);//(orig[orig.dim()-1]+1);
+	  orig |= (node_number+1);
+	  nodes_by_leaves |= Set<int>();
+	  nodes_by_sets |= Set<int>();
 	}
 	if(dtp == 0) {
 	  orig |= orig[p];
@@ -333,6 +337,40 @@ namespace polymake { namespace atint {
 	if(dtx[q] == 0) {
 	  orig |= orig[q];
 	}
+	//We update the distance matrix, since we add a new element
+	d = d | zero_vector<Rational>();
+	d = d / zero_vector<Rational>();
+	int t = d.cols() -1;
+	for(Entire<Set<int> >::iterator i = entire(V); !i.at_end(); i++) {
+	    d(*i,t) = d(t,*i) = dtx[*i];
+	}
+	
+	//Now add the new vertex
+	V += t;
+	leaves[t] = leaves[p] + leaves[q];
+	
+	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
+	  if(dtp != 0) {
+	    coeffs |= dtp;
+	    sets |= leaves[p];
+	    nodes_by_sets[orig[p]-1] += (sets.dim()-1);
+	    nodes_by_sets[orig[t]-1] += (sets.dim()-1);
+	  }
+	}
+	if(leaves[q].size() > 1 && leaves[q].size() < n-1) {
+	  if(dtx[q] != 0) {
+	    coeffs |= dtx[q];
+	    sets |= leaves[q];
+	    nodes_by_sets[orig[q]-1] += (sets.dim()-1);
+	    nodes_by_sets[orig[t]-1] += (sets.dim()-1);
+	  }
+	}
+	
+	//Now add the leaves
+	if(leaves[p].size() == 1) nodes_by_leaves[orig[t]-1] += leaves[p];
+	if(leaves[q].size() == 1) nodes_by_leaves[orig[t]-1] += leaves[q];
+	
+	
 	dbgtrace << "New orig vertex " << orig << endl;
 	if(dtp != 0) G.edge(orig[t]-1,orig[p]-1);
 	if(dtx[q] != 0) G.edge(orig[t]-1,orig[q]-1);
@@ -359,11 +397,14 @@ namespace polymake { namespace atint {
       Vector<Rational> a = A * B;
       dbgtrace << "Result: " << a << endl;
       int zeroa = -1;
+      Array<int> setsindices(3); //Indices of partitions in variable sets
       for(int i = 0; i < 3; i++) {
+	setsindices[i] = -1;
 	if(a[i] != 0) {
 	    if(leaves[vAsList[i]].size() > 1 && leaves[vAsList[i]].size() < n-1) {
 	      coeffs |= a[i];
 	      sets |= leaves[vAsList[i]];
+	      setsindices[i] = sets.dim()-1;
 	    }
 	}
 	else {
@@ -374,8 +415,17 @@ namespace polymake { namespace atint {
       //If all distances are nonzero, we add a vertex
       if(zeroa == -1) {
 	int t = G.add_node();
+	nodes_by_leaves |= Set<int>();
+	nodes_by_sets |= Set<int>();
 	for(int j=0;j<3;j++) { 
 	  G.edge(t,orig[vAsList[j]]-1);
+	  if(leaves[vAsList[j]].size() == 1) {
+	    nodes_by_leaves[t] += leaves[vAsList[j]];
+	  }
+	  else {
+	    nodes_by_sets[t] += setsindices[j];
+	    nodes_by_sets[orig[vAsList[j]]-1] += setsindices[j];
+	  }
 	}	
       }
       //Otherwise we add the adjacencies of the two egdes
@@ -383,17 +433,34 @@ namespace polymake { namespace atint {
 	for(int j=0; j<3; j++) {
 	    if(j != zeroa) {
 	      G.edge(orig[vAsList[j]]-1,orig[vAsList[zeroa]]-1);
+	      if(leaves[vAsList[j]].size() ==1) {
+		nodes_by_leaves[orig[vAsList[zeroa]]-1] += leaves[vAsList[j]];
+	      }
+	      else {
+		nodes_by_sets[orig[vAsList[zeroa]]-1] += setsindices[j];
+		nodes_by_sets[orig[vAsList[j]]-1] += setsindices[j];
+	      }
 	    }
 	}
       }
     }//End case size == 3
     dbgtrace << "G after case 3: " << G << endl;
     if(V.size() == 2) {    
-      if(leaves[vAsList[0]].size() > 1 && leaves[vAsList[0]].size() < n-1) {
-	if(d(vAsList[0],vAsList[1]) != 0) {
-	  coeffs |= d(vAsList[0],vAsList[1]);
-	  sets |= leaves[vAsList[0]];
-	}
+      //Two remaining nodes forming a tree cannot both be leaves of the original tree
+      //If necessary, we swap the list, so that the first element is the non-leaf
+      if(leaves[vAsList[0]].size() == 1) {
+	std::swap(vAsList[0],vAsList[1]);
+      }
+      //We only have a bounded edge, if the second element is also not a leaf
+      if(leaves[vAsList[1]].size() > 1 && leaves[vAsList[1]].size() < n-1) {
+	coeffs |= d(vAsList[0],vAsList[1]);
+	sets |= leaves[vAsList[0]];
+	nodes_by_sets[orig[vAsList[0]]-1] += (sets.dim()-1);
+	nodes_by_sets[orig[vAsList[1]]-1] += (sets.dim()-1);
+      }
+      //Otherwise we add a leaf at the first element
+      else {
+	nodes_by_leaves[orig[vAsList[0]]-1] += leaves[vAsList[1]];
       }
       //Graph case
       G.edge(orig[vAsList[0]]-1,orig[vAsList[1]]-1);
@@ -413,6 +480,14 @@ namespace polymake { namespace atint {
       else {
 	labels[i] = "";
       }
+    }
+    
+    //Compute node degrees
+    nodes_by_leaves = nodes_by_leaves.slice(~sequence(0,n));
+    nodes_by_sets = nodes_by_sets.slice(~sequence(0,n));
+    Vector<int> node_degrees(nodes_by_leaves.dim());
+    for(int n = 0; n < node_degrees.dim(); n++) {
+      node_degrees[n] = nodes_by_leaves[n].size() + nodes_by_sets[n].size();
     }
     
     dbgtrace << "Graph: " << endl;
@@ -436,6 +511,9 @@ namespace polymake { namespace atint {
       curve.take("COEFFS") << coeffs;
       curve.take("N_LEAVES") << n;
       curve.take("GRAPH") << graph;
+      curve.take("NODES_BY_LEAVES") << nodes_by_leaves;
+      curve.take("NODES_BY_SETS") << nodes_by_sets;
+      curve.take("NODE_DEGREES") << node_degrees;
       
     return curve;
   }
@@ -629,8 +707,8 @@ namespace polymake { namespace atint {
     
     dbgtrace << "Computing sets permutation" << endl;
     
-    //We might have to permute the column indices in , since the sets might be in a different order
-    //in the actual curve
+    //We might have to permute the column indices in the node matrices, since the sets might 
+    // be in a different order in the actual curve
     //For this we have to normalize both set descriptions to contain the element 1
     
     int n = newcurve.give("N_LEAVES");
@@ -645,65 +723,36 @@ namespace polymake { namespace atint {
       }
     dbgtrace << "newsets: " << newsets << endl;
     dbgtrace << "oldsets: " << oldsets << endl;
-    Array<int> perm = find_permutation(newsets,oldsets);
-    
-    //Extract values
-    perl::Object graph = newcurve.give("GRAPH");
-    IncidenceMatrix<> edges = graph.CallPolymakeMethod("EDGES");
-    IncidenceMatrix<> edges_at_vertices = T(edges);
-    Vector<Set<int> > nodes_by_sets, nodes_by_leaves;
-    
-    dbgtrace << "Identifying edges" << endl;
-    
-    //First we go through all edges and compute whether they are a leaf edge (and we then save
-    //the leaf index) or whether they are a set edge (and we then save the index of this set)
-    int setindex = 0;
-    Map<int, int> edge_leaf_index; //-1 means is a set edge
-    Map<int, int> edge_set_index; //-1 means is a leaf edge
-    for(int er = 0; er < edges.rows(); er++) {
-      //Extract nodes of this edge
-      Vector<int> nodes(edges.row(er));
-      //It is a leaf edge, if and only if the first node has index < n
-      if(nodes[0] < n) {
-	edge_leaf_index[er] = nodes[0]+1;
-	edge_set_index[er] = -1;
-      }
-      else {
-	edge_leaf_index[er] = -1;
-	edge_set_index[er] = perm[setindex];
-	setindex++;
-      }
-    }
-    
-    dbgtrace << "Creating vertex matrices " << endl;
-    
-    //The first n vertices are leaf vertices, so we ignore them
-    for(int i = n; i < edges_at_vertices.rows(); i++) {
-      Set<int> sAtv, lAtv;
-      //Iterate the edges at this node
-      Set<int> eAtv = edges_at_vertices.row(i);
-      for(Entire<Set<int> >::iterator e = entire(eAtv); !e.at_end(); e++) {
-	if(edge_leaf_index[*e] != -1) {
-	    lAtv += edge_leaf_index[*e];
-	}
-	else {
-	    sAtv += edge_set_index[*e];
+    Array<int> perm(newsets.dim());
+    for(int i = 0; i < perm.size(); i++) {
+      //Find equal set
+      for(int j = 0; j < perm.size(); j++) {
+	if(newsets[i] == oldsets[j]) {
+	  perm[i] = j; break;
 	}
       }
-      nodes_by_leaves |= lAtv;
-      nodes_by_sets |= sAtv;
+    }
+    dbgtrace << "Permutation: " << perm << endl;
+    
+    IncidenceMatrix<> new_node_sets = newcurve.give("NODES_BY_SETS");
+      dbgtrace << "node sets: " << new_node_sets << endl;
+    IncidenceMatrix<> node_leaves = newcurve.give("NODES_BY_LEAVES");
+    Vector<int> node_degrees = newcurve.give("NODE_DEGREES");
+    
+    //Convert the node set matrix
+    Vector<Set<int> > old_node_sets;
+    for(int nns = 0; nns < new_node_sets.rows(); nns++) {
+      Set<int> new_edge = new_node_sets.row(nns);
+      Set<int> old_edge;
+      for(Entire<Set<int> >::iterator ne = entire(new_edge); !ne.at_end(); ne++) {
+	old_edge += perm[*ne];
+      }
+      old_node_sets |= old_edge;
     }
     
-    //Finally compute node degrees
-    Vector<int> node_degrees(nodes_by_leaves.dim());
-    for(int i = 0; i < node_degrees.dim(); i++) {
-      node_degrees[i] = nodes_by_leaves[i].size() + nodes_by_sets[i].size();
-    }
-    
-    curve.take("NODES_BY_LEAVES") << nodes_by_leaves;
-    curve.take("NODES_BY_SETS") << nodes_by_sets;
+    curve.take("NODES_BY_LEAVES") << node_leaves;
+    curve.take("NODES_BY_SETS") << old_node_sets;
     curve.take("NODE_DEGREES") << node_degrees;
-    
   }
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
@@ -712,7 +761,7 @@ namespace polymake { namespace atint {
 		    "# Takes a positive length (of a vector) and assumes it is of the form (n over 2)"
 		    "# It then computes n"
 		    "# @param Int k The length = (n over 2)"
-		    "# @return Int n. If k is not of the form (n over 2), the result is arbitrary",
+		    "# @return Int n. If k is not of the form (n over 2), an error is thrown.",
 		    &moduliDimensionFromLength, "moduliDimensionFromLength($)");
 		     
   UserFunction4perl("# @category Tropial geometry"
