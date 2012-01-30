@@ -29,8 +29,11 @@ my ($t0,$t1);
 $t0 = Benchmark->new;
 my $div = divisor_list($m,@psi);
 $t1 = Benchmark->new;
+my $diff = timestr(timediff($t1,$t0));
+my $w = new WeightedComplex(DESCRIPTION=>$diff);
 print "Time taken: ", timestr(timediff($t1,$t0)), "\n";
 save($div,"caro_damn_example3.atint");
+save($w,"time_taken.atint");
 return $div;
 
 # my $f1 = atint::evaluation_map(2,3,(new Matrix<Rational>([[1,-1,-1],[-2,0,2],[-1,1,-1],[2,1,0],[1,-2,-1],[-1,1,1]])),1);

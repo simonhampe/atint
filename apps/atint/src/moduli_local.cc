@@ -340,6 +340,51 @@ namespace polymake { namespace atint {
       return result;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object rational_curve_from_rays(Matrix<Rational> rays, bool uses_homog = false) {
+    //First we identify the vertices (if necessary)
+    Vector<Rational> interior(rays.cols());
+    Set<int> vertices;
+    if(uses_homog) {
+      for(int r = 0; r < rays.rows(); r++) {
+	if(rays(r,0) == 1) vertices += r;
+      }
+      if(vertices.size() > 0) {
+	Rational factor(1/vertices.size());
+	//Add 1/noOfVertices * sum of vertices
+	interior = accumulate(rows(rays.minor(vertices,All)),operations::add());
+	interior *= factor;
+      }
+    }
+    
+    //Add rays
+    interior += accumulate(rows(rays.minor(~vertices,All)),operations::add());
+    
+    //Strip homog. coordinate, if necessary
+    if(uses_homog) interior = interior.slice(~scalar2set(0));
+    
+    perl::Object result = CallPolymakeFunction("rational_curve_from_moduli",interior);
+    return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object rational_curve_from_cone(perl::Object complex,int n_leaves, int coneIndex) {
+    //First we compute the dimension of the M_0,n-part
+    int mn_dim = (n_leaves * (n_leaves-1))/2 - n_leaves;
+    //Extract properties
+    Matrix<Rational> rays = complex.give("RAYS");
+    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+      if(uses_homog) mn_dim++;
+    IncidenceMatrix<> maximal_cones = complex.give("MAXIMAL_CONES");
+    
+    return rational_curve_from_rays(
+      rays.minor(maximal_cones.row(coneIndex),sequence(0,mn_dim)),uses_homog);
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Tropical geometry / Moduli spaces / Local geometry"
@@ -357,6 +402,33 @@ namespace polymake { namespace atint {
 		    "# @param Int n Should be >= 3"
 		    "# @return WeightedComplex The local complex",
 		    &local_mn,"local_m0n(;@)");
+  
+  UserFunction4perl("# @category Tropial geometry / Moduli spaces / Rational curves"
+		    "# This takes a matrix of rays of a given cone that is supposed to lie"
+		    "# in a moduli space M_0,n and computes the rational curve corresponding"
+		    "# to an interior point. More precisely, if there are k vertices in "
+		    "# homogeneous coordinates, it computes 1/k * (sum of these vertices),"
+		    "# then it adds each directional ray. It then returns the curve corresponding"
+		    "# to this point"
+		    "# @param Matrix<Rational> rays The rays of the cone, in homog. or non-homog."
+		    "# coordinates."
+		    "# @param Bool uses_homog Whether the rays are given in homog. coordinates"
+		    "# False by default"
+		    "# @return RationalCurve c The curve corresponding to an interior point",
+		    &rational_curve_from_rays, "rational_curve_from_rays(Matrix<Rational>;$=0)");
+  
+  UserFunction4perl("# @category Tropial geometry / Moduli spaces / Rational curves"
+		    "# This takes a weighted complex X that is supposed to be of the form"
+		    "# M_0,n x Y for some Y (It assumes that M_0,n occupies the first "
+		    "# coordinates) and an index of a maximal cone of that complex."
+		    "# It then computes a rational curve corresponding to an interior point of"
+		    "# that cone (ignoring the second component Y)"
+		    "# @param WeightedComplex X A weighted complex of the form M_0,n x Y"
+		    "# @param Int n_leaves The n in M_0,n. Needed to determine the dimension of"
+		    "# the M_0,n component"
+		    "# @param Int coneIndex The index of the maximal cone"
+		    "# @return RationalCurve c The curve corresponding to an interior point",
+		    &rational_curve_from_cone, "rational_curve_from_cone(WeightedComplex, $,$)");
   
   Function4perl(&decodePrueferSequence,"dcp(Vector<Int>)");
 }}
