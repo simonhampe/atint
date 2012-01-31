@@ -197,6 +197,31 @@ object WeightedComplex {
 	# is a subset of another element.
 	property LOCAL_RESTRICTION : IncidenceMatrix;
 
+	# @category Tropical geometry / Lattice normals
+	# This is an irredundant list of all lattice generators of all maximal cones
+	# If this property exists, lattice normals might be computed faster
+	# If you create a variety with the property [[IS_UNIMODULAR]] set to TRUE, then
+	# this will simply be a copy of [[RAYS]] (made primitive integer)
+	property LATTICE_GENERATORS : Matrix<Integer>;
+	
+	# @category Tropical geometry / Lattice normals
+	# This incidence matrix gives a lattice basis for each maximal cone. Row i 
+	# corresponds to cone i and gives lattice generator indices referring to
+	# [[LATTICE_GENERATORS]]
+	# If this property exists, lattice normals might be computed faster.
+	# If you create a variety with the property [[IS_UNIMODULAR]] set to TRUE, then
+	# this will simply be a copy of [[MAXIMAL_CONES]]
+	property LATTICE_BASES : IncidenceMatrix;
+	
+	# @category Tropical geometry / Lattice normals
+	# This property is not computed anywhere but should be set to TRUE by the user upon 
+	# initialization, if all cones of the fan/complex are unimodular, i.e. their rays generate 
+	# the lattice of the cone
+	# If this property is TRUE, [[LATTICE_GENERATORS]] and [[LATTICE_BASES]] can be computed
+	# much faster.
+	property IS_UNIMODULAR : Bool; 
+	
+	
 	## RULES ################################################################
 	
 	# The different weights for the following two rules make sure that existence of INPUT_HOM_* is checked first (since INPUT_* will always be set by INPUT_HOM_*
@@ -285,6 +310,20 @@ object WeightedComplex {
 	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM {
 	  computeLatticeNormals($this);
 	}
+	weight 3.10;
+	
+	#------------------------------------------------------------------------#
+	  
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM {
+	  die "This mechanism is not implemented yet.";
+	}
+	precondition : defined(LATTICE_GENERATORS);
+	precondition : CMPLX_CODIMENSION 
+	{
+	  my $this = shift;
+	  $this->CMPLX_CODIMENSION >= 2;
+	}
+	weight 3.5;
 	
 	#------------------------------------------------------------------------#
 	
@@ -358,6 +397,18 @@ object WeightedComplex {
 	  $this->DESCRIPTION = "No description available";
 	}
 	
+	#------------------------------------------------------------------------#
+	
+	rule IS_UNIMODULAR : {
+	  $this->IS_UNIMODULAR = FALSE;
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule LATTICE_BASES, LATTICE_GENERATORS : RAYS, MAXIMAL_CONES, DIRECTIONAL_RAYS, IS_UNIMODULAR, USES_HOMOGENEOUS_C, LINEALITY_SPACE {
+	  
+	}
+	
 	## METHODS #################################################################
 	
 	# @category Basic properties
@@ -427,6 +478,7 @@ object WeightedComplex {
 	  
 	  #Create the new ray matrix
 	  my $rayMatrix = new Matrix<Rational>(0,$this->CMPLX_AMBIENT_DIM+1);
+	  
 	  #Add the remaining rays with a zero at front
 	  my $origRays = (zero_vector<Rational>($this->RAYS->rows())) | $this->RAYS;
 	  $rayMatrix = $rayMatrix / $origRays;
@@ -434,6 +486,8 @@ object WeightedComplex {
 	  my $affineRay = (new Vector<Rational>([1])) | (zero_vector<Rational>($this->CMPLX_AMBIENT_DIM)); 
 	  $rayMatrix = (new Matrix<Rational>($rayMatrix)) / $affineRay;
 	  my $affineIndex = $rayMatrix->rows()-1;
+	  
+	  
 	  
 	  #Now add the last ray to each maximal cone
 	  my @mcones = @{$this->MAXIMAL_CONES};

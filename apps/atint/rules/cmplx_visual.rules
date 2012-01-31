@@ -201,7 +201,7 @@ object WeightedComplex {
   
   user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES, CMPLX_DIM, CMPLX_AMBIENT_DIM {
     my ($this,$decor,$cutoff_decor)=@_;
-     
+    
     #Take care of self-defined decor options and delete them
     if(is_zerocycle($this)) {
       die "Cannot draw zero cycle";

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<version xmlns="http://www.polymake.de/ns/docs#3">
+  <release>2.10</release>
+  <extensions>
+    <extension>https://bitbucket.org/hampe/atint</extension>
+  </extensions>
+</version>

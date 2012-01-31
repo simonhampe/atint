@@ -193,8 +193,8 @@ namespace polymake { namespace atint {
                   "# Computes a row HNF of an integer matrix A"
                   "# It returns the normal form and stores the unimodular transformation matrix and the kernel dimension  of the transposed matrix in"
                   "# the last two parameters. The algorithm is the LLL-based HNF alg. by Havas, Majevski, Matthews"
-                  "# @param Matrix matrix the matrix for which the transformation is computed"
-                  "# @param Matrix tfmatrix The matrix that will contain the transformation matrix"
+                  "# @param Matrix<Integer> matrix the matrix for which the transformation is computed"
+                  "# @param Matrix<Integer> tfmatrix The matrix that will contain the transformation matrix"
                   "# @param Integer kdim This will be set to dim Ker(A)"                  
                   "# @return Matrix",
                   &lllHNF,"lllHNF(Matrix<Integer>,Matrix<Integer>,Integer)");           

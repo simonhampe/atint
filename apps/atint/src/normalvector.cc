@@ -280,26 +280,35 @@ namespace polymake { namespace atint {
 	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
-	/*
-	  Compute a lattice basis of the vector space spanned by cone (more precisely it computes Lambda_cone)
-	*/
-	Matrix<Integer> latticeBasis(const perl::Object &cone) {
-	  Matrix<Rational> prematrix = cone.give("LINEAR_SPAN");
-	  Matrix<Integer> conematrix = makePrimitiveInteger(prematrix);
-	  conematrix = T(conematrix);
+	//Documentation see header
+	Matrix<Integer> latticeBasisFromRays(const Matrix<Rational> &rays, const Matrix<Rational> &linspace) {
+	  //Compute linear span of cone
+	  Matrix<Rational> linear_span = null_space(rays / linspace);
+	  //Special case: If the cone is full-dimensional, return the standard basis
+	  if(linear_span.rows() == 0) {
+	    return unit_matrix<Integer>(rays.cols());
+	  }
+	  Matrix<Integer> conematrix = makeInteger(linear_span);
 	  Matrix<Integer> tfmatrix;
 	  Integer k;
-	  lllHNF(conematrix, tfmatrix,k);
+	  lllHNF(T(conematrix), tfmatrix,k);
 	  //Copy the last k rows of tfmatrix 
-	  Matrix<Integer> latticeB(k,conematrix.rows());
-	  for(int r = 0; r < latticeB.rows(); r++) {
-	      latticeB.row(r) = tfmatrix.row(tfmatrix.rows() - 1 - r);
-	  }
+	  Matrix<Integer> latticeB = tfmatrix.minor(sequence(tfmatrix.rows()-k,k),All);
 	  return latticeB;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
+	//Documentation see header
+	Matrix<Integer> latticeBasis(const perl::Object &cone) {
+	  Matrix<Rational> rays = cone.give("RAYS");
+	  Matrix<Rational> linspace = cone.give("LINEALITY_SPACE");
+	  return latticeBasisFromRays(rays,linspace);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	//Documentation see header
 	Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Rational> &generators) {
 	  Vector<Rational> solution(generators.rows());
 	  //Copy arguments

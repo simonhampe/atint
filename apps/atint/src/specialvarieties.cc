@@ -90,7 +90,8 @@ namespace polymake { namespace atint {
       //Create cones
       Set<int> indices = sequence(0,n+1);
       dbgtrace << "Indices: " << indices << endl;
-      Array<Set<int> >  kSets = pm::Subsets_of_k<Set<int> > ( indices,k );
+      Array<Set<int> >  kSets = all_subsets_of_k(indices,k);
+      //pm::Subsets_of_k<Set<int> > ( indices,k );
       dbgtrace << "ksets " << kSets << endl;
       
       dbgtrace << "Creating cones" << endl;
@@ -370,7 +371,8 @@ namespace polymake { namespace atint {
       //Now create the k-skeleton of the n-cube: For each n-k-set S of 0,..,n-1 and for each vertex
       // v of the n-k-dimensional cube: Insert the entries of v in S and then insert all possible 
       //vertices of the k-dimensional cube in S^c to obtain a k-dimensional face of the cube
-      Array<Set<int> > nmkSets = pm::Subsets_of_k<Set<int> > ( sequence(0,n),n-k );
+      Array<Set<int> > nmkSets = all_subsets_of_k( sequence(0,n),n-k );
+      //pm::Subsets_of_k<Set<int> > ( sequence(0,n),n-k );
       Matrix<Rational> nmkVertices = binaryMatrix(n-k);
       Matrix<Rational> kVertices = binaryMatrix(k);
       
@@ -391,7 +393,8 @@ namespace polymake { namespace atint {
       int vertexnumber = rays.rows();
       
       //Now we also create the k-1-skeleton of the cube to compute the ray faces
-      Array<Set<int> > nmlSets = pm::Subsets_of_k<Set<int> > (sequence(0,n),n-k+1);
+      Array<Set<int> > nmlSets = all_subsets_of_k(sequence(0,n),n-k+1);
+      //pm::Subsets_of_k<Set<int> > (sequence(0,n),n-k+1);
       Matrix<Rational> nmlVertices = binaryMatrix(n-k+1);
       Matrix<Rational> lVertices = binaryMatrix(k-1);
       Vector<Set<int> > raycones;

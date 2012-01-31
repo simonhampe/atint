@@ -121,7 +121,8 @@ namespace polymake { namespace atint {
 		  relevantEquations = hsEquations.minor(~sequence(0,equationsFromI),All);
 		}
 		Array<Set<int> > signChoices = 
-		    pm::AllSubsets<Set<int> >(sequence(0,relevantEquations.rows()));
+		    all_subsets(sequence(0,relevantEquations.rows()));
+		    //pm::AllSubsets<Set<int> >(sequence(0,relevantEquations.rows()));
 		
 		dbgtrace << "Relevant equations: " << relevantEquations << endl;
 		dbgtrace << "Cone index: " << coneindex << " of " << i << ", " << j << endl;

@@ -51,7 +51,8 @@ namespace polymake { namespace atint {
     int r = rank(m);
     
     Vector<Set<int> > result;
-    Array<Set<int> > rsets = pm::Subsets_of_k<Set<int> > ( sequence(0,m.cols()),r );
+    Array<Set<int> > rsets = all_subsets_of_k(sequence(0,m.cols()),r);
+    //pm::Subsets_of_k<Set<int> > ( sequence(0,m.cols()),r );
     for(int i = 0; i < rsets.size(); i++) {
       if(rank(m.minor(All,rsets[i])) == r) {
 	result |= rsets[i];

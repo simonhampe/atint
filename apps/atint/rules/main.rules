@@ -21,6 +21,13 @@
 # a function that tests termination of all functions in a-tint.
 #####################################################################
 
+# @topic application
+# a-tint is an application for polymake (see [[http://polymake.mathematik.tu-darmstadt.de]]). 
+# It aims to implement algorithmic aspects of tropical intersection theory. 
+# Tropical varieties are realized as weighted polyhedral complexes. This project is part of and
+# financed by the DFG Priority Project SPP 1489 (see also [[http://www.computeralgebra.de/index.php]])
+# For more information see [[https://bitbucket.org/hampe/atint/]]
+
 IMPORT common graph
 
 USE fan matroid 

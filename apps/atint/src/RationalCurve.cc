@@ -84,7 +84,8 @@ namespace polymake { namespace atint {
     
     //First we test all 4-element subsets
     Set<int> complete = sequence(1,n);
-    Array<Set<int> > fours =  pm::Subsets_of_k<Set<int> > ( complete,4 );
+    Array<Set<int> > fours =  all_subsets_of_k(complete,4);
+      //pm::Subsets_of_k<Set<int> > ( complete,4 );
     for(int f = 0; f < fours.size(); f++) {
       Vector<int> l(fours[f]);
       int a = d(l[0],l[1]) + d(l[2],l[3]);
@@ -101,7 +102,8 @@ namespace polymake { namespace atint {
       }
     }
     //Now we check all 3-element subsets
-    Array<Set<int> > threes = pm::Subsets_of_k<Set<int> >(complete, 3);
+    Array<Set<int> > threes = all_subsets_of_k(complete,3);
+    //pm::Subsets_of_k<Set<int> >(complete, 3);
     for(int f = 0; f < threes.size(); f++) {
       Vector<int> l(threes[f]);
       //Now check the three possibilities, where the fourth element is equal to any of the three
@@ -121,7 +123,8 @@ namespace polymake { namespace atint {
       }
     }
     //Now we check all 2-element subsets
-    Array<Set<int> > twos = pm::Subsets_of_k<Set<int> >(complete, 2);
+    Array<Set<int> > twos = all_subsets_of_k(complete,2);
+    //pm::Subsets_of_k<Set<int> >(complete, 2);
     for(int f = 0; f < twos.size(); f++) {
       Vector<int> l(twos[f]);
       //We have three possibilites for the other two z,t: t=x,z=y or t=z=x or t=z=y

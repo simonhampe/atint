@@ -1,0 +1,1491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE application [
+  <!ENTITY % HTMLsymbol PUBLIC "-//W3C//ENTITIES Symbols for XHTML//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent">
+  <!ENTITY % HTMLlat1   PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent">
+  %HTMLsymbol; %HTMLlat1;
+]>
+
+<application name="atint" xmlns="http://www.polymake.de/ns/docs#3" xmlns:html="http://www.w3.org/1999/xhtml">
+  <description><html:p> a-tint is an application for polymake (see <html:a href="http://polymake.mathematik.tu-darmstadt.de">http://polymake.mathematik.tu-darmstadt.de</html:a>). 
+ It aims to implement algorithmic aspects of tropical intersection theory. 
+ Tropical varieties are realized as weighted polyhedral complexes. This project is part of and
+ financed by the DFG Priority Project SPP 1489 (see also <html:a href="http://www.computeralgebra.de/index.php">http://www.computeralgebra.de/index.php</html:a>)
+ For more information see <html:a href="https://bitbucket.org/hampe/atint/">https://bitbucket.org/hampe/atint/</html:a></html:p></description>
+  <imports-from>
+    <application name="graph" />
+    <application name="common" />
+  </imports-from>
+  <uses>
+    <application name="fan" />
+    <application name="topaz" />
+    <application name="polytope" />
+    <application name="tropical" />
+    <application name="group" />
+    <application name="matroid" />
+  </uses>
+  <common-option-lists>
+    <common-option-list name="Visual::WeightedComplex::decorations" xml:id="i26">
+      <description><html:p> require Visual;
+ require Visual::PointSet;
+ require Visual::Wire;
+ require Visual::Polygon;</html:p></description>
+      <imports-from>
+        <common-option-list name="Visual::Polygons::decorations" href="#" class="invalid" />
+        <common-option-list name="Visual::PointSet::decorations" href="#" class="invalid" />
+      </imports-from>
+      <option name="DirScale" type="Flexible&lt;Rational&gt;" href="#">
+        <description><html:div>length of the directional rays</html:div></description>
+      </option>
+      <option name="WeightLabels" type="String" href="#">
+        <description><html:div>if set to "hidden", the labels indicating the weights are hidden</html:div></description>
+      </option>
+      <option name="CoordLabels" type="String" href="#">
+        <description><html:div>If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
+ String If set to "pinned", the weight labels are computed in such a way that they stick to the cells when the complex
+ is exploded. Note that this is expensive and significantly increases computation time.
+ WeightLabelStyle =&gt; "",</html:div></description>
+      </option>
+    </common-option-list>
+    <common-option-list name="Visual::WeightedComplex::BoundingDecorations" xml:id="i25">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <imports-from>
+        <common-option-list name="Visual::WeightedComplex::decorations" href="#i26" class="invalid" />
+        <common-option-list name="Visual::Polygons::decorations" href="#" class="invalid" />
+        <common-option-list name="Visual::PointSet::decorations" href="#" class="invalid" />
+      </imports-from>
+      <option name="BoundingDistance" type="Flexible&lt;Rational&gt;" href="#">
+        <description><html:div>The distance of the border of the bounding box from the smallest box 
+ containing the affine points of the complex. This is only relevant, if BoundingMode is "relative"</html:div></description>
+      </option>
+      <option name="BoundingBox" type="Matrix&lt;Rational&gt;" href="#">
+        <description><html:div>A fixed bounding box, determined by two row vectors that specify two of its vertices (on "on top" and one "at the bottom"). Is only relevant, if BoundingMode is "absolute"</html:div></description>
+      </option>
+      <option name="BoundingMode" type="String" href="#">
+        <description><html:div>If set to "relative", the function determines the smallest possible box containing all affine points of the complex and then enlarges the box by BoundingDistance to all sides. If set to "absolute", BoundingBox must be specified and the complex will be intersected with that box. By default this is set to "relative".</html:div></description>
+      </option>
+    </common-option-list>
+    <common-option-list name="Visual::RationalCurve::decorations" xml:id="i24">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <imports-from>
+        <common-option-list name="Visual::Graph::decorations" href="#" class="invalid" />
+        <common-option-list name="Visual::Wire::decorations" href="#" class="invalid" />
+        <common-option-list name="Visual::PointSet::decorations" href="#" class="invalid" />
+      </imports-from>
+      <option name="LengthLabels" type="String" href="#">
+        <description><html:div>if set to "hidden", the labels indicating the lengths are hidden</html:div></description>
+      </option>
+    </common-option-list>
+  </common-option-lists>
+  <objects>
+    <object name="WeightedComplex" xml:id="i28">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <derived-from object="fan::PolyhedralFan&lt;Rational&gt;" href="#" class="invalid" />
+      <properties>
+        <category name="Polyhedral complex" xml:id="i118">
+          <property name="INPUT_HOM_RAYS" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i146">
+            <description><html:p> A matrix of the rays of the fan. This should be used *instead of* <html:a href="#">INPUT_RAYS</html:a>, if the coordinates of the
+ fan should be interpreted as homogeneous coordinates and the fan as the complex at x0 = 1.
+ The input rays are normalized to x0 = 1 and the fan is then initialized with the normalized rays as
+ <html:a href="#">INPUT_RAYS</html:a>.
+ <html:a href="#">INPUT_CONES</html:a> can be combined with this as usual. If your rays are already homogenized and you are sure they
+ are also your rays, you can directly put this into RAYS and manually set USES_HOMOGENEOUS_C=&gt;TRUE</html:p></description>
+          </property>
+          <property name="INPUT_HOM_LINEALITY" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i149">
+            <description><html:p> A matrix of generators of the lineality space, but in homogeneous coordinates (i.e. x0 should be 0, otherwise 
+ this throws an error). This should be used *instead of* <html:a href="#">INPUT_LINEALITY</html:a> / <html:a href="#">LINEALITY_SPACE</html:a></html:p></description>
+          </property>
+          <property name="USES_HOMOGENEOUS_C" type="common::Bool" href="#" class="invalid" xml:id="i150">
+            <description><html:p> Indicates whethere this fan's coordinates should be interpreted as affine coordinates or as homogeneous coordinates.
+ In the latter case the fan would actually represent the polyhedral complex that comes from intersecting the fan
+ (in affine coordinates) with the affine hyperplane x0 = 1. This property should not be set manually. It will be set
+ as true, if <html:a href="#i146">INPUT_HOM_RAYS</html:a> or <html:a href="#i149">INPUT_HOM_LINEALITY</html:a> are used and to false, if <html:a href="#">INPUT_RAYS</html:a> or <html:a href="#">INPUT_LINEALITY</html:a>
+ are used.</html:p></description>
+          </property>
+          <property name="CMPLX_RAYS" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i145">
+            <description><html:p> If the fan does not use homogeneous coordinates, this is just a copy of RAYS and actually needn't be requested. Otherwise this computes
+ a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from <html:a href="#">RAYS</html:a> occurs  
+ as a row in this matrix...
+ - once, if r_0 = 1
+ - k times, if r_0 = 0 and k is the number of equivalence classes of maximal cones containing r with respect to the following relation:
+ Two maximal cones m, m' containing r are equivalent, if they are equal or there exists a sequence of maximal cones
+ m = m_1,...m_r = m', such that r is contained in each m_i and each intersection m_i cap m_i+1 contains at least one ray s with s_0 = 1.
+ The reason for this is that, when specifying a piecewise affine linear function on a polyhedral complex, the same directional ray with 
+ x0 = 0 might be assigned two different values, if it is contained in two "non-connected" maximal cones (where connectedness is to be 
+ understood as described above).
+ If there is a <html:a href="#i164">LOCAL_RESTRICTION</html:a> the above equivalence relation is changed in such a 
+ way that the affine ray s with s_0 = 1 that must be contained in the intersection of
+ two subsequent cones must be a compatible ray</html:p></description>
+          </property>
+          <property name="CMPLX_MAXIMAL_CONES" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i153">
+            <description><html:p> An incidence matrix describing which maximal cone in the complex at x0 = 1 is generated by which rays. 
+ Each row corresponds to a maximal cone (More precisely, the i-th element represents the
+ same maximal cone as the i-th element of <html:a href="#">MAXIMAL_CONES</html:a>). The indices in a row refer to rows of <html:a href="#i145">CMPLX_RAYS</html:a>, i.e. the maximal
+ cone described by the i-th element is generated by the rays corresponding to these row indices.
+ If the fan does not use homogeneous coordinates, it is just a copy of <html:a href="#">MAXIMAL_CONES</html:a></html:p></description>
+          </property>
+          <property name="CMPLX_CODIM_1_FACES" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i151">
+            <description><html:p> An incidence matrix describing which codim 1 cone in the complex at x0 = 1 is generated by which rays. 
+ Each row corresponds to a codimension one cone (More precisely, the i-th element represents the
+ same codim 1 cone as the i-th element of <html:a href="#i158">CODIM_1_FACES</html:a>). The indices in a row refer to rows of <html:a href="#i145">CMPLX_RAYS</html:a>, i.e. the cone
+ cone described by the i-th element is generated by the rays corresponding to these row indices.
+ If the fan does not use homogeneous coordinates, it is just a copy of <html:a href="#i158">CODIM_1_FACES</html:a>.</html:p></description>
+          </property>
+          <property name="CMPLX_CONVERSION_VECTOR" type="common::Vector&lt;Int&gt;" href="#" class="invalid" xml:id="i143">
+            <description><html:p> A vector with an entry for each row in <html:a href="#i145">CMPLX_RAYS</html:a>. More precisely, the i-th entry gives the row index
+ of the ray in <html:a href="#">RAYS</html:a> that is equal to the i-th row of <html:a href="#i145">CMPLX_RAYS</html:a>.</html:p></description>
+          </property>
+          <property name="CMPLX_DIM" type="common::Int" href="#" class="invalid" xml:id="i144">
+            <description><html:p> Returns the dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
+ just DIM, otherwise DIM-1. When computing this property, it is assumed that the complex is pure.</html:p></description>
+          </property>
+          <property name="CMPLX_AMBIENT_DIM" type="common::Int" href="#" class="invalid" xml:id="i152">
+            <description><html:p> Returns the ambient dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
+ just FAN_AMBIENT_DIM, otherwise FAN_AMBIENT_DIM-1</html:p></description>
+          </property>
+          <property name="CMPLX_CODIMENSION" type="common::Int" href="#" class="invalid" xml:id="i142">
+            <description><html:p> Returns the codimension of the polyhedral complex in its ambient vector space. More precisely, this
+ value is equal to <html:a href="#i152">CMPLX_AMBIENT_DIM</html:a> - <html:a href="#i144">CMPLX_DIM</html:a></html:p></description>
+          </property>
+          <property name="VERTICES" type="common::Set&lt;Int&gt;" href="#" class="invalid" xml:id="i147">
+            <description><html:p> Computes the subset of row indices of RAYS, such that the corresponding rows describe a vertex of the complex.
+ This set is empty if <html:a href="#i150">USES_HOMOGENEOUS_C</html:a> is false and is the complement of <html:a href="#i148">DIRECTIONAL_RAYS</html:a></html:p></description>
+          </property>
+          <property name="DIRECTIONAL_RAYS" type="common::Set&lt;Int&gt;" href="#" class="invalid" xml:id="i148">
+            <description><html:p> Computes the subset of row indices of RAYS, such that the corresponding rows describe a directional ray of the complex.
+ This set contains all row indices  if <html:a href="#i150">USES_HOMOGENEOUS_C</html:a> is false and is the complement of <html:a href="#i147">VERTICES</html:a></html:p></description>
+          </property>
+        </category>
+        <category name="Tropical geometry" xml:id="i119">
+          <property name="LATTICE_NORMAL_FCT_VECTOR" type="common::Map&lt;Int, Map&lt;Int, Vector&lt;Rational&gt;&gt;&gt;" href="#" class="invalid" xml:id="i154">
+            <description><html:p> For each lattice normal vector, this gives a vector of length (number of rays) + (lineality dim.), such that
+ if a rational function is given by values on the rays and lin space generators, the value of the corresponding
+ normal <html:a href="#i161">LATTICE_NORMALS</html:a>-&gt;{i}-&gt;{j} can be computed by multiplying the function value vector with 
+ the vector <html:a href="#i154">LATTICE_NORMAL_FCT_VECTOR</html:a>-&gt;{i}-&gt;{j}. This is done in the following way:  If this fan does not 
+ use homogeneous coordinates, it computes a representation of the lattice normal in the generating system 
+ consisting of the rays of <html:a href="#">MAXIMAL_CONES</html:a>-&gt;row(j) and the generators 
+ of the lineality space. It then inserts the coefficients of the representation at the right position. 
+ If the fan uses homog. coordinates, however, we use a different generating system (and indices refer to CMPLX_RAYS)
+ &lt;(r_i-r_0)_i&gt;0, s_j, l_k&gt;, where r_0 is the ray of the maximal cone 
+ with the lowest index in <html:a href="#i145">CMPLX_RAYS</html:a>, such that it fulfills x0 = 1, r_i are the remaining rays with x0 = 1, ordered
+ according to their index in <html:a href="#i145">CMPLX_RAYS</html:a>, s_j are the rays of the cone with x0 = 0 and l_k are the lineality space 
+ generators. We will then store the coefficients a_i of (r_i - r_0) at the index of r_i, then - sum(a_i) at 
+ the index of r_0 and the remaining coefficients at the appropriate places.</html:p></description>
+          </property>
+          <property name="LATTICE_NORMAL_SUM" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i157">
+            <description><html:p> Rows of this matrix correspond to <html:a href="#i158">CODIM_1_FACES</html:a>, and each row contains the weighted sum:
+ sum_{cone &gt; codim-1-face}( weight(cone) * <html:a href="#i161">LATTICE_NORMALS</html:a>-&gt;{codim-1-face}-&gt;{cone})</html:p></description>
+          </property>
+          <property name="LATTICE_NORMAL_SUM_FCT_VECTOR" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i156">
+            <description><html:p> Rows of this matrix correspond to <html:a href="#i158">CODIM_1_FACES</html:a> (or <html:a href="#i151">CMPLX_CODIM_1_FACES</html:a> in the homog. case), and each row 
+ contains a function vector for the corresponding row of <html:a href="#i157">LATTICE_NORMAL_SUM</html:a>. This function vector is computed 
+ in the same way as described under <html:a href="#i154">LATTICE_NORMAL_FCT_VECTOR</html:a>.
+ Note that for any codim-1-faces at which the complex is not balanced, the corresponding row is a zero row
+ If a face is balanced can be checked under <html:a href="#i155">BALANCED_FACES</html:a>.</html:p></description>
+          </property>
+          <property name="BALANCED_FACES" type="common::Vector&lt;Bool&gt;" href="#" class="invalid" xml:id="i155">
+            <description><html:p> A vector whose entries correspond to the rows of CODIM_1_FACES. The i-th entry is true, if and only 
+ if the complex is balanced at that face</html:p></description>
+          </property>
+        </category>
+        <category name="Basic properties" xml:id="i120">
+          <property name="CODIM_1_FACES" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i158">
+            <description><html:p> An incidence matrix of all codimension one faces. Each row is a face and column indices refer to <html:a href="#">RAYS</html:a>.
+ If the fan uses homogeneous coordinates, only those faces that intersect {x0 = 1} are listed here.
+ If there is a <html:a href="#i164">LOCAL_RESTRICTION</html:a>, only compatible codimension one faces are kept.</html:p></description>
+          </property>
+          <property name="CODIM_1_IN_MAXIMAL_CONES" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i160">
+            <description><html:p> An incidence matrix indicating which codim 1 faces are contained in which maximal cone. Rows refer
+ to (rows of) <html:a href="#i158">CODIM_1_FACES</html:a>, columns to (rows of) <html:a href="#">MAXIMAL_CONES</html:a></html:p></description>
+          </property>
+          <property name="DESCRIPTION" type="common::String" href="#" class="invalid" xml:id="i159">
+            <description><html:p> An arbitrary textual description of the complex, to be specified by the user. Some
+ operations that produce a WeightedComplex automatically set this property to something
+ informative.</html:p></description>
+          </property>
+        </category>
+        <category name="Tropical properties" xml:id="i121">
+          <property name="TROPICAL_WEIGHTS" type="common::Vector&lt;Integer&gt;" href="#" class="invalid" xml:id="i162">
+            <description><html:p> Vector of (integer) weights for maximal cones. Indices refer to (the rows of) <html:a href="#">MAXIMAL_CONES</html:a>
+ Note that, if the fan only consists of a lineality space, it specifies the weight of the single empty maximal
+ cone </html:p></description>
+          </property>
+          <property name="IS_BALANCED" type="common::Bool" href="#" class="invalid" xml:id="i163">
+            <description><html:p> Indicates whether the fan is balanced with the given <html:a href="#i162">TROPICAL_WEIGHTS</html:a>. If there is a 
+ <html:a href="#i164">LOCAL_RESTRICTION</html:a>, this will only be checked at the compatible codim one faces.</html:p></description>
+          </property>
+          <property name="LATTICE_NORMALS" type="common::Map&lt;Int, Map&lt;Int, Vector&lt;Integer&gt;&gt;&gt;" href="#" class="invalid" xml:id="i161">
+            <description><html:p> A list of lattice normal vectors. They are associated to the faces and maximal cones in the following 
+ way: For codimension one face i and adjacent maximal cone j, the element <html:a href="#i161">LATTICE_NORMALS</html:a>-&gt;{i}-&gt;{j} is the corresp.
+ lattice normal vector. There is a convenience method lattice_normal(i,j)
+ If <html:a href="#i150">USES_HOMOGENEOUS_C</html:a> is TRUE, this actually computes a lattice normal of the cone (face i)\cap {x0 =1} wrt the
+ cone (maximal cone j) \cap {x0=1} to ensure that the normal is of the form (0,...)
+ If there is a <html:a href="#i164">LOCAL_RESTRICTION</html:a>, only lattice normals for compatible codim one faces
+ are computed (naturally, since <html:a href="#i158">CODIM_1_FACES</html:a> only contains those)</html:p></description>
+          </property>
+        </category>
+        <category name="Tropical geometry/Local computations" xml:id="i122">
+          <property name="LOCAL_RESTRICTION" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i164">
+            <description><html:p> This contains a list of sets of ray indices (referring to RAYS). All of these sets should 
+ describe cones of the polyhedral complex (though not necessarily maximal ones).
+ A cone is now called compatible with this property, if contains one of these cones
+ If this list is not empty, all computations will be
+ done only on (or around) compatible cones. The documentation of each property will explain
+ in what way this restriction is enforced. 
+ If this list is empty or not defined, there is no restriction.
+ Careful: The implementation assumes that ALL maximal cones are compatible. If in doubt,
+ you can create a complex with a local restriction from a given complex by using one of
+ the "local_..." creation methods
+ This list is assumed to be irredundant, i.e. there are no doubles and no element
+ is a subset of another element.</html:p></description>
+          </property>
+        </category>
+      </properties>
+      <user-methods>
+        <category name="Visualization" xml:id="i113">
+          <function name="CMPLX_VISUAL" xml:id="i138">
+            <common-option-list name="Visual::WeightedComplex::decorations" href="#i26" class="invalid" />
+            <description><html:p> Displays a weighted polyhedral complex in ambient dimension up to 3 (4 in homog. coordinates) by visualizing all its
+ cells in the following way: For each cell, every directional ray is added to every affine ray (which is only the origin
+ in the non-homog. case) and the resulting polytope is displayed. The visualization has the following options:
+ * DirScale: A rational number with which the directional rays are multiplied before added to the affine rays
+ * WeightLabels:  if set to "hidden", the labels indicating the weights are hidden 
+ * CoordLabels: If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.</html:p></description>
+          </function>
+          <function name="boundingBox" xml:id="i139">
+            <param name="distance" type="Rational" href="#">
+              <description><html:div>The distance of the bounding box from the affine part of the variety (Can also be a standard perl number type)</html:div></description>
+            </param>
+            <return type="Matrix&lt;Rational&gt;" href="#">
+              <description><html:div>A 2x<html:a href="#i152">CMPLX_AMBIENT_DIM</html:a>-matrix specifying the bounding box (it can be used as input for BoundingBox in <html:a href="#i116">BB_VISUAL</html:a></html:div></description>
+            </return>
+            <description><html:p> Takes a tropical variety and a (positive) Rational as input and computes the relative bounding box of the visualization with the Rational as BoundingDistance (see also the description of <html:a href="#i116">BB_VISUAL</html:a></html:p></description>
+          </function>
+        </category>
+        <category name="Polyhedral geometry" xml:id="i114">
+          <function name="homogenize" xml:id="i140">
+            <return type="If" href="#" class="invalid">
+              <description><html:div>this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
+ by the following matrix: [0,ray] for any ray of the original fan and one affine ray [1,0,...0] appended. In <html:a href="#">MAXIMAL_CONES</html:a>
+ all get the additional affine ray and <html:a href="#" class="invalid">TROPICAL WEIGHTS</html:a> is simply copied</html:div></description>
+            </return>
+            <description><html:p> Transforms the fan into homogeneous coordinates</html:p></description>
+          </function>
+        </category>
+        <category name="Tropical methods" xml:id="i115">
+          <function name="lattice_normal" xml:id="i141">
+            <param name="i" type="Int" href="#">
+              <description><html:div>The index of the facet</html:div></description>
+            </param>
+            <param name="j" type="Int" href="#">
+              <description><html:div>The index of the maximal cone</html:div></description>
+            </param>
+            <return type="The" href="#" class="invalid">
+              <description><html:div>lattice normal vector of cone j wrt. facet i</html:div></description>
+            </return>
+            <description><html:p> Convenience method, returns LATTICE_NORMALS-&gt;{i}-&gt;{j}</html:p></description>
+          </function>
+        </category>
+        <function name="characteristic" xml:id="i117">
+          <description><html:blockquote><html:div>user_method adjHomology {</html:div><html:div>  my $this = shift;</html:div><html:div>  #Create set graph</html:div><html:div>  my $facets = new Vector&lt;Set&lt;Int&gt; &gt;();</html:div><html:div>  my $maximalInCodim = $this-&gt;CODIM_1_IN_MAXIMAL_CONES;</html:div><html:div>  my $codimInMaximal = transpose($this-&gt;CODIM_1_IN_MAXIMAL_CONES);</html:div><html:div>  for my $mc (0 .. $this-&gt;MAXIMAL_CONES-&gt;rows() -1) {</html:div><html:div>      print "Finding adjacencies of cone $mc...\n";</html:div><html:div>      my $cdset = $codimInMaximal-&gt;row($mc);</html:div><html:div>      for my $cd (@{$cdset}) {</html:div><html:div>	my $mcset = ($maximalInCodim-&gt;row($cd) - $mc);</html:div><html:div>	for my $othermc (@{$mcset}) {</html:div><html:div>	  if($othermc &gt; $mc) {</html:div><html:div>	    my $s = new Set&lt;Int&gt;($mc,$othermc);</html:div><html:div>	    $facets = $facets | $s;</html:div><html:div>	  }</html:div><html:div>	}</html:div><html:div>      }</html:div><html:div>  }</html:div><html:div>  my $cplx = new topaz::SimplicialComplex(FACETS=&gt;$facets);</html:div><html:div>  $cplx-&gt;VISUAL;</html:div><html:div>  return $cplx-&gt;HOMOLOGY;</html:div><html:div>}</html:div></html:blockquote></description>
+        </function>
+        <function name="BB_VISUAL" xml:id="i116">
+          <common-option-list name="Visual::WeightedComplex::BoundingDecorations" href="#i25" class="invalid" />
+          <description><html:p> ---------------------------------------------------------------------------------------------------------</html:p></description>
+        </function>
+      </user-methods>
+    </object>
+    <object name="RationalCurve" xml:id="i30">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <properties>
+        <category name="Basic properties" xml:id="i128">
+          <property name="SETS" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i188">
+            <description><html:p> A list of partitions of [n] that define the tree of the curve: For each bounded edge we have 
+ the corresponding partition of the n leaves. These should be irredundant. If you want to input
+ a possibly redundant list, use <html:a href="#i187">INPUT_SETS</html:a> and <html:a href="#i180">INPUT_COEFFS</html:a> instead. The number of marked leaves
+ should always be given by <html:a href="#i182">N_LEAVES</html:a>. The sets are subsets of {1,...,n} (NOT {0,..,n-1}!)
+ Note that the zero curve (i.e. no bounded edges, only leaves) is represented by one empty set
+ with corresponding lenghth 0.</html:p></description>
+          </property>
+          <property name="COEFFS" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i183">
+            <description><html:p> A list of positive rational coefficients. The list should have the same length as <html:a href="#i188">SETS</html:a> and
+ contain only entries &gt; 0. The i-th entry then gives the length of the bounded edge defined by
+ the i-th partition. If you're not sure if all your coefficients are &gt; 0, use <html:a href="#i187">INPUT_SETS</html:a> and
+ <html:a href="#i180">INPUT_COEFFS</html:a> instead.
+ Note that the zero curve (i.e. no bounded edges, only leaves) is represented by one empty set
+ with corresponding lenghth 0.</html:p></description>
+          </property>
+          <property name="INPUT_SETS" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i187">
+            <description><html:p> Same as <html:a href="#i188">SETS</html:a>, except that sets may appear several times.</html:p></description>
+          </property>
+          <property name="INPUT_COEFFS" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i180">
+            <description><html:p> Same as <html:a href="#i183">COEFFS</html:a>, except that entries may be &lt;=0. This should have the same length as <html:a href="#i187">INPUT_SETS</html:a>.</html:p></description>
+          </property>
+          <property name="N_LEAVES" type="common::Int" href="#" class="invalid" xml:id="i182">
+            <description><html:p> The number of leaves of the rational curve.</html:p></description>
+          </property>
+          <property name="INPUT_STRING" type="common::String" href="#" class="invalid" xml:id="i178">
+            <description><html:p> This property can also be used to define a rational curve: A linear combination of partitions is
+ given as a string, using the following syntax:
+ A partition is given as a subset of {1,..,n} and written as a comma-separated list of leaf
+ indices in round brackets, e.g. "(1,2,5)"
+ A linear combination can be created using rational numbers, "+","+" and "-" in the obvious way, 
+ e.g. "2*(1,2,5) + 1*(3,4,7) - 2(1,2) (The "*" is optional)
+ Of course, each set should contain at least two elements. If you don't specify N_LEAVES, it is
+ set to be the largest leaf index occuring in the sets.
+ Partitions needn't be irredundant and coefficients can be any rational number. If the resulting 
+ element is not in the moduli space, an error is thrown.</html:p></description>
+          </property>
+          <property name="GRAPH" type="graph::Graph&lt;Undirected&gt;" href="#" class="invalid" xml:id="i186">
+            <description><html:p> Contains the abstract graph (non-metric) corresponding to the curve. All unbounded leaves are modelled
+ as bounded edges.
+ The vertices at the ends of the "leaves" are always the first <html:a href="#i182">N_LEAVES</html:a> vertices.</html:p></description>
+          </property>
+          <property name="GRAPH_EDGE_LENGTHS" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i184">
+            <description><html:p> Contains the lengths of the edges of <html:a href="#i186">GRAPH</html:a> that represent bounded edges of the curve.
+ The coefficients appear in the order that the corr. edges appear in <html:a href="#">EDGES</html:a>.</html:p></description>
+          </property>
+          <property name="NODES_BY_SETS" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i185">
+            <description><html:p> This incidence matrix gives a list of the vertices of the curve
+ Each row corresponds to a vertex and contains as a set the row indices of the <html:a href="#i188">SETS</html:a> that
+ correspond to edges attached to that vertex</html:p></description>
+          </property>
+          <property name="NODES_BY_LEAVES" type="common::IncidenceMatrix&lt;NonSymmetric&gt;" href="#" class="invalid" xml:id="i181">
+            <description><html:p> This incidence matrix gives a list of the vertices of the curve
+ Each row corresponds to a vertex and contains as a set the [[LEAVES] that are
+ attached to that vertex (again, counting from 1!)</html:p></description>
+          </property>
+          <property name="NODE_DEGREES" type="common::Vector&lt;Int&gt;" href="#" class="invalid" xml:id="i179">
+            <description><html:p> This gives a list of the vertices of the curve in terms of their valences
+ They appear in the same order as in <html:a href="#i181">NODES_BY_LEAVES</html:a> or <html:a href="#i185">NODES_BY_SETS</html:a></html:p></description>
+          </property>
+        </category>
+      </properties>
+      <user-methods>
+        <category name="Tropical geometry" xml:id="i127">
+          <function name="metric_vector" xml:id="i177">
+            <description><html:p> Returns the (n over 2) metric vector of the rational n-marked curve</html:p></description>
+          </function>
+          <function name="matroid_vector" xml:id="i176">
+            <return type="Vector&lt;Rational&gt;" href="#"></return>
+            <description><html:p> Computes the coordinates of the curve in the moduli space given in matroid coordinates.
+ In the isomorphism of the metric curve space and the moduli coordinates
+ the last leaf is considered as the special leaf</html:p></description>
+          </function>
+        </category>
+        <function name="VISUAL" xml:id="i126">
+          <common-option-list name="Visual::RationalCurve::decorations" href="#i24" class="invalid" />
+          <description><html:p>UNDOCUMENTED</html:p></description>
+        </function>
+      </user-methods>
+    </object>
+    <object name="RationalFunction" xml:id="i31">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <properties>
+        <category name="Tropical geometry / Rational functions" xml:id="i130">
+          <property name="POWER" type="common::Int" href="#" class="invalid" xml:id="i191">
+            <description><html:p> This property describes how many times a function should be applied, if it occurs in a divisor term
+ E.g. if you create a MinMaxFunction f and you set its POWER property to 2, a call to
+ divisor(X,f) actually computes f*f*X</html:p></description>
+          </property>
+        </category>
+        <category name="Tropical geometry" xml:id="i131">
+          <property name="DOMAIN" type="WeightedComplex" href="#i28" xml:id="i193">
+            <description><html:p> This property describes the linearity domains of the function. I.e. the function is
+ affine integral linear on each maximal cone of <html:a href="#i193">DOMAIN</html:a>. It is of type WeightedComplex, but
+ actually only the basic geometric properties <html:a href="#">RAYS</html:a>/<html:a href="#i145">CMPLX_RAYS</html:a>,<html:a href="#">MAXIMAL_CONES</html:a>/<html:a href="#i153">CMPLX_MAXIMAL_CONES</html:a>,<html:a href="#">LINEALITY_SPACE</html:a> and <html:a href="#i150">USES_HOMOGENEOUS_C</html:a> are of any interest. Further properties are ignored and can be omitted upon generation.</html:p></description>
+          </property>
+          <property name="RAY_VALUES" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i192">
+            <description><html:p> The value at index i describes the function value of ray <html:a href="#i193">DOMAIN</html:a>-&gt;CMPLX_RAYS-&gt;row(i). More precisely, if the
+ corresponding ray is a vertex, it describes its function value. If it is a directional ray, it describes 
+ the slope on that ray.</html:p></description>
+          </property>
+          <property name="LIN_VALUES" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i194">
+            <description><html:p> The value at index i describes the function value of <html:a href="#i193">DOMAIN</html:a>-&gt;LINEALITY_SPACE-&gt;row(i)</html:p></description>
+          </property>
+        </category>
+      </properties>
+      <user-methods>
+        <category name="Rational functions" xml:id="i129">
+          <function name="pow" xml:id="i189">
+            <param name="k" type="Int" href="#"></param>
+            <return type="Returns" href="#" class="invalid">
+              <description><html:div>the function f with a power set to k. Note that the original power of f is ignored.</html:div></description>
+            </return>
+            <description><html:p> This creates a RationalFunction from this one, simply by changing the power</html:p></description>
+          </function>
+          <function name="homogenize" xml:id="i190">
+            <description><html:p> If the domain of the function is in homogeneous coordinates, it returns the function. Otherwise it homogenizes
+ the domain and assigns the value 0 to the additional vertex at the origin</html:p></description>
+          </function>
+        </category>
+      </user-methods>
+    </object>
+    <object name="MinMaxFunction" xml:id="i29">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <derived-from object="RationalFunction" href="#i31" />
+      <properties>
+        <category name="Basic properties" xml:id="i125">
+          <property name="INPUT_STRING" type="common::String" href="#" class="invalid" xml:id="i170">
+            <description><html:p> The syntax for STRING in pseudo-regex is the following (after deleting any whitespace): 
+ "(min|max)\((SUM)+(,SUM)*\)"
+ where SUM = "(TERM)+([\+\-](TERM))*"
+ where TERM = (RAT)|(RAT[:alpha:][^\+,\)]*)
+ where RAT is any string that can be parsed to a polymake Rational and does not contain any letters.
+ To make this more comprehensible: STRING takes anything of the form min(...) or max(...), 
+ where ... is a comma-separated list of strings of the form a + bx + cy + ... , where a,b,c are rational 
+ numbers and x,y are variables. Any string that starts with a letter and does not contain "+" or "," can be 
+ a variable. Such a sum can contain several such terms for the same variable and they need not be in any order.
+ A term can be of the form "3x", "3*x", but "x3" will be interpreted as 1 * "x3". Coefficients should not contain letters,
+ i.e. 3E10*x would be interpreted as 3 * "E10*x". Empty terms are allowed.
+ If no INPUT_VARS are given, MinMaxFunction will recognize the dimension of the domain from the number of variables and will
+ assign the variables to the standard basis vectors by sorting them alphabetically. 
+ E.g. INPUT_STRING=&gt;"min(x+2z,3+z)",INPUT_VARS=&gt;["x","y","z"] is a different function than INPUT_STRING=&gt;"min(x+2z,3+z)",
+ since the second is the function f:R² -&gt; R, (a,b) -&gt; min(a+2b,3+b) and the first is f: R³-&gt;R, (a,b,c)-&gt;min(a+2c,3+c)
+ If however, <html:a href="#i171">INPUT_VARS</html:a> is given, the parse will *ignore* any terms containing variables that are not 
+ defined in <html:a href="#i171">INPUT_VARS</html:a>. The variables will be assigned to the standard basis vectors in order of their
+ appearance in <html:a href="#i171">INPUT_VARS</html:a>.
+ E.g. INPUT_STRING=&gt;"min(x+2c,3+x)",INPUT_VARS=&gt;["x","y"] will give the function f:R²-&gt;R, (a,b) -&gt; min(a,3+a)
+ Note that ANY whitespace in <html:a href="#i170">INPUT_STRING</html:a> is ignore, as well as any brackets '(',')' besides the ones enclosing
+ the function list.</html:p></description>
+          </property>
+          <property name="INPUT_VARS" type="common::Array&lt;String&gt;" href="#" class="invalid" xml:id="i171">
+            <description><html:p> A list of strings that are variables. Any string that starts with a letter (i.e. [a-zA-Z]) and does not contain
+ '+' or ',' can be a variable. Illegal variable names will not cause an error, but the parser will not detect them
+ in <html:a href="#i170">INPUT_STRING</html:a>, so their coefficients will be 0. If you assign a value to this, only terms with variables in 
+ this array will be parsed. Note that ANY whitespace in a variable name will be ignored. The i-th element of this array
+ will be assigned to the i-th standard basis vector.</html:p></description>
+          </property>
+          <property name="STANDARD_FORM" type="common::String" href="#" class="invalid" xml:id="i175">
+            <description><html:p> This will give a nice string representation of the function, where all variables are of the form 'x_i',
+ i = 1,..,<html:a href="#i168">DOMAIN_DIMENSION</html:a>. There are no redundancies and terms are sorted in ascending alphabetic order of their variable,
+ with the constant term at the end</html:p></description>
+          </property>
+          <property name="USES_MIN" type="common::Bool" href="#" class="invalid" xml:id="i169">
+            <description><html:p> Indicates whether this function uses min (TRUE) or max (FALSE). The default (if you directly give a coefficient matrix,
+ but not this value) is FALSE</html:p></description>
+          </property>
+          <property name="DOMAIN_DIMENSION" type="common::Int" href="#" class="invalid" xml:id="i168">
+            <description><html:p> The dimension n of the domain Rn of the function. Is equal to the columns of <html:a href="#i173">LINEAR_COEFFICIENTS</html:a></html:p></description>
+          </property>
+          <property name="LINEAR_COEFFICIENTS" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i173">
+            <description><html:p> A matrix of the linear coefficients of the functions. Each row corresponds to a linear function within
+ the min or max and the entry in column j is the coefficient of variable x_j</html:p></description>
+          </property>
+          <property name="CONSTANT_COEFFICIENTS" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i174">
+            <description><html:p> A vector of the constant coefficients of the function. The i-th entry is the constant term of the function 
+ represented by the i-th row of <html:a href="#i173">LINEAR_COEFFICIENTS</html:a>.</html:p></description>
+          </property>
+          <property name="FUNCTION_MATRIX" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i172">
+            <description><html:p> This is simply the concatenation of <html:a href="#i173">LINEAR_COEFFICIENTS</html:a> and <html:a href="#i174">CONSTANT_COEFFICIENTS</html:a></html:p></description>
+          </property>
+          <property name="NORMAL_FAN" type="WeightedComplex" href="#i28" xml:id="i167">
+            <description><html:p> This computes the normal fan of the polytope conv( (c_i,a_i) ) in Q^{n+1}, where the function is 
+ max/min(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q. (For min it actually computes the negative
+ of the normal fan</html:p></description>
+          </property>
+        </category>
+      </properties>
+      <user-methods>
+        <category name="Tropical geometry" xml:id="i124">
+          <function name="linearityDomains" xml:id="i166">
+            <return type="WeightedComplex" href="#i28"></return>
+            <description><html:p> This computes the (homogenized version of the) domains of linearity of the function. More precisely, it computes the 
+ normal fan of the polytope defined by this function in the following way:
+ If the standard form reads max(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q, then the polytope is
+ conv( (c_i,a_i) ) in Q^{n+1} (in homog. coordinates its actually in n+2 coordinates).
+ In fact, this returns the property <html:a href="#i193">DOMAIN</html:a>.</html:p></description>
+          </function>
+          <function name="valueAt" xml:id="i165">
+            <return type="Rational" href="#">
+              <description><html:div>The function value at the given point.</html:div></description>
+            </return>
+            <description><html:p> Computes the value of this function at a given point. If the point has dimension DOMAIN_DIMENSION, it simply computes the value. 
+ If it has dimension DOMAIN_DIMENSION +1, it assumes the point is given in homogeneous coordinates (i.e. the first coordinate should be one or zero, 
+ this is not checked, however) and computes the function value of the last DOMAIN_DIMENSION coordinates.</html:p></description>
+          </function>
+        </category>
+        <function name="pow" xml:id="i123">
+          <description><html:p>UNDOCUMENTED</html:p></description>
+        </function>
+      </user-methods>
+    </object>
+    <object name="Morphism" xml:id="i27">
+      <description><html:p>UNDOCUMENTED</html:p></description>
+      <properties>
+        <category name="Tropical geometry" xml:id="i111">
+          <property name="DOMAIN" type="WeightedComplex" href="#i28" xml:id="i133">
+            <description><html:p> This property describes the domain of the morphism. I.e. the morphism is
+ defined on this complex and is locally affine integral linear. It is of type WeightedComplex, but
+ actually only the basic geometric properties <html:a href="#">RAYS</html:a>/<html:a href="#i145">CMPLX_RAYS</html:a>,<html:a href="#">MAXIMAL_CONES</html:a>/<html:a href="#i153">CMPLX_MAXIMAL_CONES</html:a>,<html:a href="#">LINEALITY_SPACE</html:a> and <html:a href="#i150">USES_HOMOGENEOUS_C</html:a> are of any interest. Further properties are ignored and can be omitted during generation.</html:p></description>
+          </property>
+          <property name="RAY_VALUES" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i132">
+            <description><html:p> The vector at row i describes the function value of ray <html:a href="#i133">DOMAIN</html:a>-&gt;CMPLX_RAYS-&gt;row(i). More precisely, if the
+ corresponding ray is a vertex, it describes its function value. If it is a directional ray, it describes 
+ the slope on that ray.</html:p></description>
+          </property>
+          <property name="LIN_VALUES" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i134">
+            <description><html:p> The vector in row i describes the function value (slope) of <html:a href="#i133">DOMAIN</html:a>-&gt;LINEALITY_SPACE-&gt;row(i)</html:p></description>
+          </property>
+        </category>
+        <category name="Tropical geometry / Morphism" xml:id="i112">
+          <property name="IS_GLOBAL" type="common::Bool" href="#" class="invalid" xml:id="i136">
+            <description><html:p> Is TRUE, iff the morphism is a global affine linear integral map
+ In this case, the morphism's description can be read off from the properties
+ <html:a href="#i137">MATRIX</html:a> and <html:a href="#i135">TRANSLATE</html:a>. Setting any of these properties during initialization 
+ will make this TRUE by default.</html:p></description>
+          </property>
+          <property name="MATRIX" type="common::Matrix&lt;Rational, NonSymmetric&gt;" href="#" class="invalid" xml:id="i137">
+            <description><html:p> If the morphism is a global affine linear map x |-&gt; Ax+v, i.e. IS_GLOBAL is or should be true, 
+ then this contains the matrix A (in non-homog. coordinates). If <html:a href="#i135">TRANSLATE</html:a> is set, but this property is not set, then it
+ is the identity by default.</html:p></description>
+          </property>
+          <property name="TRANSLATE" type="common::Vector&lt;Rational&gt;" href="#" class="invalid" xml:id="i135">
+            <description><html:p> If the morphism is a global affine linear map x |-&gt; Ax+v, i.e. IS_GLOBAL is or should be true, 
+ then this contains the translation vector v (in non-homog. coordinates). If <html:a href="#i137">MATRIX</html:a> is set, but this property is not set,
+ then it is the zero vector by default.</html:p></description>
+          </property>
+        </category>
+      </properties>
+    </object>
+  </objects>
+  <user-functions>
+    <category name="Tropical geometry / Create from scratch" xml:id="i6">
+      <function name="point_variety" xml:id="i33">
+        <param name="point" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>The apex of the variety in homogeneous coordinates</html:div></description>
+        </param>
+        <param name="weight" type="Int" href="#">
+          <description><html:div>Optional. All cones will have this weight. 1 by default</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The variety described above</html:div></description>
+        </return>
+        <description><html:p> Takes an n-dimensional vector and creates a subdivision of R^n into
+ 2^n orthants with apex at the given vertex. This can for example
+ be used to subdivide a given variety such that a certain vertex is 
+ contained in its polyhedral structure by intersecting with this variety</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry /Local geometry" xml:id="i7">
+      <function name="local_restrict" xml:id="i34">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>An arbitrary weighted complex</html:div></description>
+        </param>
+        <param name="cones" type="IncidenceMatrix" href="#">
+          <description><html:div>A set of cones, indices refer to RAYS</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The same complex, locally restricted to the given
+ cones</html:div></description>
+        </return>
+        <description><html:p> This takes a tropical variety and an IncidenceMatrix describing a set
+ of cones (not necessarily maximal ones) of this variety. It will then
+ create a variety that contains all compatible maximal cones and is
+ locally restricted to the given cone set.</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry/Morphisms" xml:id="i8">
+      <function name="evaluation_map" xml:id="i35">
+        <param name="n" type="Int" href="#">
+          <description><html:div>The number of marked points</html:div></description>
+        </param>
+        <param name="r" type="Int" href="#">
+          <description><html:div>The dimension of the embedding space</html:div></description>
+        </param>
+        <param name="Delta" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>The directions of the unbounded edges</html:div></description>
+        </param>
+        <param name="i" type="Int" href="#">
+          <description><html:div>The index of the marked point that should be evaluated. i 
+ should lie in between 1 and n</html:div></description>
+        </param>
+        <return type="Morphism" href="#i27">
+          <description><html:div>ev_i. Its domain is the ambient space of the moduli space 
+ in matroid coordinates cross R^r</html:div></description>
+        </return>
+        <description><html:p> This creates the i-th evaluation function on M_0,n^(lab)(R^r,Delta)
+ (which is actually realized as M_0,(n+|Delta|) x R^r)</html:p></description>
+      </function>
+      <function name="evaluation_map" xml:id="i110">
+        <param name="n" type="Int" href="#">
+          <description><html:div>The number of marked points</html:div></description>
+        </param>
+        <param name="r" type="Int" href="#">
+          <description><html:div>The dimension of the embedding space</html:div></description>
+        </param>
+        <param name="d" type="Int" href="#">
+          <description><html:div>The degree of the embedding. The direction matrix will be
+ the standard d-fold directions</html:div></description>
+        </param>
+        <param name="i" type="Int" href="#">
+          <description><html:div>The index of the marked point that should be evaluated. i 
+ should lie in between 1 and n</html:div></description>
+        </param>
+        <return type="Morphism" href="#i27">
+          <description><html:div>ev_i. Its domain is the ambient space of the moduli space 
+ in matroid coordinates cross R^r</html:div></description>
+        </return>
+        <description><html:p> This creates the i-th evaluation function on M_0,n^(lab)(R^r,d)
+ (which is actually realized as M_0,(n+d(r+1)) x R^r)
+ This is the same as calling the function
+ evaluation_map(Int,Int,Matrix&lt;Rational&gt;,Int) with the standard d-fold
+ degree as matrix</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry / Moduli spaces / Local geometry" xml:id="i9">
+      <function name="local_m0n" xml:id="i36">
+        <param name="n" type="Int" href="#">
+          <description><html:div>Should be &gt;= 3</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The local complex</html:div></description>
+        </return>
+        <description><html:p> Computes the moduli space M_0,n locally around a given list of combinatorial
+ types. More precisely: It computes the weighted complex consisting of all
+ maximal cones containing any of the given combinatorial types and localizes 
+ at these types 
+ This should only be used for curves of small codimension. What the function 
+ actually does, is that it combinatorially computes the cartesian products 
+ of M_0,v's, where v runs over the possible valences of vertices in the curves
+ For max(v) &lt;= 8 this should terminate in a reasonable time (depending on the 
+ number of curves)
+ The coordinates are the same that would be produced by the function 
+ tropical_m0n</html:p></description>
+      </function>
+    </category>
+    <category name="Tropial geometry / Moduli spaces / Rational curves" xml:id="i10">
+      <function name="rational_curve_from_rays" xml:id="i37">
+        <param name="rays" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>The rays of the cone, in homog. or non-homog.
+ coordinates.</html:div></description>
+        </param>
+        <param name="uses_homog" type="Bool" href="#">
+          <description><html:div>Whether the rays are given in homog. coordinates
+ False by default</html:div></description>
+        </param>
+        <return type="RationalCurve" href="#i30">
+          <description><html:div>c The curve corresponding to an interior point</html:div></description>
+        </return>
+        <description><html:p> This takes a matrix of rays of a given cone that is supposed to lie
+ in a moduli space M_0,n and computes the rational curve corresponding
+ to an interior point. More precisely, if there are k vertices in 
+ homogeneous coordinates, it computes 1/k * (sum of these vertices),
+ then it adds each directional ray. It then returns the curve corresponding
+ to this point</html:p></description>
+      </function>
+      <function name="rational_curve_from_cone" xml:id="i38">
+        <param name="X" type="WeightedComplex" href="#i28">
+          <description><html:div>A weighted complex of the form M_0,n x Y</html:div></description>
+        </param>
+        <param name="n_leaves" type="Int" href="#">
+          <description><html:div>The n in M_0,n. Needed to determine the dimension of
+ the M_0,n component</html:div></description>
+        </param>
+        <param name="coneIndex" type="Int" href="#">
+          <description><html:div>The index of the maximal cone</html:div></description>
+        </param>
+        <return type="RationalCurve" href="#i30">
+          <description><html:div>c The curve corresponding to an interior point</html:div></description>
+        </return>
+        <description><html:p> This takes a weighted complex X that is supposed to be of the form
+ M_0,n x Y for some Y (It assumes that M_0,n occupies the first 
+ coordinates) and an index of a maximal cone of that complex.
+ It then computes a rational curve corresponding to an interior point of
+ that cone (ignoring the second component Y)</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry / Rational curves" xml:id="i11">
+      <function name="rational_curve_embedding" xml:id="i39">
+        <param name="delta" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>The degree of the curve in non-homogeneous 
+ coordinates. The number of rows
+ should correspond to the number of leaves of type and the number of columns
+ is the dimension of the space in which the curve should be realized</html:div></description>
+        </param>
+        <param name="type" type="RationalCurve" href="#i30">
+          <description><html:div>An abstract rational curve</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The corresponding embedded complex, weighted
+ with 1. The position of the curve is determined by the first node, 
+ which is always placed at the origin</html:div></description>
+        </return>
+        <description><html:p> This function creates an embedding of a rational tropical curve using
+ a given abstract curve and degree</html:p></description>
+      </function>
+    </category>
+    <category name="Testing" xml:id="i12">
+      <function name="atint_testrun" xml:id="i40">
+        <description><html:p> Tests the extension a-tint by calling (more or less) all functions and methods
+ Needs no parameters and returns nothing.</html:p></description>
+      </function>
+    </category>
+    <category name="Rational functions" xml:id="i13">
+      <function name="wfan" xml:id="i43">
+        <param name="fan" type="fan::PolyhedralFan" href="#">
+          <description><html:div>The fan to be converted</html:div></description>
+        </param>
+        <param name="homog" type="Bool" href="#">
+          <description><html:div>Whether the fan is to be interpreted in homogeneous coordinates</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>A complex with no weights but with the same geometry as fan.</html:div></description>
+        </return>
+        <description><html:p> This function takes a fan::PolyhedralFan and converts it into a WeightedComplex object.</html:p></description>
+      </function>
+      <function name="function_value" xml:id="i42">
+        <param name="X" type="WeightedComplex" href="#i28">
+          <description><html:div>The DOMAIN of the function</html:div></description>
+        </param>
+        <param name="An" type="Rational" href="#">
+          <description><html:div>arbitrarily long list of function values. It should be as long as 
+ X-&gt;CMPXL_RAYS-&gt;rows + X-&gt;LINEALITY_DIM. Function values will be assigned in this order 
+ (first rays, then linspace). Superfluous values are ignored, missing ones replaced by zero</html:div></description>
+        </param>
+        <return type="RationalFunction" href="#i31"></return>
+        <description><html:p> This creates a RationalFunction by directly defining it on the rays of a given domain. It is simply shorter then
+ using the constructor.</html:p></description>
+      </function>
+      <function name="function_mult" xml:id="i41">
+        <param name="f" type="RationalFunction" href="#i31"></param>
+        <param name="r" type="Rational" href="#"></param>
+        <return type="RationalFunction" href="#i31"></return>
+        <description><html:p> This function takes a RationalFunction f and a Rational value r and returns the RationalFunction r*f</html:p></description>
+      </function>
+    </category>
+    <category name="Polyhedral geometry" xml:id="i14">
+      <function name="skeleton_complex" xml:id="i46">
+        <param name="fan" type="WeightedComplex" href="#i28">
+          <description><html:div>A fan (or polyhedral complex)</html:div></description>
+        </param>
+        <param name="k" type="Int" href="#">
+          <description><html:div>The dimension of the skeleton that should be computed</html:div></description>
+        </param>
+        <param name="preserveRays" type="Bool" href="#">
+          <description><html:div>When true, the function assumes that all rays of the fan remain in the k-skeleton, so it just copies the RAYS, instead of computing an irredundant list. This property can always be set to true, if fan is not in homogeneous coordinates or if the corresponding complex at x0 = 1 only has vertices. By default, this property is false.</html:div></description>
+        </param>
+        <return type="The" href="#" class="invalid">
+          <description><html:div>k-skeleton of the fan (or complex, if USES_HOMOGENEOUS_C is true)</html:div></description>
+        </return>
+        <description><html:p> Takes a polyhedral complex and computes the k-skeleton. Will return an empty fan, if k is larger then the dimension of the given complex or smaller than 0.</html:p></description>
+      </function>
+      <function name="product_complex" xml:id="i45">
+        <param name="A" type="complexes" href="#" class="invalid">
+          <description><html:div>list of WeightedComplex objects</html:div></description>
+        </param>
+        <return type="the" href="#" class="invalid">
+          <description><html:div>cartesian product of the complexes. If any of the complexes use homogeneous coordinates, so does the result. If any of the complexex carries weights, the result carries the sum of the weights of its factors (Complexes without weights are treated as complexes with weight 1).</html:div></description>
+        </return>
+        <description><html:p> Computes the cartesian product of a set of polyhedral fans. If any of them uses homogeneous coordinates, so will the result</html:p></description>
+      </function>
+      <function name="complexify" xml:id="i44">
+        <param name="rays" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>A matrix of rays of the cones. Has to be irredundant and 
+ normalized.</html:div></description>
+        </param>
+        <param name="cones" type="Vector&lt;Set&lt;int&gt; &gt;" href="#">
+          <description><html:div>The maximal cones, given in terms of row indices of their 
+ rays </html:div></description>
+        </param>
+        <param name="weights" type="Vector&lt;Integer&gt;" href="#">
+          <description><html:div>The i-th element is the weight of the cone described by the 
+ i-th row of cones</html:div></description>
+        </param>
+        <param name="uses_homog" type="bool" href="#" class="invalid">
+          <description><html:div>Whether the rays are given in homogeneous coordinates </html:div></description>
+        </param>
+        <return type="perl::Object" href="#" class="invalid">
+          <description><html:div>A WeightedComplex object, whose support is the union of the cones. 
+ The weight of a cone is the sum of the weights of the orginal cones containing it. The 
+ result is homogeneous iff uses_homog is true</html:div></description>
+        </return>
+        <description><html:p> Takes a collection of weighted cones of the same dimension and refines them such that they 
+ form a weighted complex. Weights of cones lying one over the other add up.</html:p></description>
+      </function>
+    </category>
+    <category name="Random number generators" xml:id="i15">
+      <function name="randomInteger" xml:id="i47">
+        <param name="max_arg" type="int" href="#" class="invalid">
+          <description><html:div>The upper bound for the random integers</html:div></description>
+        </param>
+        <param name="n" type="int" href="#" class="invalid">
+          <description><html:div>The number of integers to be created</html:div></description>
+        </param>
+        <return type="Array&lt;Integer&gt;" href="#"></return>
+        <description><html:p> Returns n random integers in the range 0.. (max_arg-1),inclusive
+ Note that this algorithm is not optimal for real randomness:
+ If you change the range parameter and then change it back, you will
+ usually get the exact same sequence</html:p></description>
+      </function>
+    </category>
+    <category name="Homology" xml:id="i16">
+      <function name="adjacencyComplex" xml:id="i49">
+        <param name="fan" type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical variety</html:div></description>
+        </param>
+        <return type="topaz::SimplicialComplex" href="#">
+          <description><html:div>The adjacency graph as a simplicial complex</html:div></description>
+        </return>
+        <description><html:p> Computes the codimension one adjacency graph of a tropical variety and returns it as a 
+ simplicial complex. The nodes of the graph are the maximal cones, which are connected, iff 
+ they share a codimension one face</html:p></description>
+      </function>
+      <function name="equivalenceComplex" xml:id="i48">
+        <param name="fan" type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical variety</html:div></description>
+        </param>
+        <return type="topaz::SimplicialComplex" href="#">
+          <description><html:div>The canonical complex of the variety.</html:div></description>
+        </return>
+        <description><html:p> Computes the canonical complex of a tropical variety. The one-skeleton is determined 
+ in the following way: Two cones a,b are equivalent, if there exists a sequence of 
+ maximal cones a=c0,...,cr=b, such that ci,ci+1 intersect in a codimension one face of 
+ which they are the only neighbours
+ The vertices are the equivalence classes and two of them are connected if any cones in 
+ them are connected.</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry / Local geometry" xml:id="i17">
+      <function name="local_ray" xml:id="i53">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>An arbitrary weighted complex</html:div></description>
+        </param>
+        <param name="ray" type="Int" href="#">
+          <description><html:div>The index of a ray/vertex in RAYS</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The complex locally restricted to the given ray/vertex</html:div></description>
+        </return>
+        <description><html:p> This takes a weighted complex and an index of one of its vertices or rays 
+ (the index is to be understood in RAYS)
+ It then localizes the variety at this vertex / ray. The index should never
+ correspond to a directional ray in a complex, since this would not be a cone</html:p></description>
+      </function>
+      <function name="local_codim_1" xml:id="i52">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>An arbitrary weighted complex</html:div></description>
+        </param>
+        <param name="face" type="Int" href="#">
+          <description><html:div>An index of a face in CODIM_1_FACES</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The complex locally restricted to the given face</html:div></description>
+        </return>
+        <description><html:p> This takes a weighted complex and an index of one of its codimension one faces
+ (The index is in CODIM_1_FACES) and computes the complex locally restricted
+ to that face</html:p></description>
+      </function>
+      <function name="local_point" xml:id="i51">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>An arbitrary weighted complex</html:div></description>
+        </param>
+        <param name="v" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>A vertex in homogeneous coordinates. It should lie
+ in the support of the complex (otherwise an error is thrown)</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The complex localized at the vertex</html:div></description>
+        </return>
+        <description><html:p> This takes a weighted complex and an arbitrary vertex in homogeneous 
+ coordinates that is supposed to lie in the support of the complex
+ It then refines the complex such that the vertex is a cell in the polyhedral 
+ structure and returns the complex localized at this vertex</html:p></description>
+      </function>
+      <function name="contains_point" xml:id="i50">
+        <param name="complex" type="perl::Object" href="#" class="invalid">
+          <description><html:div>A weighted complex</html:div></description>
+        </param>
+        <param name="point" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>An arbitrary vector in the same ambient
+ dimension as complex</html:div></description>
+        </param>
+        <return type="bool" href="#" class="invalid">
+          <description><html:div>Whether the point lies in the support of complex</html:div></description>
+        </return>
+        <description><html:p> Takes a weighted complex and a point and computed whether that point lies in 
+ the complex</html:p></description>
+      </function>
+    </category>
+    <category name="Graph theory" xml:id="i18">
+      <function name="spanning_complete" xml:id="i54">
+        <param name="n" type="int" href="#" class="invalid">
+          <description><html:div>The number of nodes</html:div></description>
+        </param>
+        <return type="perl::ListReturn" href="#" class="invalid">
+          <description><html:div>An array of Set&lt;Int&gt; The spanning trees, each encoded as
+ the set of edges, where the edge indices are determined as follows: For i,j =
+ 0,..,n-1 and i &lt; j we sort the edges (i,j) in ascending lexicographical ordering
+ , i.e, (0,1) &lt; (0,2) &lt; .. &lt; (n-2,n-1).</html:div></description>
+        </return>
+        <description><html:p> Computes the set of all spanning trees of the complete graph on n nodes</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry / Rational functions" xml:id="i19">
+      <function name="pull_back" xml:id="i55">
+        <param name="f" type="Morphism" href="#i27">
+          <description><html:div>A morphism</html:div></description>
+        </param>
+        <param name="phi" type="RationalFunction" href="#i31">
+          <description><html:div>A rational function whose <html:a href="#i133">DOMAIN</html:a> contains the image of f</html:div></description>
+        </param>
+        <return type="RationalFunction" href="#i31">
+          <description><html:div>The pull-back of phi along f.</html:div></description>
+        </return>
+        <description><html:p> Computes the pull back of a rational function along a morphism</html:p></description>
+      </function>
+    </category>
+    <category name="Tropical geometry" xml:id="i20">
+      <function name="diagonal_functions" xml:id="i87">
+        <param name="n" type="Int" href="#">
+          <description><html:div>Them dimension of the vector space (and the number of functions)</html:div></description>
+        </param>
+        <return type="MinMaxFunction" href="#i29">
+          <description><html:div>A list of the functions (max(x_n,y_n),...,max(x_1,y_1)), where x_i is the coordinate function in the first part of the cartesian product R^n x R^n and y_i is the coordinate function of the second half.</html:div></description>
+        </return>
+        <description><html:p> Produces the rational functions that cut out the diagonal of the vector space R^n.</html:p></description>
+      </function>
+      <function name="linear_space_by_matrix" xml:id="i68">
+        <param name="rowspace" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>A matrix whose rows span the lineality space of the fan (hence the whole fan).
+ If you already know that your rows are a basis, call linear_space_by_basis instead.</html:div></description>
+        </param>
+        <param name="weight" type="int" href="#" class="invalid">
+          <description><html:div>The weight of the linear space (1, if none is given)</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The resulting fan object in non-homog. coordinates</html:div></description>
+        </return>
+        <description><html:p> Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.</html:p></description>
+      </function>
+      <function name="linear_space_by_basis" xml:id="i92">
+        <param name="rowspace" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>A matrix whose rows span the lineality space of the fan (hence the whole fan) and
+ which are assumed to be linearly independent. If you are not sure of this, call linear_space_by_matrix instead.</html:div></description>
+        </param>
+        <param name="weight" type="int" href="#" class="invalid">
+          <description><html:div>The weight of the linear space (1, if none is given)</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The resulting fan object in non-homog. coordinates</html:div></description>
+        </return>
+        <description><html:p> Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.</html:p></description>
+      </function>
+      <function name="linear_nspace" xml:id="i82">
+        <param name="n" type="int" href="#" class="invalid">
+          <description><html:div>The dimension of the linear space</html:div></description>
+        </param>
+        <param name="weight" type="int" href="#" class="invalid">
+          <description><html:div>The weight of the linear space (1, if none is given)</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The resulting fan object in non-homog. coordinates</html:div></description>
+        </return>
+        <description><html:p> Creates the tropical variety R^n as a single lineality space with a given weight </html:p></description>
+      </function>
+      <function name="bergman_fan" xml:id="i73">
+        <param name="m" type="matroid::Matroid" href="#">
+          <description><html:div>A matroid</html:div></description>
+        </param>
+        <param name="modOutLineality" type="Bool" href="#">
+          <description><html:div>Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+ fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE</html:div></description>
+        </param>
+        <param name="projectionCoordinate" type="int" href="#" class="invalid">
+          <description><html:div>Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.</html:div></description>
+        </param>
+        <return type="The" href="#" class="invalid">
+          <description><html:div>bergman fan of the given matroid in non-homog. coordinates</html:div></description>
+        </return>
+        <description><html:p> Creates the bergman fan of a given matroid fan.</html:p></description>
+      </function>
+      <function name="random_minmaxdivisor" xml:id="i74">
+        <param name="ambient_dim" type="int" href="#" class="invalid">
+          <description><html:div>The ambient dimension of the divisor</html:div></description>
+        </param>
+        <param name="equations" type="int" href="#" class="invalid">
+          <description><html:div>The number of equations to use</html:div></description>
+        </param>
+        <param name="upperCoeffBound" type="int" href="#" class="invalid">
+          <description><html:div>The upper bound  of the coefficients (All coefficients are positive)</html:div></description>
+        </param>
+        <param name="onlyFunction" type="Bool" href="#">
+          <description><html:div>If true, only the random function is returned and the divisor is not computed. FALSE by default.</html:div></description>
+        </param>
+        <return type="MinMaxFunction" href="#i29">
+          <description><html:div>if onlyFunction is TRUE, otherwise an array containing first the function, then the divisor</html:div></description>
+        </return>
+        <description><html:p> Creates a divisor of a random MinMaxFunction (in n-space) with integer coefficients.
+ By default this uses maximum for the function. It returns an array containing the function created and its
+ divisor in n-space.</html:p></description>
+      </function>
+      <function name="zero_cycle" xml:id="i85">
+        <description><html:p> Returns the zero cycle, i.e. a weighted complex with no rays and cones</html:p></description>
+      </function>
+      <function name="is_zerocycle" xml:id="i79">
+        <param name="c" type="WeightedComplex" href="#i28"></param>
+        <return type="Bool" href="#"></return>
+        <description><html:p> Checks whether a cycle is the 0 cycle</html:p></description>
+      </function>
+      <function name="divisorByValue" xml:id="i62">
+        <param name="A" type="WeightedComplex" href="#i28">
+          <description><html:div>tropical variety on which the divisor is computed. </html:div></description>
+        </param>
+        <param name="An" type="values" href="#" class="invalid">
+          <description><html:div>array of rational values that define an integer affine map on the fan. </html:div></description>
+        </param>
+        <return type="The" href="#" class="invalid">
+          <description><html:div>divisor of the function defined by values on the given fan, as a tropical variety.</html:div></description>
+        </return>
+        <description><html:p> NOTE: Deprecated. Use divisor(...) or divisor_nr(...) in conjunction with function_value instead
+ Takes as input a tropical fan / tropical variety and an array of rational values. The array length should coincide 
+ with the number of <html:a href="#i145">CMPLX_RAYS</html:a> of the fan plus the dimension of the lineality space and will be interpreted as a rational
+ function, where each value has been assigned to the rays given by $fan-&gt;CMPLX_RAYS and to the generators given by $fan-&gt;LINEALITY_SPACE  
+ (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. 
+ The function will then compute the corresponding Weil divisor and return it as a 
+ tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does.
+ Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which the complex is balanced and computing weights there.</html:p></description>
+      </function>
+      <function name="divisor" xml:id="i81">
+        <param name="X" type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical variety</html:div></description>
+        </param>
+        <param name="f" type="RationalFunction" href="#i31">
+          <description><html:div>A rational function, defined on a DOMAIN that contains X. It can be in non-homog. coordinates, even if X is in homog. coordinates, but then its AMBIENT_DIM has to be equal to X-&gt;AMBIENT_DIM. Otherwise you will have to homogenize the function first.</html:div></description>
+        </param>
+        <param name="k" type="Int" href="#">
+          <description><html:div>Optional. A positive integer. Note that if k is given, this will actually ignore f-&gt;POWER. Is 1 by default.</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The divisor f^k * X. It is given in homogeneous coordinates, if and only if: Either X is already in homogeneous coordinates or f is defined on a homogeneous DOMAIN (which is implicitly the case for ALL MinMaxFunctions)</html:div></description>
+        </return>
+        <description><html:p> Takes as input a tropical variety X , a rational function f and optionally a positive integer k. It then computes
+ f^k * X
+Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which the complex is balanced and computing weights there.</html:p></description>
+      </function>
+      <function name="divisor_list" xml:id="i76">
+        <param name="X" type="WeightedComplex" href="#i28"></param>
+        <param name="A" type="RationalFunction" href="#i31">
+          <description><html:div>list f_1,...,f_k</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The divisor f_k * ... * f_1 * X. It is in homogeneous coordinates, if and only if: 
+ Either X is in homog. coordinates or one of the functions is defined on a homogeneous domain.</html:div></description>
+        </return>
+        <description><html:p> Takes as input a tropical variety and an arbitrarily long list of RationalFunction objects f_1,...,f_k. It will 
+# then compute f_k^a_k * ... * f_1^a_1 * X, where a_i = f_i-&gt;POWER</html:p></description>
+      </function>
+      <function name="divisor_list_nr" xml:id="i84">
+        <description><html:p> Works exactly as divisor_list(WeightedComplex;RationalFunction,...). Should be called
+ ONLY,when every occuring function f is defined on a DOMAIN equal to X (in the sense that
+ all properties like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not
+ sufficient). In this case this function will in general be faster.</html:p></description>
+      </function>
+      <function name="sum_curves" xml:id="i77">
+        <param name="An" type="RationalCurve" href="#i30">
+          <description><html:div>arbitrary list of RationalCurve objects</html:div></description>
+        </param>
+        <param name="v" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>A list of coefficients. Superfluous coefficients are ignored, missing ones replaced
+ by +1(!)</html:div></description>
+        </param>
+        <return type="RationalCurve" href="#i30">
+          <description><html:div>The linear combination of the curves defined by the coefficients or undef, if the result
+ is not in M_0,n. The history of the operation is kept in INPUT_SETS and INPUT_COEFFS</html:div></description>
+        </return>
+        <description><html:p> This function takes a vector of coefficients a_i and a list of RationalCurves c_i and computes
+ sum(a_i * c_i). In particular, it also checks, whether the result lies in M_0,n. If not, it returns undef</html:p></description>
+      </function>
+      <function name="bergman_fan_linear" xml:id="i63">
+        <param name="m" type="Matrix&lt;Rational&gt;" href="#">
+          <description><html:div>Any rational matrix</html:div></description>
+        </param>
+        <param name="modOutLineality" type="Bool" href="#">
+          <description><html:div>Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+ fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE</html:div></description>
+        </param>
+        <param name="projectionCoordinate" type="int" href="#" class="invalid">
+          <description><html:div>Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.</html:div></description>
+        </param>
+        <return type="The" href="#" class="invalid">
+          <description><html:div>bergman fan of the given matroid in non-homog. coordinates</html:div></description>
+        </return>
+        <description><html:p> Uses an algorithm by Felipe Rincón to compute the bergman fan of a linear matroid</html:p></description>
+      </function>
+      <function name="bergman_fan_matroid" xml:id="i67">
+        <param name="m" type="matroid::Matroid" href="#">
+          <description><html:div>Any matroid</html:div></description>
+        </param>
+        <param name="modOutLineality" type="Bool" href="#">
+          <description><html:div>Optional argument. If set to TRUE, the lineality space is divided out before returning the 
+ fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE</html:div></description>
+        </param>
+        <param name="projectionCoordinate" type="int" href="#" class="invalid">
+          <description><html:div>Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.</html:div></description>
+        </param>
+        <return type="The" href="#" class="invalid">
+          <description><html:div>bergman fan of the given matroid in non-homog. coordinates</html:div></description>
+        </return>
+        <description><html:p> Uses an algorithm by Felipe Rincón to compute the bergman fan of a general matroid</html:p></description>
+      </function>
+      <function name="tropical_lnk" xml:id="i69">
+        <param name="n" type="Int" href="#">
+          <description><html:div>The ambient dimension of the fan.</html:div></description>
+        </param>
+        <param name="k" type="Int" href="#">
+          <description><html:div>The dimension of the fan (should be smaller equal n, otherwise an error is thrown).</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>A PolyhedralFan object representing L^n_k</html:div></description>
+        </return>
+        <description><html:p> Creates the linear tropical space L^n_k. This tropical fan is defined in the following way: 
+ As rays we take -e_i,i=1,...,n, where e_i is the i-th standard basis vector of R^n and 
+ e_0 = e_1 + ... + e_n. As maximal cones we take the cones generated by rays {e_i, i in S}, where
+ S runs over all k-element subsets of {0,..,n}.</html:p></description>
+      </function>
+      <function name="halfspace_complex" xml:id="i58">
+        <param name="constant" type="Rational" href="#">
+          <description><html:div>The constant translation a</html:div></description>
+        </param>
+        <param name="equation" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>The defining equation g</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The resultin halfspace complex</html:div></description>
+        </return>
+        <description><html:p> Creates the halfspace complex defined by an rational vector g and a rational b, i.e. the 
+ complex consisting of the two maximal cones g &gt;= a and g &lt;= a</html:p></description>
+      </function>
+      <function name="tropical_cube" xml:id="i57">
+        <param name="n" type="Int" href="#">
+          <description><html:div>The ambient dimension</html:div></description>
+        </param>
+        <param name="k" type="Int" href="#">
+          <description><html:div>The dimension of the cube</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>cube</html:div></description>
+        </return>
+        <description><html:p> Creates the tropical cube T^n_k, i.e. the tropical variety obtained by
+ glueing together the 2^n L^n_k obtained by applying all possible sign 
+ changes, such that the vertices form the k-skeleton of 
+ the n-dimensional cube</html:p></description>
+      </function>
+      <function name="moduliDimensionFromLength" xml:id="i75">
+        <param name="k" type="Int" href="#">
+          <description><html:div>The length = (n over 2)</html:div></description>
+        </param>
+        <return type="Int" href="#">
+          <description><html:div>n. If k is not of the form (n over 2), an error is thrown.</html:div></description>
+        </return>
+        <description><html:p> Takes a positive length (of a vector) and assumes it is of the form (n over 2)
+ It then computes n</html:p></description>
+      </function>
+      <function name="curve_graph_from_metric" xml:id="i88">
+        <param name="v" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>A vector of length (n over 2). Its entries are 
+ interpreted as the distances d(i,j) ordered lexicographically according to i,j. However, they need not be positive, as long as v is equivalent to a proper 
+ metric modulo leaf lengths.</html:div></description>
+        </param>
+        <return type="An" href="#" class="invalid">
+          <description><html:div>array containing first the graph::Graph and then a Vector&lt;Rational&gt;, containing 
+ the lengths of the bounded edges (in the order they appear in EDGES)</html:div></description>
+        </return>
+        <description><html:p> Takes a vector from Q^(n over 2) that describes an n-marked rational abstract
+ curve as a distance vector between its leaves. It then computes the 
+ graph of the curve corresponding to this vector.</html:p></description>
+      </function>
+      <function name="rational_curve_from_moduli" xml:id="i70">
+        <param name="v" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>A vector in the moduli space</html:div></description>
+        </param>
+        <return type="RationalCurve" href="#i30"></return>
+        <description><html:p> Takes a vector from Q^((n over 2) - n) that lies in M_0,n (in its matroid coordinates 
+ and computes the corresponding rational curve.
+ In the isomorphism of the metric curve space and the moduli coordinates
+ the last leaf is considered as the special leaf</html:p></description>
+      </function>
+      <function name="rational_curve_list_from_moduli" xml:id="i61">
+        <param name="m" type="Matrix&lt;Rational&gt;" href="#"></param>
+        <return type="RationalCurve" href="#i30">
+          <description><html:div>: An array of RationalCurves</html:div></description>
+        </return>
+        <description><html:p> Takes a matrix whose rows are elements in the moduli space M_0,n in matroid 
+ coordinates. Returns a list, where the i-th element is the curve corr. to 
+ the i-th row in the matrix</html:p></description>
+      </function>
+      <function name="rational_curve_list_from_metric" xml:id="i64">
+        <param name="m" type="Matrix&lt;Rational&gt;" href="#"></param>
+        <return type="RationalCurve" href="#i30">
+          <description><html:div>: An array of RationalCurves</html:div></description>
+        </return>
+        <description><html:p> Takes a matrix whose rows are metrics of rational n-marked curves.
+ Returns a list, where the i-th element is the curve corr. to 
+ the i-th row in the matrix</html:p></description>
+      </function>
+      <function name="testFourPointCondition" xml:id="i65">
+        <param name="v" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>The vector to be checked</html:div></description>
+        </param>
+        <return type="Int" href="#">
+          <description><html:div>A quadruple (array) of indices, where the four-point condition 
+ is violated or an empty list, if the vector is indeed in M_0,n</html:div></description>
+        </return>
+        <description><html:p> Takes a metric vector in Q^{(n over 2)} and checks whether it fulfills 
+ the four-point condition, i.e. whether it lies in M_0,n. More precisely 
+ it only needs to be equivalent to such a vector</html:p></description>
+      </function>
+      <function name="latticeNormalByCone" xml:id="i60">
+        <param name="tau" type="polytope::Cone" href="#">
+          <description><html:div>a codimension one face of tau, given as a cone</html:div></description>
+        </param>
+        <param name="sigma" type="polytope::Cone" href="#">
+          <description><html:div>an arbitrary cone</html:div></description>
+        </param>
+        <return type="Vector" href="#"></return>
+        <description><html:p> Assuming that tau is a codimension one face of sigma, computes a representative of
+ the primitive lattice normal vector of sigma with respect to tau</html:p></description>
+      </function>
+      <function name="latticeNormal" xml:id="i89">
+        <param name="taumatrix" type="Matrix" href="#">
+          <description><html:div>a codimension one face of sigma, given as a matrix defining its linear span</html:div></description>
+        </param>
+        <param name="sigmamatrix" type="Matrix" href="#">
+          <description><html:div>an arbitrary cone, given as a matrix defining its linear span</html:div></description>
+        </param>
+        <param name="additionalRay" type="Vector" href="#">
+          <description><html:div>A ray that is contained in sigma, but not in tau. Used to calculate proper orientation of the normal vector.</html:div></description>
+        </param>
+        <return type="Vector" href="#"></return>
+        <description><html:p> Takes two matrices whose rows define the dual of the linear span of cone tau and sigma.
+ Assuming that tau is a codimension one face of sigma, computes a representative of
+ the primitive lattice normal vector of sigma with respect to tau</html:p></description>
+      </function>
+      <function name="latticeBasis" xml:id="i86">
+        <param name="cone" type="polytope::Cone" href="#">
+          <description><html:div>A cone for which a Z-basis is to be computed</html:div></description>
+        </param>
+        <return type="Matrix&lt;Integer&gt;" href="#"></return>
+        <description><html:p> Takes a cone and computes a Z-basis of the vector space spanned by the cone,
+ returned as row vectors of a matrix</html:p></description>
+      </function>
+      <function name="count_mn_cones" xml:id="i56">
+        <param name="n" type="Int" href="#">
+          <description><html:div>The number of leaves. Should be &gt;= 3</html:div></description>
+        </param>
+        <return type="Integer" href="#">
+          <description><html:div>The number of maximal cones</html:div></description>
+        </return>
+        <description><html:p> Computes the number of maximal cones of the tropical moduli space M_0,n</html:p></description>
+      </function>
+      <function name="count_mn_rays" xml:id="i59">
+        <param name="n" type="int" href="#" class="invalid">
+          <description><html:div>The number of leaves. Should be &gt;= 3</html:div></description>
+        </param>
+        <return type="Integer" href="#">
+          <description><html:div>The number of rays</html:div></description>
+        </return>
+        <description><html:p> Computes the number of rays of the tropical moduli space M_0,n</html:p></description>
+      </function>
+      <function name="tropical_m0n" xml:id="i90">
+        <param name="n" type="Int" href="#">
+          <description><html:div>The number of leaves. Should be at least 4</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The tropical moduli space M_0,n</html:div></description>
+        </return>
+        <description><html:p> Creates the moduli space of abstract rational n-marked curves. Its coordinates are
+ given as the coordinates of the bergman fan of the matroid of the complete graph on 
+ n-1 nodes (but not computed as such)
+ The lineality space (1,..,1) is modded out by setting the last coordinate
+ equal to minus the sum of the others
+ The isomorphism to the space of curve metrics is obtained by choosing
+ the last leaf as special leaf</html:p></description>
+      </function>
+      <function name="cycle_intersection" xml:id="i80">
+        <param name="X" type="WeightedComplex" href="#i28">
+          <description><html:div>The first tropical variety</html:div></description>
+        </param>
+        <param name="Y" type="WeightedComplex" href="#i28">
+          <description><html:div>The second tropical variety. Should have the same actual ambient 
+ dimension (homogeneous coordinates don't count) as X.</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>Z The intersection product X*Y in V = R^n, where n is the ambient 
+ dimension of X and Y. The result has homogeneous coordinates in any case</html:div></description>
+        </return>
+        <description><html:p> Computes the intersection product of two tropical cycles in a common ambient vector space V.</html:p></description>
+      </function>
+      <function name="recession_fan" xml:id="i71">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical variety. If it is a fan, the complex itself is returned</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical fan, the recession fan of the complex</html:div></description>
+        </return>
+        <description><html:p> Computes the recession fan of a tropical variety</html:p></description>
+      </function>
+      <function name="degree" xml:id="i72">
+        <param name="complex" type="WeightedComplex" href="#i28"></param>
+        <return type="Int" href="#"></return>
+        <description><html:p> Computes the degree of a tropical variety as the degree of the 
+ 0-dimensional complex obtained when intersecting 
+ the variety with an appropriate linear space L^n_k</html:p></description>
+      </function>
+      <function name="intersect_complete_fan" xml:id="i83">
+        <param name="fan" type="WeightedComplex" href="#i28">
+          <description><html:div>An arbitrary weighted polyhedral fan</html:div></description>
+        </param>
+        <param name="completeFan" type="fan::PolyhedralFan" href="#">
+          <description><html:div>A complete polyhedral fan</html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The intersection of both fans (whose support is equal to the support of fan). The 
+ resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, 
+ the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned.</html:div></description>
+        </return>
+        <description><html:p> Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete 
+ (i.e. its support is the whole ambient space) to compute the intersection correctly.</html:p></description>
+      </function>
+      <function name="divisorByPLF" xml:id="i78">
+        <param name="fan" type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical variety, on which the divisor is computed</html:div></description>
+        </param>
+        <param name="A" type="MinMaxFunction" href="#i29">
+          <description><html:div>function whose DOMAIN should be equal to the affine coordinate 
+ space of the variety, i.e. AMBIENT_DIM-1, if the variety uses homogeneous coordinates, 
+ AMBIENT_DIM otherwise.</html:div></description>
+        </param>
+        <return type="The" href="#" class="invalid">
+          <description><html:div>corresponding divisor as a tropical variety in homogeneous coordinates.</html:div></description>
+        </return>
+        <description><html:p> NOTE: Deprecated. Use divisor(..) instead
+ Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be 
+ in homogeneous coordinates, whether the tropical variety uses them or not. The function 
+ should be given on the affine coordinates of the variety, NOT the homogeneous ones.</html:p></description>
+      </function>
+      <function name="divisor_nr" xml:id="i66">
+        <description><html:p> Works exactly as divisor(WeightedComplex, RationalFunction;Int). Should be called ONLY,
+ when the function f is defined on a DOMAIN equal to X (in the sense that all properties
+ like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not sufficient). In this
+ case this function will in general be faster.</html:p></description>
+      </function>
+      <function name="fan_decomposition" xml:id="i91">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>A tropical variety</html:div></description>
+        </param>
+        <return type="perl::ListReturn" href="#" class="invalid">
+          <description><html:div>A list of WeightedComplex objects in 
+ non-homogeneous coordinates. The i-th complex corresponds to the i-th 
+ affine ray ( vertex). If the complex is not in homogeneous coordinates, 
+ the list contains just the complex itself </html:div></description>
+        </return>
+        <description><html:p> Take a polyhedral complex and returns a list of all the local vertex fans, 
+ i.e. for each affine ray r, the list contains the fan Star_complex(r) 
+ (in non-homogeneous coordinates)
+ If the complex has a non-trivial <html:a href="#i164">LOCAL_RESTRICTION</html:a>, only the local fans
+ at compatible vertices are computed</html:p></description>
+      </function>
+    </category>
+    <category name="Arithmetic" xml:id="i21">
+      <function name="gcdext" xml:id="i93">
+        <param name="a" type="Integer" href="#">
+          <description><html:div>first argument of gcd(,)</html:div></description>
+        </param>
+        <param name="b" type="Integer" href="#">
+          <description><html:div>second argument of gcd(,)</html:div></description>
+        </param>
+        <param name="s" type="Integer" href="#">
+          <description><html:div>coefficient of a (will be set)</html:div></description>
+        </param>
+        <param name="t" type="Integer" href="#">
+          <description><html:div>coefficient of b (will be set)</html:div></description>
+        </param>
+        <return type="Integer" href="#"></return>
+        <description><html:p> Computes the gcd of <html:em class="param">a</html:em> and <html:em class="param">b</html:em> and returns it. <html:em class="param">s</html:em> and <html:em class="param">t</html:em> are set
+ such that gcd(<html:em class="param">a</html:em>,<html:em class="param">b</html:em>) = <html:em class="param">s</html:em> * <html:em class="param">a</html:em> + <html:em class="param">t</html:em> * <html:em class="param">b</html:em></html:p></description>
+      </function>
+    </category>
+    <category name="Linear algebra" xml:id="i22">
+      <function name="affineTransform" xml:id="i98">
+        <param name="complex" type="WeightedComplex" href="#i28">
+          <description><html:div>The complex to be transformed, supposed to be in homogeneous 
+ coordinates (if translate != 0)</html:div></description>
+        </param>
+        <param name="translate" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>A vector whose dimension should be equal to the column dimension
+ of the transformation matrix</html:div></description>
+        </param>
+        <param name="matrix" type="Matrix&lt;Integer&gt;" href="#">
+          <description><html:div>An integer (square) invertible matrix. </html:div></description>
+        </param>
+        <return type="WeightedComplex" href="#i28">
+          <description><html:div>The transformed complex</html:div></description>
+        </return>
+        <description><html:p> Takes a polyhedral complex and applies an affine linear transformation, given by a translate 
+ vector and a matrix. The method assumes the function is bijective and preserves cones, i.e. it 
+ just applies the transformation to the rays and lineality space and leaves the cones and weights
+ unchanged.</html:p></description>
+      </function>
+      <function name="linearRepresentation" xml:id="i97">
+        <param name="v" type="Vector" href="#">
+          <description><html:div>The vector supposed to be contained in the row span of the generators</html:div></description>
+        </param>
+        <param name="generators" type="Matrix" href="#">
+          <description><html:div>A set of row vectors whose linear span should contain v</html:div></description>
+        </param>
+        <return type="Vector" href="#">
+          <description><html:div>A vector (a1,..,an) such that v = (a1,...,an) * generators. It returns a vector of
+ dimension 0, if v is not in the span of the generators. An error is thrown if the dimensions of 
+ v and the generators mismatch</html:div></description>
+        </return>
+        <description><html:p> Takes a vector v and a matrix with column dimension equal to the dimension of v. Assuming that 
+ v is in the row span of the matrix, it computes one(!) possible representation of v in these 
+ generators</html:p></description>
+      </function>
+      <function name="lllHNF" xml:id="i94">
+        <param name="matrix" type="Matrix" href="#">
+          <description><html:div>the matrix for which the transformation is computed</html:div></description>
+        </param>
+        <param name="tfmatrix" type="Matrix" href="#">
+          <description><html:div>The matrix that will contain the transformation matrix</html:div></description>
+        </param>
+        <param name="kdim" type="Integer" href="#">
+          <description><html:div>This will be set to dim Ker(A)</html:div></description>
+        </param>
+        <return type="Matrix" href="#"></return>
+        <description><html:p> Computes a row HNF of an integer matrix A
+ It returns the normal form and stores the unimodular transformation matrix and the kernel dimension  of the transposed matrix in
+ the last two parameters. The algorithm is the LLL-based HNF alg. by Havas, Majevski, Matthews</html:p></description>
+      </function>
+      <function name="computeMatrixBases" xml:id="i96">
+        <param name="m" type="Matrix&lt;Rational&gt;" href="#"></param>
+        <return type="Set&lt;int&gt;" href="#">
+          <description><html:div>An array of Set&lt;int&gt;</html:div></description>
+        </return>
+        <description><html:p> Computes a list of sets of column indices of a matrix such that
+ the corresponding column sets form a basis of the column space</html:p></description>
+      </function>
+      <function name="computeMatrixColoops" xml:id="i95">
+        <param name="m" type="Matrix&lt;Rational&gt;" href="#"></param>
+        <return type="Set&lt;int&gt;" href="#"></return>
+        <description><html:p> Computes a list of column indices of a matrix such that 
+ the corresponding columns are contained in every column basis of the
+ column space. Is equal to the intersection of all sets returned by
+ <html:a href="#i96">computeMatrixBases</html:a></html:p></description>
+      </function>
+    </category>
+    <category name="Tropial geometry" xml:id="i23">
+      <function name="rational_curve_from_metric" xml:id="i99">
+        <param name="v" type="Vector&lt;Rational&gt;" href="#">
+          <description><html:div>A vector of length (n over 2). Its entries are 
+ interpreted as the distances d(i,j) ordered lexicographically according to i,j. However, they need not be positive, as long as v is equivalent to a proper 
+ metric modulo leaf lengths.</html:div></description>
+        </param>
+        <return type="RationalCurve" href="#i30"></return>
+        <description><html:p> Takes a vector from Q^(n over 2) that describes an n-marked rational abstract
+ curve as a distance vector between its leaves. It then computes the 
+ curve corresponding to this vector.</html:p></description>
+      </function>
+    </category>
+  </user-functions>
+</application>

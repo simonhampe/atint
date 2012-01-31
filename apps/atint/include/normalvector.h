@@ -66,6 +66,14 @@ Vector<Integer> latticeNormal(const Matrix<Rational> &tmatrix, const Matrix<Rati
 Vector<Integer> latticeNormalByCone(const perl::Object &tau, const perl::Object &sigma);
 
 /**
+@brief Computes a lattice basis for a cone spanned by a list of rays and with a given lineality space
+@param Matrix<Rational> rays The rays of the cone
+@param Matrix<Rational> linspace The lineality space generators of the cone
+@returns Matrix<Integer> A basis for the lattice of the cone
+*/
+Matrix<Integer> latticeBasisFromRays(const Matrix<Rational> &rays, const Matrix<Rational> &linspace);
+
+/**
 @brief Takes a cone and computes a Z-basis of the vector space spanned by the cone, returned as row vectors of a matrix.
 @param polytope::Cone cone A cone for which a Z-basis is to be computed
 @return An integer matrix whose rows span the linear space spanned by cone
@@ -99,6 +107,8 @@ Vector<Rational> functionRepresentationVector(const Set<int> &rayIndices, const 
 					      const Matrix<Rational> &rays,
 					      const Matrix<Rational> &linealitySpace,
 					      int lineality_dim); 
+
+
 
 }}
 
