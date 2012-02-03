@@ -44,8 +44,8 @@ namespace polymake { namespace atint {
   
   //Documentation see perl wrapper
   int moduliDimensionFromLength(int length) {
-    Rational s = sqrt(1 + 8*length);
-    int r = (1+s) / 2; 
+    int s = sqrt(1 + 8*length);
+    int r = ((1+s) / 2);
     //Test for validity
     if((r*(r-1)/2) != length) {
       throw std::runtime_error("Length is not of the form (n over 2)");
@@ -56,9 +56,9 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
-   @brief Takes three integer values and checks whether two of them are equal and >= than the third
+   @brief Takes three rational values and checks whether two of them are equal and >= than the third
    */
-  inline bool fpcCheck(int a, int b, int c) {
+  inline bool fpcCheck(Rational a, Rational b, Rational c) {
     if(a == b && a >= c) return true;
     if(a == c && a >= b) return true;
     if(b == c && b >= a) return true;
@@ -88,9 +88,9 @@ namespace polymake { namespace atint {
       //pm::Subsets_of_k<Set<int> > ( complete,4 );
     for(int f = 0; f < fours.size(); f++) {
       Vector<int> l(fours[f]);
-      int a = d(l[0],l[1]) + d(l[2],l[3]);
-      int b = d(l[0],l[2]) + d(l[1],l[3]);
-      int c = d(l[0],l[3]) + d(l[1],l[2]);
+      Rational a = d(l[0],l[1]) + d(l[2],l[3]);
+      Rational b = d(l[0],l[2]) + d(l[1],l[3]);
+      Rational c = d(l[0],l[3]) + d(l[1],l[2]);
       //Check that two of a,b,c are equal and not less than the third
       if(!fpcCheck(a,b,c)) {
 	Vector<int> fault;
@@ -108,9 +108,9 @@ namespace polymake { namespace atint {
       Vector<int> l(threes[f]);
       //Now check the three possibilities, where the fourth element is equal to any of the three
       for(int t = 0; t < l.size(); t++) {
-	int a = d(l[0],l[1]) + d(l[2],l[t]);
-	int b = d(l[0],l[2]) + d(l[1],l[t]);
-	int c = d(l[0],l[t]) + d(l[1],l[2]);
+	Rational a = d(l[0],l[1]) + d(l[2],l[t]);
+	Rational b = d(l[0],l[2]) + d(l[1],l[t]);
+	Rational c = d(l[0],l[t]) + d(l[1],l[2]);
 	//Check that two of a,b,c are equal and not less than the third
 	if(!fpcCheck(a,b,c)) {
 	  Vector<int> fault;
@@ -131,9 +131,9 @@ namespace polymake { namespace atint {
       for(int p = 1; p <= 3; p++) {
 	int t = p < 3? l[0] : l[1];
 	int z = p != 2? l[1] : l[0];
-	int a = d(l[0],l[1]) + d(z,t);
-	int b = d(l[0],z) + d(l[1],t);
-	int c = d(l[0],t) + d(l[1],z);
+	Rational a = d(l[0],l[1]) + d(z,t);
+	Rational b = d(l[0],z) + d(l[1],t);
+	Rational c = d(l[0],t) + d(l[1],z);
 	//Check that two of a,b,c are equal and not less than the third
 	if(!fpcCheck(a,b,c)) {
 	  Vector<int> fault;
@@ -632,7 +632,7 @@ namespace polymake { namespace atint {
     int n = curve.give("N_LEAVES");
     
     //Create edge index map (i,j) -> vector index
-    Matrix<Rational> E(n,n); int index = 0;
+    Matrix<int> E(n,n); int index = 0;
     for(int i = 1; i < n-1; i++) {
       for(int j = i+1; j <= n-1; j++) {
 	E(i,j) = E(j,i) = index;
@@ -653,7 +653,7 @@ namespace polymake { namespace atint {
       //Make sure the set does not contain n
       if(sset.contains(n)) sset = completeSet - sset;
       //Now create the flat vector for the complete graph on vertices in sset
-      Vector<Rational> slist(sset);
+      Vector<int> slist(sset);
       for(int i = 0; i < slist.dim(); i++) {
 	for(int j = i+1; j < slist.dim(); j++) {
 	  int edgeindex = E(slist[i],slist[j]);

@@ -36,7 +36,7 @@ namespace polymake { namespace atint {
     @param kernelDimension The dimension of the kernel of transpose(matrix), or matrix.cols() - rank(matrix) is stored in this
     @return A row Hermite normal form of matrix. If matrix.cols() <= matrix.rows(), this means that lllHNF = T / 0_(kernelDimension x matrix.cols), where T is a regular, upper triangular square matrix. Hence the last k rows of tfmatrix form a Z-basis of Ker(transpose(matrix))
   */
-  Matrix<Integer> lllHNF(const Matrix<Integer> &matrix, Matrix<Integer> &tfmatrix, Integer &kernelDimension);
+  Matrix<Integer> lllHNF(const Matrix<Integer> &matrix, Matrix<Integer> &tfmatrix, int  &kernelDimension);
   
   
 }}

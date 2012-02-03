@@ -45,7 +45,7 @@ namespace polymake { namespace atint {
     if(n < 3) throw std::runtime_error("Cannot compute M_n cones for n < 3");
     
     //Compute number of sequences
-    int noOfCones = count_mn_cones(n);
+    int noOfCones = count_mn_cones_int(n);
     
     Vector<Vector<int> > result;
     
@@ -337,6 +337,7 @@ namespace polymake { namespace atint {
       result.take("MAXIMAL_CONES") << cones;
       result.take("TROPICAL_WEIGHTS") << weights;
       result.take("LOCAL_RESTRICTION") << local_cones;
+      result.take("IS_UNIMODULAR") << true;
       return result;
   }
   

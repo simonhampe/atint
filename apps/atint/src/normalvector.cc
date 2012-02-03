@@ -43,7 +43,7 @@ namespace polymake { namespace atint {
 		mpz_t at; mpz_t bt; mpz_t st; mpz_t tt; mpz_t gcd;
 		mpz_init(at); mpz_init(bt); mpz_init(st); mpz_init(tt); mpz_init(gcd);
 		
-		mpz_set_si(at,a); mpz_set_si(bt,b); 
+		mpz_set_si(at,a.to_long()); mpz_set_si(bt,b.to_long()); 
 			
 		//Compute gcdext
 		mpz_gcdext(gcd,st,tt,at,bt);
@@ -166,7 +166,7 @@ namespace polymake { namespace atint {
 				lc = lcm(lc,denominator(m(r,c)));
 			}
 			result.row(r) = lc* m.row(r);
-			Rational gc = result(r,0);
+			Integer gc = result(r,0);
 			for(int c = 1; c < m.cols(); c++) {
 			  gc = gcd(gc,result(r,c));
 			}
@@ -184,7 +184,7 @@ namespace polymake { namespace atint {
 		lc = lcm(lc,denominator(v[c]));
 	  }
 	  result = lc* v;
-	  Rational gc = result[0];
+	  Integer gc = result[0];
 	  for(int c = 1; c < result.dim(); c++) {
 	    gc = gcd(gc,result[c]);
 	  }
@@ -222,7 +222,7 @@ namespace polymake { namespace atint {
 		      }
 	      }
 	      dbgtrace << "Transformed sigmamatrix = \n" << sigmamatrix << endl;
-	      Integer k;
+	      int k;
 	      //Matrix<Integer> tfmatrix = znormaltransform(sigmamatrix, k); // --> Dies on large integers
 	      Matrix<Integer> tfmatrix;
 	      lllHNF( T(sigmamatrix), tfmatrix,k);//Compute the HNF of sigmamatrix-transposed
@@ -286,11 +286,11 @@ namespace polymake { namespace atint {
 	  Matrix<Rational> linear_span = null_space(rays / linspace);
 	  //Special case: If the cone is full-dimensional, return the standard basis
 	  if(linear_span.rows() == 0) {
-	    return unit_matrix<Integer>(rays.cols());
+	    return unit_matrix<Integer>(rays.cols() == 0? linspace.cols() : rays.cols());
 	  }
 	  Matrix<Integer> conematrix = makeInteger(linear_span);
 	  Matrix<Integer> tfmatrix;
-	  Integer k;
+	  int k;
 	  lllHNF(T(conematrix), tfmatrix,k);
 	  //Copy the last k rows of tfmatrix 
 	  Matrix<Integer> latticeB = tfmatrix.minor(sequence(tfmatrix.rows()-k,k),All);

@@ -39,6 +39,19 @@ namespace polymake { namespace atint {
  
   ///////////////////////////////////////////////////////////////////////////////////////
   
+  /**
+   @brief Helper function to compute (small) binomial coefficients without the help of Integer to avoid casts
+   */
+  int binomial_int(int n, int k) {
+    int num = n;
+    for(int j = 1; j <= k-1; j++) { num *= n - j;}
+    int den = k;
+    for(int j = k-1; j > 1; j--) { den *= j;}
+    return num/den;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   //Documentation see perl wrapper
   Integer count_mn_cones(int n) {
     if(n == 3) {
@@ -47,6 +60,21 @@ namespace polymake { namespace atint {
     Integer result(1);
     Integer nint(n);
     for(Integer i(0); i <= n-4; i++) {
+	result = result * (2*(nint-i) -5);
+    }
+    return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  int count_mn_cones_int(int n) {
+    if(n == 3) {
+      return 1;
+    }
+    int result = 1;
+    int nint = n;
+    for(int i = 0; i <= n-4; i++) {
 	result = result * (2*(nint-i) -5);
     }
     return result;
@@ -63,6 +91,23 @@ namespace polymake { namespace atint {
     Integer nint(n);
     for(long i = 1; i <= n-3; i++) {
       result = result + Integer::binom(nint-1,i);
+    }
+    return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
+   @brief Does exactly the same as count_mn_rays, but returns an int. Only works for n<=12, since larger values produce too large integers
+   */
+  int count_mn_rays_int(int n) {
+    if(n == 3) {
+      return 0;
+    }
+    int result = 0;
+    int nint = n;
+    for(long i = 1; i <= n-3; i++) {
+      result = result + binomial_int(nint-1,i);
     }
     return result;
   }
@@ -109,7 +154,7 @@ namespace polymake { namespace atint {
     
     //Will contain the rays of the moduli space in matroid coordinates
     int raydim = (n*(n-1))/2 - n;
-    int raycount = count_mn_rays(n);
+    int raycount = count_mn_rays_int(n);
     dbgtrace << "Expecting " << raycount << " rays" << endl;
     Matrix<Rational> rays(raycount,raydim);
     
@@ -118,20 +163,20 @@ namespace polymake { namespace atint {
     //Vector<Set<int> > raysAsPartitions;
     
     //Will contain value 'true' for each ray that has been computed
-    Vector<bool> raysComputed(count_mn_rays(n));
+    Vector<bool> raysComputed(count_mn_rays_int(n));
     //Will contain the set of maximal cones 
     Vector<Set<int> > cones;
       
     //Compute the number of sequences = number of maximal cones
-    int noOfMax = count_mn_cones(n);   
+    int noOfMax = count_mn_cones_int(n);
     
     //Things we will need:
     Set<int> allLeafs = sequence(0,n); //The complete sequence of leaves (for taking complements)
     Vector<int> onlyones = ones_vector<int>(raydim); //A ones vector(for projecting the lineality space)
-    Vector<Integer> rayIndices(n-2); //Entry k contains the sum from i = 1 to k of binomial(n-1,i)
+    Vector<int> rayIndices(n-2); //Entry k contains the sum from i = 1 to k of binomial(n-1,i)
       rayIndices[0] = 0;
       for(int i = 1; i < rayIndices.dim(); i++) {
-	rayIndices[i] = rayIndices[i-1] + Integer::binom(n-1,i);
+	rayIndices[i] = rayIndices[i-1] + binomial_int(n-1,i);
       }
     
     //Iterate through all Prüfer sequences -------------------------------------------------
@@ -227,7 +272,7 @@ namespace polymake { namespace atint {
 	int rIndex (rayIndices[k-2]);
 	while(bsleft > 1) {
 	  if(rayset.contains(n-l-1)) {
-	    rIndex += (int)Integer::binom(n-l-1,bsleft-1);
+	    rIndex += binomial_int(n-l-1,bsleft-1);
 	  }
 	  else {
 	    bsleft--;
@@ -293,55 +338,10 @@ namespace polymake { namespace atint {
       result.take("MAXIMAL_CONES") << cones;
       result.take("TROPICAL_WEIGHTS") << ones_vector<int>(cones.dim());
       result.take("DESCRIPTION") << dsc.str();
+      result.take("IS_UNIMODULAR") << true;
     return result;
     
   }
-  
-//   perl::ListReturn adjacentRays(perl::Object curve) {
-//     //Extract values
-//     Vector<Set<int> > sets = curve.give("SETS");
-//     int n = curve.give("N_LEAVES");
-//     
-//     Vector<Set<Set<int> > > adjacent;
-//     
-//     //For each ray, compute the compatible rays
-//     for(int s = 0; s < sets.dim(); s++) {
-//       adjacent |= Set<Set<int> >();
-//       //Make sure, 1 is in sets[s]
-//       if(!sets[s].contains(1)) sets[s] = sequence(1,n) - sets[s];
-// 	
-//       Array<Set<int> > ssubsets = pm::AllSubsets<Set<int> >(sets[s]);
-//       Array<Set<int> > csubsets = pm::AllSubsets<Set<int> >(sequence(1,n) - sets[s]);
-//       //For all J and J^c in I...
-//       for(int j = 0; j < ssubsets.size(); j++) {
-// 	if(ssubsets[j].size() >= 2 && ssubsets[j].size() <= n-2) {
-// 	  if(ssubsets[j].contains(1)) adjacent[s] += ssubsets[j];
-// 	  else adjacent[s] += (sequence(1,n) - ssubsets[j]);
-// 	}
-//       }
-//       //For all J^c in I^c
-//       for(int j = 0; j < csubsets.size(); j++) {
-// 	if(csubsets[j].size() >= 2 && csubsets[j].size() <= n-2 && !csubsets[j].contains(1)) {
-// 	  adjacent[s] += (sequence(1,n) - csubsets[j]);
-// 	}
-//       }
-//     }
-//     
-//     //At the end, intersect
-//     Set<Set<int> > result = adjacent[0];
-//     for(int x = 1; x < adjacent.dim(); x++) {
-//       result *= adjacent[x];
-//     }
-//     
-//     perl::ListReturn ret;
-//     for(Entire<Set<Set<int> > >::iterator r = entire(result); !r.at_end(); r++) {
-//       ret << *r;
-//     }
-//     return ret;
-//     
-//   }
-  
-  
 
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   

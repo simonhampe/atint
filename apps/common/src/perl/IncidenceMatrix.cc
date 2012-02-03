@@ -19,7 +19,6 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Vector.h"
 #include "polymake/Set.h"
-#include "polymake/Graph.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -29,13 +28,5 @@ namespace polymake { namespace common {
    };
 
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const Vector< Set< int > > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
-   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
-   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&> > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
-   OperatorInstance4perl(convert, IncidenceMatrix< NonSymmetric >, perl::Canned< const Graph< Undirected > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

@@ -56,8 +56,8 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
-    perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan) {
-	 RefinementResult r = refinement(fan,completeFan,false,false,false,true);
+    perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan, bool forceLatticeComputation) {
+	 RefinementResult r = refinement(fan,completeFan,false,false,false,true,forceLatticeComputation);
 	 return r.complex;
     }
 
@@ -77,6 +77,9 @@ namespace polymake { namespace atint {
       Matrix<Rational> lineality_space = complex.give("LINEALITY_SPACE");
       int lineality_dim = complex.give("LINEALITY_DIM");
       IncidenceMatrix<> local_restriction = complex.give("LOCAL_RESTRICTION");
+      
+      Matrix<Integer> lattice_generators = complex.give("LATTICE_GENERATORS");
+      IncidenceMatrix<> lattice_bases = complex.give("LATTICE_BASES");
       
       dbgtrace << "Rays: " << rays << endl;
       dbgtrace << "Values: " << values << endl;
@@ -103,7 +106,7 @@ namespace polymake { namespace atint {
       
       //For each cmplx_ray in the LAST iteration, this tells which should be the appropriate
       //column index in values for function value computation
-      Vector<int> cmplx_origins = sequence(0,values.cols() - lineality_dim);
+      Vector<int> cmplx_origins (sequence(0,values.cols() - lineality_dim));
       
       //Contains the conversion vector for the last iteration (this one we recompute during
       //value recomputation)
@@ -127,6 +130,13 @@ namespace polymake { namespace atint {
 	Matrix<Rational> lsumFunctionVector = result.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
 	Map<int, Map<int, Vector<Integer> > > latticeNormals = result.give("LATTICE_NORMALS");
 	Vector<bool> balancedFaces = result.give("BALANCED_FACES");
+	
+	//Recompute the lattice bases
+	Vector<Set<int> > new_lattice_bases;
+	for(int co = 0; co < codimOneCones.rows(); co++) {
+	  new_lattice_bases |= lattice_bases.row(*(coneIncidences.row(co).begin()));
+	}
+	lattice_bases = new_lattice_bases;
 	
 	//Now we compute the correct value vector:
 	
@@ -276,6 +286,8 @@ namespace polymake { namespace atint {
 	  result.take("TROPICAL_WEIGHTS") << weights;
 	  result.take("LINEALITY_SPACE") << lineality_space;
 	  result.take("LOCAL_RESTRICTION") << local_restriction;
+	  result.take("LATTICE_GENERATORS") << lattice_generators;
+	  result.take("LATTICE_BASES") << lattice_bases.minor(usedCones,All);
 	
       } //END iterate function rows
       
@@ -523,14 +535,21 @@ namespace polymake { namespace atint {
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
     UserFunction4perl("# @category Tropical geometry"
-		      "# Takes two fans and computes the intersection of both. The function relies on the fact that the latter fan is complete "
-		      "# (i.e. its support is the whole ambient space) to compute the intersection correctly."
+		      "# Takes two fans and computes the intersection of both. The function"
+		      "# relies on the fact that the latter fan contains the first fan to "
+		      "# compute the refinement correctly"
+		      "# The function copies [[TROPICAL_WEIGHTS]] and [[LATTICE_BASES]]"
+		      "# if they exist"
 		      "# @param WeightedComplex fan An arbitrary weighted polyhedral fan"
-		      "# @param fan::PolyhedralFan completeFan A complete polyhedral fan"
+		      "# @param fan::PolyhedralFan container A polyhedral fan containing the "
+		      "# first one (as a set)"
+		      "# @param Bool forceLatticeComputation Whether the properties"
+		      "# [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] of fan should be computed"
+		      "# before refining. False by default."
 		      "# @return WeightedComplex The intersection of both fans (whose support is equal to the support of fan). The "
 		      "# resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, "
 		      "# the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned." ,
-		      &intersect_complete_fan,"intersect_complete_fan(WeightedComplex, fan::PolyhedralFan)");
+		      &intersect_complete_fan,"intersect_complete_fan(WeightedComplex, fan::PolyhedralFan;$=0)");
     
     Function4perl(&divisorByValueVector,"divisorByValueVector(WeightedComplex, Vector<Rational>)");  
     

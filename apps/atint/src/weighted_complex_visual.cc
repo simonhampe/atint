@@ -166,7 +166,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> facetNormals = fan.give("FACET_NORMALS");
     Matrix<Rational> facetNormalsInCones = fan.give("MAXIMAL_CONES_FACETS");
     Matrix<Rational> linearSpan = fan.give("LINEAR_SPAN_NORMALS");
-    Matrix<Rational> linearSpanInCones = fan.give("MAXIMAL_CONES_LINEAR_SPAN_NORMALS");
+    IncidenceMatrix<> linearSpanInCones = fan.give("MAXIMAL_CONES_LINEAR_SPAN_NORMALS");
     int fan_dim = fan.give("CMPLX_DIM");
     
      //First separate affine and directional rays

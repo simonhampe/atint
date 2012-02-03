@@ -74,7 +74,7 @@ user_function linear_nspace {
   
   return new WeightedComplex(
     LINEALITY_SPACE=> $m,
-    TROPICAL_WEIGHTS=>\@weightarray); 
+    TROPICAL_WEIGHTS=>\@weightarray,IS_UNIMODULAR=>TRUE); 
 }
 
 

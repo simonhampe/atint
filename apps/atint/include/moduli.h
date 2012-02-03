@@ -36,6 +36,11 @@ Matrix<int> pair_index_map(int n);
 //Documentation see perl wrapper
 Integer count_mn_cones(int n);
 
+/**
+ @brief Does exactly the same as count_mn_cones, but returns an int. This will only work for n <= 12, since larger values produce too large integer. In that case you have to use count_mn_cones
+ */
+int count_mn_cones_int(int n);
+
 }}
 
 #endif // ATINT_MODULI_H_

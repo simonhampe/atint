@@ -1,0 +1,81 @@
+# This script tests the performance of the lattice normal computation via projections
+
+use application "common";
+use application "atint";
+use Benchmark qw(:all);
+
+# First we do the computation on some L_n,k's:
+open (RESULT, ">projectionBenchmark3.csv");
+
+my $maxN = 15;
+my ($t0,$t1,$s);
+
+#First the old way, then via projections
+for(my $i = 1; $i <= 1; $i++) {
+  if($i == 0) {
+    print RESULT "L_nk original\n";
+  }
+  else {
+    print RESULT "L_nk projection\n";
+  }
+  for(my $n = 3; $n <= $maxN; $n++) {
+    print RESULT $n,";";
+    for(my $k = 1; $k <= $n; $k++) {
+      print "n: $n, k: $k\n";  
+      my $l = tropical_lnk($n,$k);
+      if($i == 1) {
+	$t0 = Benchmark->new;
+	$l->LATTICE_GENERATORS;
+	$l->LATTICE_NORMALS;
+	$t1 = Benchmark->new;
+	$s = timediff($t1,$t0);
+	print RESULT $$s[0],";";
+      }
+      else {
+	$t0 = Benchmark->new;
+	$l->LATTICE_NORMALS;
+	$t1 = Benchmark->new;
+	$s = timediff($t1,$t0);
+	print RESULT $$s[0],";";
+      }
+    }# END k
+    print RESULT "\n";
+  }#END n
+}#END i
+
+#Then compute some M_0,ns
+# for(my $i = 0; $i <= 2; $i++) {
+#   if($i == 0) {
+#     print RESULT "M_0,n original\n";
+#   }
+#   if($i == 1) {
+#     print RESULT "M_0,n projection\n";
+#   }
+#   if($i == 2) {
+#     print RESULT "M_0,n projection unimodular\n";
+#   }
+#   
+#   for(my $n = 5; $n <= 8; $n++) {
+#     print "M_0,$n\n";
+#     my $m = tropical_m0n($n);
+#     my $mcopy = new WeightedComplex(RAYS=>$m->RAYS,MAXIMAL_CONES=>$m->MAXIMAL_CONES,TROPICAL_WEIGHTS=>$m->TROPICAL_WEIGHTS,IS_UNIMODULAR=>TRUE);
+#     $t0 = Benchmark->new;
+#     if($i == 0) {
+#       $m->LATTICE_NORMALS;
+#     }
+#     if($i == 1) {
+#       $m->LATTICE_GENERATORS;
+#       $m->LATTICE_NORMALS;
+#     }
+#     if($i == 2) {
+#       $mcopy->LATTICE_GENERATORS;
+#       $mcopy->LATTICE_NORMALS;
+#     }
+#     $t1 = Benchmark->new;
+#     $s = timediff($t1,$t0);
+#     print RESULT $$s[0],";";
+#   }
+#   print RESULT "\n";
+# }
+
+close(RESULT);

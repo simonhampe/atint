@@ -446,7 +446,7 @@ namespace polymake { namespace atint{
     if(!uses_homog) complex = complex.CallPolymakeMethod("homogenize");
     matrix = zero_vector<Integer>() / matrix;
     matrix = unit_vector<Integer>(matrix.rows(),0) | matrix;
-    translate = 0 | translate;
+    translate = Rational(0) | translate;
     
     //Extract values
     Matrix<Rational> rays = complex.give("RAYS");

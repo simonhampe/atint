@@ -18,22 +18,14 @@
 #include "polymake/client.h"
 #include "polymake/Map.h"
 #include "polymake/Vector.h"
-#include "polymake/Rational.h"
 #include "polymake/Integer.h"
+#include "polymake/Rational.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0, typename T1>
-   FunctionInterface4perl( new_X, T0,T1 ) {
-      perl::Value arg0(stack[1]);
-      WrapperReturnNew(T0, (arg0.get<T1>()) );
-   };
-
-   Class4perl("Polymake::common::Map_A_Int_I_Vector__Rational_Z", Map< int, Vector< Rational > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Vector__Integer_Z", Map< int, Vector< Integer > >);
    Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Integer_Z_Z", Map< int, Map< int, Vector< Integer > > >);
+   Class4perl("Polymake::common::Map_A_Int_I_Vector__Rational_Z", Map< int, Vector< Rational > >);
    Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Rational_Z_Z", Map< int, Map< int, Vector< Rational > > >);
+   Class4perl("Polymake::common::Map_A_Int_I_Vector__Integer_Z", Map< int, Vector< Integer > >);
    OperatorInstance4perl(Binary_brk, perl::Canned< const Map< int, Map< int, Vector< Integer > > > >, int);
-   FunctionInstance4perl(new_X, Map< int, Map< int, Vector< Integer > > >, perl::Canned< const Map< int, Map< int, Vector< Integer > > > >);
-   FunctionInstance4perl(new_X, Map< int, Map< int, Vector< Rational > > >, perl::Canned< const Map< int, Map< int, Vector< Rational > > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

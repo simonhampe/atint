@@ -54,7 +54,7 @@ namespace polymake { namespace atint {
     std::pair<Matrix<Rational>, Matrix<Rational> > facets = 
       solver<Rational>().enumerate_facets(zero_vector<Rational>() | rays, zero_vector<Rational>() | lineality,
 				true,false);
-    ray = 0 | ray;
+    ray = Rational(0) | ray;
     //Check equations
     for(int l = 0; l < facets.second.rows(); l++) {
       if(facets.second.row(l) * ray != 0) return false;
@@ -183,7 +183,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
-  RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine) {
+  RefinementResult refinement(perl::Object X, perl::Object Y, bool repFromX, bool repFromY,bool computeAssoc,bool refine, bool forceLatticeComputation) {
     solver<Rational> sv;
     
     //Extract values of the variety
@@ -196,12 +196,23 @@ namespace polymake { namespace atint {
     int x_lineality_dim = X.give("LINEALITY_DIM");
     int ambient_dim = x_rays.cols() < x_lineality.cols() ? x_lineality.cols() : x_rays.cols();
     int x_dimension = X.give("CMPLX_DIM");	
-    Array<Integer> weights; bool weightsExist = false;
+    Vector<Integer> weights; bool weightsExist = false;
     if(X.exists("TROPICAL_WEIGHTS")) {
-      weights = X.give("TROPICAL_WEIGHTS");
+      Vector<Integer> w = X.give("TROPICAL_WEIGHTS");
+      weights = w;
       weightsExist = true;	
     }
     Vector<Set<int> > local_restriction = X.give("LOCAL_RESTRICTION");
+    bool lattice_exists = false;
+    Matrix<Integer> lattice_generators;
+    IncidenceMatrix<> lattice_bases;
+    if(X.exists("LATTICE_BASES") || forceLatticeComputation) {
+      Matrix<Integer> lg = X.give("LATTICE_GENERATORS");
+	lattice_generators = lg;
+      IncidenceMatrix<> lb = X.give("LATTICE_BASES");
+	lattice_bases = lb;
+      lattice_exists = true;
+    }
     
     dbgtrace << "Extracted X-values" << endl;
     
@@ -222,6 +233,8 @@ namespace polymake { namespace atint {
       int c_lineality_dim = 0;
       Vector<Set<int> > c_cones;
       Vector<Integer> c_weights;
+      Matrix<Integer> c_lattice_g = lattice_generators;
+      Vector<Set<int> > c_lattice_b;
     Matrix<Rational> rayRepFromX;
     Matrix<Rational> rayRepFromY;
     Matrix<Rational> linRepFromX;
@@ -399,6 +412,9 @@ namespace polymake { namespace atint {
 		dbgtrace << "Adding new cone" << endl;
 		c_cones |= interIndices;
 		if(weightsExist) c_weights |= weights[xc];
+		if(lattice_exists) {
+		  c_lattice_b |= lattice_bases.row(xc);
+		}
 		xrefinements[xc] += interIndices;
 		xcontainers |= xc;
 		ycontainers |= yc;
@@ -416,6 +432,7 @@ namespace polymake { namespace atint {
 	// lies in the local cone. If the cone spanned by these has the right dimension
 	// add it as a local cone
 	if(local_restriction.dim() > 0 && refine) {
+	  dbgtrace << "Recomputing local restriction " << endl;
 	  //Will contain the subdivision cones of the local cone we currently study
 	  Vector<Set<int> > local_subdivision_cones;
 	  for(int t = 0; t < xc_local_cones.dim(); t++) {
@@ -436,6 +453,7 @@ namespace polymake { namespace atint {
 		local_subdivided[xc_local_cones[t]] = true;
 	    }//END iterate all refinement cones of xc
 	    //Finally we add the minimal interior faces of the subdivision as new local cones
+	    dbgtrace << "Computing minimal interior cones" << endl;
 	    new_local_restriction |= minimal_interior(c_rays, local_subdivision_cones, x_uses_homog);
 	  }//END iterate all remaining local cones in xc
 	}//END refine local cones and remove non compatible maximal cones
@@ -474,6 +492,10 @@ namespace polymake { namespace atint {
       complex.take("LINEALITY_SPACE") << c_lineality;
       complex.take("USES_HOMOGENEOUS_C") << x_uses_homog;
       if(weightsExist) complex.take("TROPICAL_WEIGHTS") << c_weights;
+      if(lattice_exists) {
+	complex.take("LATTICE_BASES") << c_lattice_b;
+	complex.take("LATTICE_GENERATORS") << lattice_generators;
+      }
       complex.take("LOCAL_RESTRICTION") << local_restriction_result;
     }
     else {

@@ -114,7 +114,7 @@ namespace polymake { namespace atint {
       for(Entire<Set<int> >::iterator d = entire(edge_set); !d.at_end(); d++) {
 	sum_of_leaves += delta.row(*d-1);
       }
-      sum_of_leaves = 0 | sum_of_leaves;
+      sum_of_leaves = Rational(0) | sum_of_leaves;
       //Compute the weight of the bounded edge as the mulitplicity of the 
       //directional ray wrt to the primitive one
       Vector<Rational> direction = sign * sum_of_leaves;

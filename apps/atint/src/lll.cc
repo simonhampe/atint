@@ -33,7 +33,7 @@ namespace polymake { namespace atint {
   
     ///////////////////////////////////////////////////////////////////////////////////////
     
-    Matrix<Integer> lllHNF(const Matrix<Integer> &matrix, Matrix<Integer> &tfmatrix, Integer &kernelDimension) {
+    Matrix<Integer> lllHNF(const Matrix<Integer> &matrix, Matrix<Integer> &tfmatrix, int &kernelDimension) {
 	
 	
       
@@ -187,6 +187,24 @@ namespace polymake { namespace atint {
 	return A;
     }
     
+   ///////////////////////////////////////////////////////////////////////////////////////
+    
+    Matrix<Integer> lllHNF_IntegerWrap(const Matrix<Integer> &matrix, Matrix<Integer> &tfmatrix, Integer &kernelDimension) {
+      int k;
+      Matrix<Integer> result = lllHNF(matrix,tfmatrix,k);
+      kernelDimension = Integer(k);
+      return result;
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////////////////
+    
+    Matrix<Integer> lllHNF_OnlyResult(const Matrix<Integer> &matrix) {
+      int k = 0;
+      Matrix<Integer> tf;
+      return lllHNF(matrix, tf, k);
+    }
+    
+    
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
  UserFunction4perl("# @category Linear algebra"
@@ -197,8 +215,15 @@ namespace polymake { namespace atint {
                   "# @param Matrix<Integer> tfmatrix The matrix that will contain the transformation matrix"
                   "# @param Integer kdim This will be set to dim Ker(A)"                  
                   "# @return Matrix",
-                  &lllHNF,"lllHNF(Matrix<Integer>,Matrix<Integer>,Integer)");           
+                  &lllHNF_IntegerWrap,"lllHNF(Matrix<Integer>,Matrix<Integer>,Integer)");           
 
-  
+  UserFunction4perl("# @category Linear algebra"
+		    "# Does exactly the same as lllHNF(Matrix,Matrix,Integer), except "
+		    "# that it only returns the normal form and not the transformation matrix"
+		    "# and the kernel dimension"
+		    "# @param Matrix<Integer> matrix the matrix for which the transformation is computed"
+		    "# @return Matrix<Integer> The HNF of matrix",
+		    &lllHNF_OnlyResult,"lllHNF(Matrix<Integer>)");
+ 
 }
 }

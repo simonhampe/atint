@@ -116,6 +116,7 @@ namespace polymake { namespace atint {
 	fan.take("MAXIMAL_CONES") << IncidenceMatrix<>( kSets);
 	fan.take("TROPICAL_WEIGHTS") << weights;
 	fan.take("USES_HOMOGENEOUS_C") << false;
+	fan.take("IS_UNIMODULAR") << true;
 	fan.take("DESCRIPTION") << dsc.str();
 	
 	dbgtrace << "Returning fan" << endl;
@@ -283,7 +284,7 @@ namespace polymake { namespace atint {
 	//Compute the norm squared of g
 	Rational sum = accumulate(attach_operation(g,operations::square()),operations::add());
 	Vector<Rational> vertex = (a / sum) * g;
-	  vertex = 1 | vertex;
+	  vertex = Rational(1) | vertex;
 	rays = zero_vector<Rational>() | rays;
 	rays /= vertex;
 	first += 2;
@@ -443,6 +444,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cones;
 	result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << true;
+	result.take("IS_UNIMODULAR") << true;
 	result.take("DESCRIPTION") << dsc.str();
       return result;	
     }
@@ -488,6 +490,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cones;
 	result.take("USES_HOMOGENEOUS_C") << true;
 	result.take("TROPICAL_WEIGHTS") << weights;
+	result.take("IS_UNIMODULAR") << true;
 	
       return result;
     }

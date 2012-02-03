@@ -205,9 +205,13 @@ object WeightedComplex {
 	property LATTICE_GENERATORS : Matrix<Integer>;
 	
 	# @category Tropical geometry / Lattice normals
-	# This incidence matrix gives a lattice basis for each maximal cone. Row i 
+	# This incidence matrix gives a lattice basis for each maximal cone. More precisely it 
+	# gives a lattice basis whose span contains the lattice of the maximal cone. Row i 
 	# corresponds to cone i and gives lattice generator indices referring to
 	# [[LATTICE_GENERATORS]]
+	# If this property is computed via rules, it does indeed give a lattice basis for the
+	# cone lattice, but when it is computed during an operation like refinement or divisor
+	# it will in general be larger.
 	# If this property exists, lattice normals might be computed faster.
 	# If you create a variety with the property [[IS_UNIMODULAR]] set to TRUE, then
 	# this will simply be a copy of [[MAXIMAL_CONES]]
@@ -215,7 +219,8 @@ object WeightedComplex {
 	
 	# @category Tropical geometry / Lattice normals
 	# This property is not computed anywhere but should be set to TRUE by the user upon 
-	# initialization, if all cones of the fan/complex are unimodular, i.e. their rays generate 
+	# initialization, if all cones of the fan/complex are unimodular in the sence that 
+	# ANY linearly independent subset of their rays generates 
 	# the lattice of the cone
 	# If this property is TRUE, [[LATTICE_GENERATORS]] and [[LATTICE_BASES]] can be computed
 	# much faster.
@@ -314,14 +319,9 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	  
-	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM {
-	  die "This mechanism is not implemented yet.";
-	}
-	precondition : defined(LATTICE_GENERATORS);
-	precondition : CMPLX_CODIMENSION 
-	{
-	  my $this = shift;
-	  $this->CMPLX_CODIMENSION >= 2;
+	# We prefer this rule since it seems to be always faster
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM, USES_HOMOGENEOUS_C, LATTICE_GENERATORS, LATTICE_BASES {
+	  computeProjectionLattice($this);
 	}
 	weight 3.5;
 	
@@ -405,8 +405,8 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule LATTICE_BASES, LATTICE_GENERATORS : RAYS, MAXIMAL_CONES, DIRECTIONAL_RAYS, IS_UNIMODULAR, USES_HOMOGENEOUS_C, LINEALITY_SPACE {
-	  
+	rule LATTICE_BASES, LATTICE_GENERATORS : RAYS, MAXIMAL_CONES, DIRECTIONAL_RAYS, VERTICES, IS_UNIMODULAR, LINEALITY_SPACE {
+	  computeLatticeBases($this);
 	}
 	
 	## METHODS #################################################################
@@ -512,8 +512,24 @@ object WeightedComplex {
 	  
 	  my @weight = defined($this->lookup("TROPICAL_WEIGHTS"))? @{$this->TROPICAL_WEIGHTS} : ();
 	  
-	  return new WeightedComplex(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
+	  #If lattice bases have been computed, we need to copy them
+	  my $lattice_exists = defined($this->lookup("LATTICE_BASES"));
+	  my $lattice_bases = new IncidenceMatrix();
+	  my $lattice_generators = new Matrix<Integer>();
+	  if($lattice_exists) {
+	    $lattice_bases = $this->LATTICE_BASES;
+	    $lattice_generators = $this->LATTICE_GENERATORS;
+	    $lattice_generators = (zero_vector<Integer>($lattice_generators->rows())) | $lattice_generators;
+	  }
+	  
+	  if(!$lattice_exists) {
+	    return new WeightedComplex(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
 				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE, LOCAL_RESTRICTION=>\@new_local_restriction);
+	  }
+	  else {
+	    return new WeightedComplex(RAYS=>$rayMatrix,MAXIMAL_CONES=>\@newmcones,TROPICAL_WEIGHTS=>\@weight,
+				   USES_HOMOGENEOUS_C=>TRUE, LINEALITY_SPACE=> (zero_vector<Rational>($this->LINEALITY_DIM)) | $this->LINEALITY_SPACE, LOCAL_RESTRICTION=>\@new_local_restriction, LATTICE_BASES=>$lattice_bases, LATTICE_GENERATORS=>$lattice_generators);
+	  }
 	}
 	
 # 	# @category Polyhedral geometry
