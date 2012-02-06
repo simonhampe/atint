@@ -21,6 +21,7 @@
 #include "polymake/client.h"
 #include "polymake/Array.h"
 #include "polymake/RandomGenerators.h"
+#include "polymake/Set.h"
 
 namespace polymake { namespace atint {
 
@@ -37,6 +38,7 @@ namespace polymake { namespace atint {
     for(int i = 0; i < n; i++) {
 	result[i] = rg.get();
     }
+//     
     return result;
   }
   

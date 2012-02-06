@@ -170,7 +170,7 @@ namespace polymake { namespace atint {
 			for(int c = 1; c < m.cols(); c++) {
 			  gc = gcd(gc,result(r,c));
 			}
-			result.row(r) = (1/gc) * result.row(r);
+			result.row(r) = (1/Rational(gc)) * result.row(r);
 		}
 		return result;
 	}
@@ -188,7 +188,7 @@ namespace polymake { namespace atint {
 	  for(int c = 1; c < result.dim(); c++) {
 	    gc = gcd(gc,result[c]);
 	  }
-	  result = (1/gc) * result;
+	  result = (1/Rational(gc)) * result;
 	  
 	  return result;
 	}

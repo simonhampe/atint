@@ -155,19 +155,33 @@ object Morphism {
 ######################################## FUNCTIONS ###################################
 
 # @category Tropical geometry / Rational functions
-# Computes the pull back of a rational function along a morphism
+# Computes the pull back of a rational function (or a list of rational functions) along a morphism
 # @param Morphism f A morphism
-# @param RationalFunction phi A rational function whose [[DOMAIN]] contains the image of f
-# @return RationalFunction The pull-back of phi along f.
+# @param RationalFunction phi A rational function whose [[DOMAIN]] contains the image of f (or a list of RationalFunction objects)
+# @return RationalFunction The pull-back of phi along f. If a list of functions was given, it returns an array with the pull-backs of these functions
 user_function pull_back {
-  my ($f,$phi) = @_;
+  my ($f,@phi_list) = @_;
   
-  #Distinguish cases
-  if($f->IS_GLOBAL) {
-    if($phi->isa("MinMaxFunction")) {
-      return pb_minmax_global($f,$phi);
+  my @result = ();
+  
+  for my $phi (@phi_list) {
+    #Distinguish cases
+    if($f->IS_GLOBAL) {
+      if($phi->isa("MinMaxFunction")) {
+	@result = (@result, pb_minmax_global($f,$phi));
+      }
+      else {
+	die "Not implemented yet\n";
+      }
+    }
+    else  {
+      die "Not implemented yet\n";
     }
   }
   
-  die "Not implemented yet\n";
+  if(scalar(@result) == 1) {
+    return $result[0];
+  }
+  return @result;
+  
 }

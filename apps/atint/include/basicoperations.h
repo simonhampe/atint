@@ -41,9 +41,18 @@ namespace polymake { namespace atint{
   
   /**
     @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1. The [[LOCAL_RESTRICTION]] of the result will be the cartesian product of the [[LOCAL_RESTRICTION]]s of each complex. (If a complex does not have any restrictions, the new local restriction is the (pairwise) product of all local restriction cones with the vertices of the next complex)
+    @param std::vector<perl::Object> complexes A list of WeightedComplex objects
     @return The cartesian product of the complexes
   */
   perl::Object compute_product_complex(std::vector<perl::Object> complexes) ;
+  
+  /**
+   @brief Does the same as compute_product_complex, except that it computes for each element in complexes the properties [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] before computing the product. This is more efficient than computing these properties for the product afterwards.
+   @param std::vector<perl::Object> complexes A list of WeightedComplex objects
+   @return The cartesian product of the complexes, with properties [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] already computed.
+   */
+  perl::Object compute_product_complex_lattice(std::vector<perl::Object> complexes);
+  
   
   /**
    @brief Takes a weighted complex and computes the refinement of the fan along the halfspace fans given by the rows of a matrix

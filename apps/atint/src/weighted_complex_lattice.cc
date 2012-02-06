@@ -402,6 +402,7 @@ namespace polymake { namespace atint {
    @brief Takes a WeightedComplex and computed the properties LATTICE_GENERATORS and LATTICE_BASES
    */
   void computeLatticeBases(perl::Object complex) {
+    dbgtrace << "Computing lattice " << endl;
     //Extract properties
     Matrix<Rational> rays = complex.give("RAYS");
     Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");

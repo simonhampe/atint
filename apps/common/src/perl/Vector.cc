@@ -21,12 +21,22 @@
 #include "polymake/Rational.h"
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/SparseVector.h"
+#include "polymake/Matrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0, typename T1>
+   FunctionInterface4perl( new_X, T0,T1 ) {
+      perl::Value arg0(stack[1]);
+      WrapperReturnNew(T0, (arg0.get<T1>()) );
+   };
+
    Class4perl("Polymake::common::Vector__Bool", Vector< bool >);
    Class4perl("Polymake::common::Vector__Set__Int", Vector< Set< int > >);
    Class4perl("Polymake::common::Vector__String", Vector< std::string >);
    OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::SameElementVector<pm::Rational const&> >);
    OperatorInstance4perl(convert, Vector< Set< int > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
+   FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const SparseVector< Rational > >);
+   FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, false>, void> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

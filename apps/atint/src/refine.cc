@@ -481,6 +481,7 @@ namespace polymake { namespace atint {
       //Remove unused rays
       Set<int> used_rays = accumulate(c_cones, operations::add());
       c_rays = c_rays.minor(used_rays,All);
+      c_lattice_b = c_lattice_b.slice(~removableCones);
       c_cones_result = c_cones_result.minor(~removableCones,used_rays);
       local_restriction_result = local_restriction_result.minor(All,used_rays);      
     }//END finish up locality computation

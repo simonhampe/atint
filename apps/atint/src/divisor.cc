@@ -126,9 +126,9 @@ namespace polymake { namespace atint {
 	  if(codimOneCones.rows() == 0) return CallPolymakeFunction("zero_cycle");
 	IncidenceMatrix<> coneIncidences = result.give("CODIM_1_IN_MAXIMAL_CONES");
       
+	Map<int, Map<int, Vector<Integer> > > latticeNormals = result.give("LATTICE_NORMALS");
 	Map<int, Map<int, Vector<Rational> > > lnFunctionVector = result.give("LATTICE_NORMAL_FCT_VECTOR");
 	Matrix<Rational> lsumFunctionVector = result.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
-	Map<int, Map<int, Vector<Integer> > > latticeNormals = result.give("LATTICE_NORMALS");
 	Vector<bool> balancedFaces = result.give("BALANCED_FACES");
 	
 	//Recompute the lattice bases

@@ -411,3 +411,22 @@ object MinMaxFunction {
     }
     return @result;
   }
+  
+  
+  # @category Rational functions
+  # This takes a vector v = (v_1,...,v_n) in R^n and returns the list of rational functions
+  # max(v_i,x_i), i.e. a list of functions cutting out that point in R^n. 
+  # @param Vector<Rational> v A vector in R^n (in non-homog. coordinates!)
+  # @return RationalFunction An array of RationalFunction objects, which cut out v in R^n
+  user_function function_point {
+    my $v = shift;
+    my @result = ();
+    for(my $i = 0; $i < $v->dim(); $i++) {
+      my $matrix = new Matrix<Rational>(0,$v->dim()+1);
+      $matrix = $matrix / new Vector<Rational>(unit_vector<Rational>($v->dim()+1,$i));
+      $matrix = $matrix / new Vector<Rational>(($v->[$i] * unit_vector<Rational>($matrix->cols(),$matrix->cols()-1)));
+      my $psi = new MinMaxFunction(FUNCTION_MATRIX=>$matrix);
+      @result = (@result,$psi);
+    }
+    return @result;
+  }

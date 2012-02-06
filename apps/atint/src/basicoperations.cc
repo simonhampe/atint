@@ -67,6 +67,8 @@ namespace polymake { namespace atint{
   perl::Object compute_product_complex(std::vector<perl::Object> complexes) {
       dbgtrace << "Generating container variables for result" << endl;
     
+      //** EXTRACT FIRST COMPLEX ********************************************
+      
       perl::Object firstComplex = complexes[0];
       //This will contain the sets describing the maximal cones
       Vector<Set<int> > maximalCones = firstComplex.give("MAXIMAL_CONES");
@@ -82,6 +84,19 @@ namespace polymake { namespace atint{
       }
       bool product_uses_homog = firstComplex.give("USES_HOMOGENEOUS_C");
       Vector<Set<int> > local_restriction = firstComplex.give("LOCAL_RESTRICTION");
+      
+      bool product_unimodular = firstComplex.give("IS_UNIMODULAR");
+      bool product_has_lattice = firstComplex.exists("LATTICE_BASES");
+      Matrix<Integer> product_l_generators;
+      Vector<Set<int> > product_l_bases;
+      if(product_has_lattice) {
+	dbgtrace << "Extracting first lattice " << endl;
+	Matrix<Integer> lg = firstComplex.give("LATTICE_GENERATORS");
+	  product_l_generators = lg;
+	Vector<Set<int> > lb = firstComplex.give("LATTICE_BASES");
+	  product_l_bases = lb;
+      }
+      
       //int product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
       int product_dim = rayMatrix.rows() > 0? rayMatrix.cols() : linMatrix.cols();
       //Sort rays by affine and directional
@@ -93,6 +108,8 @@ namespace polymake { namespace atint{
       
       
       dbgtrace << "Iterating over all " << complexes.size() -1 << " complexes: " << endl;
+      
+      //** ITERATE OTHER COMPLEXES ********************************************
       
       for(unsigned int i = 1; i < complexes.size(); i++) {
 	dbgtrace << "Considering complex nr. " << i+1 << endl;
@@ -110,6 +127,9 @@ namespace polymake { namespace atint{
 	  uses_weights = true;
 	  preweights = complexes[i].give("TROPICAL_WEIGHTS");
 	}
+	
+	// ** RECOMPUTE RAY DATA ***********************************************
+	
 	//Sort rays
 	Set<int> complex_affine;
 	Set<int> complex_directional;
@@ -194,6 +214,43 @@ namespace polymake { namespace atint{
 	
 	dbgtrace << "Prelin = " << prelin << "\nlinMatrix = " << linMatrix << endl;
 	
+	// ** RECOMPUTE LATTICE DATA ***************************************
+	
+	//Compute lattice data
+	bool complex_unimodular = complexes[i].give("IS_UNIMODULAR");
+	product_unimodular = product_unimodular && complex_unimodular;
+	bool complex_has_lattice = complexes[i].exists("LATTICE_BASES");
+	product_has_lattice = product_has_lattice && complex_has_lattice;
+	int lattice_index_translation = 0; //Number of row where new lattice gens. begin
+	
+	Vector<Set<int> > new_lattice_bases;
+	
+	Matrix<Integer> complex_lg;
+	IncidenceMatrix<> complex_lb;
+	if(product_has_lattice) {
+	  Matrix<Integer> clg = complexes[i].give("LATTICE_GENERATORS");
+	    complex_lg = clg;
+	  IncidenceMatrix<> clb = complexes[i].give("LATTICE_BASES");
+	    complex_lb = clb;
+	  //Compute cartesian product of lattice matrices:
+	  //Adjust dimension, then concatenate
+	  if(uses_homog) {
+	      if(complex_lg.rows() > 0) complex_lg = complex_lg.minor(All,~scalar2set(0));
+	      if(!product_uses_homog) {
+		product_l_generators = zero_vector<Integer>() | product_l_generators;
+	      }
+	  }
+	  product_l_generators = 
+	    product_l_generators | Matrix<Integer>(product_l_generators.rows(), dim);
+	  complex_lg = 
+	    Matrix<Integer>(complex_lg.rows(), product_dim) | complex_lg;	    
+	  lattice_index_translation = product_l_generators.rows();
+	  product_l_generators /= complex_lg;
+	  
+	}
+	
+	// ** RECOMPUTE CONES *******************************************
+	
 	//Copy values
 	rayMatrix = newRays;
 	linMatrix = linMatrix.rows() == 0? prelin : (prelin.rows() == 0? linMatrix : linMatrix / prelin);
@@ -205,7 +262,7 @@ namespace polymake { namespace atint{
 // 	dbgtrace << "Affine indices " << affineIndices << endl;
 // 	dbgtrace << "Directional indices product" << pdirIndices << endl;
 // 	dbgtrace << "Directional indices complex" << cdirIndices << endl;
-// 	
+	
 	//Now create the new cones and weights:
 	Vector<Set<int> > newMaxCones;
 	Vector<Integer> newWeights;
@@ -217,13 +274,13 @@ namespace polymake { namespace atint{
 	    if(!product_uses_homog && uses_homog) {
 	      product_cone = product_cone + (-1);
 	    }
-	    dbgtrace << "Product cone: " << product_cone << endl;
+// 	    dbgtrace << "Product cone: " << product_cone << endl;
 	    for(int cmax = 0; cmax < premax.rows(); cmax++) {
 	      Set<int> complex_cone = premax.row(cmax);
 	      if(!uses_homog && product_uses_homog) {
 		complex_cone = complex_cone + (-1);
 	      }
-	      dbgtrace << "Complex cone: " << complex_cone << endl;
+// 	      dbgtrace << "Complex cone: " << complex_cone << endl;
 	      Set<int> newcone;
 	      Set<int> pAffine = product_cone * product_affine;
 	      Set<int> pDirectional = product_cone * product_directional;
@@ -250,6 +307,11 @@ namespace polymake { namespace atint{
 	      //Compute weight
 	      if(product_has_weights || uses_weights) {
 		newWeights = newWeights | (product_has_weights? weights[pmax] : Integer(1)) * (uses_weights? preweights[cmax] : Integer(1));
+	      }
+	      //Compute lattice data
+	      if(product_has_lattice) {
+		Set<int> cone_l_basis = product_l_bases[pmax] + Set<int>( translate(complex_lb.row(cmax),lattice_index_translation));
+		new_lattice_bases |= cone_l_basis;
 	      }
 	    }
 	}
@@ -301,6 +363,8 @@ namespace polymake { namespace atint{
 	  }
 	}
 	
+	// ** COPY VALUES ONTO NEW PRODUCT ***************************************
+	
 	//Copy values
 	product_affine = newAffine;
 	product_directional = newDirectional;
@@ -309,6 +373,7 @@ namespace polymake { namespace atint{
 	product_uses_homog = product_uses_homog || uses_homog;
 	product_has_weights = product_has_weights ||  uses_weights;
 	local_restriction = Vector<Set<int> > (new_local_restriction);
+	product_l_bases = new_lattice_bases;
       }
     
       //Fill fan with result
@@ -319,9 +384,24 @@ namespace polymake { namespace atint{
 	if(product_has_weights) result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << product_uses_homog;
 	result.take("LOCAL_RESTRICTION") << local_restriction;
+	if(product_has_lattice) {
+	    result.take("LATTICE_BASES") << product_l_bases;
+	    result.take("LATTICE_GENERATORS") << product_l_generators;
+	}
+	result.take("IS_UNIMODULAR") << product_unimodular;
 	
       return result;
          
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  perl::Object compute_product_complex_lattice(std::vector<perl::Object> complexes) {
+    for(unsigned int i = 0; i < complexes.size(); i++) {
+      complexes[i].give("LATTICE_BASES");
+    }
+    return compute_product_complex(complexes);
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -547,6 +627,8 @@ namespace polymake { namespace atint{
   Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   
   Function4perl(&compute_product_complex,"compute_product_complex(;@)");
+  
+  Function4perl(&compute_product_complex_lattice, "compute_product_complex_lattice(;@)");
   
   Function4perl(&facetRefinement,"facetRefinement(WeightedComplex,Matrix<Rational>)");
   
