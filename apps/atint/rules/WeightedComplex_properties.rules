@@ -572,5 +572,15 @@ object WeightedComplex {
 	  if($cplx->HOMOLOGY->size() > 1) {return $cplx->HOMOLOGY->[1]->[1];}
 	  else { return 0;}
 	}
+	
+	# @category Tropical geometry / Local computations
+	# Takes a WeightedComplex and returns the same complex, but without any 
+	# [[LOCAL_RESTRICTION]]
+	# @param WeightedComplex w
+	# @return WeightedComplex
+	user_method delocalize {
+	  my $this = shift;
+	  return new WeightedComplex(RAYS=>$this->RAYS,MAXIMAL_CONES=>$this->MAXIMAL_CONES,LINEALITY_SPACE=>$this->LINEALITY_SPACE,TROPICAL_WEIGHTS=>$this->TROPICAL_WEIGHTS, USES_HOMOGENEOUS_C=>$this->USES_HOMOGENEOUS_C);
+	}
 
 }
