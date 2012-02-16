@@ -31,5 +31,10 @@ namespace polymake { namespace common {
 
    FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::SameElementSparseVector<pm::SingleElementSet<int>, pm::Rational> const&> > >);
    FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::Transposed<pm::Matrix<pm::Rational> > >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

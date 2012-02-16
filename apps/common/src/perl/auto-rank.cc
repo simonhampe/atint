@@ -16,13 +16,20 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/client.h"
-#include "polymake/Rational.h"
 #include "polymake/linalg.h"
-#include "polymake/Array.h"
-#include "polymake/Integer.h"
+#include "polymake/Rational.h"
+#include "polymake/Matrix.h"
+#include "polymake/IncidenceMatrix.h"
+#include "polymake/Set.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   OperatorInstance4perl(Binary_mul, perl::Canned< const Rational >, perl::Canned< const pm::SameElementSparseVector<pm::SingleElementSet<int>, pm::Rational> >);
-   OperatorInstance4perl(assign, Rational, perl::Canned< const Array< Integer > >);
+   template <typename T0>
+   FunctionInterface4perl( rank_X, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( rank(arg0.get<T0>()) );
+   };
+
+   FunctionInstance4perl(rank_X, perl::Canned< const pm::MatrixMinor<pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> const&, pm::all_selector const&, pm::Set<int, pm::operations::cmp> const&> >);
+   FunctionInstance4perl(rank_X, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational>&, pm::all_selector const&, pm::Set<int, pm::operations::cmp> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

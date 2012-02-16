@@ -16,13 +16,20 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/client.h"
-#include "polymake/Rational.h"
 #include "polymake/linalg.h"
-#include "polymake/Array.h"
-#include "polymake/Integer.h"
+#include "polymake/Rational.h"
+#include "polymake/Matrix.h"
+#include "polymake/IncidenceMatrix.h"
+#include "polymake/Set.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   OperatorInstance4perl(Binary_mul, perl::Canned< const Rational >, perl::Canned< const pm::SameElementSparseVector<pm::SingleElementSet<int>, pm::Rational> >);
-   OperatorInstance4perl(assign, Rational, perl::Canned< const Array< Integer > >);
+   template <typename T0, typename T1, typename T2>
+   FunctionInterface4perl( minor_X_X_f5, T0,T1,T2 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      WrapperReturnLvalue( T0, arg0.get<T0>().minor(arg1.get<T1>(), arg2.get<T2>()) );
+   };
+
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> > >, perl::Enum<pm::all_selector>, perl::Canned< const Set< int > >);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< Wary< Matrix< Rational > > >, perl::Enum<pm::all_selector>, perl::Canned< const Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

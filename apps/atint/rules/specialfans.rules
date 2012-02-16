@@ -180,19 +180,90 @@ user_function is_zerocycle {
   return new Bool(TRUE);
 }
 
-# # @category Tropical geometry
-# # Creates the tropical cube T^n_k, i.e. the tropical variety obtained by glueing together the 2^n 
-# # L^n_k obtained by applying all possible sign changes, such that the vertices form the k-skeleton of
-# # the n-dimensional cube
-# # @param Int n The ambient dimension
-# # @param Int k The dimension of the cube
-# # @return WeightedComplex cube
-# user_function tropical_cube {
-#   my ($n,$k) = @_;
+# #EXPERIMENTAL
+# user_function analyse_flats {
+#   my ($m,$r) = @_;
+#   for(my $i = 0; $i < $r->rows(); $i++) {
+#     my $s = new Set<Int>();
+#     for(my $c = 0; $c < $r->cols(); $c++) {
+#       if($r->row($i)->[$c] == 1) {
+# 	$s = $s + $c;
+#       }
+#     }
+#     print rank($m->minor(All,$s)),"\n";
+#   }
+# }
+# 
+# #EXPERIMENTAL
+# user_function vamos_matroid {
+#   #Create all 4-subsets of 0..7
+#   my @foursets = all_subsets_of_k(4,0..7);
+#   my @bases = ();
+#   #Exclue 1,2,3,4 / 1,2,5,6 / 1,2,7,8 / 3,4,5,6 / 3,4,7,8
+#   my $s1 = new Set<Int>(0,1,2,3);
+#   my $s2 = new Set<Int>(0,1,4,5);
+#   my $s3 = new Set<Int>(0,1,6,7);
+#   my $s4 = new Set<Int>(2,3,4,5);
+#   my $s5 = new Set<Int>(2,3,6,7);
+#   for my $f (@foursets) {
+#     my $s = new Set<Int>($f);
+#     if(!($s == $s1 || $s == $s2 || $s == $s3 || $s == $s4 || $s == $s5)) {
+#       @bases = (@bases,$s);
+#     }
+#   }
 #   
-#   #First of all, prepare the k-skeleton of the classical cube
-#   my $c = polytope::cube($n);
-#   my $cfan = new WeightedComplex(RAYS=>$c->VERTICES,MAXIMAL_CONES=>$c->RAYS_IN_FACETS,USES_HOMOGENEOUS_C=>TRUE);
-#   my $s = skeleton_complex($cfan,$k,TRUE);
-#   return $s;
+#   my $mat = new matroid::Matroid(N_ELEMENTS=>8,BASES=>\@bases);
+#   return $mat;
+#   
+# }
+# 
+# #EXPERIMENTAL
+# user_function excluding_sets {
+#   my ($k,$n,$I) = @_;
+#   my @bases = ();
+#   my @ksets = all_subsets_of_k($k,0..($n-1));
+#   for my $S (@ksets) {
+#     my $isbad = 0;
+#     my $Sset = new Set<Int>($S);
+#     for(my $r = 0; $r < $I->rows; $r++) {
+#       if($I->row($r) == $Sset) {
+# 	$isbad = 1; last;
+#       }
+#     }
+#     if($isbad == 0) {
+#       @bases = (@bases,$Sset);
+#     }
+#   }
+#   return @bases;
+# }
+# 
+# #EXPERIMENTAL
+# user_function random_matrix {
+#   my ($m,$n) = @_;
+#   my $r = randomInteger(21,$m * $n);
+#   my $matrix = new Matrix<Rational>(0,$n);
+#   my @v = ();
+#   for(my $s = 0; $s < $m; $s++) {
+#     @v = ();
+#     for(my $t = 0; $t < $n; $t++) {
+#       @v = (@v, $r->[$s * $n + $t]-10);
+#     }
+#     $matrix =  $matrix / (new Vector<Rational>(\@v));
+#   }
+#   return $matrix;
+# }
+# 
+# #EXPERIMENTAL
+# user_function test_matroid_fans {
+#   my ($m,$n,$t) = @_;
+#   my $count = 0;
+#   for(my $x = 0; $x < $t; $x++) {
+#     my $matrix = random_matrix($m,$n);
+#     my $f = bergman_fan_linear($matrix);
+#     if($f->MAXIMAL_CONES->rows() - coarsen($f)->MAXIMAL_CONES->rows != 0) {
+#       print $matrix,"\n\n";
+#       $count ++;
+#     }
+#   }
+#   print "Properly coarsend matrices: $count\n";
 # }

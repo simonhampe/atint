@@ -53,6 +53,10 @@ user_function divisor {
   
   $k = -1 unless defined($k);
   
+  if(is_zerocycle($X)) {
+    return $X;
+  }
+  
   if($f->isa("MinMaxFunction")) {
     return divisor_minmax($X,$f,($k == -1? $f->POWER : $k));
   }

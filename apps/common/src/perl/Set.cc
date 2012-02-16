@@ -30,5 +30,6 @@ namespace polymake { namespace common {
    Class4perl("Polymake::common::Set__String", Set< std::string >);
    FunctionInstance4perl(new, Set< std::string >);
    OperatorInstance4perl(Binary_add, perl::Canned< const Set< int > >, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >);
+   OperatorInstance4perl(Binary__eq, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> >&> >, perl::Canned< const Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
