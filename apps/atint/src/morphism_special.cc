@@ -125,7 +125,7 @@ namespace polymake { namespace atint {
 		    "# @param Int n The number of marked points"
 		    "# @param Int r The dimension of the embedding space"
 		    "# @param Int d The degree of the embedding. The direction matrix will be"
-		    "# the standard d-fold directions"
+		    "# the standard d-fold directions (first (1,...1), then the inverted unit vectors)"
 		    "# @param Int i The index of the marked point that should be evaluated. i "
 		    "# should lie in between 1 and n"
 		    "# @return Morphism ev_i. Its domain is the ambient space of the moduli space "

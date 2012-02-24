@@ -108,6 +108,7 @@ namespace polymake { namespace atint {
       Matrix<Rational> rays = Z.give("RAYS");
       Vector<Integer> weights = Z.give("TROPICAL_WEIGHTS");
       Matrix<Rational> lineality = Z.give("LINEALITY_SPACE");
+      IncidenceMatrix<> local_restriction = Z.give("LOCAL_RESTRICTION");
       
       //If we only have lineality spaces, we're done
       if(rays.rows() == 0) {

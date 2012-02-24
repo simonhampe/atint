@@ -520,6 +520,8 @@ namespace polymake { namespace atint {
 		      "# glueing together the 2^n L^n_k obtained by applying all possible sign "
 		      "# changes, such that the vertices form the k-skeleton of "
 		      "# the n-dimensional cube"
+		      "# Alternatively, T^n_k can be seen as"
+		      "# max(1,x_1,...,x_n,-x_1,...,-x_n)^(n-k) * R^n"
 		      "# @param Int n The ambient dimension"
 		      "# @param Int k The dimension of the cube"
 		      "# @return WeightedComplex cube",

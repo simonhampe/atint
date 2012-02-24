@@ -436,11 +436,11 @@ namespace polymake { namespace atint {
 	  //Will contain the subdivision cones of the local cone we currently study
 	  Vector<Set<int> > local_subdivision_cones;
 	  for(int t = 0; t < xc_local_cones.dim(); t++) {
+	    Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
+	    int local_cone_dim = rank(lrays) + x_lineality_dim;
 	    for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
 		//Check which rays of refinement cone lie in local cone
 		Set<int> cone_subset;
-		Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
-		int local_cone_dim = rank(lrays) + x_lineality_dim;
 		for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
 		  if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs))) {
 		      cone_subset += *cs;				      
@@ -467,6 +467,7 @@ namespace polymake { namespace atint {
     //At the end we still have to check if all maximal cones are still compatible
     //and remove those that aren't
     if(local_restriction.dim() > 0 && refine) {
+      dbgtrace << "Cleaning up for local restriction " << local_restriction_result << endl;
       Set<int> removableCones;
       for(int c = 0; c < c_cones.dim(); c++) {
 	if(!is_coneset_compatible(c_cones[c],local_restriction_result)) {
@@ -481,9 +482,12 @@ namespace polymake { namespace atint {
       //Remove unused rays
       Set<int> used_rays = accumulate(c_cones, operations::add());
       c_rays = c_rays.minor(used_rays,All);
-      c_lattice_b = c_lattice_b.slice(~removableCones);
+      if(lattice_exists) {
+	c_lattice_b = c_lattice_b.slice(~removableCones);
+      }
       c_cones_result = c_cones_result.minor(~removableCones,used_rays);
       local_restriction_result = local_restriction_result.minor(All,used_rays);      
+      dbgtrace << "Done" << endl;
     }//END finish up locality computation
     
     //Copy return values into the fan

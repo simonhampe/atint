@@ -33,7 +33,7 @@ CREDIT TropLi
 # @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
 # fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
 # @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.
-# @return The bergman fan of the given matroid in non-homog. coordinates
+# @return The bergman fan of the given matroid in non-homog. coordinates. This algorithm uses min-convention, so the rays are given as (0,1) - vectors
 user_function bergman_fan_linear {
   my ($matrix, $modOutLineality, $projectionCoordinate) = @_;
   
@@ -50,7 +50,7 @@ user_function bergman_fan_linear {
 # @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
 # fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
 # @param int projectionCoordinate Optional argument. An integer in {0,..,n-1}, where n is the number of elements of the matroid. If modOutLineality is set to TRUE, the standard basis vector with index projectionCoordinate is mapped to minus the sum of the remaining standard basis vectors to mod out the lineality space. By default, this is the last coordinate n-1.
-# @return The bergman fan of the given matroid in non-homog. coordinates
+# @return The bergman fan of the given matroid in non-homog. coordinates. This algorithm uses min-convention, so the rays are given as (0,1) - vectors
 user_function bergman_fan_matroid {
   my ($matroid, $modOutLineality,$projectionCoordinate) = @_;
   

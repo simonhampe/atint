@@ -52,6 +52,9 @@ namespace polymake { namespace atint {
     IncidenceMatrix<> maximalOverCodim = T(codimInMaximal);
     int noOfCones = maximalCones.rows();
     
+    //If the fan has no rays, it has only lineality space and we return the complex itself
+    if(rays.rows() == 0)  return complex;
+    
     //Compute equivalence classes of maximal cones
     Vector<Set<int> > equivalenceClasses;
     Vector<bool> hasBeenAdded(noOfCones); //contains whether a cone has been added to an equivalence class
