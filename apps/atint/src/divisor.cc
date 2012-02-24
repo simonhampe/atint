@@ -319,7 +319,7 @@ namespace polymake { namespace atint {
       perl::Object linearityDomains = function.give("NORMAL_FAN");
       
       dbglog << "Refining fan" << endl;
-      RefinementResult r = refinement(complex,linearityDomains,false,false,true,true);
+      RefinementResult r = refinement(complex,linearityDomains,false,false,true,true,true);
       
       //Extract values
       Matrix<Rational> rays = r.complex.give("CMPLX_RAYS");	
@@ -410,7 +410,7 @@ namespace polymake { namespace atint {
 	complex = complex.CallPolymakeMethod("homogenize");
       }
       dbgtrace << "Refining... " << endl;
-      RefinementResult r = refinement(complex,domain, false,true,false,true);
+      RefinementResult r = refinement(complex,domain, false,true,false,true,true);
       dbgtrace << "Done. " << endl;
       
       

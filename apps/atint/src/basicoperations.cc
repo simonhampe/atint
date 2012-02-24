@@ -337,12 +337,17 @@ namespace polymake { namespace atint{
 	    }
 	  }
 	  
+	  dbgtrace << "pro_locality " << product_locality << endl;
+	  dbgtrace << "pre_locality " << pre_locality << endl;
+	  
 	  for(int i = 0; i < product_locality.dim(); i++) {
 	    Set<int> pAffine = product_locality[i] * product_affine;
+	    if(!product_uses_homog && uses_homog) pAffine += (-1);
 	    Set<int> pDirectional = product_locality[i] * product_directional;
 	    for(int j = 0; j < pre_locality.dim(); j++) {
 	      Set<int> local_cone;
 	      Set<int> cAffine = pre_locality[j] * complex_affine;
+	      if(product_uses_homog && !uses_homog) cAffine += (-1);
 	      Set<int> cDirectional = pre_locality[j] * complex_directional;
 	      //First add the affine rays: For each pair of affine rays add the corresponding index from
 	      //affineIndices

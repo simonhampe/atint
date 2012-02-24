@@ -39,7 +39,7 @@ namespace polymake { namespace atint {
   
     using namespace atintlog::donotlog;
     //using namespace atintlog::dolog;
-    //using namespace atintlog::dotrace;
+//     using namespace atintlog::dotrace;
     
     //Documentation see perl wrapper
     perl::Object selective_cycle_intersection(perl::Object X, perl::Object Y) {
@@ -147,6 +147,45 @@ namespace polymake { namespace atint {
 	maximalCones = maximalCones.minor(remainingCones,usedRays);
 	weights = weights.slice(remainingCones);
       	
+	//Check for all local restrictions, if there are still any cones containing them
+	//If not, discard it
+	if(local_restriction.rows() > 0) {
+	  dbgtrace << "Local restriction " << local_restriction << endl;
+	  IncidenceMatrix<> new_local_restriction = local_restriction.minor(All,usedRays);
+	  Set<int> removable_locals;
+	  for(int lr = 0; lr < local_restriction.rows(); lr++) {
+	    //If we lose any rays, we lose the cone
+	    if(new_local_restriction.row(lr).size() < local_restriction.row(lr).size()) {
+	      removable_locals += lr;
+	    }
+	    else {
+	      //Otherwise find a maximal cone containing the row lr
+	      bool found_maximal_container = false;
+	      for(int mc = 0; mc < maximalCones.rows(); mc++) {
+		if( (maximalCones.row(mc) * new_local_restriction.row(lr)).size() == new_local_restriction.row(lr).size()) {
+		    found_maximal_container = true; break;
+		}
+	      }
+	      
+	      if(!found_maximal_container) removable_locals += lr;
+	      
+	    }
+	  }//END iterate local cones
+	  
+	  dbgtrace << "To be removed: " << removable_locals << endl;
+	  
+	  //If no local restriction remains, return the zero cycle
+	  //(Since there is nothing around the local cones)
+	  if(removable_locals.size() == local_restriction.rows()) {
+	      return CallPolymakeFunction("zero_cycle");
+	  }
+	  else {
+	    local_restriction = new_local_restriction.minor(~removable_locals,All);
+	  }
+	}//END adapt local cones
+	
+	
+	
 	//First of all we check if any cones are left - Otherwise we return the zero cycle
 	if(maximalCones.rows() == 0) {
 	    return CallPolymakeFunction("zero_cycle");
@@ -161,13 +200,15 @@ namespace polymake { namespace atint {
 	    currentComplex.take("TROPICAL_WEIGHTS") << weights;
 	    currentComplex.take("USES_HOMOGENEOUS_C") << true;
 	    currentComplex.take("LINEALITY_SPACE") << lineality;
+	    currentComplex.take("LOCAL_RESTRICTION") << local_restriction;
 	  perl::Object divisor = divisor_minmax(currentComplex,psi[i],1); 
 	  
 	  Matrix<Rational> divrays = divisor.give("RAYS");
 	  IncidenceMatrix<> divmaximalCones = divisor.give("MAXIMAL_CONES");
 	  Vector<Integer> divweights = divisor.give("TROPICAL_WEIGHTS");
 	  Matrix<Rational> divlin = divisor.give("LINEALITY_SPACE");
-	    rays = divrays; maximalCones = divmaximalCones; weights = divweights; lineality = divlin;
+	  IncidenceMatrix<> divlocal = divisor.give("LOCAL_RESTRICTION");
+	    rays = divrays; maximalCones = divmaximalCones; weights = divweights; lineality = divlin; local_restriction = divlocal;
 	}
 	
       }//END for all functions psi[i]
