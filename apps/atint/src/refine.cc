@@ -77,6 +77,9 @@ namespace polymake { namespace atint {
   */
   Vector<Set<int> > minimal_interior(const Matrix<Rational> &rays, const IncidenceMatrix<> &cones, bool uses_homog) {
     Vector<Set<int> > result;
+    dbgtrace << "Rays: " << rays << endl;
+    dbgtrace << "Cones: " << cones << endl;
+    
     //If there is only one cone, it is already minimal
     if(cones.rows() == 1) {
       result |= cones.row(0);
@@ -433,9 +436,10 @@ namespace polymake { namespace atint {
 	// add it as a local cone
 	if(local_restriction.dim() > 0 && refine) {
 	  dbgtrace << "Recomputing local restriction " << endl;
-	  //Will contain the subdivision cones of the local cone we currently study
-	  Vector<Set<int> > local_subdivision_cones;
 	  for(int t = 0; t < xc_local_cones.dim(); t++) {
+	    //Will contain the subdivision cones of the local cone we currently study
+	    Vector<Set<int> > local_subdivision_cones;
+	    Set<Set<int> > set_local_subdivision_cones;
 	    Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
 	    int local_cone_dim = rank(lrays) + x_lineality_dim;
 	    for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
@@ -448,7 +452,10 @@ namespace polymake { namespace atint {
 		}
 		//If the dimension is correct, add the new local cone
 		if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
-		  local_subdivision_cones |= cone_subset;
+		  if(!set_local_subdivision_cones.contains(cone_subset)) {
+		    local_subdivision_cones |= cone_subset;
+		    set_local_subdivision_cones += cone_subset;
+		  }
 		}
 		local_subdivided[xc_local_cones[t]] = true;
 	    }//END iterate all refinement cones of xc

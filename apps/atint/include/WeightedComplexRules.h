@@ -50,6 +50,15 @@ struct CodimensionOneResult {
 CodimensionOneResult calculateCodimOneData(const Matrix<Rational> &rays, const IncidenceMatrix<> &maximalCones, bool uses_homog, const Matrix<Rational> &linspace, const IncidenceMatrix<>  &local_restriction);
 
 /**
+  @brief Computes all cones, including faces, of the polyhedral complex. Local restriction is ignored
+  @param Matrix<Rational> rays The ray matrix of the complex
+  @param IncidenceMatrix<> maximalCones The incidence matrix of the maximal cells
+  @param bool uses_homog Whether the rays are given in homogeneous coordinates
+  @return IncidenceMatrix<> The list of all cones
+*/
+IncidenceMatrix<> computeAllCones(const Matrix<Rational> &rays, const IncidenceMatrix<> &maximalCones, bool uses_homog);
+
+/**
  @brief Check whether a given cone set is compatible with a given set of local restrictions
  @param Set<int> cone A set of (ray) indices
  @param IncidenceMatrix<> local_restriction A list of sets of ray indices

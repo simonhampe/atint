@@ -251,10 +251,7 @@ namespace polymake { namespace atint{
 	
 	// ** RECOMPUTE CONES *******************************************
 	
-	//Copy values
-	rayMatrix = newRays;
-	linMatrix = linMatrix.rows() == 0? prelin : (prelin.rows() == 0? linMatrix : linMatrix / prelin);
-	product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
+	
 		
 	dbgtrace << "Creating cones" << endl;
 	
@@ -321,20 +318,24 @@ namespace polymake { namespace atint{
 	//Compute the cross product of the local_restrictions
 	Vector<Set<int> > new_local_restriction;
 	if(local_restriction.dim() > 0 || pre_local_restriction.dim() > 0) {
-	  //If one variety is not local, we take all its vertices for the product
+	  //If one variety is not local, we take all its cones for the product
 	  Vector<Set<int> > product_locality(local_restriction);
 	  if(product_locality.dim() == 0) {
-	    for(Entire<Set<int> >::iterator aRay = entire(product_affine); !aRay.at_end(); aRay++) {
-	      Set<int> single; single += *aRay;
-	      product_locality |= single;
-	    }
+	    IncidenceMatrix<> prolocInc = computeAllCones(rayMatrix , maximalCones, product_uses_homog);
+	    for(int plr = 0; plr < prolocInc.rows(); plr++) { product_locality |= prolocInc.row(plr); }
+// 	    for(Entire<Set<int> >::iterator aRay = entire(product_affine); !aRay.at_end(); aRay++) {
+// 	      Set<int> single; single += *aRay;
+// 	      product_locality |= single;
+// 	    }
 	  }
 	  Vector<Set<int> > pre_locality(pre_local_restriction);
 	  if(pre_locality.dim() == 0) {
-	    for(Entire<Set<int> >::iterator aRay = entire(complex_affine); !aRay.at_end(); aRay++) {
-	      Set<int> single; single += *aRay;
-	      pre_locality |= single;
-	    }
+	    IncidenceMatrix<> prelocInc = computeAllCones(prerays, premax, uses_homog);
+	    for(int per = 0; per < prelocInc.rows(); per++) { pre_locality |= prelocInc.row(per); }
+// 	    for(Entire<Set<int> >::iterator aRay = entire(complex_affine); !aRay.at_end(); aRay++) {
+// 	      Set<int> single; single += *aRay;
+// 	      pre_locality |= single;
+// 	    }
 	  }
 	  
 	  dbgtrace << "pro_locality " << product_locality << endl;
@@ -371,6 +372,9 @@ namespace polymake { namespace atint{
 	// ** COPY VALUES ONTO NEW PRODUCT ***************************************
 	
 	//Copy values
+	rayMatrix = newRays;
+	linMatrix = linMatrix.rows() == 0? prelin : (prelin.rows() == 0? linMatrix : linMatrix / prelin);
+	product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
 	product_affine = newAffine;
 	product_directional = newDirectional;
 	maximalCones = newMaxCones;

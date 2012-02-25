@@ -238,23 +238,31 @@ namespace polymake { namespace atint {
 	if(local_restriction.rows() > 0) {
 	  //We need to adapt rays indices and remove old maximal local cones
 	  // and codimension one cones that have weight 0
+	  //Also we remove all local cones that lose rays
 	  dbgtrace << "Local restriction before: " << local_restriction << endl;
 	  IncidenceMatrix<> maxCones = result.give("MAXIMAL_CONES");
 	  Set<int> removableCones;
 	  Set<int> weightzerocones = sequence(0,codimOneCones.rows()) - usedCones;
 	  Set<int> codimToReplace; //Indices of used codim one cones that are local
 	  for(int lc = 0; lc < local_restriction.rows(); lc++) {
+	    //If the local cone loses any rays, remove it
+	    if((local_restriction.row(lc) * usedRays).size() < local_restriction.row(lc).size()) {
+		removableCones += lc;
+		continue;
+	    }
+	    bool found_cone = false;
 	    for(int mc = 0; mc < maxCones.rows(); mc++) {
 	      if((local_restriction.row(lc) * maxCones.row(mc)).size() == maxCones.row(mc).size()) {
 		removableCones += lc;
+		found_cone = true; break;
 	      }
 	    }
-	    for(Entire<Set<int> >::iterator cz = entire(weightzerocones); !cz.at_end(); cz++) {
+	    for(Entire<Set<int> >::iterator cz = entire(weightzerocones); !cz.at_end() && !found_cone; cz++) {
 	      if((local_restriction.row(lc) * codimOneCones.row(*cz)).size() == codimOneCones.row(*cz).size()) {
 		removableCones += lc;
+		break;
 	      }
 	    }
-
 	  }
 	  
 	  //Remove cones
