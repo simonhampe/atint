@@ -83,7 +83,15 @@ namespace polymake { namespace atint {
       return result;
     }
     //First we need to compute the interior and exterior codimension one cells
-    CodimensionOneResult codim = calculateCodimOneData(rays, cones, uses_homog, Matrix<Rational>(0,rays.cols()), IncidenceMatrix<>());
+    CodimensionOneResult codim = calculateCodimOneData(
+      rays, cones, uses_homog, Matrix<Rational>(0,rays.cols()), IncidenceMatrix<>());
+    //If we have no codim one faces, return the maximal cones 
+    if(codim.codimOneCones.rows() == 0) {
+      for(int i = 0; i < cones.rows(); i++) {
+	result |= cones.row(i);
+      }
+      return result;
+    }
     Set<int> interior_codim_indices;
     for(int c = 0; c < codim.codimOneInMaximal.rows(); c++) {
       if(codim.codimOneInMaximal.row(c).size() == 2) interior_codim_indices += c;
@@ -92,6 +100,7 @@ namespace polymake { namespace atint {
     IncidenceMatrix<> exterior_codim = codim.codimOneCones.minor(~interior_codim_indices,All);
     IncidenceMatrix<> interior_in_max = T(codim.codimOneInMaximal.minor(interior_codim_indices,All));
     
+    dbgtrace << "Codim 1 faces " << codim.codimOneCones << endl;
     dbgtrace << "Interior codim 1 faces " << interior_codim << endl;
     dbgtrace << "Exterior codim 1 faces " << exterior_codim << endl;
     
