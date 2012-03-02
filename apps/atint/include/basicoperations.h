@@ -40,7 +40,7 @@ namespace polymake { namespace atint{
   inline std::pair<Set<int>, Set<int> > separateRays(Matrix<Rational> m, Set<int> &affine, Set<int> &directional, bool uses_homog);
   
   /**
-    @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1. The [[LOCAL_RESTRICTION]] of the result will be the cartesian product of the [[LOCAL_RESTRICTION]]s of each complex. (If a complex does not have any restrictions, the new local restriction is the (pairwise) product of all local restriction cones with the vertices of the next complex)
+    @brief Takes a list of WeightedComplex objects (that may be weighted and that may use homogeneous coordinates) and computes the cartesian product of these. If any complex uses homogeneous coordinates, so will the result. If any complex has weights, all non-weighted complexes will be treated as having constant weight 1. The [[LOCAL_RESTRICTION]] of the result will be the cartesian product of the [[LOCAL_RESTRICTION]]s of each complex. (If a complex does not have any restrictions, the new local restriction is the (pairwise) product of all local restriction cones with ALL cones (including faces) of the next complex)
     @param std::vector<perl::Object> complexes A list of WeightedComplex objects
     @return The cartesian product of the complexes
   */

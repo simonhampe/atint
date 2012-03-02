@@ -147,6 +147,11 @@ object WeightedComplex {
 	property CMPLX_CODIM_1_FACES : IncidenceMatrix;
 		
 	# @category Polyhedral complex
+	# This incidence matrix describes the complete polyhedral complex, i.e. it contains all faces
+	# of the polyhedral complex
+	property CMPLX_CONES : IncidenceMatrix;
+
+	# @category Polyhedral complex
 	# A vector with an entry for each row in [[CMPLX_RAYS]]. More precisely, the i-th entry gives the row index
 	# of the ray in [[RAYS]] that is equal to the i-th row of [[CMPLX_RAYS]].
 	property CMPLX_CONVERSION_VECTOR : Vector<Int>;	
@@ -381,6 +386,12 @@ object WeightedComplex {
 	
 	rule CMPLX_CODIMENSION : CMPLX_AMBIENT_DIM, CMPLX_DIM {
 	  $this->CMPLX_CODIMENSION = $this->CMPLX_AMBIENT_DIM - $this->CMPLX_DIM;
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule CMPLX_CONES : RAYS, MAXIMAL_CONES, USES_HOMOGENEOUS_C{
+	  $this->CMPLX_CONES = computeAllCones($this->RAYS,$this->MAXIMAL_CONES,$this->USES_HOMOGENEOUS_C);
 	}
 	
 	#------------------------------------------------------------------------#

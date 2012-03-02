@@ -345,12 +345,31 @@ namespace polymake { namespace atint {
     
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
   
+  //Documentation see header
+  IncidenceMatrix<> computeAllCones(const Matrix<Rational> &rays, const IncidenceMatrix<> &maximalCones, bool uses_homog){
+    Vector<Set<int> > result;
+    IncidenceMatrix<> mcones = maximalCones;
+    while(mcones.rows() > 0) {
+	for(int r = 0; r < mcones.rows(); r++) {
+	    result |= mcones.row(r);
+	}
+	//Check if only the empty cone is left. In that case, terminate
+	if(mcones.rows() == 1 && mcones.row(0).size() == 0) break;
+	CodimensionOneResult cr = calculateCodimOneData(rays, mcones, uses_homog, Matrix<Rational>(0,rays.cols()),IncidenceMatrix<>());
+	mcones = cr.codimOneCones;  
+    }
+    return IncidenceMatrix<>(result);
+  }
   
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 Function4perl(&computeCodimensionOne,"computeCodimensionOne(WeightedComplex)");
 
 Function4perl(&computeComplexData, "computeComplexData(WeightedComplex)");
+
+Function4perl(&computeAllCones, "computeAllCones(Matrix<Rational>, IncidenceMatrix, $)");
+
 
 }}
