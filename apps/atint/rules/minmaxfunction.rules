@@ -138,7 +138,7 @@ object MinMaxFunction {
 	
 	my $minmax = $separator[0];
 	#Remove any brackets from the function list
-	$separator[1] =~ s/[\(\)]+//g;
+	$separator[1] =~ s/[\(\{\)\}]+//g;
 	my @functionlist = split(/,/,$separator[1]);
 	
 	#Determine wheter function uses min or max

@@ -153,12 +153,13 @@ namespace polymake { namespace atint {
     @param Rational bbDistance The relative distance of the border of the bounding box to the affine part of the complex (should be a positive number).
     @param bool onlyBoundingBox If true, only the relative bounding box with respect to the given bbDistance is computed and returned
     @param Matrix<Rational> bBox The absolute bounding box needed if isRelative is false. Given by two row vectors indicating the extreme points of the box
+    @param Array<String> clabels If showWeights is false and this array has positive length, these strings will be used to label the maximal cones (missing labels are replaced by the emtpy string)
     @return A perl::ListReturn containing 
     1) the list of polytopes to be rendered
     2) A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true, but is contained in the ListReturn in any case.
     If however, onlyBoundingBox is true, the ListReturn will only contain a Matrix<Rational> specifying the relative  bounding box.
   */
-  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, bool onlyBoundingBox, Matrix<Rational> bBox) {
+  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, bool onlyBoundingBox, Matrix<Rational> bBox, Array<std::string> clabels) {
     //Extract values
     int ambient_dim = fan.give("CMPLX_AMBIENT_DIM");
     Matrix<Rational> rays = fan.give("RAYS");
@@ -168,6 +169,8 @@ namespace polymake { namespace atint {
     Matrix<Rational> linearSpan = fan.give("LINEAR_SPAN_NORMALS");
     IncidenceMatrix<> linearSpanInCones = fan.give("MAXIMAL_CONES_LINEAR_SPAN_NORMALS");
     int fan_dim = fan.give("CMPLX_DIM");
+    
+    bool use_labels = !showWeights && clabels.size() > 0;
     
      //First separate affine and directional rays
     Set<int> affineRays;
@@ -276,12 +279,16 @@ namespace polymake { namespace atint {
 	
 	//If weight labels should be displayed, compute the vertex barycenter of the polytope and
 	// label it
-	if(showWeights) {
+	if(showWeights || use_labels) {
 	  Vector<Rational> barycenter = average(rows(polyRays));
 	    //barycenter /= barycenter[0];
 	  centermatrix = centermatrix / barycenter;
 	  std::ostringstream wlabel;
-	  wlabel << "# " << mc << ": " << weights[mc];
+	  wlabel << "# " << mc << ": ";
+	  if(showWeights) wlabel << weights[mc];
+	  else {
+	    if(mc < clabels.size()) wlabel << clabels[mc];
+	  }
 	  centerlabels = centerlabels | wlabel.str();
 	}
       }
@@ -293,7 +300,7 @@ namespace polymake { namespace atint {
       
     }//END iterate rendered polyhedra
     
-    if(showWeights) {
+    if(showWeights || use_labels) {
       weightCenters.take("POINTS") << centermatrix;
       weightCenters.take("LABELS") << centerlabels;
     }
@@ -309,6 +316,6 @@ namespace polymake { namespace atint {
   
   Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(WeightedComplex, Rational, $)");
 
-  Function4perl(&computeBoundedVisual, "computeBoundedVisual(WeightedComplex, $, $, Rational,$, Matrix<Rational>)");
+  Function4perl(&computeBoundedVisual, "computeBoundedVisual(WeightedComplex, $, $, Rational,$, Matrix<Rational>, Array<String>)");
   
 }}

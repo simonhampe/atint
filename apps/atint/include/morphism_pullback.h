@@ -1,0 +1,46 @@
+/*
+ T his program is free s*oftware; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ Boston, MA  02110-1301, USA.
+ 
+ ---
+ Copyright (C) 2012, Simon Hampe <hampe@mathematik.uni-kl.de>
+ */
+
+#include "polymake/client.h"
+#include "polymake/Matrix.h"
+#include "polymake/Rational.h"
+#include "polymake/Vector.h"
+
+#ifndef MORPHISM_PULLBACK_H
+#define MORPHISM_PULLBACK_H
+
+namespace polymake { namespace atint { 
+
+  /**
+   @brief Takes an affine linear function defined on a polyhedron given by values on the rays and computes its representation as f(x) = v + Ax.
+   @param Matrix<Rational> rays The rays of the cone
+   @param Matrix<Rational> linspace The lineality space of the cone
+   @param bool uses_homog Whether the rays/linspace generators are given in homogeneous coordinates
+   @param Matrix<Rational> ray_values The values of the function on the rays (as row vectors) in non-homog. coordinates
+   @param Matrix<Rational> lin_values The values of the function on the lineality space (as row vectors) in non-homog. coordinates
+   @param Vector<Rational> translate This will be set to be the constant translate v of the function (in non-homog. coordinates)
+   @param Matrix<Rational> matrix This will be set to be the function matrix A (in non-homog. coordinates)
+   */
+  void computeConeFunction(const Matrix<Rational> &rays, const Matrix<Rational> &linspace, bool uses_homog, const Matrix<Rational> &ray_values, const Matrix<Rational> &lin_values, Vector<Rational> &translate, Matrix<Rational> &matrix);
+  
+}}
+
+
+#endif // MORPHISM_PULLBACK_H

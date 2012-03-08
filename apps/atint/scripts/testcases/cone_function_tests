@@ -1,0 +1,142 @@
+use application "common";
+use application "atint";
+use Benchmark qw(:all);
+
+my $translate = new Vector<Rational>();
+my $matrix = new Matrix<Rational>();
+
+print "\nExample 1: simplicial, injective\n";
+
+my $rays = new Matrix<Rational>([[1,1],[0,1]]);
+my $lin = new Matrix<Rational>(0,2);
+my $uses_homog = 0;
+my $rval = new Matrix<Rational>([[-1,0],[-1,1]]);
+my $lval = new Matrix<Rational>(0,2);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 2: simplicial, non-injective\n";
+
+$rays = new Matrix<Rational>([[1,1,0],[1,2,0],[2,3,1]]);
+$lin = new Matrix<Rational>(0,3);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[1,1],[1,2],[2,3]]);
+$lval = new Matrix<Rational>(0,2);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 3: Non-simplicial, injective\n";
+
+$rays = new Matrix<Rational>([[1,0,0],[0,1,0],[1,1,1],[1,2,2]]);
+$lin = new Matrix<Rational>(0,3);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[2,0,0],[0,2,0],[2,2,2],[2,4,4]]);
+$lval = new Matrix<Rational>(0,3);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 4: Non-simplicial, non-injective\n";
+
+$rays = new Matrix<Rational>([[1,0,1],[0,0,1],[0,1,1],[1,1,0]]);
+$lin = new Matrix<Rational>(0,3);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[0,1],[0,1],[1,1],[1,0]]);
+$lval = new Matrix<Rational>(0,3);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 5: Simplicial, to R\n";
+
+$rays = new Matrix<Rational>([[1,0,1],[0,0,1],[0,1,1]]);
+$lin = new Matrix<Rational>(0,3);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[0],[1],[0]]);
+$lval = new Matrix<Rational>(0,1);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 6: Non-simplicial, to R\n";
+
+$rays = new Matrix<Rational>([[1,0,0],[0,1,0],[0,0,1],[1,1,-1]]);
+$lin = new Matrix<Rational>(0,3);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[0],[1],[1],[0]]);
+$lval = new Matrix<Rational>(0,1);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 7: Zero-function\n";
+
+$rays = new Matrix<Rational>([[1,0,0],[0,1,0],[0,0,1],[1,1,-1]]);
+$lin = new Matrix<Rational>(0,3);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[0],[0],[0],[0]]);
+$lval = new Matrix<Rational>(0,1);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 8: Non-simplicial, non-injective with lineality space\n";
+
+$rays = new Matrix<Rational>([[1,0,0,0],[0,1,0,0],[0,0,1,0],[1,1,-1,0]]);
+$lin = new Matrix<Rational>([[0,0,0,1]]);
+$uses_homog = 0;
+$rval = new Matrix<Rational>([[0],[1],[1],[0]]);
+$lval = new Matrix<Rational>([[2]]);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays);
+
+print "\nExample 9: Homogeneous with lineality space to R^n\n";
+
+$rays = new Matrix<Rational>([[1,0,0,0],[1,1,0,0],[1,0,1,0],[1,1,1,0]]);
+$lin = new Matrix<Rational>([[0,0,0,1]]);
+$uses_homog = 1;
+$rval = new Matrix<Rational>([[-1,-1,0],[0,-1,0],[-1,0,0],[0,0,0]]);
+$lval = new Matrix<Rational>([[1,0,1]]);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays->minor(All,~scalar2set(0)));
+
+print "\nExample 10: Homogeneous with lineality space to R\n";
+
+$rays = new Matrix<Rational>([[1,0,0,0],[1,1,0,0],[1,0,1,0],[1,1,1,0]]);
+$lin = new Matrix<Rational>([[0,0,0,1]]);
+$uses_homog = 1;
+$rval = new Matrix<Rational>([[1],[2],[2],[3]]);
+$lval = new Matrix<Rational>([[4]]);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays->minor(All,~scalar2set(0)));
+
+print "\nExample 11: Homogeneous, no lineality space, to R^n\n";
+$rays = new Matrix<Rational>([[1,0,0,0],[1,1,0,0],[1,0,1,0],[1,1,1,0]]);
+$lin = new Matrix<Rational>(0,4);
+$uses_homog = 1;
+$rval = new Matrix<Rational>([[1,0,0,0],[2,0,0,0],[1,0,1,0],[2,0,1,0]]);
+$lval = new Matrix<Rational>(0,4);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+# print_result($translate,$matrix);
+# print "\n",$matrix * transpose($rays->minor(All,~scalar2set(0)));
+
+print "\nExample 12: Homogeneous, no lineality space, to R\n";
+
+$rays = new Matrix<Rational>([[1,0,0,0],[1,1,0,0],[1,0,1,0],[1,1,1,0]]);
+$lin = new Matrix<Rational>(0,4);
+$uses_homog = 1;
+$rval = new Matrix<Rational>([[14],[14],[14],[14]]);
+$lval = new Matrix<Rational>(0,1);
+atint::ccf($rays,$lin,$uses_homog, $rval, $lval, $translate, $matrix);
+print_result($translate,$matrix);
+print "\n",$matrix * transpose($rays->minor(All,~scalar2set(0)));
+
+sub print_result {
+  my ($t,$m) = @_;
+  print "Function: x |-> \n$t + x * \n$m";
+}

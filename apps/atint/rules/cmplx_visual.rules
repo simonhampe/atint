@@ -61,6 +61,9 @@ options %Visual::WeightedComplex::BoundingDecorations=(
 							  
     # String If set to "relative", the function determines the smallest possible box containing all affine points of the complex and then enlarges the box by BoundingDistance to all sides. If set to "absolute", BoundingBox must be specified and the complex will be intersected with that box. By default this is set to "relative".
     BoundingMode => enum("relative","absolute"),
+						       
+    # Array<String> A list of strings to be displayed as labels for the maximal cones. If this is empty, the weight labels (if present and not suppressed by WeightLabels=>"hidden") are displayed
+    ConeLabels => undef,
 );
 
 object WeightedComplex {
@@ -105,15 +108,6 @@ object WeightedComplex {
     if($showCoordinates == 0) {
       $$decor{"VertexLabels"} = "hidden";
     }
-#     my $pinLabels = 0;
-#     if(defined($$decor{"WeightLabelStyle"})) {
-#       if($$decor{"WeightLabelStyle"} eq "pinned") {
-# 	$pinLabels = 1;
-#       }
-#     }
-#     delete($$decor{"WeightLabelStyle"});
-    
-    #print "Options are:\nShow weights: ",$showWeights,"\nShow Coords: ",$showCoordinates,"pin labels: ",$pinLabels,"\n";
     
     $cutoff_decor=$cutoff_decor->{CutOff};
     my $cutoff_decor3d=$cutoff_decor;
@@ -132,10 +126,6 @@ object WeightedComplex {
     my @result = computeVisualPolyhedra($this->homogenize,new Rational($dirScale),$showWeights);
     my $weightCenters = pop(@result);
     
-#     my $weightPoints;
-#     if($showWeights != 0) {
-#       $weightPoints = $weightCenters->POINTS;
-#     }
     #Compute visualizations
     
     my @cells_visual;
@@ -157,31 +147,6 @@ object WeightedComplex {
       }
       
       push @cells_visual, ($cell->VISUAL( $decor ));
-      
-      #my (@cutoff_attrs);
-      #my $dim=$cell->DIM;
-  #     if ($dim==3) {
-  #        while (my @kv=each %$cutoff_decor3d) {
-  # 	  my ($attr, $value)=@kv;
-  # 	  push @cutoff_attrs, $attr, sub { $cell->FACETS->[shift]->[0] ? $value : undef };
-  #        }
-  #     }
-  #     if($dim > 0) { $pv->basis_solid->merge(@cutoff_attrs);}
-      
-# 	if($showWeights != 0 && $pinLabels != 0) {
-# 	  my $pvector = new Vector<Rational>($weightPoints->row($index));
-# 	  my $pmatrix =  $pvector / $cell->VERTICES;
-# 	  my $plabel = "#$index: ".$this->TROPICAL_WEIGHTS->[$index];
-# 	  my @labelarray = ($plabel,@{$cell->VERTEX_LABELS});
-# 	  
-# 	  my $pinnedCenters = new polytope::PointConfiguration(POINTS=>$pmatrix, 
-# 							    LABELS=>\@labelarray);
-# 	  push @cells_visual, $pinnedCenters->VISUAL(PointColor=>sub {my $i = shift; $i == 0? 'black' : 'red';});
-# 	}
-# 	else {
-# 	  push @cells_visual, ($cell->VISUAL( $decor ));
-# 	}
-# 	$index++;
     }
     
     if($showWeights != 0) {
@@ -199,6 +164,10 @@ object WeightedComplex {
   
   # ---------------------------------------------------------------------------------------------------------
   
+  # @category Visualization
+  # Displays a (possibly weighted) polyhedral complex by intersecting it with a bounding box. This bounding box
+  # is either defined by the vertices of the complex and the option "BoundingDistance" or explicitly given by
+  # "BoundingBox" and by setting "BoundingMode" to "absolute"
   user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES, CMPLX_DIM, CMPLX_AMBIENT_DIM {
     my ($this,$decor,$cutoff_decor)=@_;
     
@@ -244,6 +213,13 @@ object WeightedComplex {
       $boundingBox = $$decor{"BoundingBox"};
     }
     delete($$decor{"BoundingBox"}); 
+    my $haveConeLabels = 0;
+    my $clabels = new Array<String>();
+    if(defined($$decor{"ConeLabels"})) {
+      $haveConeLabels = 1;
+      $clabels = $$decor{"ConeLabels"};
+    }
+    delete($$decor{"ConeLabels"});
     
     #We don't need that here
     delete($$decor{"DirScale"});
@@ -262,7 +238,7 @@ object WeightedComplex {
       }
     }
     
-    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),0,new Matrix<Rational>($boundingBox));
+    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),0,(new Matrix<Rational>($boundingBox)),$clabels);
     my @cells_visual;
     my $weightCenters = pop(@result);
     
@@ -285,7 +261,8 @@ object WeightedComplex {
       
       push @cells_visual, ($cell->VISUAL( $decor ));
   }
-  if($showWeights != 0) {
+  if($showWeights != 0 || $haveConeLabels != 0) {
+      print $weightCenters->POINTS,"\n";
       push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
   }
   

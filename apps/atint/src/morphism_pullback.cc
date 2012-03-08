@@ -25,14 +25,88 @@
 #include "polymake/Matrix.h"
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
+#include "polymake/Set.h"
+#include "polymake/linalg.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/refine.h"
+#include "polymake/atint/morphism_pullback.h"
 
 namespace polymake { namespace atint { 
     
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+//   using namespace atintlog::dotrace;
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  void computeConeFunction(const Matrix<Rational> &rays, const Matrix<Rational> &linspace, bool uses_homog, const Matrix<Rational> &ray_values, const Matrix<Rational> &lin_values, Vector<Rational> &translate, Matrix<Rational> &matrix) {
+    
+    //First we need to compute a cone basis
+    
+    //Convert vertices to differences of vertices in homogeneous case
+    Vector<Rational> basepoint = zero_vector<Rational>(rays.cols());
+    Vector<Rational> basepoint_value = zero_vector<Rational>(ray_values.cols());
+    Matrix<Rational> converted_rays;
+    Matrix<Rational> converted_values;
+    if(!uses_homog) {
+      converted_rays = rays;
+      converted_values = ray_values;
+    }
+    else {
+      bool basepoint_found = false;
+      for(int r = 0; r < rays.rows(); r++) {
+	if(rays(r,0) == 1) {
+	    if(basepoint_found) {
+	      converted_rays /= (rays.row(r) - basepoint);
+	      converted_values /= (ray_values.row(r) - basepoint_value);
+	    }
+	    else {
+	      basepoint = rays.row(r);
+	      basepoint_value = ray_values.row(r);
+	      basepoint_found = true;
+	    }
+	}
+	else {
+	    converted_rays /= rays.row(r);
+	    converted_values /= ray_values.row(r);
+	}
+      }
+    }//END convert rays
+    converted_rays /= linspace;
+    converted_values /= lin_values;
+    //Remove homog. coordinate if necessary
+    if(uses_homog) {
+      converted_rays = converted_rays.minor(All,~scalar2set(0));
+      basepoint = basepoint.slice(~scalar2set(0));
+    }
+    
+    dbgtrace << "Basepoint: " << basepoint << endl;
+    dbgtrace << "Basepoint value: " << basepoint_value << endl;
+    
+    //Compute basis of rays
+    Set<int> ray_basis = basis_rows(converted_rays);
+    converted_rays = converted_rays.minor(ray_basis,All);
+    
+    dbgtrace << "Converted rays: " << converted_rays << endl;
+    
+    //Now compute a column basis for the computation of the transformation matrix
+    Set<int> I = basis_cols(converted_rays);
+    Matrix<Rational> inverse = inv(T( converted_rays.minor(All,I)));
+    Matrix<Rational> trafo(converted_rays.rows(), converted_rays.cols());
+    trafo.minor(All,I) = inverse;
+    
+    dbgtrace << "Trafo: " << trafo << endl;
+    
+    //Compute function matrix:
+    Matrix<Rational> values = converted_values.minor(ray_basis,All);
+    matrix = T(values) * trafo;
+    
+    dbgtrace << "Matrix: " << matrix << endl;
+    
+    //Finally, compute the translate
+    translate = basepoint_value - matrix * basepoint;
+  }
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -66,5 +140,6 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&pb_minmax_global,"pb_minmax_global(Morphism,MinMaxFunction)");
+  Function4perl(&computeConeFunction, "ccf(Matrix<Rational>, Matrix<Rational>, $, Matrix<Rational>, Matrix<Rational>, Vector<Rational>, Matrix<Rational>)");
   
 }}
