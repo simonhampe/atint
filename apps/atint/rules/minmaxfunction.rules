@@ -133,7 +133,7 @@ object MinMaxFunction {
       }
             
       #First separate min/max from the list of the functions (without brackets)
-      my @separator = ($string =~ /^(max|min)\((.+)\)$/i);
+      my @separator = ($string =~ /^(max|min)[\(\{](.+)[\)\}]$/i);
       if(scalar(@separator) == 2) {
 	
 	my $minmax = $separator[0];
