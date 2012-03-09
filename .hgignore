@@ -4,3 +4,4 @@ glob:.project
 relre:.*\.orig
 relre:.*~
 glob:objectlibrary/moduli10.fan
+glob:clocconf

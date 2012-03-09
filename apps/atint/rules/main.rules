@@ -58,6 +58,7 @@ INCLUDE
   RationalCurve_visual.rules
   Bergman_Rincon.rules
   Morphism.rules
+  Function_visual.rules
   
   
 ## TESTRUN FUNCTION #######################

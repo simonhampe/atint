@@ -237,7 +237,6 @@ object WeightedComplex {
 	die "Bounding box has invalid dimension\n";
       }
     }
-    
     my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),0,(new Matrix<Rational>($boundingBox)),$clabels);
     my @cells_visual;
     my $weightCenters = pop(@result);
@@ -262,7 +261,6 @@ object WeightedComplex {
       push @cells_visual, ($cell->VISUAL( $decor ));
   }
   if($showWeights != 0 || $haveConeLabels != 0) {
-      print $weightCenters->POINTS,"\n";
       push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
   }
   

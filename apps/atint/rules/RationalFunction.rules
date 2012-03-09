@@ -97,6 +97,18 @@ object RationalFunction {
     return new RationalFunction(DOMAIN=>$ndomain, RAY_VALUES=>\@v, LIN_VALUES=>$this->LIN_VALUES,POWER=>$this->POWER);
     
   }
+  
+#   user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : DOMAIN, RAY_VALUES, LIN_VALUES {
+#     my $this = shift;
+#     my $ray_values = $this->RAY_VALUES;
+#     my $lin_values = $this->LIN_VALUES;
+#     my $domain = $this->DOMAIN;
+#     my $M = new Matrix<Rational>($ray_values);
+#       $M = transpose($M);
+#     my $L = new Matrix<Rational>($lin_values);
+#       $L = transpose($L);
+#     print computeFunctionLabels($domain,$M,$L);
+#   }
 
 # ----------------------------- OVERLOADED OPERATORS -----------------
   

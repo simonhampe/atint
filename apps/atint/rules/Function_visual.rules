@@ -1,0 +1,113 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2012, Simon Hampe <hampe@mathematik.uni-kl.de>
+#
+#  Contains the visualization routines for RationalFunction and Morphism
+########################################################################
+
+package Visual::WeightedComplex;
+
+options %Visual::WeightedComplex::FunctionDecorations=(
+    %Visual::WeightedComplex::BoundingDecorations,
+    
+    # String, if set to "show", the function labels indicatingt the affine linear representation of each function
+    # on each cone are computed
+    FunctionLabels => enum("hidden", "show"),
+);
+  
+object RationalFunction {
+
+# @category Visualization 
+# Visualizes the domain of the function. Works exactly as BB_VISUAL of WeightedComplex, but has additional option
+# FunctionLabels (=>"show") to display function representations on cones
+user_method BB_VISUAL(%Visual::WeightedComplex::FunctionDecorations, {CutOff => $Visual::Color::cutoff}) : DOMAIN, RAY_VALUES, LIN_VALUES {
+    
+    my ($this,$decor,$cutoff_decor)=@_;
+    
+    my $showFunctionLabels = 0;
+    if(defined($$decor{"FunctionLabels"})) {
+      if($$decor{"FunctionLabels"} eq "show") {
+	$showFunctionLabels = 1;
+      }
+    }
+    delete($$decor{"FunctionLabels"});
+  
+    my $domain = $this->DOMAIN;
+   
+    my @labels = ();
+    if($showFunctionLabels == 1) {
+      my $ray_values = $this->RAY_VALUES;
+      my $lin_values = $this->LIN_VALUES;
+      
+      my ($M,$L);
+      if($ray_values->dim() > 0) {
+	$M = new Matrix<Rational>($ray_values);
+	$M = transpose($M);
+      }
+      else {
+	$M = new Matrix<Rational>(0,1);
+      }
+      if($lin_values->dim() > 0) {
+	$L = new Matrix<Rational>($lin_values);
+	$L = transpose($L);
+      }
+      else {
+	$L = new Matrix<Rational>(0,1);
+      }
+	
+      @labels = computeFunctionLabels($domain,$M,$L);
+      $$decor{"ConeLabels"} = new Array<String>(\@labels);
+    }
+    
+    
+    $domain->BB_VISUAL($decor,$cutoff_decor);
+}
+}; #END object RationalFunction
+
+object Morphism {
+  
+# @category Visualization 
+# Visualizes the domain of the function. Works exactly as BB_VISUAL of WeightedComplex, but has additional option
+# FunctionLabels (=>"show") to display function representations on cones
+user_method BB_VISUAL(%Visual::WeightedComplex::FunctionDecorations, {CutOff => $Visual::Color::cutoff}) : DOMAIN, RAY_VALUES, LIN_VALUES {
+    
+    my ($this,$decor,$cutoff_decor)= @_;
+    
+    my $showFunctionLabels = 0;
+    if(defined($$decor{"FunctionLabels"})) {
+      if($$decor{"FunctionLabels"} eq "show") {
+	$showFunctionLabels = 1;
+      }
+    }
+    delete($$decor{"FunctionLabels"});
+  
+    my $domain = $this->DOMAIN;
+   
+    my @labels = ();
+    if($showFunctionLabels == 1) {
+      my $M = $this->RAY_VALUES;
+      my $L = $this->LIN_VALUES;
+      
+      @labels = computeFunctionLabels($domain,$M,$L);
+      $$decor{"ConeLabels"} = new Array<String>(\@labels);
+    }
+    
+    
+    $domain->BB_VISUAL($decor,$cutoff_decor);
+}
+}

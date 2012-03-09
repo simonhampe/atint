@@ -113,11 +113,13 @@ object Morphism {
   }
   
   rule DOMAIN, RAY_VALUES, LIN_VALUES : MATRIX,TRANSLATE {
-    $this->DOMAIN = linear_nspace($this->MATRIX->cols())->homogenize;
+    my $lspace = linear_nspace($this->MATRIX->cols())->homogenize;
+    $this->DOMAIN = new WeightedComplex(RAYS=>$lspace->RAYS,MAXIMAL_CONES=>$lspace->MAXIMAL_CONES,
+					LINEALITY_SPACE=>$lspace->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$lspace->USES_HOMOGENEOUS_C);
     my $raymatrix = new Matrix<Rational>(0,$this->TRANSLATE->dim());
       $raymatrix = $raymatrix / $this->TRANSLATE;
     $this->RAY_VALUES = $raymatrix;
-    $this->LIN_VALUES = $this->MATRIX;
+    $this->LIN_VALUES = transpose($this->MATRIX);
   }
   
   ############################## METHODS #######################################
