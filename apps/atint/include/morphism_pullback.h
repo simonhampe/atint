@@ -40,6 +40,18 @@ namespace polymake { namespace atint {
    */
   void computeConeFunction(const Matrix<Rational> &rays, const Matrix<Rational> &linspace, bool uses_homog, const Matrix<Rational> &ray_values, const Matrix<Rational> &lin_values, Vector<Rational> &translate, Matrix<Rational> &matrix);
   
+  /**
+   @brief Convenience function: Does the same as computeConeFunction for arbitrary functions, but the input values are specifically designed for rational functions, i.e. functions to R
+   @param Matrix<Rational> rays The rays of the cone
+   @param Matrix<Rational> linspace The lineality space of the cone
+   @param bool uses_homog Whether the rays/linspace generators are given in homogeneous coordinates
+   @param Vector<Rational> ray_values The values of the function on the rays 
+   @param Vector<Rational> lin_values The values of the function on the lineality space 
+   @param Rational translate This will be set to be the constant translate v of the function 
+   @param Vector<Rational> functional This will be set to be the function matrix A (which in this case is just a vector, since the function maps to R)
+   */
+  void computeConeFunction(const Matrix<Rational> &rays, const Matrix<Rational> &linspace, bool uses_homog, const Vector<Rational> &ray_values, const Vector<Rational> &lin_values, Rational &translate, Vector<Rational> &functional);
+  
 }}
 
 

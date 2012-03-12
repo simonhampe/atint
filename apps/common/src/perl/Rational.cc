@@ -20,9 +20,12 @@
 #include "polymake/linalg.h"
 #include "polymake/Array.h"
 #include "polymake/Integer.h"
+#include "polymake/Matrix.h"
+#include "polymake/IncidenceMatrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    OperatorInstance4perl(Binary_mul, perl::Canned< const Rational >, perl::Canned< const pm::SameElementSparseVector<pm::SingleElementSet<int>, pm::Rational> >);
    OperatorInstance4perl(assign, Rational, perl::Canned< const Array< Integer > >);
+   OperatorInstance4perl(assign, Rational, perl::Canned< const Matrix< Rational > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

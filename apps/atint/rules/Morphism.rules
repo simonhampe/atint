@@ -87,11 +87,11 @@ object Morphism {
   
   
   rule RAY_VALUES : LIN_VALUES, DOMAIN {
-    $this->RAY_VALUES = new Vector<Rational>($this->DOMAIN->CMPLX_RAYS->rows());
+    $this->RAY_VALUES = new Matrix<Rational>($this->DOMAIN->CMPLX_RAYS->rows(), $this->LIN_VALUES->cols());
   }
   
   rule LIN_VALUES : RAY_VALUES, DOMAIN {
-    $this->LIN_VALUES = new Vector<Rational>($this->DOMAIN->LINEALITY_DIM);
+    $this->LIN_VALUES = new Matrix<Rational>($this->DOMAIN->LINEALITY_SPACE->rows(), $this->RAY_VALUES->cols());
   }
   
   rule IS_GLOBAL : MATRIX | TRANSLATE {
@@ -124,29 +124,13 @@ object Morphism {
   
   ############################## METHODS #######################################
    
-  # @category Rational functions
-  # If the domain of the function is in homogeneous coordinates, it returns the function. Otherwise it homogenizes
-  # the domain and assigns the value 0 to the additional vertex at the origin
-#   user_method homogenize {
-#     my $this = shift;
-#     if($this->DOMAIN->USES_HOMOGENEOUS_C) { return $this;}
-#     my @v = @{$this->RAY_VALUES};
-#     my $ndomain = $this->DOMAIN->homogenize;
-#     my $crays = $ndomain->CMPLX_RAYS;
-#     my $index = 0;
-#     #Find the new ray with x0 = 1
-#     for(my $i = 0; $i < $crays->rows(); $i++) {
-#       if($crays->row($i)->[0] != 0) {
-# 	$index = $i;
-# 	last;
-#       }
-#     }
-#     #Insert the 0-value at the right position
-#     @v = (@v[0..($index-1)],,@v[$index..(scalar(@v)-1)]);
-#     
-#     return new RationalFunction(DOMAIN=>$ndomain, RAY_VALUES=>\@v, LIN_VALUES=>$this->LIN_VALUES,POWER=>$this->POWER);
-#     
-#   }
+  #   @category Morphisms
+  #   If the domain of the function is in homogeneous coordinates, it returns the function. Otherwise it homogenizes
+  #   the domain and assigns the value (0,..,0) to the additional vertex at the origin
+  user_method homogenize {
+    my $this = shift;
+    return morphism_homogenize($this);    
+  }
 
 # ----------------------------- OVERLOADED OPERATORS -----------------
   

@@ -21,6 +21,7 @@
 #include "polymake/Matrix.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Set.h"
+#include "polymake/Array.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1, typename T2>
@@ -31,5 +32,7 @@ namespace polymake { namespace common {
 
    FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> > >, perl::Enum<pm::all_selector>, perl::Canned< const Set< int > >);
    FunctionInstance4perl(minor_X_X_f5, perl::Canned< Wary< Matrix< Rational > > >, perl::Enum<pm::all_selector>, perl::Canned< const Set< int > >);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< Matrix< Rational > > >, perl::TryCanned< const Array< int > >, perl::Enum<pm::all_selector>);
+   FunctionInstance4perl(minor_X_X_f5, perl::Canned< Wary< Matrix< Rational > > >, perl::TryCanned< const Array< int > >, perl::Enum<pm::all_selector>);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

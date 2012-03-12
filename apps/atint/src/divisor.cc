@@ -464,10 +464,16 @@ namespace polymake { namespace atint {
       Vector<int> assocRep = r.associatedRep;
       //Now compute function values
       Vector<Rational> values;    
+      bool basepoint_found = false; //Save the first vertex
+      Vector<Rational> basepoint;
       for(int r = 0; r < rays.rows(); r++) {
 	//If it is an affine ray, simply compute the function value at that point
 	if(rays(r,0) == 1) {
 	    values |= functionValue(fmatrix, rays.row(r),uses_min,true);
+	    if(!basepoint_found) {
+	      basepoint_found = true;
+	      basepoint = rays.row(r);
+	    }
 	}
 	//Otherwise take the function difference between (x+this ray) and x for an associated vertex x
 	else {
@@ -477,9 +483,11 @@ namespace polymake { namespace atint {
       }
       function.take("RAY_VALUES") << values;
       Vector<Rational> linValues;
+      
       //Finally we add the function values on the lineality space
       for(int index = 0; index < linspace.rows(); index++) {
-	linValues |= functionValue(fmatrix, linspace.row(index), uses_min,true);
+	linValues |= (functionValue(fmatrix, basepoint + linspace.row(index), uses_min,true) - 
+			  functionValue(fmatrix,basepoint, uses_min,true));
       }
       function.take("LIN_VALUES") << linValues;
     }

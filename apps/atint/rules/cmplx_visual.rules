@@ -217,6 +217,7 @@ object WeightedComplex {
     my $clabels = new Array<String>();
     if(defined($$decor{"ConeLabels"})) {
       $haveConeLabels = 1;
+      $showWeights = 0;
       $clabels = $$decor{"ConeLabels"};
     }
     delete($$decor{"ConeLabels"});
