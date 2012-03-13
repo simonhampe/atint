@@ -444,7 +444,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cones;
 	result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << true;
-	result.take("IS_UNIMODULAR") << true;
+// 	result.take("IS_UNIMODULAR") << true;
 	result.take("DESCRIPTION") << dsc.str();
       return result;	
     }

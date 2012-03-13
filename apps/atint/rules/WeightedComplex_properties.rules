@@ -224,7 +224,7 @@ object WeightedComplex {
 	
 	# @category Tropical geometry / Lattice normals
 	# This property is not computed anywhere but should be set to TRUE by the user upon 
-	# initialization, if all cones of the fan/complex are unimodular in the sence that 
+	# initialization, if all cones of the fan/complex are unimodular in the sense that 
 	# ANY linearly independent subset of their rays generates 
 	# the lattice of the cone
 	# If this property is TRUE, [[LATTICE_GENERATORS]] and [[LATTICE_BASES]] can be computed
@@ -324,11 +324,11 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	  
-	# We prefer this rule since it seems to be always faster
-# 	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM, USES_HOMOGENEOUS_C, LATTICE_GENERATORS, LATTICE_BASES {
-# 	  computeProjectionLattice($this);
-# 	}
-# 	weight 3.5;
+# 	We prefer this rule since it seems to be always faster
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM, USES_HOMOGENEOUS_C, LATTICE_GENERATORS, LATTICE_BASES {
+	  computeProjectionLattice($this);
+	}
+	weight 3.5;
 	
 	#------------------------------------------------------------------------#
 	
