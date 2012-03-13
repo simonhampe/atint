@@ -81,7 +81,7 @@ namespace polymake { namespace atint {
       Matrix<Integer> lattice_generators = complex.give("LATTICE_GENERATORS");
       IncidenceMatrix<> lattice_bases = complex.give("LATTICE_BASES");
       
-      dbgtrace << "Rays: " << rays << endl;
+      dbgtrace << "Rays: " << crays << endl;
       dbgtrace << "Values: " << values << endl;
       
       //Do a compatibility check on the value matrix to avoid segfaults in the case of faulty input
@@ -130,6 +130,8 @@ namespace polymake { namespace atint {
 	Map<int, Map<int, Vector<Rational> > > lnFunctionVector = result.give("LATTICE_NORMAL_FCT_VECTOR");
 	Matrix<Rational> lsumFunctionVector = result.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
 	Vector<bool> balancedFaces = result.give("BALANCED_FACES");
+	
+	dbgtrace << "Balanced faces: " << balancedFaces << endl;
 	
 	//Recompute the lattice bases
 	Vector<Set<int> > new_lattice_bases;
@@ -342,10 +344,16 @@ namespace polymake { namespace atint {
       
       //Now compute function values
       Vector<Rational> values;    
+      bool basepoint_found = false; //Save the first vertex
+      Vector<Rational> basepoint;
       for(int r = 0; r < rays.rows(); r++) {
 	//If it is an affine ray, simply compute the function value at that point
 	if(rays(r,0) == 1) {
 	    values |= functionValue(fmatrix, rays.row(r),uses_min,true);
+	    if(!basepoint_found) {
+	      basepoint_found = true;
+	      basepoint = rays.row(r);
+	    }
 	}
 	//Otherwise take the function difference between (x+this ray) and x for an associated vertex x
 	else {
@@ -353,9 +361,13 @@ namespace polymake { namespace atint {
 			      functionValue(fmatrix, rays.row(assocRep[r]),uses_min,true));
 	}
       }
+      
       //Finally we add the function values on the lineality space
       for(int index = 0; index < linspace.rows(); index++) {
-	values |= functionValue(fmatrix, linspace.row(index), uses_min,true);
+	values |= 
+	    (functionValue(fmatrix, basepoint + linspace.row(index), uses_min,true) - 
+	    functionValue(fmatrix,basepoint, uses_min,true));
+// 	values |= functionValue(fmatrix, linspace.row(index), uses_min,true);
       }
       
       //Glue together to a value matrix
