@@ -133,23 +133,30 @@ namespace polymake { namespace atint {
 	for(int gcone = 0; gcone < g_cones.rows(); gcone++) {
 	  dbglog << "Intersecting with function cone " << gcone << endl;
 	  //Compute intersection (or take the whole cone if the morphism is global and surjective)
-	  Matrix<Rational> intersection_rays;
-	  Matrix<Rational> intersection_lin;
+	  Matrix<Rational> intersection_ineq;
+	  Matrix<Rational> intersection_eq;
 	  
-	  std::pair<Matrix<Rational>, Matrix<Rational> > p = sv.enumerate_vertices(
-	      image_rep.first / g_hreps_ineq[gcone],
-	      image_rep.second / g_hreps_eq[gcone],true,true);
-	  intersection_rays = p.first.minor(All, ~scalar2set(0));
-	  intersection_lin = p.second.minor(All, ~scalar2set(0));
+	  if(is_global_and_surjective) {
+	    intersection_ineq = g_hreps_ineq[gcone];
+	    intersection_eq = g_hreps_eq[gcone];
+	  }
+	  else {
+	    //TODO: Maybe just canonicalize h-rep and count equations?
+	    intersection_ineq = image_rep.first / g_hreps_ineq[gcone];
+	    intersection_eq = image_rep.second / g_hreps_eq[gcone];
+	    
+	    std::pair<Matrix<Rational>, Matrix<Rational> > p = sv.enumerate_vertices(
+		image_rep.first / g_hreps_ineq[gcone],
+		image_rep.second / g_hreps_eq[gcone],true,true);
+	    
+	    //Check dimension of intersection - if its not the correct one, take the next g cone
+	    int interdim = rank(p.first.minor(All,~scalar2set(0))/ p.second.minor(All,~scalar2set(0))) - 1;
+	    if( (is_global_and_surjective && interdim != g_dim) || 
+		(!is_global_and_surjective && interdim != image_dim)) continue;
+	    
+	  }
 	  
-	  dbgtrace << "Intersection has rays " << intersection_rays << " and lin " << intersection_lin << endl;
-	  
-	  //Check dimension of intersection - if its not the correct one, take the next g cone
-	  int interdim = rank(intersection_rays / intersection_lin) - 1;
-	  if( (is_global_and_surjective && interdim != g_dim) || 
-	      (!is_global_and_surjective && interdim != image_dim)) continue;
-	  
-	  //Compute g's representation 
+	  //Compute g's representation on the current cone
 	  Vector<Rational> gtranslate;
 	  Matrix<Rational> gmatrix;
 	  computeConeFunction(g_rays.minor(g_cones.row(gcone),All), g_lin, true,
@@ -157,6 +164,30 @@ namespace polymake { namespace atint {
 			      gmatrix);
 	  
 	  //Compute preimage of the intersection cone
+	  //If (b,-A) is the representation of (in)equalities of the cone
+	  // and x |-> v + Mx is the representation of the morphism, then
+	  //(b - Av, -AM) is the representation of the preimage
+	  //Mind the additional zero's we have to add for cddlib!
+	  
+	  Set<int> homog_cols; homog_cols += 0; homog_cols += 1; //The first two columns are for homogenizing
+	  Matrix<Rational> preimage_eq = intersection_eq.minor(All,~homog_cols) * fmatrix;
+	    preimage_eq = zero_vector<Rational>() | 
+			  ((intersection_eq.col(1) + intersection_eq.minor(All,~homog_cols) * ftranslate) 
+			    | preimage_eq);
+	  Matrix<Rational> preimage_ineq = intersection_ineq.minor(All,~homog_cols) * fmatrix;
+	    preimage_ineq = zero_vector<Rational>() |
+			  ((intersection_ineq.col(1) + intersection_ineq.minor(All,~homog_cols) * ftranslate)
+			    | preimage_ineq);
+
+	  std::pair<Matrix<Rational>, Matrix<Rational> > preimage_cone = sv.enumerate_vertices(
+			    preimage_ineq, preimage_eq, true,true);
+	  
+			  
+	  //Now we compute the representation of h = g after f 
+	  Matrix<Rational> hmatrix = gmatrix * fmatrix;
+	  Vector<Rational> htranslate = gmatrix * ftranslate + gtranslate;
+	  
+	  //Now compute the values of 
 	  
 	  
 	  
@@ -171,6 +202,39 @@ namespace polymake { namespace atint {
       
   }//END morphism_composition
   
+  void test(Matrix<Rational> rays, Matrix<Rational> lin, perl::Object morphism) {
+    solver<Rational> sv;
+    std::pair<Matrix<Rational>, Matrix<Rational> > eq = sv.enumerate_facets(zero_vector<Rational>() | rays,
+									    zero_vector<Rational>() | lin,
+									    true,false);
+    
+    pm::cout << "Ineq: " << eq.first << ", eq: " << eq.second << endl;
+    
+    Matrix<Rational> matrix = morphism.give("MATRIX");
+    Vector<Rational> translate = morphism.give("TRANSLATE");
+    
+    pm::cout << "matrix " << matrix << endl;
+    pm::cout << "translate " << translate << endl;
+    
+    Set<int> homog_cols; homog_cols += 0; homog_cols += 1;
+    
+    Matrix<Rational> newineq = eq.first.minor(All,~homog_cols) * matrix;
+      newineq = (eq.first.col(1) + eq.first.minor(All,~homog_cols) * translate) | newineq;
+      newineq = zero_vector<Rational>() | newineq;
+      
+    Matrix<Rational> neweq = eq.second.minor(All,~homog_cols) * matrix;
+      neweq = (eq.second.col(1) + eq.second.minor(All,~homog_cols) * translate) | neweq;
+      neweq = zero_vector<Rational>() | neweq;
+    
+    pm::cout << "New ineq " << newineq << endl;
+    pm::cout << "new eq " << neweq << endl;
+    
+//     Matrix<Rational> transineq = 
+    
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
+  
+  Function4perl(&test, "pitest(Matrix<Rational>, Matrix<Rational>,Morphism)");
   
 }}
