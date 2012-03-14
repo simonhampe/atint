@@ -412,6 +412,9 @@ namespace polymake { namespace atint {
     Set<int> directional = complex.give("DIRECTIONAL_RAYS");
     Set<int> vertices = complex.give("VERTICES");
     
+    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
+    is_unimodular = is_unimodular && !uses_homog;
+    
     Matrix<Integer> generators;
     Vector<Set<int> > bases;
     

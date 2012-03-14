@@ -224,9 +224,10 @@ object WeightedComplex {
 	
 	# @category Tropical geometry / Lattice normals
 	# This property is not computed anywhere but should be set to TRUE by the user upon 
-	# initialization, if all cones of the fan/complex are unimodular in the sense that 
+	# initialization, if all cones of the fan are unimodular in the sense that 
 	# ANY linearly independent subset of their rays generates 
-	# the lattice of the cone
+	# the lattice of the cone. Note that this property is only considered if [[USES_HOMOGENEOUS_C]] is false.
+	# If [[USES_HOMOGENEOUS_C]] is true, this property is implicitly assumed to be false.
 	# If this property is TRUE, [[LATTICE_GENERATORS]] and [[LATTICE_BASES]] can be computed
 	# much faster.
 	property IS_UNIMODULAR : Bool; 
