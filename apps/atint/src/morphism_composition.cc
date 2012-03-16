@@ -75,7 +75,7 @@ namespace polymake { namespace atint {
 	Matrix<Rational> g_rays = g_domain.give("CMPLX_RAYS");
 	Matrix<Rational> g_lin = g_domain.give("LINEALITY_SPACE");
 	IncidenceMatrix<> g_cones = g_domain.give("CMPLX_MAXIMAL_CONES");
-	int g_dim = g_domain.give("CMXPL_DIM");
+	int g_dim = g_domain.give("CMPLX_DIM");
       Matrix<Rational> g_on_rays = g.give("RAY_VALUES");
       Matrix<Rational> g_on_lin = g.give("LIN_VALUES");
       Vector< Matrix<Rational> > g_hreps_ineq;
@@ -84,6 +84,7 @@ namespace polymake { namespace atint {
       //Prepare result variables
       Matrix<Rational> pullback_rays(0, f_ambient_dim);
       Matrix<Rational> pullback_lineality(0, f_ambient_dim);
+	bool lineality_computed = false;
       Vector<Set<int> > pullback_cones;
       //The following two variables contain for each cone of the pullback domain the representation 
       //as an affine linear function on this cone
@@ -105,9 +106,13 @@ namespace polymake { namespace atint {
 	dbglog << "Computing on function cone " << fcone << endl;
 	//Compute H-representation of the image of the cone: We have to convert the image values to homogeneous
 	//coordinates
-	Vector<Rational> homogenizer(f_on_rays.rows());
-	for(int r = 0; r < f_rays.rows(); r++) {
-	  if(f_rays(r,0) == 1) homogenizer[r] = 1;
+	Vector<Rational> homogenizer(f_cones.row(fcone).size());
+	int homrow = 0;
+	Set<int> fcone_set = f_cones.row(fcone);
+	for(Entire<Set<int> >::iterator r = entire(fcone_set); !r.at_end(); r++) {
+	  if(f_rays(*r,0) == 1) {
+	    homogenizer[homrow] == 1; homrow++;
+	  }
 	}
 	int image_dim = rank(f_on_rays.minor(f_cones.row(fcone),All) / f_on_lin);
 	std::pair<Matrix<Rational>, Matrix<Rational> > image_rep = sv.enumerate_facets(
@@ -131,7 +136,7 @@ namespace polymake { namespace atint {
 	
 	//Iterate all cones of the function
 	for(int gcone = 0; gcone < g_cones.rows(); gcone++) {
-	  dbglog << "Intersecting with function cone " << gcone << endl;
+	  dbglog << "Intersecting with g cone " << gcone << endl;
 	  //Compute intersection (or take the whole cone if the morphism is global and surjective)
 	  Matrix<Rational> intersection_ineq;
 	  Matrix<Rational> intersection_eq;
@@ -156,6 +161,8 @@ namespace polymake { namespace atint {
 	    
 	  }
 	  
+	  dbglog << "Computing representation on g cone" << endl;
+	  
 	  //Compute g's representation on the current cone
 	  Vector<Rational> gtranslate;
 	  Matrix<Rational> gmatrix;
@@ -168,6 +175,8 @@ namespace polymake { namespace atint {
 	  // and x |-> v + Mx is the representation of the morphism, then
 	  //(b - Av, -AM) is the representation of the preimage
 	  //Mind the additional zero's we have to add for cddlib!
+	  
+	  dbglog << "Computing preimage and pullback" << endl;
 	  
 	  Set<int> homog_cols; homog_cols += 0; homog_cols += 1; //The first two columns are for homogenizing
 	  Matrix<Rational> preimage_eq = intersection_eq.minor(All,~homog_cols) * fmatrix;
@@ -182,12 +191,19 @@ namespace polymake { namespace atint {
 	  std::pair<Matrix<Rational>, Matrix<Rational> > preimage_cone = sv.enumerate_vertices(
 			    preimage_ineq, preimage_eq, true,true);
 	  
-			  
+	  dbgtrace << "Preimage has rays " << preimage_cone.first << " and lin " << preimage_cone.second << endl;
+	
+	  //Canonicalize rays and add the cone
+// 	  if(!lineality_computed) {
+// 	    pullback_lineality = 
+// 	  }
+	  
+	  
 	  //Now we compute the representation of h = g after f 
 	  Matrix<Rational> hmatrix = gmatrix * fmatrix;
 	  Vector<Rational> htranslate = gmatrix * ftranslate + gtranslate;
 	  
-	  //Now compute the values of 
+	  
 	  
 	  
 	  
@@ -236,5 +252,6 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&test, "pitest(Matrix<Rational>, Matrix<Rational>,Morphism)");
+  Function4perl(&morphism_composition, "morphism_composition(Morphism, Morphism; $=0)");
   
 }}

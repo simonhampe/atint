@@ -486,16 +486,17 @@ namespace polymake { namespace atint {
   perl::Object prepareBergmanMatrix(Matrix<Rational> m, bool modOutLineality, int projCoordinate) {
     //First we check for loops - if there is one, the fan is empty - and coloops
     Set<int> coloops;
+    int mrank = rank(m);
     for(int c = 0; c < m.cols(); c++) {
       if(m.col(c) == zero_vector<Rational>(m.rows())) {
 	return CallPolymakeFunction("zero_cycle");
       }
-      if(rank(m.minor(All,~scalar2set(c))) < m.rows()) {
+      if(rank(m.minor(All,~scalar2set(c))) < mrank) {
 	coloops += c;
       }
     }
     m = m.minor(All,~coloops);
-    //Now we make sure that m.cols = rank(m)
+    //Now we make sure that m.rows = rank(m)
     Set<int> rbasis = basis_rows(m);
     m = m.minor(rbasis,All);
     //Now we compute the bergman fan and extract values
