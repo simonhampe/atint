@@ -55,7 +55,7 @@ namespace polymake { namespace atint {
     for(int r = 0; r < cmplx_rays.rows(); r++) {
       if(cmplx_rays(r,0) == 1) {
 	Matrix<Rational> new_ray_values = ray_values.minor(sequence(0,r),All) / zero_vector<Rational>();
-	new_ray_values /= ray_values.minor(sequence(r,ray_values.rows()-r-1),All);
+	new_ray_values /= ray_values.minor(sequence(r,ray_values.rows()-r),All);
 	perl::Object result("Morphism");
 	  result.take("DOMAIN") << homog_domain;
 	  result.take("RAY_VALUES") << new_ray_values;
