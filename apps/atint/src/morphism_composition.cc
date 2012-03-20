@@ -32,6 +32,8 @@
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/refine.h"
 #include "polymake/atint/morphism_pullback.h"
+#include "polymake/atint/morphism_composition.h"
+
 
 namespace polymake { namespace atint { 
     
@@ -42,12 +44,8 @@ namespace polymake { namespace atint {
 //   using namespace atintlog::dotrace;
   
   ///////////////////////////////////////////////////////////////////////////////////////
-    /**
-   @brief Computes the composition g(f) of two morphisms f and g (as in f:X->Y, g:Y->Z). Actually, f and g can also be piecewise linear maps on their domains, the method will work equally well. It naturally requires that the image of f is contained in the domain of g (except if f is global and surjective)
-   @param perl::Object f A Morphism
-   @param perl::Object g A Morphism, whose DOMAIN contains the image of f - except if f is a global affine linear and surjective map. In this case, g's DOMAIN needn't be the whole space. The composition will then be defined on the preimage of g's DOMAIN
-   @return perl::Object A Morphism object, the composition "g after f"
-   */
+   
+   //Documentation see header
    perl::Object morphism_composition(perl::Object f, perl::Object g) {
       //First we homogenize to make sure everything is compatible
       f = f.CallPolymakeMethod("homogenize");
@@ -192,7 +190,7 @@ namespace polymake { namespace atint {
 	    dbgtrace << "Cone is valid " << endl;	    
 	  }
 	  
-// 	  dbgtrace << "Intersection cone has H-rep " << intersection_ineq << "\n" << intersection_eq << endl;
+	  dbgtrace << "Intersection cone has H-rep " << intersection_ineq << "\n" << intersection_eq << endl;
 	  
 	  dbglog << "Computing representation on g cone" << endl;
 	  
@@ -232,7 +230,7 @@ namespace polymake { namespace atint {
 	  preimage_eq /= f_hreps_eq[fcone];
 			  
 
-// 	  dbgtrace << "Preimage ineq " << preimage_ineq << "\n eq " << preimage_eq << endl;
+	  dbgtrace << "Preimage ineq " << preimage_ineq << "\n eq " << preimage_eq << endl;
 	  
 			  
 	  std::pair<Matrix<Rational>, Matrix<Rational> > preimage_cone = sv.enumerate_vertices(
@@ -243,6 +241,8 @@ namespace polymake { namespace atint {
 	  //Dehomogenize
 	  Matrix<Rational> preimage_rays = preimage_cone.first.minor(All,~scalar2set(0));
 	  Matrix<Rational> preimage_lin = preimage_cone.second.minor(All,~scalar2set(0));
+	  
+	  dbgtrace << "Canonicalizing rays" << endl;
 	  
 	  //Canonicalize rays and create cone
 	  if(!lineality_computed) {
@@ -266,7 +266,7 @@ namespace polymake { namespace atint {
 	    }
 	    //Find correct ray index
 	    int ray_index = -1;
-	    for(int oray = 0; oray <= pullback_rays.rows(); oray++) {
+	    for(int oray = 0; oray < pullback_rays.rows(); oray++) {
 	      if(pullback_rays.row(oray) == preimage_rays.row(r)) {
 		ray_index = oray; 
 		break;
@@ -279,6 +279,7 @@ namespace polymake { namespace atint {
 	    }
 	    pcone += ray_index;
 	  }
+	  dbgtrace << "Ray set is " << pcone << endl;
 	  //Add cone if it doesn't exist yet
 	  if(!pullback_cones_set.contains(pcone)) {
 	    pullback_cones |= pcone;

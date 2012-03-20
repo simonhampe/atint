@@ -44,8 +44,7 @@
 
 object Morphism {
   
-# #   use overload('^' => 'powerf');
-#   use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'powerf', '+' => 'sum','-' => 'minus','neg'=>'neg');
+  use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool', '+' => 'sum','-' => 'minus','neg'=>'neg');
   
   # @category Tropical geometry
   # This property describes the domain of the morphism. I.e. the morphism is
@@ -131,10 +130,72 @@ object Morphism {
     my $this = shift;
     return morphism_homogenize($this);    
   }
+  
+  # @category Morphisms
+  # Computes the composition of this morphism with another morphism. The other morphism should either be global 
+  # and surjective or its image should be contained in the [[DOMAIN]] of this morphism
+  # @param Morphism g Another morphism. 
+  # @return Morphism The composition "this after g" (The converse composition is computed using "before")
+  user_method after {
+    my ($this, $g) = @_;
+    return morphism_composition($g, $this);
+  }
+  
+  # @category Morphisms
+  # Computes the composition of another morphism with this morphism. This morphism should either be global 
+  # and surjective or its image should be contained in the [[DOMAIN]] of the other morphism
+  # @param Morphism g Another morphism. 
+  # @return Morphism The composition "g after this" (The converse composition is computed using "after")
+  user_method before {
+    my ($this, $g) = @_;
+    return morphism_composition($this,$g);
+  }
 
-# ----------------------------- OVERLOADED OPERATORS -----------------
+  #----------------------------- OVERLOADED OPERATORS -----------------
   
+  sub bool {
+      my $this = shift;
+      return !undef($this);
+  }
+
+  sub mult {
+      my ($f,$g ) = @_;
+      if($g->isa("RationalFunction")) {
+	return pull_back($f,$g);
+      }
+      else {
+	return morphism_composition($g, $f);
+      }
+  }
   
+  sub to_string {
+    my $this = shift;  
+    my $result = "Morphism on (".$this->DOMAIN->DESCRIPTION.") with values: \n".join(",",$this->RAY_VALUES)."\n".join(",",$this->LIN_VALUES);
+    return $result;
+  }
+  
+  sub sum {
+    my ($f,$g) = @_;
+    return add_morphisms($f,$g);
+  }
+  
+  sub mult {
+      my ($f,$r ) = @_;
+      if($f->IS_GLOBAL) {
+	return new Morphism(MATRIX=>$r * $f->MATRIX, TRANSLATE=>$r * $f->TRANSLATE);
+      }
+      return new Morphism(DOMAIN=>$f->DOMAIN, RAY_VALUES=>$r * ($f->RAY_VALUES), LIN_VALUES=>$r * ($f->LIN_VALUES));
+  }
+  
+  sub minus {
+    my ($f,$g) = @_;
+    return add_morphisms($f, (-1) * $g);
+  }
+  
+  sub neg {
+    my $f = shift;
+    return mult($f,-1);
+  }
   
 }
 
@@ -152,16 +213,11 @@ user_function pull_back {
   
   for my $phi (@phi_list) {
     #Distinguish cases
-    if($f->IS_GLOBAL) {
-      if($phi->isa("MinMaxFunction")) {
-	@result = (@result, pb_minmax_global($f,$phi));
-      }
-      else {
-	die "Not implemented yet\n";
-      }
+    if($f->IS_GLOBAL && $phi->isa("MinMaxFunction")) {
+      @result = (@result, pb_minmax_global($f,$phi));
     }
-    else  {
-      die "Not implemented yet\n";
+    else {
+      @result = (@result, pb_general($f,$phi));
     }
   }
   
@@ -170,4 +226,31 @@ user_function pull_back {
   }
   return @result;
   
+}
+
+# @category Morphisms
+# Restricts a morphism / rational function to a given domain (which should be contained in the [[DOMAIN]] of the function)
+# @param Morphism or RationalFunction The function to be restricted
+# @param WeightedComplex domain The domain to which the function should be restricted
+# @return Morphism or RationalFunction The restricted function
+user_function restrict {
+  my ($f, $X) = @_;
+  
+  #Define identity on $X
+  my $rayvalues = $X->CMPLX_RAYS;
+  my $linvalues = $X->LINEALITY_SPACE;
+  if($X->USES_HOMOGENEOUS_C) {
+    if($rayvalues->cols() > 0) { $rayvalues = $rayvalues->minor(All,~scalar2set(0));}
+    if($linvalues->cols() > 0) {$linvalues = $linvalues->minor(All,~scalar2set(0));}
+  }
+  
+  my $emb = new Morphism(DOMAIN=>$X, RAY_VALUES=>$rayvalues, LIN_VALUES=>$linvalues);
+  if($f->isa("RationalFunction")) {
+    return $emb * $f;
+  }
+  else {
+    return $f * $emb;
+  }
+ 
+ 
 }

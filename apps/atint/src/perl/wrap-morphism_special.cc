@@ -15,17 +15,11 @@
 
 namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( perl::Object (int, int, pm::Matrix<pm::Rational>, int) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
-      IndirectWrapperReturn( arg0, arg1, arg2.get< perl::TryCanned< const Matrix<Rational> > >(), arg3 );
+   FunctionWrapper4perl( perl::Object (int, pm::Set<int, pm::operations::cmp>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Set< int > > >() );
    }
-   FunctionWrapperInstance4perl( perl::Object (int, int, pm::Matrix<pm::Rational>, int) );
-
-   FunctionWrapper4perl( perl::Object (int, int, int, int) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
-      IndirectWrapperReturn( arg0, arg1, arg2, arg3 );
-   }
-   FunctionWrapperInstance4perl( perl::Object (int, int, int, int) );
+   FunctionWrapperInstance4perl( perl::Object (int, pm::Set<int, pm::operations::cmp>) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

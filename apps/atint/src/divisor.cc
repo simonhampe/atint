@@ -506,6 +506,12 @@ namespace polymake { namespace atint {
 	
     ///////////////////////////////////////////////////////////////////////////////////////
 	
+    /**
+     @brief Computes the sum of two rational functions (that should be defined on the same support)
+     @param perl::Object f a RationalFunction
+     @param perl::Object g a RationalFunction
+     @return perl::Object the sum f+g
+     */
     perl::Object add_rational_functions(perl::Object f, perl::Object g) {
       //First, if any of the two is homogeneous and the other is not, we homogenize
       perl::Object fDomain = f.give("DOMAIN");
@@ -536,13 +542,16 @@ namespace polymake { namespace atint {
 	Vector<Rational> f_linval = f.give("LIN_VALUES");
 	Vector<Rational> g_linval = g.give("LIN_VALUES");
 	
+	Vector<Rational> fval = f_rayval | f_linval;
+	Vector<Rational> gval = g_rayval | g_linval;
+	
       Matrix<Rational> rays = nDomain.give("CMPLX_RAYS");
       Matrix<Rational> linspace = nDomain.give("LINEALITY_SPACE");
       
       //Now compute ray values
       Vector<Rational> rValues;
       for(int r = 0; r < rays.rows(); r++) {
-	rValues |= (x_rayrep.row(r) * f_rayval) + (y_rayrep.row(r) * g_rayval);
+	rValues |= (x_rayrep.row(r) * fval) + (y_rayrep.row(r) * gval);
       }
       //Now compute lin values
       Vector<Rational> lValues;

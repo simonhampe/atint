@@ -24,6 +24,7 @@
 #include "polymake/Matrix.h"
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
+#include "polymake/Set.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/moduli.h"
 
@@ -35,6 +36,7 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
+  //Documentation see perl wrapper
   perl::Object evaluation_map(int n, int r, Matrix<Rational> delta, int i) {
     if(n <= 0 || r <= 0 || delta.rows() <= 0 || i <= 0 || i > n) {
       throw std::runtime_error("Cannot create evaluation map: Invalid parameters");
@@ -81,6 +83,7 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
+  //Documentation see perl wrapper
   perl::Object evaluation_map_d(int n, int r, int d, int i) {
     if(n <= 0 || r <= 0 || d <= 0 || i <= 0 || i > n) {
       throw std::runtime_error("Cannot create evaluation map: Invalid parameters");
@@ -100,6 +103,39 @@ namespace polymake { namespace atint {
     dbgtrace << "Delta: " << delta << endl;
     
     return evaluation_map(n,r,delta,i);
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object projection_map(int n, Set<int> coords) {
+    
+    //Create matrix
+    Matrix<Rational> proj_matrix(coords.size(), n);
+    int image_index = 0;
+    for(Entire<Set<int> >::iterator c = entire(coords); !c.at_end(); c++) {
+      if(*c >= n) {
+	throw std::runtime_error("Cannot create projection: Image dimension larger than domain dimension");
+      }
+      proj_matrix.col(*c) = unit_vector<Rational>(n,image_index);
+      image_index++;
+    }
+    
+    perl::Object result("Morphism");
+      result.take("MATRIX") << proj_matrix;
+      
+    return result;
+    
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object projection_map_default(int n, int m) {
+    if(m > n) {
+      throw std::runtime_error("Cannot create projection: Image dimension larger than domain dimension");
+    }
+    return projection_map(n, sequence(0,m));
   }
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
@@ -131,6 +167,21 @@ namespace polymake { namespace atint {
 		    "# @return Morphism ev_i. Its domain is the ambient space of the moduli space "
 		    "# in matroid coordinates cross R^r",
 		    &evaluation_map_d,"evaluation_map($,$,$,$)"); 
+  
+  UserFunction4perl("# @category Tropical geometry/Morphisms"
+		    "# This creates a linear projection from R^n to a given set of coordinates"
+		    "# @param Int n The dimension of the domain"
+		    "# @param Set<Int> The set of coordinates to which this map should project (starting "
+		    "# the count at 0)"
+		    "# @return Morphism The corresponding projection as a global linear map",
+		    &projection_map, "projection_map($, Set<Int>)");
+  
+  UserFunction4perl("# @category Tropical geometry/Morphisms"
+		    "# This computes the projection from R^n to R^m (for m < n) onto the first m coordinates"
+		    "# @param Int n Dimension of domain"
+		    "# @param Int m Dimension of image"
+		    "# @return Morphism The corresponding projection",
+		    &projection_map_default, "projection_map($,$)");
   
   
 }}

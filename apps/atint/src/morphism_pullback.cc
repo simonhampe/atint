@@ -32,6 +32,7 @@
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/refine.h"
 #include "polymake/atint/morphism_pullback.h"
+#include "polymake/atint/morphism_composition.h"
 
 namespace polymake { namespace atint { 
     
@@ -161,20 +162,50 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
-//   /**
-//    @brief Computes the pull-back of a RationalFunction along a Morphism. The function assumes that the morphism is either global and surjective or that its image is contained in the domain of the function.
-//    @param perl::Object morphism A Morphism object
-//    @param perl::Object function A RationalFunction object, If the morphism is not global and surjective, its domain should contain the image of the morphism.
-//    @param bool is_global_and_surjective indicates that the morphism is global and surjective. In this case
-//    the image needn't be contained in the domain of the function. This method will simply compute the preimage of the domain. This parameter is optional and false by default.
-//    @return perl::Object A RationalFunction object, the pull-back of function along morphism (always given on a homogeneous domain)
-//    */
-//   perl::Object pb_general(perl::Object morphism, perl::Object function, bool is_global_and_surjective = false) {
-
-//   }//END pb_general
+  /**
+   @brief Computes the pull-back of a RationalFunction along a Morphism. The function assumes that the morphism is either global and surjective or that its image is contained in the domain of the function.
+   @param perl::Object morphism A Morphism object
+   @param perl::Object function A RationalFunction object, If the morphism is not global and surjective, its domain should contain the image of the morphism.
+   @return perl::Object A RationalFunction object, the pull-back of function along morphism (always given on a homogeneous domain)
+   */
+  perl::Object pb_general(perl::Object morphism, perl::Object function) {
+    //First we need to convert the function to a "morphism"
+    perl::Object fdomain = function.give("DOMAIN");
+    Vector<Rational> frayvalues = function.give("RAY_VALUES");
+    Vector<Rational> flinvalues = function.give("LIN_VALUES");
+    
+    Matrix<Rational> frayconv(frayvalues.dim(), 0);
+      frayconv |= frayvalues;
+    Matrix<Rational> flinconv(flinvalues.dim(), 0);
+      flinconv |= flinvalues;
+      
+    perl::Object fmorphism("Morphism");
+      fmorphism.take("DOMAIN") << fdomain;
+      fmorphism.take("RAY_VALUES") << frayconv;
+      fmorphism.take("LIN_VALUES") << flinconv;
+    
+    //Now compute composition (as a "morphism")
+    
+    perl::Object comp = morphism_composition(morphism, fmorphism);
+    
+    //Finally convert back to rational function
+    
+    perl::Object cdomain = comp.give("DOMAIN");
+    Matrix<Rational> crayval = comp.give("RAY_VALUES");
+    Matrix<Rational> clinval = comp.give("LIN_VALUES");
+    
+    perl::Object result("RationalFunction");
+      result.take("DOMAIN") << cdomain;
+      if(crayval.cols() > 0) result.take("RAY_VALUES") << crayval.col(0);
+      if(clinval.cols() > 0) result.take("LIN_VALUES") << clinval.col(0);
+    
+    return result;
+    
+  }//END pb_general
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&pb_minmax_global,"pb_minmax_global(Morphism,MinMaxFunction)");
+  Function4perl(&pb_general, "pb_general(Morphism, RationalFunction)");
   
 }}
