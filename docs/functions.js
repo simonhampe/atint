@@ -1,5 +1,5 @@
 /*
-$Id: functions.js 9563 2010-03-14 15:04:28Z smoeser $
+$Id: functions.js 10445 2011-11-30 16:11:29Z benmuell $
 
 This file contains the JavaScript functions used in the documentation of 
 polymake.
@@ -21,7 +21,7 @@ function swap_content( span_id ) {
 function unfold( id ) {
 	var obj; obj=document.getElementById( id );
 	while (obj) {
-		if (obj.tagName=='SPAN') {
+		if (obj.tagName=='DIV' && obj.className=='foldit') {
 			obj.style.display = 'inline';
 			id = obj.id;
 			var icon; icon='icon:'+id.split(':')[1];
@@ -34,11 +34,11 @@ function unfold( id ) {
 // executed upon loading 
 // fold everything (if JavaScript is activated)
 function start() {
-	var list; list=document.getElementsByTagName("span");
+	var list; list=document.getElementsByTagName("div");
 	for(var i=0; i< list.length; i++){
   		var temp;
   		temp=list[i];
-  		if(temp.id){
+  		if(temp.id && temp.className=='foldit'){
 			temp.style.display = 'none';
 		}
 	}

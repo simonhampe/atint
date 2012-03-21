@@ -2,13 +2,21 @@ h2,h3 {
 	border-bottom-width:1pt;
 	border-bottom-style:solid;
 }
-h3 div.object {
+div.object h3 {
 	margin-top:1em;
 	font-size: 17px;
 }
-h3 div.category {
+div.category h3 {
 	margin-top: .7em;
 	font-size: 16px;
+}
+
+span.category {
+	color: #000;
+}
+
+span.object {
+	color: #000;
 }
 
 em.u {
@@ -18,9 +26,6 @@ em.u {
 
 /* -------- Page -------- */
 
-body {
-    background-color: #FFFFFF;
-}
 
 span.pm {
 	font-weight: bolder;
@@ -40,7 +45,6 @@ p{
 
 li {
 	margin-bottom:.7em;
-	/*background-color: #FFFFFF;*/
 }
 
 li.args {
@@ -70,6 +74,7 @@ div.author {
 ul.unfoldable{
 	list-style-image:none;
 	list-style-type:none;
+	
 	padding: 0;
 	margin-left: 2em;
 }
@@ -86,7 +91,6 @@ div.icon {
 
 div.unfoldable {
 	margin-left:20px;
-	
 }
 
 

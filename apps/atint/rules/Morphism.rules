@@ -230,7 +230,7 @@ user_function pull_back {
 
 # @category Morphisms
 # Restricts a morphism / rational function to a given domain (which should be contained in the [[DOMAIN]] of the function)
-# @param Morphism or RationalFunction The function to be restricted
+# @param Morphism f (or RationalFunction) The function to be restricted
 # @param WeightedComplex domain The domain to which the function should be restricted
 # @return Morphism or RationalFunction The restricted function
 user_function restrict {

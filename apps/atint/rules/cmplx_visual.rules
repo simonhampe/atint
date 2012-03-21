@@ -278,7 +278,8 @@ object WeightedComplex {
   # @return Matrix<Rational>  A 2x[[CMPLX_AMBIENT_DIM]]-matrix specifying the bounding box (it can be used as input for BoundingBox in [[BB_VISUAL]]
   user_method boundingBox {
     my ($variety, $distance) = @_;
-    my @r =  computeBoundedVisual($variety->homogenize, 1, 0, new Rational($distance),1,new Matrix<Rational>());
+    my $clabels = new Array<String>(); 
+    my @r =  computeBoundedVisual($variety->homogenize, 1, 0, new Rational($distance),1,(new Matrix<Rational>()), $clabels);
     return $r[0];
   }
   
