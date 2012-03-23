@@ -537,7 +537,7 @@ namespace polymake { namespace atint {
     perl::Object graph = curve.give("GRAPH"); 
     Vector<Rational> lengths = curve.give("COEFFS");
     perl::ListReturn result;
-      result << graph;
+      result << graph.copy();
       result << lengths;
     return result;
   }

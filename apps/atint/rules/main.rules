@@ -59,7 +59,8 @@ INCLUDE
   Bergman_Rincon.rules
   Morphism.rules
   Function_visual.rules
-  
+  gfan_parse.rules
+
   
 ## TESTRUN FUNCTION #######################
 

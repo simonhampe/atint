@@ -16,18 +16,18 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/client.h"
+#include "polymake/perl/assoc.h"
+#include "polymake/Map.h"
 #include "polymake/Vector.h"
-#include "polymake/Rational.h"
-#include "polymake/linalg.h"
-#include "polymake/Set.h"
 #include "polymake/Integer.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   Class4perl("Polymake::common::Vector__Bool", Vector< bool >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::SameElementVector<pm::Rational const&> >);
-   Class4perl("Polymake::common::Vector__String", Vector< std::string >);
-   Class4perl("Polymake::common::Vector__Set__Int", Vector< Set< int > >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Integer > >, perl::Canned< const Integer >);
-   OperatorInstance4perl(Binary_mul, int, perl::Canned< const Wary< Vector< Rational > > >);
+   template <typename T0, typename T1>
+   FunctionInterface4perl( assoc_find_X_X, T0,T1 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( pm::perl::find_element(arg0.get<T0>(), arg1.get<T1>()) );
+   };
+
+   FunctionInstance4perl(assoc_find_X_X, perl::Canned< const Map< int, Vector< Integer > > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

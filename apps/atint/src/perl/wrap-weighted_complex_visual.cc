@@ -13,14 +13,13 @@
    GNU General Public License for more details.
 */
 
-///==== this line controls the automatic file splitting: max.instances=40
-
-#include "polymake/client.h"
-#include "polymake/IncidenceMatrix.h"
-#include "polymake/Set.h"
-namespace polymake { namespace common {
+namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   OperatorInstance4perl(Binary_add, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, int);
-   OperatorInstance4perl(Binary_add, perl::Canned< const Set< int > >, int);
+   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, bool, pm::Matrix<pm::Rational>, pm::Array<std::string, void>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]), arg5(stack[5]), arg6(stack[6]);
+      IndirectWrapperReturnVoid( arg0, arg1, arg2, arg3.get< perl::TryCanned< const Rational > >(), arg4, arg5.get< perl::TryCanned< const Matrix< Rational > > >(), arg6.get< perl::TryCanned< const Array< std::string > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object, bool, bool, pm::Rational, bool, pm::Matrix<pm::Rational>, pm::Array<std::string, void>) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

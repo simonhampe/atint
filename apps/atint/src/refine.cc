@@ -210,8 +210,8 @@ namespace polymake { namespace atint {
     int x_dimension = X.give("CMPLX_DIM");	
     Vector<Integer> weights; bool weightsExist = false;
     if(X.exists("TROPICAL_WEIGHTS")) {
-      Vector<Integer> w = X.give("TROPICAL_WEIGHTS");
-      weights = w;
+      X.give("TROPICAL_WEIGHTS") >> weights;
+//       weights = w;
       weightsExist = true;	
     }
     Vector<Set<int> > local_restriction = X.give("LOCAL_RESTRICTION");
