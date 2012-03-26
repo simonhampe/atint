@@ -29,24 +29,36 @@ for my $f (@files) {
 
     print "$f: ".($dotrace? "Tracing" : ($dolog? "Logging" : "No debugging"))."\n";
 
+    my $changes_made = 0;
+
     #Comment out trace statements if necessary
     if(!$dotrace)  {
-      $file =~ s/^(\s*)dbgtrace(.*)/$1\/\/dbgtrace$2/mg;
+      if($file =~ s/^(\s*)dbgtrace(.*)/$1\/\/dbgtrace$2/mg) {
+	$changes_made = 1;
+      }
     }
     #Otherwise uncomment trace statements
     else {
-      $file =~ s/^(\s*)\/\/(\s*dbgtrace.*)/$1$2/mg;
+      if($file =~ s/^(\s*)\/\/(\s*dbgtrace.*)/$1$2/mg) {
+	$changes_made = 1;
+      }
     }
     #Same for log statements
     if(!$dolog) {
-      $file =~ s/^(\s*)dbglog(.*)/$1\/\/dbgtrace$2/mg;
+      if($file =~ s/^(\s*)dbglog(.*)/$1\/\/dbgtrace$2/mg) {
+	$changes_made = 1;
+      }
     }
     else {
-      $file =~ s/^(\s*)\/\/(\s*dbglog.*)/$1$2/mg;
+      if($file =~ s/^(\s*)\/\/(\s*dbglog.*)/$1$2/mg) {
+	$changes_made = 1;
+      }
     }
+    
+    print "Changed: ".($changes_made? "Yes" : "No")."\n";
 
     #Write changes to file
-    write_file($dirname."/".$f,$file);
+    if($changes_made) { write_file($dirname."/".$f,$file);}
     
   }
 
