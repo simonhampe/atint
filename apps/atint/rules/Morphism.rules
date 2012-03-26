@@ -181,6 +181,9 @@ object Morphism {
   
   sub mult {
       my ($f,$r ) = @_;
+      if($r->isa("RationalFunction") ) {
+	  return pull_back($f,$r);
+      }
       if($f->IS_GLOBAL) {
 	return new Morphism(MATRIX=>$r * $f->MATRIX, TRANSLATE=>$r * $f->TRANSLATE);
       }
