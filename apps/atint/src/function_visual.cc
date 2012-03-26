@@ -55,7 +55,7 @@ namespace polymake { namespace atint {
     
     
     for(int mc = 0; mc < cones.rows(); mc++) {
-      dbgtrace << "Computing representation of cone " << mc << endl;
+      //dbgtrace << "Computing representation of cone " << mc << endl;
       Matrix<Rational> matrix;
       Vector<Rational> translate;
       computeConeFunction(rays.minor(cones.row(mc),All), lineality, uses_homog, ray_values.minor(cones.row(mc),All), lin_values, translate, matrix);

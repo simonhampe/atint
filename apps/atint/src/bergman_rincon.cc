@@ -163,7 +163,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> wbs(0,n);
     //Compute the complement of L (i.e. the singleton blocks of the defining tree)
     Set<int> Lcomp = B - Set<int>(L);
-    dbgtrace << "Computing leaves" << endl;
+    //dbgtrace << "Computing leaves" << endl;
     //For each element in L find the attached leafs
     Vector<Set<int> > leafsAttached(L.dim());
       for(int l = 0; l < leafsAttached.dim(); l++) { leafsAttached[l] = Set<int>();}
@@ -186,7 +186,7 @@ namespace polymake { namespace atint {
       wbs /= unit_vector<Rational>(n,*c);
     } //End attach leaves
     
-    dbgtrace << "Computing block vectors" << endl;
+    //dbgtrace << "Computing block vectors" << endl;
     
     //Now compute the rays w_b for b in L (except for the smallest one, which gives (1,..1))
     for(int b = 1; b < L.dim(); b++) {
@@ -202,8 +202,8 @@ namespace polymake { namespace atint {
       wbs /= wb;
     }
     
-    dbgtrace << "Cone rays: " << wbs << endl;
-    dbgtrace << "Checking rays" << endl;
+    //dbgtrace << "Cone rays: " << wbs << endl;
+    //dbgtrace << "Checking rays" << endl;
     
     //Now we check for existence of the rays and compute indices
     Set<int> result;
@@ -223,7 +223,7 @@ namespace polymake { namespace atint {
 	result += newindex;
       }
     }
-    dbgtrace << "Indices: " << result << endl;
+    //dbgtrace << "Indices: " << result << endl;
     return result;
   }
   
@@ -281,8 +281,8 @@ namespace polymake { namespace atint {
 	while(k != -1) {
 	    //If we're through all k's, make a cone -------------------------
 	    if(k >= complement.dim()) {
-	      dbglog << "Compatible pair: \n: Order: " << L <<"\np: " << p << endl;
-	      dbgtrace << "Qb: " << Qb << endl;
+	      //dbgtrace << "Compatible pair: \n: Order: " << L <<"\np: " << p << endl;
+	      //dbgtrace << "Qb: " << Qb << endl;
 	      cones |= computeCone(n,rays,bases.row(B),Fksets,p,L,Qb);
 	      k--;
 	      continue;
@@ -294,7 +294,7 @@ namespace polymake { namespace atint {
 	    int smallestInL = -1; //contains the smallest element in Fk cap L (or -1 if none)
 	    int smallestx = -1; // contains the position of the above element in L
 	    if(iterations[k].first == -1) {
-	      dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
+	      //dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
 	      iterations[k] = std::make_pair(0,-1); 
 	      for(int l = 0; l < L.dim(); l++) {
 		if(Fksets[k].contains(L[l])) {
@@ -314,9 +314,9 @@ namespace polymake { namespace atint {
 	    if(iterations[k].second != -1) {
 	      L = L.slice(~scalar2set(iterations[k].second));  
 	    }
-	    dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
-	    dbgtrace << "L is " << L << endl;
-	    dbgtrace << "Smallest x is " << smallestx << endl; 
+	    //dbgtrace << "Iteration for " << complement[k] << " at " << iterations[k] << endl;
+	    //dbgtrace << "L is " << L << endl;
+	    //dbgtrace << "Smallest x is " << smallestx << endl; 
 	    //Have to recompute minimal element from Fk cap L (any other b from Fk must
 	    //be placed before that element)
 	    smallestx = -1;	      
@@ -456,7 +456,7 @@ namespace polymake { namespace atint {
 	      projectionMatrix /= unitMatrix.minor(sequence(projCoordinate,unitMatrix.rows() -	projCoordinate),All);
 	}
 	
-	dbgtrace << "Projection matrix is " << projectionMatrix << endl;
+	//dbgtrace << "Projection matrix is " << projectionMatrix << endl;
 			   
 	if(bergman_rays.rows() > 0) bergman_rays = bergman_rays * projectionMatrix;
 	

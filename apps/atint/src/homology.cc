@@ -85,7 +85,7 @@ namespace polymake { namespace atint {
 //       Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
       //Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
       
-      dbgtrace << "Computing adjacency complex" << endl;
+      //dbgtrace << "Computing adjacency complex" << endl;
       
       //First we compute the adjacency complex
       perl::Object complex = adjacencyComplex(fan);
@@ -95,7 +95,7 @@ namespace polymake { namespace atint {
       Vector<bool> hasBeenAdded(noOfCones); //contains whether a cone has been added to an equivalence class
       Map<int, int> conesInClasses; //Maps cone indices to the index of their class in equivalenceClasses
       
-      dbgtrace << "Computing equivalence classes" << endl;
+      //dbgtrace << "Computing equivalence classes" << endl;
       
       for(int mc = 0; mc < noOfCones; mc++) {
 	if(!hasBeenAdded[mc]) {
@@ -109,7 +109,7 @@ namespace polymake { namespace atint {
 		//Take the first element and find its neighbours
 		int node = queue.front(); 
 		  queue.pop_front();
-		dbgtrace << "Checking node " << node << endl;
+		//dbgtrace << "Checking node " << node << endl;
 		Set<int> cdset = codimInMaximal.row(node);
 		for(Entire<Set<int> >::iterator cd = entire(cdset); !cd.at_end(); cd++) {
 		    Set<int> otherMaximals = maximalByCodim.row(*cd) - node;
@@ -145,8 +145,8 @@ namespace polymake { namespace atint {
 	}	
       } //End compute equivalence classes
       
-      dbglog << "Equivalence classes are " << equivalenceClasses << endl;
-      dbglog << "Cones in classes reads " << conesInClasses << endl;
+      //dbgtrace << "Equivalence classes are " << equivalenceClasses << endl;
+      //dbgtrace << "Cones in classes reads " << conesInClasses << endl;
       //dbgtrace << "Removing edges from equivalence classes" << endl;
       
       //Now we take each equivalence class, iterate over all cones in this class and add as connected
@@ -154,24 +154,24 @@ namespace polymake { namespace atint {
       Vector<Set<int> > facets;
       Vector<Set<int> > adjacency = complex.give("FACETS");
       IncidenceMatrix<> vertexInEdge = T(IncidenceMatrix<>(adjacency));
-      dbgtrace << "vertex-in-edge matrix reads " << vertexInEdge << endl;
+      //dbgtrace << "vertex-in-edge matrix reads " << vertexInEdge << endl;
       for(int cls = 0; cls < equivalenceClasses.dim(); cls++) {
-	dbgtrace << "Finding connected classes for class " << cls << endl;
+	//dbgtrace << "Finding connected classes for class " << cls << endl;
 	Set<int> c = equivalenceClasses[cls];
 	Set<int> connectedClasses;
-	dbgtrace << "Cones in that class are " << c << endl;
+	//dbgtrace << "Cones in that class are " << c << endl;
 	//Iterate over all cones in the class
 	for(Entire<Set<int> >::iterator cone = entire(c); !cone.at_end(); cone++) {
 	    //Extract all edges containing that cone
 	    Set<int> edgeSet = vertexInEdge.row(*cone);
-	    dbgtrace << "Cone " << *cone << " contained in edges " << edgeSet << endl;
+	    //dbgtrace << "Cone " << *cone << " contained in edges " << edgeSet << endl;
 	    //Now add all neighbour cones
 	    for(Entire<Set<int> >::iterator nb = entire(edgeSet); !nb.at_end(); nb++) {
 	      int coneClass = conesInClasses[*((adjacency[*nb] - *cone).begin())];
 	      if(coneClass != cls) connectedClasses += coneClass;
 	    }
 	}
-	dbgtrace << "Connected classes are " << connectedClasses << endl;
+	//dbgtrace << "Connected classes are " << connectedClasses << endl;
 	//Now that we know all connected classes, add the corresponding edges (only if the index is > )
 	for(Entire<Set<int> >::iterator cc = entire(connectedClasses); !cc.at_end(); cc++) {
 	    if(*cc > cls) {
@@ -186,7 +186,7 @@ namespace polymake { namespace atint {
 	}
       }
       
-      dbgtrace << "Done. Facets are " << facets << endl;
+      //dbgtrace << "Done. Facets are " << facets << endl;
       
       //Now we remove all edges contained in the equivalence classes and add the classes as facets
 //       Vector<Set<int> > facets = complex.give("FACETS");

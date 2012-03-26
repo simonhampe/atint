@@ -43,7 +43,7 @@ namespace polymake { namespace atint {
   perl::Object complexify(Matrix<Rational> rays, Vector<Set<int> > max_cones, Vector<Integer> weights, bool uses_homog) {
     solver<Rational> sv;
     //First we compute all the H-representations of the cones
-    dbgtrace << "Computing H-rep of cones" << endl;
+    //dbgtrace << "Computing H-rep of cones" << endl;
     Vector<Matrix<Rational> > inequalities(max_cones.dim());
     Vector<Matrix<Rational> > equalities(max_cones.dim());
     for(int c = 0; c < max_cones.dim(); c++) {
@@ -75,7 +75,7 @@ namespace polymake { namespace atint {
       for(int i = 0; i < max_cones.dim() -1 && !created; i++) {
 	for(int j = i+1; j < max_cones.dim() && !created;j++) {
 	    //replacedI = false; replacedJ = false;
-	    dbgtrace << "Refining " << i << " and "<< j << endl;
+	    //dbgtrace << "Refining " << i << " and "<< j << endl;
 	    //We only intersect non-marked pairs
 	    if(!markedPairs[i][j]) {
 	      //Compute an irredundant H-rep of the intersection of cones i and j
@@ -124,14 +124,14 @@ namespace polymake { namespace atint {
 		    all_subsets(sequence(0,relevantEquations.rows()));
 		    //pm::AllSubsets<Set<int> >(sequence(0,relevantEquations.rows()));
 		
-		dbgtrace << "Relevant equations: " << relevantEquations << endl;
-		dbgtrace << "Cone index: " << coneindex << " of " << i << ", " << j << endl;
+		//dbgtrace << "Relevant equations: " << relevantEquations << endl;
+		//dbgtrace << "Cone index: " << coneindex << " of " << i << ", " << j << endl;
 		for(int s = 0; s < signChoices.size(); s++) {
-		  dbgtrace << "Sign choice: " << signChoices[s] << endl;
+		  //dbgtrace << "Sign choice: " << signChoices[s] << endl;
 		  //If the intersection is full-dimensional and the signs are all +1's, then we
 		  //only compute this intersection for coneindex == i
 		  if(isDimension == dimension && signChoices[s].size() == relevantEquations.rows() && coneindex == j) {
-		    dbgtrace << "Full-dimension intersection not for " << coneindex << endl;
+		    //dbgtrace << "Full-dimension intersection not for " << coneindex << endl;
 		    continue;
 		  }
 		  
@@ -150,10 +150,10 @@ namespace polymake { namespace atint {
 		    if(!uses_homog) {
 		      ref = ref.minor(All,~scalar2set(0));
 		    }
-		    dbgtrace << "Intersection rays: " << ref << endl;
+		    //dbgtrace << "Intersection rays: " << ref << endl;
 		    //If the refinement is full-dimensional, we get a new cone 
 		    if(rank(ref) - (uses_homog? 1 :0 ) == dimension) {
-		      dbgtrace << "is refinement" << endl;
+		      //dbgtrace << "is refinement" << endl;
 		      //First we canonicalize the directional rays
 		      for(int rw = 0; rw < ref.rows(); rw++) {
 			if(!uses_homog || ref(rw,0) == 0) {
@@ -184,7 +184,7 @@ namespace polymake { namespace atint {
 			    }
 			  }
 		      }
-		      dbgtrace << "Cone rays are " << coneRays << endl;
+		      //dbgtrace << "Cone rays are " << coneRays << endl;
 		      
 		      //We have to check for doubles: If i fulfills one of the relevant equations with
 		      //equality, we can change its sign and still get the same refinement cone
@@ -201,14 +201,14 @@ namespace polymake { namespace atint {
 		      int newconeindex = max_cones.dim()-1;
 		      if(coneindex == i) newconesI += newconeindex;
 		      else newconesJ += newconeindex;
-		      dbgtrace << "Cone gets index " << newconeindex << endl;
+		      //dbgtrace << "Cone gets index " << newconeindex << endl;
 		      
 		      //Weight is the weight of coneindex (or the sum of both, if s is everything)
 		      weights |= (isDimension < dimension || 
 				  signChoices[s].size() < relevantEquations.rows()? 
 				  weights[coneindex] : weights[i] + weights[j]);
 		      
-		      dbgtrace << "Cone weight is " << weights[weights.dim()-1] << endl;
+		      //dbgtrace << "Cone weight is " << weights[weights.dim()-1] << endl;
 		      
 		      inequalities |= (inequalities[coneindex] / refIneqs);
 		      equalities |= equalities[coneindex];
@@ -217,7 +217,7 @@ namespace polymake { namespace atint {
 		    } //END if refDimension = dimension
 		  }
 		  catch(...) {
-		    dbgtrace << "Empty refinement intersection - can be ignored" << endl;
+		    //dbgtrace << "Empty refinement intersection - can be ignored" << endl;
 		  }
 		}//END iterate sign choices
 	      }//END iterate i and j
@@ -231,9 +231,9 @@ namespace polymake { namespace atint {
 	      //(Except, if the intersection is full-dimensional. In this case i and j agree
 	      // and they are replaced by the single new cone with weight the sum of their weights)
 	      if(newconesI.size() + newconesJ.size() > 0) {
-		dbgtrace << "Cleaning up indices and markings" << endl;
+		//dbgtrace << "Cleaning up indices and markings" << endl;
 		
-		dbgtrace << "Created cones " << newconesI << " in " << i << " and " << newconesJ << " in " << j << endl;
+		//dbgtrace << "Created cones " << newconesI << " in " << i << " and " << newconesJ << " in " << j << endl;
 		
 		created = true;//newconesI.size() >= 2 || newconesJ.size() >= 2;
 		//Will contain the indices of cones to be marked compatible
@@ -295,7 +295,7 @@ namespace polymake { namespace atint {
 // 		  }
 // 		}
 	
-		dbgtrace << "Marking indices " << markIndices << " and removing " << removedIndices << endl;
+		//dbgtrace << "Marking indices " << markIndices << " and removing " << removedIndices << endl;
 		
 		for(int v = 0; v < markIndices.dim()-1; v++) {
 		  for(int w = v+1; w < markIndices.dim(); w++) {
@@ -303,7 +303,7 @@ namespace polymake { namespace atint {
 		  }
 		}
 		
-		dbgtrace << "Done marking" << endl;
+		//dbgtrace << "Done marking" << endl;
 		
 		//Now remove them
 		max_cones = max_cones.slice(~removedIndices);
@@ -311,9 +311,9 @@ namespace polymake { namespace atint {
 		inequalities = inequalities.slice(~removedIndices);
 		equalities = equalities.slice(~removedIndices);
 		markedPairs = markedPairs.minor(~removedIndices,~removedIndices);
-		dbgtrace << "Done." << endl;
-		dbgtrace << "Maximal cones: " << endl;
-		dbgtrace << max_cones.dim() << endl;
+		//dbgtrace << "Done." << endl;
+		//dbgtrace << "Maximal cones: " << endl;
+		//dbgtrace << max_cones.dim() << endl;
 	      }
 	      
 	      

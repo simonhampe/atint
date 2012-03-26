@@ -86,14 +86,14 @@ namespace polymake { namespace atint {
       basepoint = basepoint.slice(~scalar2set(0));
     }
     
-    dbgtrace << "Basepoint: " << basepoint << endl;
-    dbgtrace << "Basepoint value: " << basepoint_value << endl;
+    //dbgtrace << "Basepoint: " << basepoint << endl;
+    //dbgtrace << "Basepoint value: " << basepoint_value << endl;
     
     //Compute basis of rays
     Set<int> ray_basis = basis_rows(converted_rays);
     converted_rays = converted_rays.minor(ray_basis,All);
     
-    dbgtrace << "Converted rays: " << converted_rays << endl;
+    //dbgtrace << "Converted rays: " << converted_rays << endl;
     
     //Now compute a column basis for the computation of the transformation matrix
     Set<int> I = basis_cols(converted_rays);
@@ -101,13 +101,13 @@ namespace polymake { namespace atint {
     Matrix<Rational> trafo(converted_rays.rows(), converted_rays.cols());
     trafo.minor(All,I) = inverse;
     
-    dbgtrace << "Trafo: " << trafo << endl;
+    //dbgtrace << "Trafo: " << trafo << endl;
     
     //Compute function matrix:
     Matrix<Rational> values = converted_values.minor(ray_basis,All);
     matrix = T(values) * trafo;
     
-    dbgtrace << "Matrix: " << matrix << endl;
+    //dbgtrace << "Matrix: " << matrix << endl;
     
     //Finally, compute the translate
     translate = basepoint_value - matrix * basepoint;

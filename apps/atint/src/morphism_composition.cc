@@ -126,19 +126,19 @@ namespace polymake { namespace atint {
       
       //Now iterate all cones of f's domain
       for(int fcone = 0; fcone < f_cones.rows(); fcone++) {
-	dbglog << "Computing on function cone " << fcone << endl;
+	//dbgtrace << "Computing on function cone " << fcone << endl;
 	//Compute H-representation of the image of the cone
 	std::pair<Matrix<Rational>, Matrix<Rational> > image_rep = sv.enumerate_facets(
 	      zero_vector<Rational>() | (f_on_rays_homog.minor(f_cones.row(fcone),All)),
 	      zero_vector<Rational>() | f_on_lin_homog, true, false); 
 	int image_dim = image_rep.first.cols() - image_rep.second.rows() - 2;
-	dbgtrace << "Image has dimension " << image_dim << endl;
+	//dbgtrace << "Image has dimension " << image_dim << endl;
 	
 	//Find out if f is global and surjective 
 	bool is_global_and_surjective = is_global && image_dim == f_on_rays.cols();
 	
 	
-	dbgtrace << "Image of cone has H-rep " << image_rep << endl;
+	//dbgtrace << "Image of cone has H-rep " << image_rep << endl;
 	
 	//Compute representation of morphism on current cone
 	Matrix<Rational> fmatrix;
@@ -157,7 +157,7 @@ namespace polymake { namespace atint {
 	
 	//Iterate all cones of the function
 	for(int gcone = 0; gcone < g_cones.rows(); gcone++) {
-	  dbglog << "Intersecting with g cone " << gcone << endl;
+	  //dbgtrace << "Intersecting with g cone " << gcone << endl;
 	  //Compute intersection (or take the whole cone if the morphism is global and surjective)
 	  Matrix<Rational> intersection_ineq;
 	  Matrix<Rational> intersection_eq;
@@ -165,7 +165,7 @@ namespace polymake { namespace atint {
 	  if(is_global_and_surjective) {
 	    intersection_ineq = g_hreps_ineq[gcone];
 	    intersection_eq = g_hreps_eq[gcone];
-	    dbgtrace << "global, hence valid " << endl;
+	    //dbgtrace << "global, hence valid " << endl;
 	  }
 	  else {
 	    //Compute an irredundant H-rep of the intersection
@@ -182,17 +182,17 @@ namespace polymake { namespace atint {
 	    intersection_eq = isMatrix.minor(isection.second,All);
 		  
 	    int interdim = isMatrix.cols()  - isection.second.size() - 2 ;
-	    dbgtrace << "intersection dimension is " << interdim << endl;
+	    //dbgtrace << "intersection dimension is " << interdim << endl;
 	    
 	    //Check dimension of intersection - if its not the correct one, take the next g cone
 	    if( interdim != image_dim) continue;
 	    
-	    dbgtrace << "Cone is valid " << endl;	    
+	    //dbgtrace << "Cone is valid " << endl;	    
 	  }
 	  
-	  dbgtrace << "Intersection cone has H-rep " << intersection_ineq << "\n" << intersection_eq << endl;
+	  //dbgtrace << "Intersection cone has H-rep " << intersection_ineq << "\n" << intersection_eq << endl;
 	  
-	  dbglog << "Computing representation on g cone" << endl;
+	  //dbgtrace << "Computing representation on g cone" << endl;
 	  
 	  //Compute g's representation on the current cone
 	  Vector<Rational> gtranslate;
@@ -209,7 +209,7 @@ namespace polymake { namespace atint {
 	  //(b - Av, -AM) is the representation of the preimage
 	  //Mind the additional zero's we have to add for cddlib!
 	  
-	  dbglog << "Computing preimage and pullback" << endl;
+	  //dbgtrace << "Computing preimage and pullback" << endl;
 	  
 	  Set<int> homog_cols; homog_cols += 0; homog_cols += 1; //The first two columns are for homogenizing
 	  Matrix<Rational> preimage_ineq = intersection_ineq.minor(All,~homog_cols) * fmatrix;
@@ -230,7 +230,7 @@ namespace polymake { namespace atint {
 	  preimage_eq /= f_hreps_eq[fcone];
 			  
 
-	  dbgtrace << "Preimage ineq " << preimage_ineq << "\n eq " << preimage_eq << endl;
+	  //dbgtrace << "Preimage ineq " << preimage_ineq << "\n eq " << preimage_eq << endl;
 	  
 			  
 	  std::pair<Matrix<Rational>, Matrix<Rational> > preimage_cone = sv.enumerate_vertices(
@@ -242,13 +242,13 @@ namespace polymake { namespace atint {
 	  Matrix<Rational> preimage_rays = preimage_cone.first.minor(All,~scalar2set(0));
 	  Matrix<Rational> preimage_lin = preimage_cone.second.minor(All,~scalar2set(0));
 	  
-	  dbgtrace << "Canonicalizing rays" << endl;
+	  //dbgtrace << "Canonicalizing rays" << endl;
 	  
 	  //Canonicalize rays and create cone
 	  if(!lineality_computed) {
 	    pullback_lineality = preimage_lin;
 	    lineality_computed = true;
-	    dbgtrace << "Setting lineality to " << pullback_lineality << endl;
+	    //dbgtrace << "Setting lineality to " << pullback_lineality << endl;
 	  }
 	  Set<int> pcone; 
 	  for(int r = 0; r < preimage_rays.rows(); r++) {
@@ -279,24 +279,24 @@ namespace polymake { namespace atint {
 	    }
 	    pcone += ray_index;
 	  }
-	  dbgtrace << "Ray set is " << pcone << endl;
+	  //dbgtrace << "Ray set is " << pcone << endl;
 	  //Add cone if it doesn't exist yet
 	  if(!pullback_cones_set.contains(pcone)) {
 	    pullback_cones |= pcone;
 	    pullback_cones_set += pcone;
-	    dbgtrace << "Adding cone " << pcone << endl;
+	    //dbgtrace << "Adding cone " << pcone << endl;
 	    
 	    //Now we compute the representation of h = g after f 
 	    Matrix<Rational> hmatrix = gmatrix * fmatrix;
 	    Vector<Rational> htranslate = gmatrix * ftranslate + gtranslate;
 	    
-	    dbgtrace << "Composition on preimage: " << hmatrix << " and " << htranslate << endl;
+	    //dbgtrace << "Composition on preimage: " << hmatrix << " and " << htranslate << endl;
 	    
 	    pullback_matrices |= hmatrix;
 	    pullback_translates |= htranslate;
 	    
 	  }
-	  dbgtrace << "Rays now read " << pullback_rays << endl;
+	  //dbgtrace << "Rays now read " << pullback_rays << endl;
 	  
 	  
 	}//END iterate all function cones
@@ -305,7 +305,7 @@ namespace polymake { namespace atint {
       
       // ------------------------- COMPUTE VALUES --------------------------------- //
       
-      dbglog << "Computing values on CMPLX_RAYS " << endl;
+      //dbgtrace << "Computing values on CMPLX_RAYS " << endl;
       
       //Compute CMPLX_RAYS / CMPLX_MAXIMAL_CONES
       
@@ -363,7 +363,7 @@ namespace polymake { namespace atint {
       
       // ------------------------------- RETURN RESULT ------------------------------- //
       
-      dbglog << "Done. Preparing result" << endl;
+      //dbgtrace << "Done. Preparing result" << endl;
       
       perl::Object result("Morphism");
 	result.take("DOMAIN") << pullback_domain;

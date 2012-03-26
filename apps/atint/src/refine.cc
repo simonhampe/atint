@@ -77,8 +77,8 @@ namespace polymake { namespace atint {
   */
   Vector<Set<int> > minimal_interior(const Matrix<Rational> &rays, const IncidenceMatrix<> &cones, bool uses_homog) {
     Vector<Set<int> > result;
-    dbgtrace << "Rays: " << rays << endl;
-    dbgtrace << "Cones: " << cones << endl;
+    //dbgtrace << "Rays: " << rays << endl;
+    //dbgtrace << "Cones: " << cones << endl;
     
     //If there is only one cone, it is already minimal
     if(cones.rows() == 1) {
@@ -103,9 +103,9 @@ namespace polymake { namespace atint {
     IncidenceMatrix<> exterior_codim = codim.codimOneCones.minor(~interior_codim_indices,All);
     IncidenceMatrix<> interior_in_max = T(codim.codimOneInMaximal.minor(interior_codim_indices,All));
     
-    dbgtrace << "Codim 1 faces " << codim.codimOneCones << endl;
-    dbgtrace << "Interior codim 1 faces " << interior_codim << endl;
-    dbgtrace << "Exterior codim 1 faces " << exterior_codim << endl;
+    //dbgtrace << "Codim 1 faces " << codim.codimOneCones << endl;
+    //dbgtrace << "Interior codim 1 faces " << interior_codim << endl;
+    //dbgtrace << "Exterior codim 1 faces " << exterior_codim << endl;
     
     //For each maximal cone, we compute all its minimal interior faces as maximal intersections
     //of interior codimension one faces. However, we only use codim-1-faces, that we haven't used
@@ -115,13 +115,13 @@ namespace polymake { namespace atint {
     Set<int> markedFaces;
     
     for(int mc = 0; mc < cones.rows(); mc++) {
-      dbgtrace << "Computing for cone " << mc << ": " << cones.row(mc) << endl;
-      dbgtrace << "Faces of this cone: " << interior_in_max.row(mc) << endl;
-      dbgtrace << "Marked faces: " << markedFaces << endl;
+      //dbgtrace << "Computing for cone " << mc << ": " << cones.row(mc) << endl;
+      //dbgtrace << "Faces of this cone: " << interior_in_max.row(mc) << endl;
+      //dbgtrace << "Marked faces: " << markedFaces << endl;
       //Compute all non-marked codim-1-cells of mc. If there are none left, go to the next cone
       Vector<int> nonmarked(interior_in_max.row(mc) - markedFaces);
       if(nonmarked.dim() == 0) continue;
-      dbgtrace << "Remaining interior cells are: " << nonmarked << endl;
+      //dbgtrace << "Remaining interior cells are: " << nonmarked << endl;
       int k = nonmarked.dim();
       //ordered list of indices of interior codim-1-cells (in nonmarked)
       //indices != -1 correspond to codim-1-cells that we intersect to obtain a minimal face
@@ -226,7 +226,7 @@ namespace polymake { namespace atint {
       lattice_exists = true;
     }
     
-    dbgtrace << "Extracted X-values" << endl;
+    //dbgtrace << "Extracted X-values" << endl;
     
     //Extract values of the container
     Matrix<Rational> y_rays = Y.give("RAYS");
@@ -236,7 +236,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
     int y_lineality_dim = Y.give("LINEALITY_DIM");
       
-    dbgtrace << "Extracted Y-values" << endl;
+    //dbgtrace << "Extracted Y-values" << endl;
     
     //Prepare result variables
     perl::Object complex("WeightedComplex");
@@ -263,7 +263,7 @@ namespace polymake { namespace atint {
 		    zero_matrix<Rational>(x_cmplx_cones.rows(),x_lineality.rows());
     }
     
-    dbgtrace << "Prepared result variables" << endl;
+    //dbgtrace << "Prepared result variables" << endl;
     
     //Step 1: Compute the lineality space ----------------------------------
     if(x_lineality.rows() != 0 && y_lineality.rows() != 0) {
@@ -271,10 +271,10 @@ namespace polymake { namespace atint {
 	//Compute the intersection of the two spaces
 	//We compute the kernel of (x_lineality | -y_lineality)
 	Matrix<Rational> i_lineality = T(x_lineality  / (-y_lineality));
-	  dbgtrace << "Computing kernel of " << i_lineality << endl;
+	  //dbgtrace << "Computing kernel of " << i_lineality << endl;
 	Matrix<Rational> dependence =  null_space(i_lineality);
 	c_lineality = dependence.minor(All,sequence(0,x_lineality.rows())) * x_lineality;
-	  dbgtrace << "Result: " << c_lineality << endl;
+	  //dbgtrace << "Result: " << c_lineality << endl;
 	c_lineality_dim = rank(c_lineality);
 	//Compute X-rep if necessary
 	if(repFromX) {
@@ -299,7 +299,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    dbgtrace << "Computed lineality space" << endl;
+    //dbgtrace << "Computed lineality space" << endl;
     
     //Step 2: Compute cone refinement and ray representations. -----------------
     
@@ -363,12 +363,12 @@ namespace polymake { namespace atint {
 		      x_equations.second / y_equations[yc].second,true,true).first;
 	  interrays = interrays.minor(All,~scalar2set(0));
 	  
-	  dbgtrace << interrays << endl;
+	  //dbgtrace << interrays << endl;
 	  
 	  //Check if it is full-dimensional (and has at least one ray - lin.spaces are not interesting)
 	  if(interrays.rows() > 0 && rank(interrays) + c_lineality_dim - (x_uses_homog? 1 : 0) == x_dimension) {
 	    //If we refine, add the cone. Otherwise just remember the indices
-	    dbgtrace << "Inter rays: " << interrays << endl;
+	    //dbgtrace << "Inter rays: " << interrays << endl;
 	    Set<int> interIndices;
 	    if(!refine) {
 	      //Copy indices
@@ -392,7 +392,7 @@ namespace polymake { namespace atint {
 		  }
 		}
 		
-		dbgtrace << "Considering row " << interrays.row(rw) << endl;
+		//dbgtrace << "Considering row " << interrays.row(rw) << endl;
 		
 		//Go through the existing rays and compare
 		int nrays = c_rays.rows();
@@ -411,8 +411,8 @@ namespace polymake { namespace atint {
 		interIndices += newrayindex;
 	      } //END canonicalize rays
 	      
-	      dbgtrace << "Ray indices " << interIndices << endl;
-	      dbgtrace << "new rays: " << newRays << endl;
+	      //dbgtrace << "Ray indices " << interIndices << endl;
+	      //dbgtrace << "new rays: " << newRays << endl;
   // 	    dbgtrace << "directional: " << newDirectionalRays << endl;
   // 	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
 	      
@@ -421,7 +421,7 @@ namespace polymake { namespace atint {
 	      if(!addCone) addCone = !xrefinements[xc].contains(interIndices);
 	      //If the cone is new, add it
 	      if(addCone) {
-		dbgtrace << "Adding new cone" << endl;
+		//dbgtrace << "Adding new cone" << endl;
 		c_cones |= interIndices;
 		if(weightsExist) c_weights |= weights[xc];
 		if(lattice_exists) {
@@ -444,7 +444,7 @@ namespace polymake { namespace atint {
 	// lies in the local cone. If the cone spanned by these has the right dimension
 	// add it as a local cone
 	if(local_restriction.dim() > 0 && refine) {
-	  dbgtrace << "Recomputing local restriction " << endl;
+	  //dbgtrace << "Recomputing local restriction " << endl;
 	  for(int t = 0; t < xc_local_cones.dim(); t++) {
 	    //Will contain the subdivision cones of the local cone we currently study
 	    Vector<Set<int> > local_subdivision_cones;
@@ -469,7 +469,7 @@ namespace polymake { namespace atint {
 		local_subdivided[xc_local_cones[t]] = true;
 	    }//END iterate all refinement cones of xc
 	    //Finally we add the minimal interior faces of the subdivision as new local cones
-	    dbgtrace << "Computing minimal interior cones" << endl;
+	    //dbgtrace << "Computing minimal interior cones" << endl;
 	    new_local_restriction |= minimal_interior(c_rays, local_subdivision_cones, x_uses_homog);
 	  }//END iterate all remaining local cones in xc
 	}//END refine local cones and remove non compatible maximal cones
@@ -483,7 +483,7 @@ namespace polymake { namespace atint {
     //At the end we still have to check if all maximal cones are still compatible
     //and remove those that aren't
     if(local_restriction.dim() > 0 && refine) {
-      dbgtrace << "Cleaning up for local restriction " << local_restriction_result << endl;
+      //dbgtrace << "Cleaning up for local restriction " << local_restriction_result << endl;
       Set<int> removableCones;
       for(int c = 0; c < c_cones.dim(); c++) {
 	if(!is_coneset_compatible(c_cones[c],local_restriction_result)) {
@@ -503,7 +503,7 @@ namespace polymake { namespace atint {
       }
       c_cones_result = c_cones_result.minor(~removableCones,used_rays);
       local_restriction_result = local_restriction_result.minor(All,used_rays);      
-      dbgtrace << "Done" << endl;
+      //dbgtrace << "Done" << endl;
     }//END finish up locality computation
     
     //Copy return values into the fan
@@ -525,7 +525,7 @@ namespace polymake { namespace atint {
     
     //To compute representations of CMPLX_RAYS, we naturally have to compute the CMPLX_RAYS first
     if((repFromX && refine) || repFromY || computeAssoc) {
-      dbgtrace << "Computing representations" << endl;
+      //dbgtrace << "Computing representations" << endl;
       Matrix<Rational> c_cmplx_rays = complex.give("CMPLX_RAYS");
       IncidenceMatrix<> c_cmplx_cones = complex.give("CMPLX_MAXIMAL_CONES");
       //Initialize rep matrices to proper size
@@ -533,7 +533,7 @@ namespace polymake { namespace atint {
       rayRepFromY = Matrix<Rational>(c_cmplx_rays.rows(),y_cmplx_rays.rows() + y_lineality.rows());
       //Compute representations for X (mode 0) and/or Y (mode 1)
       for(int mode = 0; mode <= 1; mode++) {
-	dbgtrace << "Computing in mode " << mode << endl;
+	//dbgtrace << "Computing in mode " << mode << endl;
 	if((mode == 0 && repFromX) || (mode == 1 && repFromY)) {
 	    //Recalls for which ray we already computed a representation
 	    Vector<bool> repComputed(c_cmplx_rays.rows());
@@ -542,7 +542,7 @@ namespace polymake { namespace atint {
 	    int dimForComputation = (mode == 0? x_lineality_dim : y_lineality_dim);
 	    //Go through all complex cones
 	    for(int cone = 0; cone < c_cmplx_cones.rows(); cone++) {
-	      dbgtrace << "Computing rep in cone " << cone << endl;
+	      //dbgtrace << "Computing rep in cone " << cone << endl;
 	      //Go through all rays for which we have not yet computed a representation
 	      Set<int> raysOfCone = c_cmplx_cones.row(cone);
 	      for(Entire<Set<int> >::iterator r = entire(raysOfCone); !r.at_end(); r++) {

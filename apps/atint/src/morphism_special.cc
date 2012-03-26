@@ -100,7 +100,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    dbgtrace << "Delta: " << delta << endl;
+    //dbgtrace << "Delta: " << delta << endl;
     
     return evaluation_map(n,r,delta,i);
   }

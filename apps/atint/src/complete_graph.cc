@@ -52,7 +52,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    dbgtrace << "Computed edge index matrix" << endl;
+    //dbgtrace << "Computed edge index matrix" << endl;
     
     //Now we generate the set of all Prüfer sequences, i.e. all sequences of length n-2 with elements from 0 to n-1 (repetitions allowed)
     Vector<Vector<int> > prseq;
@@ -69,7 +69,7 @@ namespace polymake { namespace atint {
       prseq = prseq | Vector<int>(counter);
     }
     
-    dbgtrace << "Computed all prüfer sequences " << prseq << endl;
+    //dbgtrace << "Computed all prüfer sequences " << prseq << endl;
     
     //Now we decode each sequence into a tree and save that tree
     perl::ListReturn result;
@@ -100,7 +100,7 @@ namespace polymake { namespace atint {
       result << edgeset;
     }
     
-    dbgtrace << "Computed all spanning trees" << endl;
+    //dbgtrace << "Computed all spanning trees" << endl;
     
     return result;
   }

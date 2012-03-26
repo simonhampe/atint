@@ -63,7 +63,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> linealitySpace = fan.give("LINEALITY_SPACE");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     
-    dbgtrace << "Extracted values" << endl;
+    //dbgtrace << "Extracted values" << endl;
     
     //First separate affine and directional rays
     Set<int> affineRays;
@@ -77,7 +77,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    dbgtrace << "Separated rays" << endl;
+    //dbgtrace << "Separated rays" << endl;
     
     //Create a polytope for each cone
     perl::ListReturn result;
@@ -89,7 +89,7 @@ namespace polymake { namespace atint {
       
     for(int mc = 0; mc < maximalCones.rows(); mc++) {
       
-      dbgtrace << "Computing geometry for cone " << mc << endl;
+      //dbgtrace << "Computing geometry for cone " << mc << endl;
       
       //First, create a point matrix by adding all directional rays to all affine rays
       Matrix<Rational> v(0,ambient_dim);
@@ -109,7 +109,7 @@ namespace polymake { namespace atint {
       }
       
       //Then create a rational polytope for labelling
-      dbgtrace << "Points " << v << endl;
+      //dbgtrace << "Points " << v << endl;
       perl::Object ratPolytope("polytope::Polytope<Rational>");
 	ratPolytope.take("POINTS") << v;
       
@@ -125,20 +125,20 @@ namespace polymake { namespace atint {
       }      
       
       
-      dbgtrace << "Done." << endl;
+      //dbgtrace << "Done." << endl;
       
     }
     
     if(showWeights && weightsExist) {
-      dbgtrace << "Computed weight labels, inserting them" << endl;
+      //dbgtrace << "Computed weight labels, inserting them" << endl;
       weightCenters.take("POINTS") << centermatrix;
       weightCenters.take("LABELS") << centerlabels;
-      dbgtrace << "Done" << endl;
+      //dbgtrace << "Done" << endl;
     }
     
     result << weightCenters;
      
-    dbgtrace << "Done." << endl;
+    //dbgtrace << "Done." << endl;
       
     return result;
   }
@@ -184,7 +184,7 @@ namespace polymake { namespace atint {
       }
     }  
     
-    dbgtrace << "Computing bounding box..." << endl;
+    //dbgtrace << "Computing bounding box..." << endl;
     
     //Compute facets of the bounding box
     Matrix<Rational> bbFacets(0,ambient_dim+1);
@@ -229,7 +229,7 @@ namespace polymake { namespace atint {
       bbFacets /= (-minCoord[i] | facetVector);
     }
     
-    dbgtrace << "Done." << endl;
+    //dbgtrace << "Done." << endl;
     
     perl::ListReturn result;
     
@@ -244,7 +244,7 @@ namespace polymake { namespace atint {
     
     //Now compute all polyhedra to be rendered
     for(int mc = 0; mc < maximalCones.rows(); mc++) {
-      dbgtrace << "Computing polytope of cone " << mc << endl;
+      //dbgtrace << "Computing polytope of cone " << mc << endl;
       //Compute the facets ans equalities of the current cone and add the bbox facets
       Matrix<Rational> facets(0,ambient_dim+1);
       Matrix<Rational> linspan = linearSpan.minor(linearSpanInCones.row(mc),All);
@@ -260,7 +260,7 @@ namespace polymake { namespace atint {
       facets /= bbFacets;
       //facets = facets;
       
-      dbgtrace << "Facets are " << facets << "Equalities are " << linspan << endl;
+      //dbgtrace << "Facets are " << facets << "Equalities are " << linspan << endl;
       
       //Compute the polytope vertices from that
       Matrix<Rational> polyRays = solver<Rational>().enumerate_vertices(zero_vector<Rational>()| facets, zero_vector<Rational>() | linspan, true,true).first;

@@ -20,6 +20,11 @@
 #  Contains a function to parse a standard gfan output file into a WeightedComplex
 ########################################################################
 
+# @category External programs / Gfan
+# This takes as input the name of a file containing a fan with or without multiplicities in standard gfan output 
+# (not xml!) and parses it into a tropical variety
+# @param String path The file name
+# @return WeightedComplex
 user_function variety_from_gfan {
     my $path = shift;
     

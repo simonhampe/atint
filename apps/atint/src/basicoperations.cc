@@ -65,7 +65,7 @@ namespace polymake { namespace atint{
   
   //Documentation see header
   perl::Object compute_product_complex(std::vector<perl::Object> complexes) {
-      dbgtrace << "Generating container variables for result" << endl;
+      //dbgtrace << "Generating container variables for result" << endl;
     
       //** EXTRACT FIRST COMPLEX ********************************************
       
@@ -90,7 +90,7 @@ namespace polymake { namespace atint{
       Matrix<Integer> product_l_generators;
       Vector<Set<int> > product_l_bases;
       if(product_has_lattice) {
-	dbgtrace << "Extracting first lattice " << endl;
+	//dbgtrace << "Extracting first lattice " << endl;
 	Matrix<Integer> lg = firstComplex.give("LATTICE_GENERATORS");
 	  product_l_generators = lg;
 	Vector<Set<int> > lb = firstComplex.give("LATTICE_BASES");
@@ -103,16 +103,16 @@ namespace polymake { namespace atint{
       Set<int> product_affine;
       Set<int> product_directional;
       separateRays(rayMatrix, product_affine, product_directional, product_uses_homog);
-	dbgtrace << "Product affine " << product_affine << endl;
-	dbgtrace << "Product directional " << product_directional << endl;
+	//dbgtrace << "Product affine " << product_affine << endl;
+	//dbgtrace << "Product directional " << product_directional << endl;
       
       
-      dbgtrace << "Iterating over all " << complexes.size() -1 << " complexes: " << endl;
+      //dbgtrace << "Iterating over all " << complexes.size() -1 << " complexes: " << endl;
       
       //** ITERATE OTHER COMPLEXES ********************************************
       
       for(unsigned int i = 1; i < complexes.size(); i++) {
-	dbgtrace << "Considering complex nr. " << i+1 << endl;
+	//dbgtrace << "Considering complex nr. " << i+1 << endl;
 	//Extract properties
 	
 	bool uses_homog = complexes[i].give("USES_HOMOGENEOUS_C");
@@ -134,21 +134,21 @@ namespace polymake { namespace atint{
 	Set<int> complex_affine;
 	Set<int> complex_directional;
 	separateRays(prerays,complex_affine, complex_directional,uses_homog);
-	  dbgtrace << "Affine: " << complex_affine << endl;
-	  dbgtrace << "Directional: " << complex_directional << endl;
+	  //dbgtrace << "Affine: " << complex_affine << endl;
+	  //dbgtrace << "Directional: " << complex_directional << endl;
 	//If this fan uses homog. coordinates, strip away the first column of rays and linear space
 	if(uses_homog) {
 	  if(prerays.rows() > 0) prerays = prerays.minor(All,~scalar2set(0));
 	  if(prelin.rows() > 0) prelin = prelin.minor(All,~scalar2set(0));
-	  dbgtrace << "prerays: " << prerays << endl;
-	  dbgtrace << "rcols: " << prerays.cols() << endl;
-	  dbgtrace << "lcols: " << prelin.cols() << endl;
+	  //dbgtrace << "prerays: " << prerays << endl;
+	  //dbgtrace << "rcols: " << prerays.cols() << endl;
+	  //dbgtrace << "lcols: " << prelin.cols() << endl;
 	}
 	//int dim = prerays.cols() > prelin.cols() ? prerays.cols() : prelin.cols();
 	int dim = prerays.rows() > 0? prerays.cols() : prelin.cols();
-	dbgtrace << "dim: " << dim << endl;
+	//dbgtrace << "dim: " << dim << endl;
 		
-	dbgtrace << "Creating ray matrix" << endl;
+	//dbgtrace << "Creating ray matrix" << endl;
 	//dbgtrace << "Affine rays of product are " << rayMatrix.minor(product_affine,All) << endl;
 	//dbgtrace << "Affine rays of complex are " << prerays.minor(complex_affine,All) << endl;
 	
@@ -175,7 +175,7 @@ namespace polymake { namespace atint{
 	}
 	Set<int> newAffine = sequence(0, newRays.rows());
 	
-	dbgtrace << "New affine rays read " << newRays << endl;
+	//dbgtrace << "New affine rays read " << newRays << endl;
 	
 	//If the product is non-homog. and the complex is homog., we have to add a column of ones in front
 	//We then also add a zero column in front of the old product rays for the directional rays
@@ -186,7 +186,7 @@ namespace polymake { namespace atint{
 	  if(linMatrix.rows() > 0) linMatrix = zero_vector<Rational>(linMatrix.rows()) | linMatrix;
 	}
 	
-	dbgtrace << "Adding directional rays" << endl;
+	//dbgtrace << "Adding directional rays" << endl;
 	//Now add the directional rays of both cones
 	Map<int,int> pdirIndices;
 	Map<int,int> cdirIndices; //For index conversion
@@ -202,7 +202,7 @@ namespace polymake { namespace atint{
 	}
 	Set<int> newDirectional = sequence(newRays.rows()-1,product_directional.size() + complex_directional.size());
 	
-	dbgtrace << "Creating lineality matrix" << endl;
+	//dbgtrace << "Creating lineality matrix" << endl;
 	
 	//Create new lineality matrix
 	if(prelin.rows() > 0) {
@@ -212,7 +212,7 @@ namespace polymake { namespace atint{
 	  linMatrix = linMatrix | Matrix<Rational>(linMatrix.rows(), dim);
 	}
 	
-	dbgtrace << "Prelin = " << prelin << "\nlinMatrix = " << linMatrix << endl;
+	//dbgtrace << "Prelin = " << prelin << "\nlinMatrix = " << linMatrix << endl;
 	
 	// ** RECOMPUTE LATTICE DATA ***************************************
 	
@@ -253,7 +253,7 @@ namespace polymake { namespace atint{
 	
 	
 		
-	dbgtrace << "Creating cones" << endl;
+	//dbgtrace << "Creating cones" << endl;
 	
 // 	dbgtrace << "Ray matrix is " << newRays << endl;
 // 	dbgtrace << "Affine indices " << affineIndices << endl;
@@ -299,7 +299,7 @@ namespace polymake { namespace atint{
 	      for(Entire<Set<int> >::iterator cd = entire(cDirectional); !cd.at_end(); cd++) {
 		newcone = newcone + cdirIndices[*cd];
 	      }
-	      dbgtrace << "Result: " << newcone << endl;
+	      //dbgtrace << "Result: " << newcone << endl;
 	      newMaxCones = newMaxCones | newcone;
 	      //Compute weight
 	      if(product_has_weights || uses_weights) {
@@ -338,8 +338,8 @@ namespace polymake { namespace atint{
 // 	    }
 	  }
 	  
-	  dbgtrace << "pro_locality " << product_locality << endl;
-	  dbgtrace << "pre_locality " << pre_locality << endl;
+	  //dbgtrace << "pro_locality " << product_locality << endl;
+	  //dbgtrace << "pre_locality " << pre_locality << endl;
 	  
 	  for(int i = 0; i < product_locality.dim(); i++) {
 	    Set<int> pAffine = product_locality[i] * product_affine;

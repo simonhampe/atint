@@ -50,7 +50,7 @@ namespace polymake { namespace atint {
     //Documentation: see specialvarieties.h
     perl::Object tropical_lnk(const int n, const int k) {
       
-      dbgtrace << "Checking dimensions" << endl;
+      //dbgtrace << "Checking dimensions" << endl;
       
       //Ensure that dimensions match
       if(k > n) {
@@ -72,7 +72,7 @@ namespace polymake { namespace atint {
 	  return result;
       }
       
-      dbgtrace << "Creating rays" << endl;
+      //dbgtrace << "Creating rays" << endl;
       
       //Create rays
       Matrix<Rational> rayMatrix(0,n);
@@ -85,16 +85,16 @@ namespace polymake { namespace atint {
       }
       rayMatrix = rayMatrix / e0;
       
-      dbgtrace << "Creating cones" << endl;
+      //dbgtrace << "Creating cones" << endl;
       
       //Create cones
       Set<int> indices = sequence(0,n+1);
-      dbgtrace << "Indices: " << indices << endl;
+      //dbgtrace << "Indices: " << indices << endl;
       Array<Set<int> >  kSets = all_subsets_of_k(indices,k);
       //pm::Subsets_of_k<Set<int> > ( indices,k );
-      dbgtrace << "ksets " << kSets << endl;
+      //dbgtrace << "ksets " << kSets << endl;
       
-      dbgtrace << "Creating cones" << endl;
+      //dbgtrace << "Creating cones" << endl;
       
       //Create weights
       Array<int> weights(kSets.size());
@@ -102,24 +102,24 @@ namespace polymake { namespace atint {
 	  weights[i] = 1;
       }
         
-      dbgtrace << "Creating description" << endl;  
+      //dbgtrace << "Creating description" << endl;  
         
       std::ostringstream dsc;
 	dsc << "Tropical linear space L^" << n << "_" <<k;
 	  
-      dbgtrace << "Creating return value" << endl;
+      //dbgtrace << "Creating return value" << endl;
 	
       perl::Object fan("WeightedComplex");
-	dbgtrace << "a" << endl;
+	//dbgtrace << "a" << endl;
 	fan.take("RAYS") << rayMatrix;
-	dbgtrace << "a" << endl;
+	//dbgtrace << "a" << endl;
 	fan.take("MAXIMAL_CONES") << IncidenceMatrix<>( kSets);
 	fan.take("TROPICAL_WEIGHTS") << weights;
 	fan.take("USES_HOMOGENEOUS_C") << false;
 	fan.take("IS_UNIMODULAR") << true;
 	fan.take("DESCRIPTION") << dsc.str();
 	
-	dbgtrace << "Returning fan" << endl;
+	//dbgtrace << "Returning fan" << endl;
 	
       return fan;
       
@@ -136,8 +136,8 @@ namespace polymake { namespace atint {
       Matrix<Rational> linearSpan = matroid_poly.give("LINEAR_SPAN");
       Matrix<Rational> rays = fan_skeleton.give("RAYS");
       
-      dbgtrace << "Checking for skeleton faces that correspond to loopfree matroids" << endl;
-      dbglog << "Number of faces: " << maximalCones.rows() << endl;
+      //dbgtrace << "Checking for skeleton faces that correspond to loopfree matroids" << endl;
+      //dbgtrace << "Number of faces: " << maximalCones.rows() << endl;
       
       //Compute a list of those n-rank-dimensional faces whose vertices cover [n]
       Vector<Set<int> > listOfFacets;
@@ -156,12 +156,12 @@ namespace polymake { namespace atint {
 	    }
 	}
 	if(!hasZero) {
-	    dbglog << "Cone " << mc << " is valid with interior vector " << v << endl;
+	    //dbgtrace << "Cone " << mc << " is valid with interior vector " << v << endl;
 	    listOfFacets = listOfFacets | maximalCones.row(mc);
 	}
       }
       
-      dbglog << "Done. " << listOfFacets.dim() << " facets remaining." << endl;
+      //dbgtrace << "Done. " << listOfFacets.dim() << " facets remaining." << endl;
       
       if(listOfFacets.dim() == 0) {
 	return CallPolymakeFunction("zero_cycle");
@@ -174,15 +174,15 @@ namespace polymake { namespace atint {
       
       //For each face: Intersect the set of normal rays of each vertex of the face
       for(int face = 0; face < listOfFacets.dim(); face++) {
-	dbgtrace << "computing rays of facet " << face << endl;
+	//dbgtrace << "computing rays of facet " << face << endl;
 	Set<int> raySet = sequence(0,facets.rows());
-	dbgtrace << "Starting with " << raySet << endl;
+	//dbgtrace << "Starting with " << raySet << endl;
 	Set<int> faceSet = listOfFacets[face];
-	dbgtrace << "Face has vertices " << faceSet << endl;
+	//dbgtrace << "Face has vertices " << faceSet << endl;
 	for(Entire<Set<int> >::iterator vertex = entire(faceSet); !vertex.at_end(); ++vertex) {
 	  raySet = raySet * facetsThruVertices.row(*vertex);
 	}
-	dbgtrace << "Remaining rays : " << raySet << endl; 
+	//dbgtrace << "Remaining rays : " << raySet << endl; 
 	//Make this a cone (might be empty, if we have only a lin space)
 	if(raySet.size() > 0) bergmanCones = bergmanCones | raySet;
       }
@@ -219,10 +219,10 @@ namespace polymake { namespace atint {
 	bergmanRays = Matrix<Rational>(0,facets.cols()-1);
       }
       
-      dbgtrace << "Rays are: " << bergmanRays << endl;
-      dbgtrace << "Cones are: " << bergmanCones << endl;
-      dbgtrace << "Weights are: " << bergmanWeights << endl;
-      dbgtrace << "Lineality is: " << bergmanLineality << endl;
+      //dbgtrace << "Rays are: " << bergmanRays << endl;
+      //dbgtrace << "Cones are: " << bergmanCones << endl;
+      //dbgtrace << "Weights are: " << bergmanWeights << endl;
+      //dbgtrace << "Lineality is: " << bergmanLineality << endl;
       
       if(bergmanRays.rows() == 0 && bergmanLineality.rows() == 0) {
 	return perl::Object("WeightedComplex");
@@ -243,7 +243,7 @@ namespace polymake { namespace atint {
 	      projectionMatrix /= unitMatrix.minor(sequence(projectionCoordinate,unitMatrix.rows() -	projectionCoordinate),All);
 	}
 	
-	dbgtrace << "Projection matrix is " << projectionMatrix << endl;
+	//dbgtrace << "Projection matrix is " << projectionMatrix << endl;
 			   
 	if(bergmanRays.rows() > 0) bergmanRays = bergmanRays * projectionMatrix;
 	

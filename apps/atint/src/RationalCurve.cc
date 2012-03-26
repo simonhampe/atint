@@ -223,7 +223,7 @@ namespace polymake { namespace atint {
     
     
       
-    dbgtrace << "Starting with metric matrix\n" << d << endl;
+    //dbgtrace << "Starting with metric matrix\n" << d << endl;
     
     //For the graph case, we prepare a graph object
     Graph<> G(n);
@@ -240,7 +240,7 @@ namespace polymake { namespace atint {
     Vector<Rational> coeffs;
     Vector<Set<int> > sets;
     //Prepare vertex set, leaf map 
-    dbgtrace << "Moduli dimension is " << n << endl;
+    //dbgtrace << "Moduli dimension is " << n << endl;
     Set<int> V = sequence(1,n);
     Map<int,Set<int> > leaves;
     for(int i = 1; i <=n; i++) {
@@ -250,11 +250,11 @@ namespace polymake { namespace atint {
     //These variables will contain the node data
     Vector<Set<int> > nodes_by_leaves(n), nodes_by_sets(n);
     
-    dbgtrace << "Starting with leaf map " << leaves << endl;
+    //dbgtrace << "Starting with leaf map " << leaves << endl;
     
     //Now inductively remove pairs of vertices until only 3 are left
     while(V.size() > 3) {
-      dbgtrace << "Have " << V.size() << " vertices. Reducing..." << endl;
+      //dbgtrace << "Have " << V.size() << " vertices. Reducing..." << endl;
       //Find the triple (p,q,r) that maximizes the Buneman term
       int p,q,r;
 	p = q = r = 0;
@@ -266,7 +266,7 @@ namespace polymake { namespace atint {
 	    for(Entire<Set<int> >::iterator c = entire(V); !c.at_end(); c++) {
 	      if(*c != *b && *c != *a) {
 		Rational newd = d(*a,*c) + d(*b,*c) - d(*a,*b);
-		dbgtrace << *a <<","<<*b<<","<<*c<<": " << newd << endl;
+		//dbgtrace << *a <<","<<*b<<","<<*c<<": " << newd << endl;
 		if(newd > max || !init) {
 		    max = newd;
 		    p = *a; q = *b; r = *c;
@@ -277,17 +277,17 @@ namespace polymake { namespace atint {
 	  }
 	}
       } //End find maximal triple
-      dbglog << "Maximal triple is (" << p << "," << q << "," << r << ")" << endl;
+      //dbgtrace << "Maximal triple is (" << p << "," << q << "," << r << ")" << endl;
       
       //Compute distances to the new virtual element t
       Rational dtp = (d(p,q) + d(p,r) - d(q,r));
 	dtp /= Rational(2);
-	dbgtrace << "dtp: " << dtp << endl;
+	//dbgtrace << "dtp: " << dtp << endl;
       Vector<Rational> dtx(d.cols()); //Again, start counting from 1
       int x = 0;
       for(Entire<Set<int> >::iterator i = entire(V); !i.at_end(); i++) {
 	if(*i != p) {
-	    dbgtrace << "Setting distance d(t," << *i << ")" << endl;
+	    //dbgtrace << "Setting distance d(t," << *i << ")" << endl;
 	    dtx[*i] = d(*i,p) - dtp;
 	    if(*i != q && dtx[*i] == 0) {
 	      x = *i;
@@ -296,11 +296,11 @@ namespace polymake { namespace atint {
       }
       V = V - p; 
       V = V - q;
-      dbgtrace << "Computed new distances" << endl;
+      //dbgtrace << "Computed new distances" << endl;
       
       //Now 'add' the new vertex
       if(x> 0) {
-	dbgtrace << "Attaching to vertex " << x << endl;
+	//dbgtrace << "Attaching to vertex " << x << endl;
 	leaves[x] = leaves[x] + leaves[p] + leaves[q];
 	if(leaves[p].size() > 1 && leaves[p].size() < n-1) {
 	  coeffs |= d(p,x);
@@ -324,7 +324,7 @@ namespace polymake { namespace atint {
       else {
 	//Note: It can not be possible that t=q and q is a leaf, since the removal
 	//of p would then yield a disconnected graph
-	dbgtrace << "Creating new vertex" << endl;
+	//dbgtrace << "Creating new vertex" << endl;
 	// Graph case
 	// If d(t,p) or d(t,q) = 0, identify t with p (or q)
 	// Otherwise give t the next available node index
@@ -374,19 +374,19 @@ namespace polymake { namespace atint {
 	if(leaves[q].size() == 1) nodes_by_leaves[orig[t]-1] += leaves[q];
 	
 	
-	dbgtrace << "New orig vertex " << orig << endl;
+	//dbgtrace << "New orig vertex " << orig << endl;
 	if(dtp != 0) G.edge(orig[t]-1,orig[p]-1);
 	if(dtx[q] != 0) G.edge(orig[t]-1,orig[q]-1);
       }
-      dbgtrace << "Distance matrix\n" << d << endl;
-      dbgtrace << "Leaf map\n" << leaves << endl;
+      //dbgtrace << "Distance matrix\n" << d << endl;
+      //dbgtrace << "Leaf map\n" << leaves << endl;
     } //End while(>3)
     
     //Now treat the basic cases of size 2 and 3
     Vector<int> vAsList(V);
-    dbgtrace << "G before rest cases: " << G << endl;
+    //dbgtrace << "G before rest cases: " << G << endl;
     if(V.size() == 3) {
-      dbgtrace << "Remaining: " << vAsList << endl;
+      //dbgtrace << "Remaining: " << vAsList << endl;
       //Solve the linear system given by the pairwise distances
       Matrix<Rational> A(3,3);
 	//Create the inverse matrix of the distance relation and multiply it with the distance vectors
@@ -396,9 +396,9 @@ namespace polymake { namespace atint {
 	B[0] = d(vAsList[0],vAsList[1]); 
 	B[1] = d(vAsList[0],vAsList[2]);
 	B[2] = d(vAsList[1],vAsList[2]);
-      dbgtrace << "Solving " << A << "," << B << endl;
+      //dbgtrace << "Solving " << A << "," << B << endl;
       Vector<Rational> a = A * B;
-      dbgtrace << "Result: " << a << endl;
+      //dbgtrace << "Result: " << a << endl;
       int zeroa = -1;
       Array<int> setsindices(3); //Indices of partitions in variable sets
       for(int i = 0; i < 3; i++) {
@@ -447,7 +447,7 @@ namespace polymake { namespace atint {
 	}
       }
     }//End case size == 3
-    dbgtrace << "G after case 3: " << G << endl;
+    //dbgtrace << "G after case 3: " << G << endl;
     if(V.size() == 2) {    
       //Two remaining nodes forming a tree cannot both be leaves of the original tree
       //If necessary, we swap the list, so that the first element is the non-leaf
@@ -493,11 +493,11 @@ namespace polymake { namespace atint {
       node_degrees[n] = nodes_by_leaves[n].size() + nodes_by_sets[n].size();
     }
     
-    dbgtrace << "Graph: " << endl;
-      dbgtrace << "Nodes. " << G.nodes() << endl;
-      dbgtrace << "Edges: " << G.edges() << endl;
-      dbgtrace << "Adjacency: " << G << endl;
-      dbgtrace << "Labels: " << labels << endl;
+    //dbgtrace << "Graph: " << endl;
+      //dbgtrace << "Nodes. " << G.nodes() << endl;
+      //dbgtrace << "Edges: " << G.edges() << endl;
+      //dbgtrace << "Adjacency: " << G << endl;
+      //dbgtrace << "Labels: " << labels << endl;
     
     perl::Object graph("graph::Graph");
       graph.take("N_NODES") << G.nodes();
@@ -532,7 +532,7 @@ namespace polymake { namespace atint {
   
   //Documentation see perl wrapper
   perl::ListReturn graphFromMetric(Vector<Rational> metric) {
-    dbgtrace << "Recomputing curve with graph" << endl;
+    //dbgtrace << "Recomputing curve with graph" << endl;
     perl::Object curve = curveAndGraphFromMetric(metric);
     perl::Object graph = curve.give("GRAPH"); 
     Vector<Rational> lengths = curve.give("COEFFS");
@@ -565,7 +565,7 @@ namespace polymake { namespace atint {
       Set<int> complement = completeSet - sset;
       for(Entire<Set<int> >::iterator selt = entire(sset); !selt.at_end(); selt++) {
 	for(Entire<Set<int> >::iterator celt = entire(complement); !celt.at_end(); celt++) {
-	    dbgtrace << "Adding " << c << " to distance of " << *selt << ", " << *celt << endl;
+	    //dbgtrace << "Adding " << c << " to distance of " << *selt << ", " << *celt << endl;
 	    d(*selt,*celt) += c;
 	    d(*celt, *selt) += c;
 	}
@@ -613,7 +613,7 @@ namespace polymake { namespace atint {
 	}
       }
     }
-    dbgtrace << metric << endl;
+    //dbgtrace << metric << endl;
     
     return curveFromMetric(metric); 
   }
@@ -703,12 +703,12 @@ namespace polymake { namespace atint {
    */
   void computeNodeData(perl::Object curve) {
     Vector<Rational> metric = curve.CallPolymakeMethod("metric_vector");
-    dbgtrace << "Recomputing curve" << endl;
+    //dbgtrace << "Recomputing curve" << endl;
     //We recompute the curve to make sure the graph edges have the same order
     //as the curve sets
     perl::Object newcurve = curveAndGraphFromMetric(metric);
     
-    dbgtrace << "Computing sets permutation" << endl;
+    //dbgtrace << "Computing sets permutation" << endl;
     
     //We might have to permute the column indices in the node matrices, since the sets might 
     // be in a different order in the actual curve
@@ -724,8 +724,8 @@ namespace polymake { namespace atint {
       for(int os = 0; os < oldsets.dim(); os++) {
 	if(*(oldsets[os].begin()) != 1) oldsets[os] = all_leaves - oldsets[os];
       }
-    dbgtrace << "newsets: " << newsets << endl;
-    dbgtrace << "oldsets: " << oldsets << endl;
+    //dbgtrace << "newsets: " << newsets << endl;
+    //dbgtrace << "oldsets: " << oldsets << endl;
     Array<int> perm(newsets.dim());
     for(int i = 0; i < perm.size(); i++) {
       //Find equal set
@@ -735,10 +735,10 @@ namespace polymake { namespace atint {
 	}
       }
     }
-    dbgtrace << "Permutation: " << perm << endl;
+    //dbgtrace << "Permutation: " << perm << endl;
     
     IncidenceMatrix<> new_node_sets = newcurve.give("NODES_BY_SETS");
-      dbgtrace << "node sets: " << new_node_sets << endl;
+      //dbgtrace << "node sets: " << new_node_sets << endl;
     IncidenceMatrix<> node_leaves = newcurve.give("NODES_BY_LEAVES");
     Vector<int> node_degrees = newcurve.give("NODE_DEGREES");
     

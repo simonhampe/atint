@@ -83,7 +83,7 @@ namespace polymake { namespace atint {
     bool f_global = f.give("IS_GLOBAL");
     bool g_global = g.give("IS_GLOBAL");
     if(f_global && g_global) {
-      dbglog << "Both are global - computing global sum" << endl;
+      //dbgtrace << "Both are global - computing global sum" << endl;
       Matrix<Rational> fmatrix = f.give("MATRIX");
       Vector<Rational> ftranslate = f.give("TRANSLATE");
       Matrix<Rational> gmatrix = g.give("MATRIX");
@@ -96,7 +96,7 @@ namespace polymake { namespace atint {
       return addition;
     }
     
-    dbglog << "Homogenizing where necessary" << endl;
+    //dbgtrace << "Homogenizing where necessary" << endl;
     
     //First we homogenize where necessary
     perl::Object fDomain = f.give("DOMAIN");
@@ -114,7 +114,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    dbglog << "Computing refinement " << endl;
+    //dbgtrace << "Computing refinement " << endl;
     
     //Then compute the common refinement of the domains
     RefinementResult r = refinement(fDomain,gDomain,true,true,false,true);
@@ -137,16 +137,16 @@ namespace polymake { namespace atint {
       Matrix<Rational> rays = nDomain.give("CMPLX_RAYS");
       Matrix<Rational> linspace = nDomain.give("LINEALITY_SPACE");
       
-      dbglog << "Computing sums of values " << endl;
+      //dbgtrace << "Computing sums of values " << endl;
       
-      dbgtrace << "Ray values " << endl;
+      //dbgtrace << "Ray values " << endl;
       //Now compute ray values
       Matrix<Rational> rValues(0, f_rayval.rows());
       for(int r = 0; r < rays.rows(); r++) {
 	rValues /= (fval * x_rayrep.row(r)) + (gval * y_rayrep.row(r) );
       }
       
-      dbgtrace << "Lin values " << endl;
+      //dbgtrace << "Lin values " << endl;
       //Now compute lin values
       Matrix<Rational> lValues(0, f_linval.rows());
       for(int l = 0; l < linspace.rows(); l++) {

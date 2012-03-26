@@ -103,7 +103,7 @@ namespace polymake { namespace atint {
     Vector<Set<int> > adjacencies(n-2); //Which leaves lie "behind" which interior vertex?
     Vector<Set<int> > result;
     
-    dbgtrace << "Connecting leaves" << endl;
+    //dbgtrace << "Connecting leaves" << endl;
     int firstindex = 0; //We pretend that pseq starts at this index
     //Connect leaves
     for(int i = 0; i < n; i++) {
@@ -112,9 +112,9 @@ namespace polymake { namespace atint {
       firstindex++;
     }//END add leaves
     
-    dbgtrace << "Connecting edges" << endl;
-    dbgtrace << "V: " << V << endl;
-    dbgtrace << "Adjacencies: " << adjacencies << endl;
+    //dbgtrace << "Connecting edges" << endl;
+    //dbgtrace << "V: " << V << endl;
+    //dbgtrace << "Adjacencies: " << adjacencies << endl;
     
     //Now create edges
     for(int i = 1; i <= n-3; i++) {
@@ -158,9 +158,9 @@ namespace polymake { namespace atint {
 	Vector<int> degrees = curves[c].give("NODE_DEGREES");
 	valences += (Set<int>(degrees) - 3);
     }
-    dbgtrace << "Valences: " << valences << endl;
+    //dbgtrace << "Valences: " << valences << endl;
     
-    dbgtrace << "Computing Prüfer sequences" << endl;
+    //dbgtrace << "Computing Prüfer sequences" << endl;
     //Now we compute combinatorially all M_0,v for all possible valences v
     Map<int, Vector<Vector<Set<int> > > > combinatorial_mns;
     for(Entire<Set<int> >::iterator v = entire(valences); !v.at_end();v++) {
@@ -169,7 +169,7 @@ namespace polymake { namespace atint {
       for(int p = 0; p < pseq.dim(); p++) cmns |= decodePrueferSequence(pseq[p]);
       combinatorial_mns[*v] = cmns;
     }
-    dbgtrace << "Done." << endl;
+    //dbgtrace << "Done." << endl;
     //Now iterate through all curves and compute their adjacent maximal cones
     
     Vector<Set<int> > rays; //Ray list in terms of partitions
@@ -207,7 +207,7 @@ namespace polymake { namespace atint {
     
     //Then we construct the actual cones
     for(unsigned int cu = 0; cu < curves.size(); cu++) {
-      dbgtrace << "Computing on curve " << cu+1 << endl;
+      //dbgtrace << "Computing on curve " << cu+1 << endl;
       //We iteratively compute the cartesian product of the M_0,ns at the different vertices
       Vector<Set<int> > cones_so_far; 
 	cones_so_far |= local_cones[cu];
@@ -216,7 +216,7 @@ namespace polymake { namespace atint {
       IncidenceMatrix<> set_list = curves[cu].give("SETS");
       Vector<int> degrees = curves[cu].give("NODE_DEGREES");
       for(int node = 0; node < nodes_by_sets.rows(); node++) {
-	dbgtrace << "Computing on node " << node << endl;
+	//dbgtrace << "Computing on node " << node << endl;
 	if(degrees[node] > 3) {
 	  //We have to translate the cones of the M_0,val(node) first
 	  Vector<Set<int> > translated_cones;
@@ -250,18 +250,18 @@ namespace polymake { namespace atint {
 	  //Now go through the cones and translate
 	  Vector<Set<int> > new_cones;
 	  for(int vc = 0; vc < valence_cones.dim(); vc++) {
-	    dbgtrace << "Computing on cone " << vc << endl;
+	    //dbgtrace << "Computing on cone " << vc << endl;
 	    Set<int> ray_indices;
 	    //Go through all rays of the cone
 	    for(int r = 0; r < valence_cones[vc].dim(); r++) {
 	      //Translate the ray
-	      dbgtrace << "Adjacent: " << adjacent_edges << endl;
-	      dbgtrace << "Cone: " << valence_cones[vc] << endl;
+	      //dbgtrace << "Adjacent: " << adjacent_edges << endl;
+	      //dbgtrace << "Cone: " << valence_cones[vc] << endl;
 	      Set<int> ray_partition = accumulate(adjacent_edges.slice(valence_cones[vc][r]),operations::add());
 	      //To avoid doubles via complements, we make sure that N_LEAVES is always in the
 	      //complement
 	      if( ray_partition.contains(n_leaves)) ray_partition = all_leaves - ray_partition;
-	      dbgtrace << "Ray is " << ray_partition << endl;
+	      //dbgtrace << "Ray is " << ray_partition << endl;
 	      //Check if this ray already exists
 	      int ray_index = -1;
 	      for(int oray = 0; oray < rays.dim(); oray++) {
@@ -273,12 +273,12 @@ namespace polymake { namespace atint {
 		rays |= ray_partition;
 		ray_index = rays.dim()-1;
 	      }
-	      dbgtrace << "Index is: " << ray_index << endl;
+	      //dbgtrace << "Index is: " << ray_index << endl;
 	      ray_indices += ray_index;
 	    }//END iterate cone rays
 	    new_cones |= ray_indices;
 	  }//END iterate local mn cones
-	  dbgtrace << "New cones: " << new_cones << endl;
+	  //dbgtrace << "New cones: " << new_cones << endl;
 	  //Finally take the cartesian products of the new cones with all the old ones
 	  Vector<Set<int> > replace_cones_so_far;
 	  for(int nc = 0; nc < new_cones.dim(); nc++) {
@@ -330,7 +330,7 @@ namespace polymake { namespace atint {
     
     Vector<Integer> weights = ones_vector<Integer>(cones.dim());
     
-    dbgtrace << "Rays " << rays << endl;
+    //dbgtrace << "Rays " << rays << endl;
     
     perl::Object result("WeightedComplex");
       result.take("RAYS") << bergman_rays;

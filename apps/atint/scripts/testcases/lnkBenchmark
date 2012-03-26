@@ -11,8 +11,8 @@ declare $timingMapCreation = new Map<Int,<Map<Int,String> > >();
 declare $timingMapBalancing = new Map<Int,<Map<Int,String> > >();
 
 #Benchmark parameters
-my $minimalN = 11;
-my $maximalN = 20;
+my $minimalN = 5;
+my $maximalN = 13;
 
 my $t0;
 my $t1;
@@ -22,7 +22,7 @@ print "Doing this once without benchmarking for wrapper initialization\n";
 my $initfan = atint::tropical_lnk(2,1);
 $initfan->IS_BALANCED;
 
-open (RESULT, ">lnkBenchmarkResults.csv");
+open (RESULT, ">lnkBenchmarkResults3.csv");
 
 for(my $n = $minimalN; $n <= $maximalN; $n++) {
   print RESULT $n;

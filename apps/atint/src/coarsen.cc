@@ -60,7 +60,7 @@ namespace polymake { namespace atint {
     Vector<bool> hasBeenAdded(noOfCones); //contains whether a cone has been added to an equivalence class
 //     Map<int, int> conesInClasses; //Maps cone indices to the index of their class in equivalenceClasses
     
-    dbgtrace << "Computing equivalence classes" << endl;
+    //dbgtrace << "Computing equivalence classes" << endl;
     
     for(int mc = 0; mc < noOfCones; mc++) {
       if(!hasBeenAdded[mc]) {
@@ -73,7 +73,7 @@ namespace polymake { namespace atint {
 	      //Take the first element and find its neighbours
 	      int node = queue.front(); 
 		queue.pop_front();
-	      dbgtrace << "Checking node " << node << endl;
+	      //dbgtrace << "Checking node " << node << endl;
 	      Set<int> cdset = maximalOverCodim.row(node);
 	      for(Entire<Set<int> >::iterator cd = entire(cdset); !cd.at_end(); cd++) {
 		  Set<int> otherMaximals = codimInMaximal.row(*cd) - node;
@@ -95,7 +95,7 @@ namespace polymake { namespace atint {
       }	
     } //END iterate maximal cones
     
-    dbgtrace << "Equivalence classes: " << equivalenceClasses << endl;
+    //dbgtrace << "Equivalence classes: " << equivalenceClasses << endl;
     
     //Now compute the new cones as unions of the cones in each equivalence class
     Matrix<Rational> newlin; bool newlin_computed = false;
@@ -114,7 +114,7 @@ namespace polymake { namespace atint {
 	union_ray_list |= Vector<int>(maximalCones.row(*mc));
       }
       std::pair<Bitset,Bitset> union_cone = sv.canonicalize(union_rays, linspace,0);
-      dbgtrace << "Class " << cl << ": " << union_cone << endl;
+      //dbgtrace << "Class " << cl << ": " << union_cone << endl;
       
       //Compute lineality if it hasn't been computed yet
       if(!newlin_computed) {

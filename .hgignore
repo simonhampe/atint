@@ -5,3 +5,4 @@ relre:.*\.orig
 relre:.*~
 glob:objectlibrary/moduli10.fan
 glob:clocconf
+glob:debug_commenter.pl

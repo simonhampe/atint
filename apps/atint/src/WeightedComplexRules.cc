@@ -87,7 +87,7 @@ namespace polymake { namespace atint {
   
   //Documentation see header
   CodimensionOneResult calculateCodimOneData(const Matrix<Rational> &rays, const IncidenceMatrix<> &maximalCones, bool uses_homog, const Matrix<Rational> &linspace, const IncidenceMatrix<> &local_restriction) {
-    dbgtrace << "Computing all facets..." << endl;
+    //dbgtrace << "Computing all facets..." << endl;
     
     //First we construct the set of all facets 
     //Array<IncidenceMatrix<> > maximal_cone_incidence = fan.give("MAXIMAL_CONES_INCIDENCES");
@@ -96,11 +96,11 @@ namespace polymake { namespace atint {
     for(int mc = 0; mc < maximalCones.rows(); mc++) {
       Set<int> mset = maximalCones.row(mc);
       //Extract inequalities
-      dbgtrace << "Computing facets for cone set " << mset << endl;
+      //dbgtrace << "Computing facets for cone set " << mset << endl;
       Matrix<Rational> facets = solver<Rational>().enumerate_facets(
 	    zero_vector<Rational>() | rays.minor(mset,All),
 	    zero_vector<Rational>() | linspace).first.minor(All, ~scalar2set(0));;
-      dbgtrace << "Done. Checking rays..." << endl;
+      //dbgtrace << "Done. Checking rays..." << endl;
       //For each inequality, check which rays lie in it
       Vector<Set<int> > facetIncidences;
       for(int row = 0; row < facets.rows(); row++) {
@@ -112,11 +112,11 @@ namespace polymake { namespace atint {
 	}
 	facetIncidences |= facetRays;
       }
-      dbgtrace << "Done." << endl;
+      //dbgtrace << "Done." << endl;
       maximal_cone_incidence |= IncidenceMatrix<>(facetIncidences);
     }
     
-    dbgtrace << "Check for doubles and useless facets..." << endl;
+    //dbgtrace << "Check for doubles and useless facets..." << endl;
     
     //This will contain the set of indices defining the codim one faces
     Vector<Set<int> > facetArray;
@@ -200,7 +200,7 @@ namespace polymake { namespace atint {
     Vector<Set<int> > codimone(codimOneCones.rows());
     Vector<int> conversion;
     
-    dbgtrace << "Dividing rays..." << endl;
+    //dbgtrace << "Dividing rays..." << endl;
     
     //Divide the set of rays into those with x0 != 0 and those with x0 = 0
     Set<int> affineRays;
@@ -218,7 +218,7 @@ namespace polymake { namespace atint {
       }
     }
     
-    dbgtrace << "Affine rays: " << affineRays << ", directional rays: " << directionalRays << endl;
+    //dbgtrace << "Affine rays: " << affineRays << ", directional rays: " << directionalRays << endl;
     
     //Insert the indices of the new affine rays for each cone
     for(int co = 0; co < codimOneCones.rows(); co++) {
@@ -250,12 +250,12 @@ namespace polymake { namespace atint {
       affineRays = compatible;
     }
     
-    dbgtrace << "Added affine rays to cones" << endl;
+    //dbgtrace << "Added affine rays to cones" << endl;
     
     //Now we go through the directional rays and compute the connected component for each one
     for(Entire<Set<int> >::iterator r = entire(directionalRays); !r.at_end(); ++r) {
       
-      dbgtrace << "Computing components of ray " << *r << endl;
+      //dbgtrace << "Computing components of ray " << *r << endl;
       
       //List of connected components of this ray, each element is a component
       //containing the indices of the maximal cones
@@ -271,12 +271,12 @@ namespace polymake { namespace atint {
 	}
       }
       
-      dbgtrace << "Computed set of cones containing r:" << rcones << endl;
+      //dbgtrace << "Computed set of cones containing r:" << rcones << endl;
       
       //For each such maximal cone, compute its component (if it hasnt been computed yet).
       for(Entire<Set<int> >::iterator mc = entire(rcones); !mc.at_end(); ++mc) {
 	if(!inverseMap.exists(*mc)) {
-	  dbgtrace << "Creating new component" << endl;
+	  //dbgtrace << "Creating new component" << endl;
 	  //Create new component
 	  Set<int> newset; newset = newset + *mc;
 	  connectedComponents = connectedComponents | newset;
@@ -286,7 +286,7 @@ namespace polymake { namespace atint {
 	  std::list<int> queue;
 	    queue.push_back(*mc);
 	    //Semantics: Elements in that queue have been added but their neighbours might not
-	    dbgtrace << "Calculating component" << endl;
+	    //dbgtrace << "Calculating component" << endl;
 	  while(queue.size() != 0) {
 	    int node = queue.front(); //Take the first element and find its neighbours
 	      queue.pop_front();
@@ -307,7 +307,7 @@ namespace polymake { namespace atint {
 	}
       } //END computation of connected components
       
-      dbgtrace << "Connected components:\n" << connectedComponents << endl;
+      //dbgtrace << "Connected components:\n" << connectedComponents << endl;
       
       //Now add r once for each connected component to the appropriate cones
       for(int cc = 0; cc < connectedComponents.dim(); cc++) {
@@ -315,7 +315,7 @@ namespace polymake { namespace atint {
 	conversion |= (*r);
 	int rowindex = cmplxrays.rows()-1;
 	Set<int> ccset = connectedComponents[cc];
-	dbgtrace << "Inserting for component " << cc+1 << endl;
+	//dbgtrace << "Inserting for component " << cc+1 << endl;
 	for(Entire<Set<int> >::iterator mc = entire(ccset); !mc.at_end(); ++mc) {
 	  maxcones[*mc] = maxcones[*mc] + rowindex;
 	  //For each facet of mc that contains r, add rowindex
@@ -335,7 +335,7 @@ namespace polymake { namespace atint {
       
     }//END iterate over all rays
     
-    dbgtrace << "Done computing rays, inserting values..." << endl;
+    //dbgtrace << "Done computing rays, inserting values..." << endl;
     
     //Insert values
     fan.take("CMPLX_RAYS") << cmplxrays;

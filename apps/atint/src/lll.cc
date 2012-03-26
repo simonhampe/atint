@@ -75,11 +75,11 @@ namespace polymake { namespace atint {
 	}
 	
 	
-	dbglog << "Reducing a " << rows << " x " << cols << " matrix" << endl;
+	//dbgtrace << "Reducing a " << rows << " x " << cols << " matrix" << endl;
 	while(k < rows) {
-	    dbglog << "Starting reduction of row k = " << k << endl;
+	    //dbgtrace << "Starting reduction of row k = " << k << endl;
 	    for(int i = k-1; i >= 0; i--) {
-		dbglog << "Reducing wrt i = " << i << endl;
+		//dbgtrace << "Reducing wrt i = " << i << endl;
 		//Reduce row k, using row i --------------------------------------------------------------------------------
 		//First find the first columns col1,col2, such that ai,col1 != 0, ak,col2 != 0 (if none is found, set to n+1)
 		int col1 = cols;
@@ -89,7 +89,7 @@ namespace polymake { namespace atint {
 		    if(col2 == cols && A(k,j) != 0) col2 = j;
 		    if(col1 < cols && col2 < cols) break;
 		}
-		dbglog << "col1 = " << col1 << ", col2 = " << col2 << endl;
+		//dbgtrace << "col1 = " << col1 << ", col2 = " << col2 << endl;
 		//Check for positivity of this first nonzero element. If it is negative, invert the appropriate 
 		//LLL coefficients Lambda and the rows of the transformation matrix
 		if(col1 < cols && A(i,col1) < 0) {
@@ -110,13 +110,13 @@ namespace polymake { namespace atint {
 		   Integer plambda = Lambda(k,i);
 		      plambda = plambda > 0? plambda : - plambda;
 		   if(2* plambda > D[i+1]) {
-		      dbglog << "Reducing only B" << endl;
-		      dbglog << "L_k,i = " << Lambda(k,i) << ", Di+1 = " << D[i+1] << endl;
+		      //dbgtrace << "Reducing only B" << endl;
+		      //dbgtrace << "L_k,i = " << Lambda(k,i) << ", Di+1 = " << D[i+1] << endl;
 		      q = (2 * plambda + D[i+1]) / (2*D[i+1]);// = nearest integer to |Lambda(k,i)|/ D[i+1];
 		      if(Lambda(k,i) < 0) q = -q;
 		   }
 		}
-		dbglog << "Setting q = " << q << endl;
+		//dbgtrace << "Setting q = " << q << endl;
 		//If q != 0, apply reduction step
 		if(q != 0) {
 		    A.row(k) = A.row(k) - q* A.row(i);
@@ -126,43 +126,43 @@ namespace polymake { namespace atint {
 			Lambda(k,j) = Lambda(k,j) - q* Lambda(i,j);
 		    }
 		}
-		dbglog << "Now A =\n" << A << endl;
-		dbglog << "B = \n" << tfmatrix << endl;
+		//dbgtrace << "Now A =\n" << A << endl;
+		//dbgtrace << "B = \n" << tfmatrix << endl;
 		//if i=k-1, check for the Lovasz condition ---------------------------------------------------------------
 		//If it is fulfilled, reduce wrt the other rows, otherwise step down one row
 		if(i == k-1) {
 		    if( ((col1 <= col2) && (col1 < cols)) ||
 			((col1 == col2) && (col1 == cols) && (n1* (D[k-1]*D[k+1]) + (Lambda(k,k-1)*Lambda(k,k-1))) < m1* D[k]* D[k])) {
-			dbglog << "Lovasz condition not fulfilled, swapping " << k << " with " << k-1 << endl;
+			//dbgtrace << "Lovasz condition not fulfilled, swapping " << k << " with " << k-1 << endl;
 			//If it is not fulfilled, swap rows k and k-1
 			for(int c = 0; c < cols; c++) A(k,c).swap(A(k-1,c));
 			for(int c = 0; c < rows; c++) tfmatrix(k,c).swap(tfmatrix(k-1,c));			
 			for( int j = 0; j <= k-2; j++) {
 			    Lambda(k,j).swap(Lambda(k-1,j));
 			}
-			dbglog << "Recalculating D's and Lambdas" << endl;
+			//dbgtrace << "Recalculating D's and Lambdas" << endl;
 			for( int i = k+1; i < rows; i++) {
 			    Integer t = Lambda(i,k-1)* D[k+1] - Lambda(i,k-1) * Lambda(k,k-1);
-			    dbglog << "Setting t = " << t << endl;
-			    dbglog << "Li,k-1 * Lk,k-1  = " << (Lambda(i,k-1)* Lambda(k,k-1)) << endl;
-			    dbglog << "Li,k * Dk-1 = " << (Lambda(i,k) * D[k-1]) << endl;
+			    //dbgtrace << "Setting t = " << t << endl;
+			    //dbgtrace << "Li,k-1 * Lk,k-1  = " << (Lambda(i,k-1)* Lambda(k,k-1)) << endl;
+			    //dbgtrace << "Li,k * Dk-1 = " << (Lambda(i,k) * D[k-1]) << endl;
 			    Lambda(i,k-1) = ( (Lambda(i,k-1) * Lambda(k,k-1)) + (Lambda(i,k) * D[k-1])  ) / D[k];
-			    dbglog << "Setting Lambda_i,k-1 = " << Lambda(i,k-1) << endl;
+			    //dbgtrace << "Setting Lambda_i,k-1 = " << Lambda(i,k-1) << endl;
 			    Lambda(i,k) = t / D[k];
-			    dbglog << "Setting Lambda_i,k = " << Lambda(i,k) << endl;
+			    //dbgtrace << "Setting Lambda_i,k = " << Lambda(i,k) << endl;
 			}
 			D[k] = (  (D[k-1] * D[k+1]) + (Lambda(k,k-1) * Lambda(k,k-1))  ) / D[k]; 
-			dbglog << "Setting Dk-1 = " << D[k] << endl;
+			//dbgtrace << "Setting Dk-1 = " << D[k] << endl;
 			//After swapping, step down one row
 			if(k > 1) k--;
-			dbglog << "Stepping down to k = " << k << endl;
+			//dbgtrace << "Stepping down to k = " << k << endl;
 			break;
 		    }
 		}
 		//After row k has been reduced wrt all lower rows, go up one row -----------------------------------------
 		if(i == 0) {
 		  k++;
-		  dbglog << "Stepping up to k = " << k << endl;
+		  //dbgtrace << "Stepping up to k = " << k << endl;
 		}
 		
 		

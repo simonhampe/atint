@@ -37,9 +37,9 @@ namespace polymake { namespace atint {
 
     using polymake::polytope::cdd_interface::solver;
 
-    using namespace atintlog::donotlog;
-    //using namespace atintlog::dolog;
-//     using namespace atintlog::dotrace;
+     using namespace atintlog::donotlog;
+// 	    using namespace atintlog::dolog;
+// using namespace atintlog::dotrace;
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -81,8 +81,8 @@ namespace polymake { namespace atint {
       Matrix<Integer> lattice_generators = complex.give("LATTICE_GENERATORS");
       IncidenceMatrix<> lattice_bases = complex.give("LATTICE_BASES");
       
-      dbgtrace << "Rays: " << crays << endl;
-      dbgtrace << "Values: " << values << endl;
+  //dbgtrace << "Rays: " << crays << endl;
+      //dbgtrace << "Values: " << values << endl;
       
       //Do a compatibility check on the value matrix to avoid segfaults in the case of faulty input
       if(values.cols() != crays.rows() + lineality_space.rows()) {
@@ -119,7 +119,7 @@ namespace polymake { namespace atint {
       
       //Now we iterate through the matrix rows 
       for(int r = 0; r < values.rows(); r++) {
-	dbgtrace << "Computing on row " << r << endl;
+	//dbgtrace << "Computing on row " << r << endl;
 	//First we recompute values that we can't/won't compute by hand
 
 	IncidenceMatrix<> codimOneCones = result.give("CODIM_1_FACES");
@@ -131,7 +131,7 @@ namespace polymake { namespace atint {
 	Matrix<Rational> lsumFunctionVector = result.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
 	Vector<bool> balancedFaces = result.give("BALANCED_FACES");
 	
-	dbgtrace << "Balanced faces: " << balancedFaces << endl;
+	//dbgtrace << "Balanced faces: " << balancedFaces << endl;
 	
 	//Recompute the lattice bases
 	Vector<Set<int> > new_lattice_bases;
@@ -183,7 +183,7 @@ namespace polymake { namespace atint {
 	  //Finally append lineality values
 	  currentValues |= lineality_values.row(r);
 	}
-	dbgtrace << "Value vector is: " << currentValues << endl;
+	//dbgtrace << "Value vector is: " << currentValues << endl;
 	
 	//Then we compute the divisor
 	Vector<Integer> newweights; //Contains the new weights
@@ -192,17 +192,17 @@ namespace polymake { namespace atint {
 	//Go through each facet and compute its weight. 
 	for(int co = 0; co < codimOneCones.rows(); co++) {
 	  if(balancedFaces[co]) { //Only compute values at balanced codim-1-cones
-  	  dbgtrace << "Codim 1 face " << co << endl;
+  	  //dbgtrace << "Codim 1 face " << co << endl;
 	    Rational coweight(0); //Have to take rational since intermediate values may be rational
 	    Set<int> adjacentCones = coneIncidences.row(co);
 	    for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
-  	    dbgtrace << "Maximal cone " << *mc << endl;
+  	    //dbgtrace << "Maximal cone " << *mc << endl;
 	      coweight = coweight + weights[*mc] * (lnFunctionVector[co])[*mc] * currentValues;
-// 	      dbgtrace <<(lnFunctionVector[co])[*mc] * currentValues << endl; 
+ 	      //dbgtrace <<(lnFunctionVector[co])[*mc] * currentValues << endl; 
 	    }
 	    //Now substract the value of the lattice normal sum
-  // 	  dbgtrace << "Substracting sum" << endl;
-// 	    dbgtrace << lsumFunctionVector.row(co) * currentValues << endl;
+   	  //dbgtrace << "Substracting sum" << endl;
+ 	    //dbgtrace << lsumFunctionVector.row(co) * currentValues << endl;
 	    coweight = coweight - lsumFunctionVector.row(co) * currentValues;
 	    if(coweight != 0) {
 	      newweights = newweights | Integer(coweight);	  
@@ -212,8 +212,8 @@ namespace polymake { namespace atint {
 	  }
 	}//END iterate co-1-cones
 	
-	dbgtrace << "Computed codim one weights" << endl;
-	dbgtrace << "Weights are " << newweights << endl;
+	//dbgtrace << "Computed codim one weights" << endl;
+	//dbgtrace << "Weights are " << newweights << endl;
 	
 	//Compute the new-to-old maps used for recomputing the value vector in the next iteration
 	if(r != values.rows()-1) {
@@ -229,8 +229,8 @@ namespace polymake { namespace atint {
 	    newRaysToOldRays |= (*orays);
 	  }
 	}
-	dbgtrace << "newConesInOld: " << newConesInOld << endl;
-	dbgtrace << "newRaysToOldRays:" << newRaysToOldRays << endl;
+	//dbgtrace << "newConesInOld: " << newConesInOld << endl;
+	//dbgtrace << "newRaysToOldRays:" << newRaysToOldRays << endl;
 	
 	//Now recompute the rays and maximal cones for re-initialization of the result
 	rays = rays.minor(usedRays,All);
@@ -241,7 +241,7 @@ namespace polymake { namespace atint {
 	  //We need to adapt rays indices and remove old maximal local cones
 	  // and codimension one cones that have weight 0
 	  //Also we remove all local cones that lose rays
-	  dbgtrace << "Local restriction before: " << local_restriction << endl;
+	  //dbgtrace << "Local restriction before: " << local_restriction << endl;
 	  IncidenceMatrix<> maxCones = result.give("MAXIMAL_CONES");
 	  Set<int> removableCones;
 	  Set<int> weightzerocones = sequence(0,codimOneCones.rows()) - usedCones;
@@ -285,8 +285,8 @@ namespace polymake { namespace atint {
 // 	    }
 // 	    
 // 	  }
-// 	  
-	  dbgtrace << "Adapted local cones: " << local_restriction << endl;
+ 	  
+	  //dbgtrace << "Adapted local cones: " << local_restriction << endl;
 	}//END adapt local restriction	
 	
 	result = perl::Object("WeightedComplex");
@@ -301,7 +301,7 @@ namespace polymake { namespace atint {
 	
       } //END iterate function rows
       
-      dbgtrace << "Done. Returning divisor" << endl;
+      //dbgtrace << "Done. Returning divisor" << endl;
       
       return result;
     }
@@ -321,14 +321,14 @@ namespace polymake { namespace atint {
     
     //Documentation see header
     perl::Object divisor_minmax(perl::Object complex, perl::Object function, int k) {
-      dbglog << "Preparing computations" << endl;
+      //dbgtrace << "Preparing computations" << endl;
       
       //Homogenize the fan and refine it
       bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
       if(!uses_homog) complex = complex.CallPolymakeMethod("homogenize");
       perl::Object linearityDomains = function.give("NORMAL_FAN");
       
-      dbglog << "Refining fan" << endl;
+      //dbgtrace << "Refining fan" << endl;
       RefinementResult r = refinement(complex,linearityDomains,false,false,true,true,true);
       
       //Extract values
@@ -340,7 +340,7 @@ namespace polymake { namespace atint {
       Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");
       bool uses_min = function.give("USES_MIN");
       
-      dbglog << "Extracted values" << endl;
+      //dbgtrace << "Extracted values" << endl;
       
       //Now compute function values
       Vector<Rational> values;    
@@ -429,9 +429,9 @@ namespace polymake { namespace atint {
       if(fct_uses_homog && !cmplx_uses_homog) {
 	complex = complex.CallPolymakeMethod("homogenize");
       }
-      dbgtrace << "Refining... " << endl;
+      //dbgtrace << "Refining... " << endl;
       RefinementResult r = refinement(complex,domain, false,true,false,true,true);
-      dbgtrace << "Done. " << endl;
+      //dbgtrace << "Done. " << endl;
       
       
       //Compute the ray values on the new complex

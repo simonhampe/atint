@@ -201,10 +201,10 @@ namespace polymake { namespace atint {
 		More precisely, if h is the hypersurface defining tau wrt sigma and h * (additionalRay) >= 0, then h* normal >= 0
 	*/
 	Vector<Integer> latticeNormal(const Matrix<Rational> &tmatrix, const Matrix<Rational> &smatrix, const Vector<Rational> &additionalRay) {
-	      dbgtrace << "Making the matrices integer" << endl;
+	      //dbgtrace << "Making the matrices integer" << endl;
 	      Matrix<Integer> taumatrix = makeInteger(tmatrix);
 	      Matrix<Integer> sigmamatrix = makeInteger(smatrix);
-	      dbgtrace << "Taumatrix = \n" << taumatrix << "\nSigmamatrix = \n" << sigmamatrix << endl;
+	      //dbgtrace << "Taumatrix = \n" << taumatrix << "\nSigmamatrix = \n" << sigmamatrix << endl;
 	      int rk = rank(sigmamatrix);
 	      int rowcount = taumatrix.rows();
 	      //Find the row of taumatrix that is not in the span of sigmamatrix
@@ -221,24 +221,24 @@ namespace polymake { namespace atint {
 			      throw std::runtime_error("latticeNormal: tau is not a face of sigma");
 		      }
 	      }
-	      dbgtrace << "Transformed sigmamatrix = \n" << sigmamatrix << endl;
+	      //dbgtrace << "Transformed sigmamatrix = \n" << sigmamatrix << endl;
 	      int k;
 	      //Matrix<Integer> tfmatrix = znormaltransform(sigmamatrix, k); // --> Dies on large integers
 	      Matrix<Integer> tfmatrix;
 	      lllHNF( T(sigmamatrix), tfmatrix,k);//Compute the HNF of sigmamatrix-transposed
 	      //Now the normal vector is the (n-k)-th row of tfmatrix (with n = ambient dimension)
-	      dbgtrace << "The transformation matrix is \n" << tfmatrix << "\nKernel dimension is " << k << endl;
+	      //dbgtrace << "The transformation matrix is \n" << tfmatrix << "\nKernel dimension is " << k << endl;
 	      Vector<Integer> lnormal = tfmatrix.row	(sigmamatrix.cols()- 1 - k);
 	      
 	      
 	      //Determine orientation
-	      dbgtrace << "Determining orientation" << endl;
+	      //dbgtrace << "Determining orientation" << endl;
 	      Vector<Integer> hyper = sigmamatrix.row(sigmamatrix.rows()-1);
-	      dbgtrace << "Defining hyperplane = " << hyper << endl;
-	      dbgtrace << "Normal vector = " << lnormal << endl;
-	      dbgtrace << "Additional ray = " << additionalRay << endl;
+	      //dbgtrace << "Defining hyperplane = " << hyper << endl;
+	      //dbgtrace << "Normal vector = " << lnormal << endl;
+	      //dbgtrace << "Additional ray = " << additionalRay << endl;
 	      hyper = (hyper * additionalRay >= 0 ? hyper : (-1)*hyper);
-	      dbgtrace << "Setting hyperplane orientation to " << hyper << endl;
+	      //dbgtrace << "Setting hyperplane orientation to " << hyper << endl;
 	      return (hyper * lnormal >= 0? lnormal : (-1) * lnormal);	      
 	}
 	
@@ -251,8 +251,8 @@ namespace polymake { namespace atint {
 		//Read out the matrices whose rows are the dual basis to V_tau (or V_sigma) and make them integer 		
 		Matrix<Rational> taumatrix = tau.give("LINEAR_SPAN");
 		Matrix<Rational> sigmamatrix = sigma.give("LINEAR_SPAN");
-		dbgtrace << "Linspan of tau = \n" << taumatrix << endl;
-		dbgtrace << "Linspan of sigma = \n" << sigmamatrix << endl;
+		//dbgtrace << "Linspan of tau = \n" << taumatrix << endl;
+		//dbgtrace << "Linspan of sigma = \n" << sigmamatrix << endl;
 		
 		//Find the additional ray of sigma
 		Matrix<Rational> sigmarays =sigma.give("RAYS");
@@ -274,7 +274,7 @@ namespace polymake { namespace atint {
 		    }
 		}
 				
-		dbgtrace << "additional ray = " << additionalRay << endl;
+		//dbgtrace << "additional ray = " << additionalRay << endl;
 		return latticeNormal(taumatrix, sigmamatrix,additionalRay);		
 	}
 	
@@ -327,18 +327,18 @@ namespace polymake { namespace atint {
 	  
 	  //Go through each column of w / A and try to reduce it using a row of A
 	  for(int c = 0; c < v.dim(); c++) {
-	    dbgtrace << "Reducing column " << c+1 << endl;
+	    //dbgtrace << "Reducing column " << c+1 << endl;
 	    //Find the first row of A such that A(row,c) != 0 and use this row to reduce the column c.
 	    //Then move it to the end (i.e. above the row we used the last time)
 	    for(int r = 0; r < A.rows() - usedRows; r++) {
 	      if(A(r,c) != 0) {
-		dbgtrace << "Reducing with row " << r+1 << endl;
+		//dbgtrace << "Reducing with row " << r+1 << endl;
 		//First reduce w, if necessary
 		if(w[c] != 0) {
 		  coeff = w[c] / A(r,c);
 		  solution += coeff * U.row(r);
 		  w -= coeff * A.row(r);
-		  dbgtrace << "Solution now " << solution << endl;
+		  //dbgtrace << "Solution now " << solution << endl;
 		  if(w == zv) return solution;
 		}
 		//Actually we first move the row to the end
@@ -357,20 +357,20 @@ namespace polymake { namespace atint {
 		  }
 		}
 		usedRows++;
-		dbgtrace << "Now A = \n" << A << endl;
-		dbgtrace << "Now w = \n" << w << endl;
+		//dbgtrace << "Now A = \n" << A << endl;
+		//dbgtrace << "Now w = \n" << w << endl;
 		break;
 	      }
 	      //If we arrive at this point, we cant reduce w, so its not in the linear span
 	      if(r == A.rows() - usedRows - 1 && w[c] != 0) {
-		dbgtrace << "Not in linear span" << endl;
+		//dbgtrace << "Not in linear span" << endl;
 		return Vector<Rational>(0);
 	      }
 	    }
 	    //If we arrive here, there were no more rows in A we could use
 	    //Hence w can not be reduced, it is not in the linear span
 	    if(w[c] != 0) {
-	      dbgtrace << "Not in linear span" << endl;
+	      //dbgtrace << "Not in linear span" << endl;
 	      return Vector<Rational>(0);
 	    }
 	  }
@@ -386,7 +386,7 @@ namespace polymake { namespace atint {
 						      const Matrix<Rational> &rays,
 						      const Matrix<Rational> &linealitySpace,
 						      int lineality_dim) {
-	  dbgtrace << "Starting representation computation" << endl;
+	  //dbgtrace << "Starting representation computation" << endl;
 	  //Put ray indices in fixed order
 	  Array<int> fixedIndices(rayIndices);
 	  //Matrix of generators
@@ -427,13 +427,13 @@ namespace polymake { namespace atint {
 	    m = m / zero_vector<Rational>(ambient_dim);
 	  }
 	  
-	  dbglog << "Generator matrix is " << m << endl;
-	  dbglog << "Vector is " << v << endl;
+	  //dbgtrace << "Generator matrix is " << m << endl;
+	  //dbgtrace << "Vector is " << v << endl;
 	  
 	  //Now compute the representation
 	  Vector<Rational> repv = linearRepresentation(v,m);
 	  
-	  dbglog << "Representation vector: " << repv << endl;
+	  //dbgtrace << "Representation vector: " << repv << endl;
 	  
 	  if(repv.dim() == 0) {
 	    throw std::runtime_error("Error: vector not in linear span of generators");
@@ -446,7 +446,7 @@ namespace polymake { namespace atint {
 	      //If a ray came after the baseray, its matrix row index is one lower then its array index.
 	      int matrixindex = (baseRayIndex == -1)? r : (r > baseRayIndex? r-1 : r);
 	      result[fixedIndices[r]] = repv[matrixindex];
-	      dbgtrace << "Inserting " << repv[matrixindex] << " at " << fixedIndices[r] << endl;
+	      //dbgtrace << "Inserting " << repv[matrixindex] << " at " << fixedIndices[r] << endl;
 	      //if this is an affine ray, substract its coefficient at the baseray
 	      if(rays(fixedIndices[r],0) != 0 && uses_homog) {
 		result[fixedIndices[baseRayIndex]] -= repv[matrixindex];
@@ -454,14 +454,14 @@ namespace polymake { namespace atint {
 	    }
 	  }
 	  
-	  dbgtrace << "Result vector is " << result << endl;
+	  //dbgtrace << "Result vector is " << result << endl;
 	  
 	  //Insert linspace coefficients at the end
 	  int repvSize = repv.dim();
 	  for(int lingen = 0; lingen < lineality_dim; lingen++) {
 	  result[rays.rows() + lingen] = repv[repvSize - lineality_dim + lingen];
 	  }
-	  dbgtrace << "Done." << endl;
+	  //dbgtrace << "Done." << endl;
 	  return result;    
 	}
   

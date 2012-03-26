@@ -48,14 +48,14 @@ namespace polymake { namespace atint {
       int Ycodim = Y.give("CMPLX_CODIMENSION");
       int Xambi  = X.give("CMPLX_AMBIENT_DIM");
       
-      dbgtrace << "Checking codimension" << endl;
+      //dbgtrace << "Checking codimension" << endl;
       
       //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
       if(Xcodim + Ycodim > Xambi) {
 	return CallPolymakeFunction("zero_cycle");
       }
       
-      dbgtrace << "Homogenizing where necessary" << endl;
+      //dbgtrace << "Homogenizing where necessary" << endl;
       
       //Make sure,both are homogeneous
       bool x_uses_homog = X.give("USES_HOMOGENEOUS_C");
@@ -64,7 +64,7 @@ namespace polymake { namespace atint {
       if(!x_uses_homog) X = X.CallPolymakeMethod("homogenize");
       if(!y_uses_homog) Y = Y.CallPolymakeMethod("homogenize");
       
-      dbgtrace << "Computing diagonal" << endl;
+      //dbgtrace << "Computing diagonal" << endl;
       
       //Create diagonal equalities and diagonal functions
       Matrix<Rational> diagLin = zero_vector<Rational>() | (zero_vector<Rational>() | 
@@ -72,7 +72,7 @@ namespace polymake { namespace atint {
       	
       perl::ListResult psi = ListCallPolymakeFunction("atint::diagonal_functions",Xambi);
       
-      dbgtrace << "Computing lineality space intersection" << endl;
+      //dbgtrace << "Computing lineality space intersection" << endl;
       
       //The lineality space of the intersection product is the intersection of the lineality spaces
       //Compute the intersection of the two spaces
@@ -92,9 +92,9 @@ namespace polymake { namespace atint {
       // Substract the lineality dimension, since we compute without it
       int expectedDimension = Xambi - (Xcodim + Ycodim) - r_lineality_dim;
      
-      dbgtrace << "Result: " << r_lineality << endl;
+      //dbgtrace << "Result: " << r_lineality << endl;
       
-      dbgtrace << "Computing product complex" << endl;
+      //dbgtrace << "Computing product complex" << endl;
             
       //Compute the product complex
       std::vector<perl::Object> XandY;
@@ -125,8 +125,8 @@ namespace polymake { namespace atint {
       for(int i = 0; i <= Xambi; i++) {
 	
 	//Remove cones that have too low dimension with the diagonal before computing a divisor
-	dbgtrace << "Reducing to cones that intersect diagonal in appropriate dimension" << endl;
-	dbgtrace << "Have " << maximalCones.rows() << " maximal cones" << endl;
+	//dbgtrace << "Reducing to cones that intersect diagonal in appropriate dimension" << endl;
+	//dbgtrace << "Have " << maximalCones.rows() << " maximal cones" << endl;
 	
 	Set<int> remainingCones;
 	Set<int> usedRays;
@@ -140,8 +140,8 @@ namespace polymake { namespace atint {
 	      usedRays += maximalCones.row(mc);
 	  }
 	}//END for all maximal cones mc
-	dbgtrace << "Remaining cones: " << remainingCones << endl;
-	dbgtrace << "Used rays: " << usedRays << endl;
+	//dbgtrace << "Remaining cones: " << remainingCones << endl;
+	//dbgtrace << "Used rays: " << usedRays << endl;
 	
 	rays = rays.minor(usedRays,All);
 	maximalCones = maximalCones.minor(remainingCones,usedRays);
@@ -150,7 +150,7 @@ namespace polymake { namespace atint {
 	//Check for all local restrictions, if there are still any cones containing them
 	//If not, discard it
 	if(local_restriction.rows() > 0) {
-	  dbgtrace << "Local restriction " << local_restriction << endl;
+	  //dbgtrace << "Local restriction " << local_restriction << endl;
 	  IncidenceMatrix<> new_local_restriction = local_restriction.minor(All,usedRays);
 	  Set<int> removable_locals;
 	  for(int lr = 0; lr < local_restriction.rows(); lr++) {
@@ -172,7 +172,7 @@ namespace polymake { namespace atint {
 	    }
 	  }//END iterate local cones
 	  
-	  dbgtrace << "To be removed: " << removable_locals << endl;
+	  //dbgtrace << "To be removed: " << removable_locals << endl;
 	  
 	  //If no local restriction remains, return the zero cycle
 	  //(Since there is nothing around the local cones)
@@ -193,7 +193,7 @@ namespace polymake { namespace atint {
 	
 	//Now intersect the current complex with the linearity domains of the current function
 	if(i < Xambi) {
-	  dbgtrace << "Computing divisor of function " << (i+1) << endl;
+	  //dbgtrace << "Computing divisor of function " << (i+1) << endl;
 	  perl::Object currentComplex("WeightedComplex");
 	    currentComplex.take("RAYS") << rays;
 	    currentComplex.take("MAXIMAL_CONES") << maximalCones;

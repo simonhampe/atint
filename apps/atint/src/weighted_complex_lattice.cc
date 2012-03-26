@@ -44,7 +44,7 @@ namespace polymake { namespace atint {
    */	  
   void computeLatticeNormals(perl::Object fan) {
     
-    dbgtrace << "Extracting properties" << endl;
+    //dbgtrace << "Extracting properties" << endl;
     
     //Extract basic properties of fan
     int ambient_dim = fan.give("FAN_AMBIENT_DIM");
@@ -67,7 +67,7 @@ namespace polymake { namespace atint {
     // is of the form (0,...)
     Vector<Rational> intereq(unit_vector<Rational>(ambient_dim,0));
     
-    dbgtrace << "Computing linear spans" << endl;
+    //dbgtrace << "Computing linear spans" << endl;
     
     //Compute all the linear spans of the cones before, so we don't do it several times
     Vector<Matrix<Rational> > codimone;
@@ -79,7 +79,7 @@ namespace polymake { namespace atint {
       maximal = maximal | null_space(rays.minor(maximalCones.row(mcone),All) / linspace);
     }
     
-    dbgtrace << "Computing lattice normals" << endl;
+    //dbgtrace << "Computing lattice normals" << endl;
     
     //Go through all codim one faces
     for(int facet = 0; facet < codimone.dim(); facet++) {
@@ -167,7 +167,7 @@ namespace polymake { namespace atint {
       int r = rank(vtau);
       if(rank(vtau/ (summatrix.row(facet))) > r) {
 	fan.take("IS_BALANCED") << false;
-	dbgtrace << "Not balanced at codimension one face no. " << facet << endl;
+	//dbgtrace << "Not balanced at codimension one face no. " << facet << endl;
 	return;
       }
     }
@@ -204,12 +204,12 @@ namespace polymake { namespace atint {
     
     //Iterate over all codim 1 faces
     for(int fct = 0; fct < codimOneCones.rows(); fct++) {
-      dbgtrace << "Facet: " << fct << endl;
+      //dbgtrace << "Facet: " << fct << endl;
       summap[fct] = Map<int, Vector<Rational> >();
       
       Set<int> adjacentCones = coneIncidences.row(fct);
       for(Entire<Set<int> >::iterator mc = entire(adjacentCones); !mc.at_end(); ++mc) {
-	dbgtrace << "Maxcone " << *mc << endl;
+	//dbgtrace << "Maxcone " << *mc << endl;
 	Vector<Rational> normalvector((latticeNormals[fct])[*mc]);
 	//Compute the representation of the normal vector
 	(summap[fct])[*mc]= functionRepresentationVector(maximalCones.row(*mc),normalvector,
@@ -241,7 +241,7 @@ namespace polymake { namespace atint {
    */
   void computeProjectionLattice(perl::Object fan) {
     
-    dbgtrace << "Extracting properties" << endl;
+    //dbgtrace << "Extracting properties" << endl;
     
     //Extract basic properties of fan
     IncidenceMatrix<> codimInc = fan.give("CODIM_1_IN_MAXIMAL_CONES");
@@ -269,7 +269,7 @@ namespace polymake { namespace atint {
     //Compute normal vectors
     for(int mc = 0; mc < maximalCones.rows(); mc++) {
       //Compute the projection
-      dbgtrace << "Computing projection matrix for cone " << mc << endl;
+      //dbgtrace << "Computing projection matrix for cone " << mc << endl;
       Matrix<Integer> lb = lattice_generators.minor(lattice_bases.row(mc),All) ;
       //This matrix is used to compute the preimage of the projection normal
       Matrix<Integer> inverse = T(lb);
@@ -279,8 +279,8 @@ namespace polymake { namespace atint {
       Matrix<Rational> P(S.rows(),lattice_generators.cols());
       P.minor(All,I) = S;
       
-      dbgtrace << "Projection matrix reads: " << P << endl;
-      dbgtrace << "lb: " << lb << endl;
+      //dbgtrace << "Projection matrix reads: " << P << endl;
+      //dbgtrace << "lb: " << lb << endl;
       
       //Project maximal cone rays and lineality and compute span
       Matrix<Rational> mc_rays(rays.minor(maximalCones.row(mc),All));
@@ -314,7 +314,7 @@ namespace polymake { namespace atint {
       //Now iterate the facets
       Set<int> facets = codimInMaximal.row(mc);
       for(Entire<Set<int> >::iterator co = entire(facets); !co.at_end(); co++) {
-	dbgtrace << "Computing for facet " << *co << endl;
+	//dbgtrace << "Computing for facet " << *co << endl;
 	//Project facet
 	Matrix<Rational> co_rays = rays.minor(codimOneCones.row(*co),All);
 	  //Identify vertices
@@ -347,20 +347,20 @@ namespace polymake { namespace atint {
 	  additionalRay = add | additionalRay;
 	}
 	
-	dbgtrace << "Mc: " << mc_rays << endl;
-	dbgtrace << "Mc-span" << mc_span << endl;
-	dbgtrace << "Co: " << co_rays << endl;
-	dbgtrace << "co-span: " << co_span << endl;
-	dbgtrace << "ar: " << additionalRay << endl;
+	//dbgtrace << "Mc: " << mc_rays << endl;
+	//dbgtrace << "Mc-span" << mc_span << endl;
+	//dbgtrace << "Co: " << co_rays << endl;
+	//dbgtrace << "co-span: " << co_span << endl;
+	//dbgtrace << "ar: " << additionalRay << endl;
 	
 	//Compute facet normal in projection
 	Vector<Integer> normal = latticeNormal(co_span, mc_span,additionalRay);
 	
-	dbgtrace << "ln: " << normal << endl;
+	//dbgtrace << "ln: " << normal << endl;
 	
 	//Compute preimage
 	(latticeNormals[*co])[mc] = inverse * normal;
-	dbgtrace << "result: " << (latticeNormals[*co])[mc] << endl;
+	//dbgtrace << "result: " << (latticeNormals[*co])[mc] << endl;
 	
       }//END iterate facets
     }//END iterate maximal cones
@@ -402,7 +402,7 @@ namespace polymake { namespace atint {
    @brief Takes a WeightedComplex and computed the properties LATTICE_GENERATORS and LATTICE_BASES
    */
   void computeLatticeBases(perl::Object complex) {
-    dbgtrace << "Computing lattice " << endl;
+    //dbgtrace << "Computing lattice " << endl;
     //Extract properties
     Matrix<Rational> rays = complex.give("RAYS");
     Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");

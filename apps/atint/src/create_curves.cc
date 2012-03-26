@@ -74,10 +74,10 @@ namespace polymake { namespace atint {
     }
     
     while(queue.size() > 0) {
-      dbgtrace << "Computed: " << computed << endl;
+      //dbgtrace << "Computed: " << computed << endl;
       int nextv = queue.front();
 	queue.pop_front();
-      dbgtrace << "Looking for neighbours of " << nextv << endl;
+      //dbgtrace << "Looking for neighbours of " << nextv << endl;
       int neighbour = -1;
       for(int nb = 0; nb < computed.size(); nb++) {
 	if(nb != nextv && computed[nb] && (nodes_by_sets.row(nb) * nodes_by_sets.row(nextv)).size() > 0) {
@@ -88,7 +88,7 @@ namespace polymake { namespace atint {
 	queue.push_back(nextv); continue;
       }
       
-      dbgtrace << "Neighbour is " << neighbour << endl;
+      //dbgtrace << "Neighbour is " << neighbour << endl;
       
       //Compute orientation of edge: Take any other edge at nextv. It the intersection with
       //the partition of the connecting edge is empty or the connecting set, then 
@@ -126,9 +126,9 @@ namespace polymake { namespace atint {
       rays.row(nextv) = rays.row(neighbour) + coeffs[edge_index] * primitive_direction;
       computed[nextv] = true;
       weights |= mult;
-      dbgtrace << "Dir: " << direction << endl;
-      dbgtrace << "PDir: " << primitive_direction << endl;
-      dbgtrace << "mult: " << mult << endl;
+      //dbgtrace << "Dir: " << direction << endl;
+      //dbgtrace << "PDir: " << primitive_direction << endl;
+      //dbgtrace << "mult: " << mult << endl;
       
       //Create the cone
       Set<int> cone_set;
@@ -176,8 +176,8 @@ namespace polymake { namespace atint {
     
     
     
-    dbgtrace << "Rays: " << rays << endl;
-    dbgtrace << "Cones: "<< cones << endl;
+    //dbgtrace << "Rays: " << rays << endl;
+    //dbgtrace << "Cones: "<< cones << endl;
     
     
     //Create result

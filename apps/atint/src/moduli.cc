@@ -141,7 +141,7 @@ namespace polymake { namespace atint {
     Matrix<int> E(n-1,n-1);
     for(int i = 0; i < n-2; i++) {
       for(int j = i+1; j < n-1; j++) {
-	dbgtrace << "Setting E(" << i << "," << j << ") = " << nextindex << endl;
+	//dbgtrace << "Setting E(" << i << "," << j << ") = " << nextindex << endl;
 	E(i,j) = nextindex;
 	nextindex++;
       }
@@ -155,7 +155,7 @@ namespace polymake { namespace atint {
     //Will contain the rays of the moduli space in matroid coordinates
     int raydim = (n*(n-1))/2 - n;
     int raycount = count_mn_rays_int(n);
-    dbgtrace << "Expecting " << raycount << " rays" << endl;
+    //dbgtrace << "Expecting " << raycount << " rays" << endl;
     Matrix<Rational> rays(raycount,raydim);
     
     //Will contain the rays, but as set partitions (better for checking for doubles)
@@ -185,7 +185,7 @@ namespace polymake { namespace atint {
     for(int iteration = 0; iteration < noOfMax; iteration++) {
       
       //Create the sequence currently represented by indices and append it------------------
-      dbgtrace << "Creating sequence" << endl;
+      //dbgtrace << "Creating sequence" << endl;
       Vector<int> baseSequence = zero_vector<int>(2*n -4);
       for(int i = 0; i < n-1; i++) {
 	//Go through the non-zero entries of baseSequence. If it is the first or the indices[i]+1-th, 
@@ -206,30 +206,30 @@ namespace polymake { namespace atint {
       }
       
       //We now decode the Prüfer sequence to obtain the corresponding cone---------------------
-      dbgtrace << "Creating cone for sequence " << baseSequence << endl;
+      //dbgtrace << "Creating cone for sequence " << baseSequence << endl;
       Set<int> newcone;
       
       Set<int> V = sequence(0,2*n-2);
-      dbgtrace << "Initialized sequence to " << V << endl;
+      //dbgtrace << "Initialized sequence to " << V << endl;
       Vector<Set<int> > adjacent(n-2); //These will be the partitions of the edges
-      dbgtrace << "Connecting leaves" << endl;
+      //dbgtrace << "Connecting leaves" << endl;
       //First: Connect the leaves
       for(int i = 0; i < n; i++) {
-	dbgtrace << "Attaching leaf " << i << " to node " << baseSequence[0] << endl;
+	//dbgtrace << "Attaching leaf " << i << " to node " << baseSequence[0] << endl;
 	adjacent[baseSequence[0]-n] = adjacent[baseSequence[0]-n] + i;
 	V = V - i;
 	baseSequence = baseSequence.slice(1,baseSequence.dim()-1);
       }
       //Now create edges:
       int enumber = n-3;
-      dbgtrace << "Creating edges" << endl;
+      //dbgtrace << "Creating edges" << endl;
       for(int i = 1; i <= enumber; i++) {
-	dbgtrace << "Creating edge number " << i << endl;
+	//dbgtrace << "Creating edge number " << i << endl;
 	//Construct the leaf partition represented by the curve corresponding to the sequence
 	Set<int> rayset;
 	if(i == enumber) { //If V only has two elements left, simply connect these
 	  Vector<int> last(V);
-	  dbgtrace << "Only two left: " << last << " created from " << V << endl;
+	  //dbgtrace << "Only two left: " << last << " created from " << V << endl;
 	  rayset = adjacent[last[0]-n];
 	}
 	else {
@@ -249,12 +249,12 @@ namespace polymake { namespace atint {
 	  baseSequence = baseSequence.slice(1,baseSequence.dim()-1);
 	}
 	//The new edge is: v_{adjacent[smallest]}. If it containst the last leaf, take the complement
-	dbgtrace << "Edge partition is " << rayset << ". Creating matroid coords" << endl;
+	//dbgtrace << "Edge partition is " << rayset << ". Creating matroid coords" << endl;
 	if(rayset.contains(n-1)) {
 	  rayset = allLeafs - rayset;
 	}
 	//Now check, if we already have that ray
-	dbgtrace << "Checking if ray already exists" << endl;
+	//dbgtrace << "Checking if ray already exists" << endl;
 	
 // 	bool found = false;
 // 	for(int s = 0; s < raysAsPartitions.dim(); s++) {
@@ -290,8 +290,8 @@ namespace polymake { namespace atint {
 	//If not, create the corresponding matroid coordinates
 	if(!raysComputed[rIndex]) {
 	//if(!found) {
-	  dbglog << "Ray index of " << rayset << " is " << rIndex << endl;
-	  dbgtrace << "Ray " << rayset << " does not exist. Creating..." << endl;
+	  //dbgtrace << "Ray index of " << rayset << " is " << rIndex << endl;
+	  //dbgtrace << "Ray " << rayset << " does not exist. Creating..." << endl;
 	  //raysAsPartitions = raysAsPartitions | rayset;
 	  //newcone = newcone + (raysAsPartitions.dim()-1);
 	  raysComputed[rIndex] = true;
@@ -318,7 +318,7 @@ namespace polymake { namespace atint {
       cones = cones | newcone;
     
       
-      dbgtrace << "Increasing counter" << endl;   
+      //dbgtrace << "Increasing counter" << endl;   
       //Increase the indices vector by "1"---------------------------------------------------    
       if(iteration < noOfMax-1) {
 	int counterindex = n-3;
