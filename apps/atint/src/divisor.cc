@@ -35,9 +35,7 @@
 
 namespace polymake { namespace atint {
 
-    using polymake::polytope::cdd_interface::solver;
-
-     using namespace atintlog::donotlog;
+    using namespace atintlog::donotlog;
 // 	    using namespace atintlog::dolog;
 // using namespace atintlog::dotrace;
     

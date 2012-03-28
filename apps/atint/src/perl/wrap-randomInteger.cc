@@ -13,21 +13,13 @@
    GNU General Public License for more details.
 */
 
-///==== this line controls the automatic file splitting: max.instances=40
-
-#include "polymake/client.h"
-#include "polymake/IncidenceMatrix.h"
-#include "polymake/Set.h"
-namespace polymake { namespace common {
+namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0>
-   FunctionInterface4perl( new, T0 ) {
-      WrapperReturnNew(T0, () );
-   };
+   FunctionWrapper4perl( pm::Array<pm::Integer, void> (int const&, int const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( pm::Array<pm::Integer, void> (int const&, int const&) );
 
-   OperatorInstance4perl(Binary_add, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, int);
-   OperatorInstance4perl(Binary_add, perl::Canned< const Set< int > >, int);
-   Class4perl("Polymake::common::Set__String", Set< std::string >);
-   FunctionInstance4perl(new, Set< std::string >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

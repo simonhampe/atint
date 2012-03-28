@@ -134,6 +134,7 @@ namespace polymake { namespace atint {
 	  //Compute intersection with diagonal 
 	  std::pair<Matrix<Rational>, Matrix<Rational> > mcFacets = 
 	    sv.enumerate_facets(zero_vector<Rational>() | rays.minor(maximalCones.row(mc),All), zero_vector<Rational>() | lineality, true,false);
+	    
 	    Matrix<Rational> inrays = sv.enumerate_vertices(mcFacets.first, mcFacets.second / diagLin, true,true).first.minor(All,~scalar2set(0));
 	  if(rank(inrays) - 1 >= expectedDimension) {
 	      remainingCones += mc;

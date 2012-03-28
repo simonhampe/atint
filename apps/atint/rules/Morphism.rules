@@ -181,9 +181,15 @@ object Morphism {
   
   sub mult {
       my ($f,$r ) = @_;
-      if($r->isa("RationalFunction") ) {
-	  return pull_back($f,$r);
-      }
+      my $result = eval { # Need eval block to trap exception when isa fails if $r is a primitive scalar
+	if($r->isa("RationalFunction") ) {
+	    return pull_back($f,$r);
+	}
+	if($r->isa("Morphism")) {
+	  return morphism_composition($r,$f);
+	}
+      };
+      if(defined($result)) { return $result;}
       if($f->IS_GLOBAL) {
 	return new Morphism(MATRIX=>$r * $f->MATRIX, TRANSLATE=>$r * $f->TRANSLATE);
       }

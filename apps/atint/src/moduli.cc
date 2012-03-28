@@ -35,7 +35,7 @@ namespace polymake { namespace atint {
 
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+//   using namespace atintlog::dotrace;
  
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -143,6 +143,7 @@ namespace polymake { namespace atint {
       for(int j = i+1; j < n-1; j++) {
 	//dbgtrace << "Setting E(" << i << "," << j << ") = " << nextindex << endl;
 	E(i,j) = nextindex;
+	E(j,i) = nextindex;
 	nextindex++;
       }
     }
@@ -182,11 +183,16 @@ namespace polymake { namespace atint {
     //Iterate through all Prüfer sequences -------------------------------------------------
     
     Vector<int> indices = ones_vector<int>(n-2);
+    Vector<int> baseSequence(2*n-4);
+    Vector<Set<int> > adjacent(n-2); //These will be the partitions of the edges
+    Vector<Rational> newray(raydim); //Container for new rays
     for(int iteration = 0; iteration < noOfMax; iteration++) {
       
       //Create the sequence currently represented by indices and append it------------------
       //dbgtrace << "Creating sequence" << endl;
-      Vector<int> baseSequence = zero_vector<int>(2*n -4);
+//       baseSequence = zero_vector<int>(2*n -4);
+      baseSequence.resize(2*n-4);
+      baseSequence.fill(0);
       for(int i = 0; i < n-1; i++) {
 	//Go through the non-zero entries of baseSequence. If it is the first or the indices[i]+1-th, 
 	//insert an n+i
@@ -211,7 +217,7 @@ namespace polymake { namespace atint {
       
       Set<int> V = sequence(0,2*n-2);
       //dbgtrace << "Initialized sequence to " << V << endl;
-      Vector<Set<int> > adjacent(n-2); //These will be the partitions of the edges
+      adjacent.fill(Set<int>()); 
       //dbgtrace << "Connecting leaves" << endl;
       //First: Connect the leaves
       for(int i = 0; i < n; i++) {
@@ -228,9 +234,9 @@ namespace polymake { namespace atint {
 	//Construct the leaf partition represented by the curve corresponding to the sequence
 	Set<int> rayset;
 	if(i == enumber) { //If V only has two elements left, simply connect these
-	  Vector<int> last(V);
-	  //dbgtrace << "Only two left: " << last << " created from " << V << endl;
-	  rayset = adjacent[last[0]-n];
+// 	  Vector<int> last(V);
+	  //dbgtrace << "Only two left: " <<  V << endl;
+	  rayset = adjacent[*(V.begin()) - n];//adjacent[last[0]-n];
 	}
 	else {
 	  Set<int> pset(baseSequence); 
@@ -295,26 +301,28 @@ namespace polymake { namespace atint {
 	  //raysAsPartitions = raysAsPartitions | rayset;
 	  //newcone = newcone + (raysAsPartitions.dim()-1);
 	  raysComputed[rIndex] = true;
-	  Vector<int> raylist(rayset);
-	  Vector<Rational> newray(raydim);
-	  for(int k = 0; k < raylist.dim()-1; k++) {
-	      for(int l = k+1; l < raylist.dim(); l++) {
-		int newrayindex = E(raylist[k],raylist[l]);
-		//If the newrayindex is one higher than the ray dimension, 
-		//this means it is first of all the last pair. Also, we don't
-		//add -e_n but e_1 + ... + e_{n-1} (as we mod out lineality)
-		if(newrayindex < raydim) {
-		    newray[newrayindex] = -1;
-		}
-		else {
-		    newray = newray + onlyones;
-		}
+// 	  Vector<int> raylist(rayset);
+	  newray.fill(0);
+// 	  for(int k = 0; k < raylist.dim()-1; k++) {
+// 	      for(int l = k+1; l < raylist.dim(); l++) {
+	  for(pm::Subsets_of_k_iterator<const pm::Set<int>& > raypair = entire(all_subsets_of_k(rayset,2)); !raypair.at_end(); raypair++) {
+	      int newrayindex = E((*raypair).front(),(*raypair).back());
+	      //If the newrayindex is one higher than the ray dimension, 
+	      //this means it is first of all the last pair. Also, we don't
+	      //add -e_n but e_1 + ... + e_{n-1} (as we mod out lineality)
+	      if(newrayindex < raydim) {
+		  newray[newrayindex] = -1;
+	      }
+	      else {
+		  newray = newray + onlyones;
 	      }
 	  }
+// 	      }
+// 	  }
 	  //rays = rays / newray;
 	  rays.row(rIndex) = newray;
 	}
-      }
+      }//END iterate edges
       cones = cones | newcone;
     
       
@@ -328,7 +336,7 @@ namespace polymake { namespace atint {
 	}
 	indices[counterindex]++;
       }
-    }
+    }//END iterate cones
     
     std::ostringstream dsc;
       dsc << "Moduli space M_0," << n;

@@ -16,18 +16,19 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/client.h"
+#include "polymake/Matrix.h"
+#include "polymake/Rational.h"
 #include "polymake/IncidenceMatrix.h"
-#include "polymake/Set.h"
+#include "polymake/linalg.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
-   FunctionInterface4perl( new, T0 ) {
-      WrapperReturnNew(T0, () );
+   FunctionInterface4perl( cols_f1, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( arg0.get<T0>().cols() );
    };
 
-   OperatorInstance4perl(Binary_add, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, int);
-   OperatorInstance4perl(Binary_add, perl::Canned< const Set< int > >, int);
-   Class4perl("Polymake::common::Set__String", Set< std::string >);
-   FunctionInstance4perl(new, Set< std::string >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::Transposed<pm::Matrix<pm::Rational> > >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
