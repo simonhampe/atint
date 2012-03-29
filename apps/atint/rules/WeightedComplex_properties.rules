@@ -181,12 +181,6 @@ object WeightedComplex {
 	# This set contains all row indices  if [[USES_HOMOGENEOUS_C]] is false and is the complement of [[VERTICES]]
 	property DIRECTIONAL_RAYS : Set<Int>;
 	
-	# @category Basic properties
-	# An arbitrary textual description of the complex, to be specified by the user. Some
-	# operations that produce a WeightedComplex automatically set this property to something
-	# informative.
-	property DESCRIPTION : String;
-	
 	# @category Tropical geometry/Local computations
 	# This contains a list of sets of ray indices (referring to RAYS). All of these sets should 
 	# describe cones of the polyhedral complex (though not necessarily maximal ones).
@@ -402,13 +396,7 @@ object WeightedComplex {
 	  $this->VERTICES = $a[0];
 	  $this->DIRECTIONAL_RAYS = $a[1];
 	}
-	
-	#------------------------------------------------------------------------#
-	
-	rule DESCRIPTION : {
-	  $this->DESCRIPTION = "No description available";
-	}
-	
+
 	#------------------------------------------------------------------------#
 	
 	rule IS_UNIMODULAR : {

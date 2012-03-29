@@ -129,7 +129,7 @@ object RationalFunction {
   
   sub to_string {
     my $this = shift;  
-    my $result = "Function on (".$this->DOMAIN->DESCRIPTION.") with values: \n".join(",",$this->RAY_VALUES)."\n".join(",",$this->LIN_VALUES);
+    my $result = "Function on (".$this->DOMAIN->description().") with values: \n".join(",",$this->RAY_VALUES)."\n".join(",",$this->LIN_VALUES);
     return $result;
   }
   

@@ -117,7 +117,7 @@ namespace polymake { namespace atint {
 	fan.take("TROPICAL_WEIGHTS") << weights;
 	fan.take("USES_HOMOGENEOUS_C") << false;
 	fan.take("IS_UNIMODULAR") << true;
-	fan.take("DESCRIPTION") << dsc.str();
+	fan.set_description() << dsc.str();
 	
 	//dbgtrace << "Returning fan" << endl;
 	
@@ -444,7 +444,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cones;
 	result.take("TROPICAL_WEIGHTS") << weights;
 	result.take("USES_HOMOGENEOUS_C") << true;
-	result.take("DESCRIPTION") << dsc.str();
+	result.set_description() << dsc.str();
       return result;	
     }
     

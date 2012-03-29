@@ -428,7 +428,7 @@ namespace polymake { namespace atint {
       Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
       Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
       int dim = complex.give("CMPLX_DIM");
-      std::string desc = complex.give("DESCRIPTION");
+      std::string desc = complex.description();
       
       Matrix<Rational> newrays = rays.minor(directional,~scalar2set(0));
       Matrix<Rational> newlineality = linspace.minor(All,~scalar2set(0));
@@ -465,7 +465,7 @@ namespace polymake { namespace atint {
 	result.take("MAXIMAL_CONES") << cplxify.give("MAXIMAL_CONES");
 	result.take("TROPICAL_WEIGHTS") << cplxify.give("TROPICAL_WEIGHTS");
 	result.take("LINEALITY_SPACE") << newlineality;
-	result.take("DESCRIPTION") << newdesc.str();
+	result.set_description() << newdesc.str();
       return result;
       
 //       Refine fan

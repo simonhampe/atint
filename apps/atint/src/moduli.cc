@@ -345,7 +345,7 @@ namespace polymake { namespace atint {
       result.take("RAYS") << rays;
       result.take("MAXIMAL_CONES") << cones;
       result.take("TROPICAL_WEIGHTS") << ones_vector<int>(cones.dim());
-      result.take("DESCRIPTION") << dsc.str();
+      result.set_description() << dsc.str();
       result.take("IS_UNIMODULAR") << true;
     return result;
     
