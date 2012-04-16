@@ -17,21 +17,16 @@
 
 #include "polymake/client.h"
 #include "polymake/Matrix.h"
-#include "polymake/Rational.h"
+#include "polymake/Integer.h"
 #include "polymake/IncidenceMatrix.h"
-#include "polymake/linalg.h"
-#include "polymake/Vector.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
-   FunctionInterface4perl( cols_f1, T0 ) {
-      perl::Value arg0(stack[0]);
-      WrapperReturn( arg0.get<T0>().cols() );
+   FunctionInterface4perl( row_x_f5, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturnLvalue( T0, arg0.get<T0>().row(arg1) );
    };
 
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::Transposed<pm::Matrix<pm::Rational> > >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
+   FunctionInstance4perl(row_x_f5, perl::Canned< Wary< Matrix< Integer > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

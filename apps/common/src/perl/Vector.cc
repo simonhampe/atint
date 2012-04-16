@@ -24,6 +24,7 @@
 #include "polymake/Matrix.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/SparseVector.h"
+#include "polymake/Array.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -42,5 +43,7 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, Vector< Integer >, perl::Canned< const Vector< Integer > >);
    FunctionInstance4perl(new_X, Vector< int >, perl::Canned< const Vector< int > >);
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const SparseVector< Rational > >);
+   FunctionInstance4perl(new_X, Vector< bool >, perl::Canned< const Vector< bool > >);
+   FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const Array< Integer > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

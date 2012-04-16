@@ -22,6 +22,12 @@
 #include "polymake/Rational.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0, typename T1>
+   FunctionInterface4perl( new_X, T0,T1 ) {
+      perl::Value arg0(stack[1]);
+      WrapperReturnNew(T0, (arg0.get<T1>()) );
+   };
+
    template <typename T0>
    FunctionInterface4perl( new, T0 ) {
       WrapperReturnNew(T0, () );
@@ -35,5 +41,7 @@ namespace polymake { namespace common {
    Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_String_Z_Z", Map< int, Map< int, std::string > >);
    Class4perl("Polymake::common::Map_A_Int_I_String_Z", Map< int, std::string >);
    FunctionInstance4perl(new, Map< int, Map< int, std::string > >);
+   FunctionInstance4perl(new_X, Map< int, Map< int, Vector< Integer > > >, perl::Canned< const Map< int, Map< int, Vector< Integer > > > >);
+   FunctionInstance4perl(new_X, Map< int, Map< int, Vector< Rational > > >, perl::Canned< const Map< int, Map< int, Vector< Rational > > > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

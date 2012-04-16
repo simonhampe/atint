@@ -430,3 +430,13 @@ object MinMaxFunction {
     }
     return @result;
   }
+  
+  # @category Rational functions
+  # Creates an array of strings from a single string by separating along commas. This can be used as a convenience 
+  # function to pass a list of variables to INPUT_VARS of MinMaxFunction, e.g. ...INPUT_VARS=>input_vars("x,y,z")
+  # @param String A single string containing a comma-separated list of variable names
+  # @return Array<String> The list of the variable names
+  user_function input_vars {
+    my $a = new Array<String>(split(/,/,shift));
+    return $a;
+  }
