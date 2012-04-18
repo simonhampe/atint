@@ -71,7 +71,7 @@ namespace polymake { namespace atint {
    @return The set-theoretic intersection of x and y in a struct containing:
    1) Matrix<Rational> rays The rays of the intersection complex. The result is in homogeneous coordinates, if and only if one of x or y is in homog. coordinates.
    2) Matrix<Rational> lineality The lineality space of the complex
-   3) IncidenceMatrix<> cones The maximal cones of the complex. More precisely: All pairwise intersections s \cap t of cones s in x, t in y. In particular, cones in this matrix might be contained in one another (but never equal). In particular, this list will usually contain the empty cone.
+   3) IncidenceMatrix<> cones The maximal cones of the complex. More precisely: All pairwise intersections s \cap t of cones s in x, t in y. In particular, cones in this matrix might be contained in one another (but never equal). This list will not contain the empty cone, if the result should be in homogeneous coordinates (but might contain it otherwise)
    4) IncidenceMatrix<> xcontainers For the i-th cone of the intersection, the i-th row gives the indices of all maximal cones in x containing it
    5) IncidenceMatrix<> ycontainers For the i-th cone of the intersection, the i-th row gives the indices of all maximal cones in y containing it
    */

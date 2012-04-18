@@ -127,13 +127,27 @@ namespace polymake { namespace atint {
 				true,true);
 	  
 	if(!lineality_computed) {
-	    interlineality = inter.second.minor(All,~scalar2set(0));
+	    interlineality = inter.second.rows() > 0 ? 
+			  inter.second.minor(All,~scalar2set(0)) :
+			  Matrix<Rational>();
 	    lineality_computed = true;
 	}
 	
 	
 	//Truncate and normalize
 	inter.first = inter.first.minor(All,~scalar2set(0));
+	
+	//The empty cone will not be included, if uses_homog = true
+	if(uses_homog && inter.first.rows() == 0) {
+	  continue;
+	}
+	
+	//If we are in homog. coordinates and the cone contains no vertices (i.e. the intersection is actually 
+	//empty), we leave it out
+	if(uses_homog) {
+	  if(inter.first.col(0) == zero_vector<Rational>(inter.first.rows())) continue;
+	}
+	
 	cdd_normalize_rays(inter.first,uses_homog);
 	
 	//Insert rays into ray list and create cone
@@ -199,6 +213,7 @@ namespace polymake { namespace atint {
     //Create result:
     fan_intersection_result f;
       f.rays = interrays;
+	if(interlineality.rows() == 0) interlineality = Matrix<Rational>(0,interrays.cols());
       f.lineality_space = interlineality;
       f.cones = IncidenceMatrix<>(intercones);
       f.xcontainers = IncidenceMatrix<>(xcontainers);

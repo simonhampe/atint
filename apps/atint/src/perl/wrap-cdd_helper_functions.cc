@@ -27,5 +27,17 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( std::pair<pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational> > (pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational>, bool) );
 
+   FunctionWrapper4perl( std::pair<pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational> > (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1.get< perl::TryCanned< const Matrix< Rational > > >(), arg2.get< perl::TryCanned< const Matrix< Rational > > >(), arg3.get< perl::TryCanned< const Matrix< Rational > > >(), arg4 );
+   }
+   FunctionWrapperInstance4perl( std::pair<pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational> > (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, bool) );
+
+   FunctionWrapper4perl( std::pair<pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational> > (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1.get< perl::TryCanned< const Matrix< Rational > > >(), arg2.get< perl::TryCanned< const Matrix< Rational > > >(), arg3.get< perl::TryCanned< const Matrix< Rational > > >(), arg4 );
+   }
+   FunctionWrapperInstance4perl( std::pair<pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational> > (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&, bool) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
