@@ -135,6 +135,11 @@ object RationalFunction {
   
   sub sum {
     my ($f,$g) = @_;
+    if($f->isa("MinMaxFunction") && $g->isa("MinMaxFunction")) {
+      if($f->USES_MIN == $g->USES_MIN) {
+	return add_minmax_functions($f,$g);
+      }
+    }
     return add_rational_functions($f,$g);
   }
   
