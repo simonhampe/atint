@@ -47,7 +47,7 @@ my $tries = 50;
 
 open (RESULT,">minkbenchmark");
 
-for(my $n = 3; $n <= 5; $n++) {
+for(my $n = 6; $n <= 10; $n++) {
   for(my $k = 1; $k < $n; $k++) {
     my $l = atint::tropical_lnk($n,$k);
     

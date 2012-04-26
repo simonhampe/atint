@@ -60,6 +60,7 @@ INCLUDE
   Morphism.rules
   Function_visual.rules
   gfan_parse.rules
+  matroid_intersection.rules
 
   
 ## TESTRUN FUNCTION #######################

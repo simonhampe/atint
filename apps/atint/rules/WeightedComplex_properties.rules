@@ -582,5 +582,23 @@ object WeightedComplex {
 	  my $this = shift;
 	  return new WeightedComplex(RAYS=>$this->RAYS,MAXIMAL_CONES=>$this->MAXIMAL_CONES,LINEALITY_SPACE=>$this->LINEALITY_SPACE,TROPICAL_WEIGHTS=>$this->TROPICAL_WEIGHTS, USES_HOMOGENEOUS_C=>$this->USES_HOMOGENEOUS_C);
 	}
+	
+	# @category Tropical geometry / Basic operations
+	# Takes a WeightedComplex and multiplies all rays / vertices with -1. 
+	# @return WeightedComplex w The inverted complex
+	user_method invert {
+	  my $this = shift;
+	  
+	  my $rays = $this->RAYS;
+	  if($this->USES_HOMOGENEOUS_C) {
+	    $rays = $rays->col(0) | (- $rays->minor(All,~scalar2set(0)));
+	  }
+	  else {
+	    $rays = -$rays;
+	  }
+	  
+	  return new WeightedComplex(RAYS=>$rays, MAXIMAL_CONES=>$this->MAXIMAL_CONES,LINEALITY_SPACE=>$this->LINEALITY_SPACE, TROPICAL_WEIGHTS=>$this->TROPICAL_WEIGHTS,USES_HOMOGENEOUS_C=>$this->USES_HOMOGENEOUS_C);
+	  
+	}
 
 }

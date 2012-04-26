@@ -504,12 +504,7 @@ namespace polymake { namespace atint {
 	
     ///////////////////////////////////////////////////////////////////////////////////////
 	
-    /**
-     @brief Computes the sum of two rational functions (that should be defined on the same support)
-     @param perl::Object f a RationalFunction
-     @param perl::Object g a RationalFunction
-     @return perl::Object the sum f+g
-     */
+    //Documentation see header
     perl::Object add_rational_functions(perl::Object f, perl::Object g) {
       //First, if any of the two is homogeneous and the other is not, we homogenize
       perl::Object fDomain = f.give("DOMAIN");

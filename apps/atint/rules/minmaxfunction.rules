@@ -392,6 +392,31 @@ object MinMaxFunction {
     return new MinMaxFunction(FUNCTION_MATRIX=>$this->FUNCTION_MATRIX,USES_MIN=>$this->USES_MIN, POWER=>$k);
   }
   
+  # @category Rational functions
+  # Takes a MinMaxFunction and reduces its terms to the necessary ones. That means it computes the newton polytope
+  # and returns a function that has only terms corresponding to the vertices.
+  # @return MinMaxFunction The reduced version of the function
+  user_method reduce {
+    my $this = shift;
+    #The constant coefficients correspond to the homogenizing coordinate in a tropical variety, so we place it at the front
+    my $pointmatrix = $this->CONSTANT_COEFFICIENTS | $this->LINEAR_COEFFICIENTS;
+    
+    #For representing the polytope properly, we have to homogenize the coordinates again by adding a 1 at the front
+    my @ones = ();
+    for my $c (0 .. $pointmatrix->rows() -1) { @ones = (@ones,1);}
+    $pointmatrix = (new Vector<Rational>(\@ones)) | $pointmatrix;
+    
+    my $newt = new polytope::Polytope<Rational>(POINTS=>$pointmatrix);
+    
+    my $reducedTerms = $newt->VERTICES;
+    
+    # Remove homogenizing ones and put constant coeffs at the back
+    $reducedTerms = new Matrix<Rational>($reducedTerms->minor(All,~scalar2set(0)));
+    
+    
+    return new MinMaxFunction(LINEAR_COEFFICIENTS=>$reducedTerms->minor(All,~scalar2set(0)), CONSTANT_COEFFICIENTS=>$reducedTerms->col(0));
+  }
+  
 }
 
 ## FUNCTIONS ###################################################################################################

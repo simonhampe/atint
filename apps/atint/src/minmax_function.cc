@@ -27,8 +27,12 @@
 #include "polymake/Array.h"
 #include "polymake/PowerSet.h"
 #include "polymake/atint/LoggingPrinter.h"
+#include "polymake/polytope/cdd_interface.h"
+#include "polymake/atint/minmax_functions.h"
 
 namespace polymake { namespace atint { 
+  
+  using polymake::polytope::cdd_interface::solver;
   
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
@@ -37,7 +41,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
-  perl::Object add_minmax_functions(perl::Object f, perl::Object g) {
+  perl::Object add_minmax_functions(perl::Object f, perl::Object g, bool reduce) {
     //Extract relevant values
     Matrix<Rational> fmatrix = f.give("FUNCTION_MATRIX");
     bool f_uses_min = f.give("USES_MIN");
@@ -58,6 +62,24 @@ namespace polymake { namespace atint {
       for(int j = 0; j < gmatrix.rows(); j++) {
 	rmatrix /= (fmatrix.row(i) + gmatrix.row(j));
       }
+    }
+    
+    if(reduce) {
+      //Move constant coefficients to the front and add a homogenizing one
+      Matrix<Rational> shifted_matrix = 
+	rmatrix.col(rmatrix.cols()-1) | rmatrix.minor(All,sequence(0,rmatrix.cols()-1));
+      shifted_matrix = ones_vector<Rational>(shifted_matrix.rows()) | shifted_matrix;
+      
+      //Canonicalize vertices
+      solver<Rational> sv;
+      std::pair<Matrix<Rational>, Matrix<Rational> > facets = 
+	sv.enumerate_facets(shifted_matrix, Matrix<Rational>(0,shifted_matrix.cols()), false,false);
+      rmatrix = sv.enumerate_vertices(facets.first,facets.second,false,true).first;
+      
+      //Put matrix back into proper form
+      rmatrix = rmatrix.minor(All,sequence(2,rmatrix.cols()-2)) | rmatrix.col(1);      
+      
+      
     }
     
     perl::Object result("MinMaxFunction");
@@ -90,6 +112,23 @@ namespace polymake { namespace atint {
     
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object scale_minmax_function(perl::Object f, Rational a) {
+    //Extract values
+    Matrix<Rational> fmatrix = f.give("FUNCTION_MATRIX");
+    bool uses_min = f.give("USES_MIN");
+    
+    fmatrix = a * fmatrix;
+    
+    perl::Object result("MinMaxFunction");
+      result.take("FUNCTION_MATRIX") << fmatrix;
+      result.take("USES_MIN") << uses_min;
+      
+    return result;
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Rational functions"
@@ -97,8 +136,16 @@ namespace polymake { namespace atint {
 		    "# @param MinMaxFunction f An arbitrary MinMaxFunction"
 		    "# @param MinMaxFunction g A MinMaxFunction such that f->[[USES_MIN]] == g->[[USES_MIN]] and is"
 		    "# defined on the same domain."
+		    "# @param Bool reduce Optional. False by default. If true, the function reduces the amount of terms by computing vertices of the newton polytope of the sum"
 		    "# @return MinMaxFunction The sum of both functions. ",
-		    &add_minmax_functions, "add_minmax_functions(MinMaxFunction, MinMaxFunction)");
+		    &add_minmax_functions, "add_minmax_functions(MinMaxFunction, MinMaxFunction;$= 0)");
+  
+  UserFunction4perl("# @category Rational functions"
+		    "# Scales a MinMaxFunction by a given Rational a"
+		    "# @param MinMaxFunction f An arbitrary MinMaxFunction"
+		    "# @param Rational a A scalar values"
+		    "# @return MinMaxFunction The scaled function",
+		    &scale_minmax_function, "scale_minmax_function(MinMaxFunction, Rational)");
   
   Function4perl(&test,"mmtest($,$)");
   

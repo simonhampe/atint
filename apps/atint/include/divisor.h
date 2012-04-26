@@ -85,6 +85,14 @@ perl::Object divisor_nr(perl::Object complex, perl::Object function, int k = -1)
 */
 Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog);
 
+/**
+  @brief Computes the sum of two rational functions (that should be defined on the same support)
+  @param perl::Object f a RationalFunction
+  @param perl::Object g a RationalFunction
+  @return perl::Object the sum f+g
+*/
+perl::Object add_rational_functions(perl::Object f, perl::Object g) ;
+
 }}
 
 #endif
