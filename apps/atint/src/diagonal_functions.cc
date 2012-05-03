@@ -27,6 +27,8 @@
 #include "polymake/Array.h"
 #include "polymake/Set.h"
 #include "polymake/PowerSet.h"
+#include "polymake/IncidenceMatrix.h"
+#include "polymake/linalg.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/divisor.h"
 #include "polymake/atint/minmax_functions.h"
@@ -139,6 +141,123 @@ namespace polymake { namespace atint {
     return p;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  
+  /**
+   @brief This function lifts a tropical variety to one dimension higher by adding a last coordinate = 0 and a lineality space generator (1,...,1)
+   @param perl::Object X A WeightedComplex
+   @return perl::Object The lifted WeightedComplex
+  */
+  perl::Object lift_variety(perl::Object X) {
+    Matrix<Rational> xrays = X.give("RAYS");
+    Matrix<Rational> xlin = X.give("LINEALITY_SPACE");
+    IncidenceMatrix<> cones = X.give("MAXIMAL_CONES");
+    Vector<Integer> weights = X.give("TROPICAL_WEIGHTS");
+    bool uses_homog = X.give("USES_HOMOGENEOUS_C");
+    int ambdim = X.give("CMPLX_AMBIENT_DIM");
+    
+    //Lift rays
+    xrays = xrays | zero_vector<Rational>();
+    //Lift lineality
+    if(xlin.rows() == 0) xlin = Matrix<Rational>(0,xrays.cols());
+    else xlin = xlin | zero_vector<Rational>();
+    Vector<Rational> add_generator = ones_vector<Rational>(ambdim+1);
+      if(uses_homog) add_generator = Rational(0) | add_generator;
+      
+    xlin /= add_generator;
+    
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << xrays; 
+      result.take("MAXIMAL_CONES") << cones;
+      result.take("LINEALITY_SPACE") << xlin;
+      result.take("TROPICAL_WEIGHTS") << weights;
+      result.take("USES_HOMOGENEOUS_C") << uses_homog;
+      
+    return result;
+  }
+  
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  
+  /**
+   @brief This function mods out the lineality space (1,..,1) by setting the last coordinate to be minus the sum of the remaining coordinates
+   @param perl::Object X A WeightedComplex
+   @return perl::Object The projected WeightedComplex
+  */
+  perl::Object project_variety(perl::Object X) {
+    //Extract values
+    Matrix<Rational> xrays = X.give("RAYS");
+    Matrix<Rational> xlin = X.give("LINEALITY_SPACE");
+    IncidenceMatrix<> cones = X.give("MAXIMAL_CONES");
+    Vector<Integer> weights = X.give("TROPICAL_WEIGHTS");
+    bool uses_homog = X.give("USES_HOMOGENEOUS_C");
+    
+    //Truncate matrices in homogeneous case
+    Vector<Rational> vertex_indicator;
+    if(uses_homog) {
+      if(xrays.rows() > 0) {
+	vertex_indicator = xrays.col(0);
+	xrays = xrays.minor(All,~scalar2set(0));
+      }
+      if(xlin.rows() > 0) {
+	xlin = xlin.minor(All,~scalar2set(0));
+      }
+    }
+    
+    //Create projection matrix
+    int cols = xlin.cols() > 0? xlin.cols() : xrays.cols();
+    Matrix<Rational> projectionMatrix = unit_matrix<Rational>(cols-1);
+    projectionMatrix /= (-ones_vector<Rational>(projectionMatrix.cols()));
+    
+    
+    //Project
+    if(xrays.rows() > 0) xrays = xrays * projectionMatrix;
+    if(xlin.rows() > 0) xlin = xlin * projectionMatrix;
+    
+    Set<int> lbasis = basis_rows(xlin);
+    xlin = xlin.minor(lbasis,All);
+    
+    //Put back into homogeneous coordinates if necessary
+    if(uses_homog) {
+      if(xrays.rows() > 0) xrays = vertex_indicator | xrays;
+      if(xlin.rows() > 0) xlin = zero_vector<Rational>() | xlin ;
+    }
+    
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << xrays; 
+      result.take("MAXIMAL_CONES") << cones;
+      result.take("LINEALITY_SPACE") << xlin;
+      result.take("TROPICAL_WEIGHTS") << weights;
+      result.take("USES_HOMOGENEOUS_C") << uses_homog;
+    return result;
+  }
+//   //Finally, we mod out the lineality space (1..1) if necessary
+//     if(modOutLineality) {
+// 	int cols = bergman_lineality.cols();
+// 	if(projCoordinate >= cols) projCoordinate = cols-1;
+// 	//Create the projection matrix
+// 	Matrix<Rational> unitMatrix = unit_matrix<Rational>(cols-1);
+// 	Matrix<Rational> projectionMatrix(0,unitMatrix.cols());
+// 	
+// 	//Insert a -1's- vector at the right position
+// 	if(projCoordinate > 0) {
+// 	    projectionMatrix /= unitMatrix.minor(sequence(0,projCoordinate),All);
+// 	}
+// 	projectionMatrix /= - ones_vector<Rational>(unitMatrix.cols());
+// 	if(projCoordinate < unitMatrix.rows()) {						
+// 	      projectionMatrix /= unitMatrix.minor(sequence(projCoordinate,unitMatrix.rows() -	projCoordinate),All);
+// 	}
+// 	
+// 	//dbgtrace << "Projection matrix is " << projectionMatrix << endl;
+// 			   
+// 	if(bergman_rays.rows() > 0) bergman_rays = bergman_rays * projectionMatrix;
+// 	
+// 	//Apply projection to the lineality space, but make sure the remaining rows are a basis
+// 	bergman_lineality = bergman_lineality * projectionMatrix;
+//     }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Intersection theory / Diagonal functions"
@@ -147,5 +266,8 @@ namespace polymake { namespace atint {
 		    "# @param Int k The dimension of L^n_k"
 		    "# @return RationalFunction An array of functions, cutting out the diagonal",
 		    &diagonal_unk, "diagonal_unk($,$)");
+  
+  Function4perl(&lift_variety,"lift_variety(WeightedComplex)");
+  Function4perl(&project_variety,"project_variety(WeightedComplex)");
   
 }}

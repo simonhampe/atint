@@ -110,6 +110,10 @@ namespace polymake { namespace atint {
       //value recomputation)
       Vector<int> old_conversion;
       
+      //Only uses in the fan case: For all iterations but the first it contains the set of rays of
+      //the last iteration that remained after computing the divisor
+      Set<int> remainingFanRays;
+      
       //When computing the codim-one-weights, this contains the correct function value vector for the current iteration
       //When computing the new function vector for the current iteration, this means it contains the function
       //values of the old iteration
@@ -135,8 +139,10 @@ namespace polymake { namespace atint {
 	Vector<Set<int> > new_lattice_bases;
 	for(int co = 0; co < codimOneCones.rows(); co++) {
 	  new_lattice_bases |= lattice_bases.row(*(coneIncidences.row(co).begin()));
+	  //dbgtrace << "Co " << co << ": " << new_lattice_bases[new_lattice_bases.dim()-1] << " from " << *(coneIncidences.row(co).begin()) << 	  endl;
 	}
 	lattice_bases = new_lattice_bases;
+	//dbgtrace << "lb: " << lattice_bases << endl;
 	
 	//Now we compute the correct value vector:
 	
@@ -144,10 +150,15 @@ namespace polymake { namespace atint {
 	  if(r == 0) {
 	    currentValues = values.row(r);
 	  }
+	  //We treat the fan case specially, since there aren't any new rays, just rays disappearing
 	  else {
-	    //In the case of fans we don't get any new rays, so we just take the entries
-	    //corresponding to the remaining rays.
-	    currentValues = currentValues.slice(Set<int>(newRaysToOldRays));
+	    //Add values for remaining rays
+	    Set<int> value_set;
+	    for(Entire<Set<int> >::iterator ry = entire(remainingFanRays); !ry.at_end(); ry++) {
+	      value_set += cmplx_origins[*ry];
+	    }
+	    cmplx_origins = cmplx_origins.slice(remainingFanRays);
+	    currentValues = values.row(r).slice(value_set);
 	  }
 	}
 	else {
@@ -210,18 +221,18 @@ namespace polymake { namespace atint {
 	  }
 	}//END iterate co-1-cones
 	
+	//dbgtrace << "Remaining " << usedCones.size() << " of " << codimOneCones.rows() << " codim one cones" << endl;
+	//dbgtrace << "Removing " << sequence(0,codimOneCones.rows()) - usedCones << endl;
+	
 	//dbgtrace << "Computed codim one weights" << endl;
 	//dbgtrace << "Weights are " << newweights << endl;
 	
 	//Compute the new-to-old maps used for recomputing the value vector in the next iteration
 	if(r != values.rows()-1) {
-	  
+	  remainingFanRays = usedRays;
 	  newConesInOld = coneIncidences.minor(usedCones,All);	  
-	  //Need this to avoid compiler errors about ambiguous overloads of .give
-	  IncidenceMatrix<> oc = result.give("CMPLX_MAXIMAL_CONES"); 
-	    cmplx_oldcones = oc;
-	  Vector<int> ocv = result.give("CMPLX_CONVERSION_VECTOR");
-	    old_conversion = ocv;
+	  result.give("CMPLX_MAXIMAL_CONES") >> cmplx_oldcones; 
+	  result.give("CMPLX_CONVERSION_VECTOR") >> old_conversion;
 	  newRaysToOldRays = Vector<int>();
 	  for(Entire<Set<int> >::iterator orays = entire(usedRays); !orays.at_end(); orays++) {
 	    newRaysToOldRays |= (*orays);
@@ -295,7 +306,8 @@ namespace polymake { namespace atint {
 	  result.take("LINEALITY_SPACE") << lineality_space;
 	  result.take("LOCAL_RESTRICTION") << local_restriction;
 	  result.take("LATTICE_GENERATORS") << lattice_generators;
-	  result.take("LATTICE_BASES") << lattice_bases.minor(usedCones,All);
+	    lattice_bases = lattice_bases.minor(usedCones,All);
+	  result.take("LATTICE_BASES") << lattice_bases;//(lattice_bases.minor(usedCones,All));
 	
       } //END iterate function rows
       
