@@ -15,11 +15,11 @@
 
 namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object, pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational>) ) {
+   FunctionWrapper4perl( perl::Object (perl::Object, pm::IncidenceMatrix<pm::NonSymmetric>, pm::Vector<pm::Integer>) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      IndirectWrapperReturnVoid( arg0, arg1.get< perl::TryCanned< const Matrix< Rational > > >(), arg2.get< perl::TryCanned< const Matrix< Rational > > >() );
+      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg2.get< perl::TryCanned< const Vector< Integer > > >() );
    }
-   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object, pm::Matrix<pm::Rational>, pm::Matrix<pm::Rational>) );
+   FunctionWrapperInstance4perl( perl::Object (perl::Object, pm::IncidenceMatrix<pm::NonSymmetric>, pm::Vector<pm::Integer>) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

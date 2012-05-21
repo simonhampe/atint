@@ -178,8 +178,9 @@ namespace polymake { namespace atint {
 	
 	//Find first nonzero row, searching from below
 	int fnzero = -1;
+	Vector<Integer> z_vector = zero_vector<Integer>(cols);
 	for(int r = rows-1; r >= 0; r--) {
-	    if(A(r,cols-1) != 0) {
+	    if(A.row(r) != z_vector) {
 		fnzero = r; break;
 	    }
 	}

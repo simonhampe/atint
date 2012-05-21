@@ -15,24 +15,6 @@
 
 namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( perl::Object (pm::Matrix<pm::Rational>, bool, int) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1, arg2 );
-   }
-   FunctionWrapperInstance4perl( perl::Object (pm::Matrix<pm::Rational>, bool, int) );
-
-   FunctionWrapper4perl( pm::IncidenceMatrix<pm::NonSymmetric> (pm::Matrix<pm::Rational>) ) {
-      perl::Value arg0(stack[0]);
-      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >() );
-   }
-   FunctionWrapperInstance4perl( pm::IncidenceMatrix<pm::NonSymmetric> (pm::Matrix<pm::Rational>) );
-
-   FunctionWrapper4perl( pm::Set<int, pm::operations::cmp> (pm::Matrix<pm::Rational>) ) {
-      perl::Value arg0(stack[0]);
-      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >() );
-   }
-   FunctionWrapperInstance4perl( pm::Set<int, pm::operations::cmp> (pm::Matrix<pm::Rational>) );
-
    FunctionWrapper4perl( perl::Object (int, pm::IncidenceMatrix<pm::NonSymmetric>, bool, int) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
       IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg2, arg3 );

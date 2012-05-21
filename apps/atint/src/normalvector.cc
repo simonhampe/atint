@@ -281,9 +281,13 @@ namespace polymake { namespace atint {
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	//Documentation see header
-	Matrix<Integer> latticeBasisFromRays(const Matrix<Rational> &rays, const Matrix<Rational> &linspace) {
+	Matrix<Integer> latticeBasisFromRays(const Matrix<Rational> &rays, const Matrix<Rational> &linspace, bool uses_homog = false) {
 	  //Compute linear span of cone
 	  Matrix<Rational> linear_span = null_space(rays / linspace);
+	  //If we use homogeneous coordinates, add the additional equation x_0 = 1
+	  if(uses_homog) {
+	    linear_span /= unit_vector<Rational>(linear_span.cols(),0);
+	  }
 	  //Special case: If the cone is full-dimensional, return the standard basis
 	  if(linear_span.rows() == 0) {
 	    return unit_matrix<Integer>(rays.cols() == 0? linspace.cols() : rays.cols());

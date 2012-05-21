@@ -364,24 +364,27 @@ object MinMaxFunction {
   # Computes the value of this function at a given point. If the point has dimension DOMAIN_DIMENSION, it simply computes the value. 
   # If it has dimension DOMAIN_DIMENSION +1, it assumes the point is given in homogeneous coordinates (i.e. the first coordinate should be one or zero, 
   # this is not checked, however) and computes the function value of the last DOMAIN_DIMENSION coordinates.
+  # @param Vector<Rational> point
   # @return Rational The function value at the given point.
   user_method valueAt  {
     my $this = shift;
     my $p = shift;
     #If it seems to be in homog. coordinates, slice the first coordinate away
-    if($p->dim() == $this->DOMAIN_DIMENSIOn+1) {
+    if($p->dim() == $this->DOMAIN_DIMENSION+1) {
       $p = $p->slice([1 .. $p->dim()-1]);
     }
     #Add a 1 at the end of $p for the constant coefficient
-    $p = $p | 1;
+    $p = new Vector<Rational>((@{$p},1));
+#     $p = $p | 1;
     #In any case $p should now have dimension [[DOMAIN_DIMENSION]]+1
-    if($p->dim() != $this->DOMAIN+1) {
+    if($p->dim() != $this->DOMAIN_DIMENSION+1) {
       die "Error computing function value: Dimension mismatch.";
     }
     
     #Compute the function value
     my $m = $this->FUNCTION_MATRIX;
     my $v = $m * $p;
+    
     return new Rational($this->USES_MIN? (sort { $a <=> $b} @{$v})[0] : 
 					 (sort { $b <=> $a} @{$v})[0]);
     

@@ -21,9 +21,14 @@
 #include "polymake/client.h"
 #include "polymake/Array.h"
 #include "polymake/RandomGenerators.h"
+#include "polymake/atint/LoggingPrinter.h"
 
 namespace polymake { namespace atint {
 
+        using namespace atintlog::donotlog;
+//     using namespace atintlog::dolog;
+//     using namespace atintlog::dotrace;
+  
   ///////////////////////////////////////////////////////////////////////////////////////
   
   Array<Integer> randomInteger(const int& max_arg, const int &n) {

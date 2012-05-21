@@ -13,13 +13,18 @@
    GNU General Public License for more details.
 */
 
-namespace polymake { namespace atint {
-///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( perl::Object (int, int, pm::Matrix<pm::Rational>, int) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
-      IndirectWrapperReturn( arg0, arg1, arg2.get< perl::TryCanned< const Matrix< Rational > > >(), arg3 );
-   }
-   FunctionWrapperInstance4perl( perl::Object (int, int, pm::Matrix<pm::Rational>, int) );
+///==== this line controls the automatic file splitting: max.instances=40
 
+#include "polymake/client.h"
+#include "polymake/Rational.h"
+namespace polymake { namespace common {
+///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0, typename T1>
+   FunctionInterface4perl( cmp_X_f1, T0,T1 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( arg0.get<T0>().compare(arg1.get<T1>()) );
+   };
+
+   FunctionInstance4perl(cmp_X_f1, perl::Canned< const Rational >, perl::Canned< const Rational >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
