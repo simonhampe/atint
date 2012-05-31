@@ -226,6 +226,8 @@ object WeightedComplex {
 	# much faster.
 	property IS_UNIMODULAR : Bool; 
 	
+	property GLUING_FACES : Map<Set<Int>, Set<Int> >;
+	
 	
 	## RULES ################################################################
 	

@@ -25,6 +25,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 #include "polymake/Set.h"
+#include "polymake/Map.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/moduli.h"
 
@@ -138,6 +139,125 @@ namespace polymake { namespace atint {
     return projection_map(n, sequence(0,m));
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object forgetful_map(int n, Set<int> leaves_to_forget) {
+    
+    //First check, that the leaves are in (1,..,n)
+    if((leaves_to_forget * sequence(1,n)).size() < leaves_to_forget.size()) {
+      throw std::runtime_error("Cannot compute forgetful map: The forgotten leaves should be in {1,..,n}");
+    }
+    
+    //Compute domain and image dimension
+    int domain_dim = (n*n - 3*n)/2;
+    int small_n = n - leaves_to_forget.size();
+    int image_dim = (small_n * small_n - 3*small_n)/2;
+    
+    
+    
+    //Check if we forget so many leaves that we get the zero map
+    if(small_n <= 3) {
+      perl::Object result("Morphism");
+	result.take("MATRIX") << Matrix<Rational>(0,domain_dim);
+      return result;
+    }
+    //Check if we don't forget anything at all
+    if(leaves_to_forget.size() == 0) {
+      perl::Object result("Morphism");
+	Matrix<Rational> um = unit_matrix<Rational>(domain_dim);
+	result.take("MATRIX") << um;
+      return result;
+    }
+    
+    //Prepare map mapping remaining leaves to {1,..,n-|leaves_to_forget|}
+    Map<int,int> remaining_map;
+    int next_index = 1;
+    for(int i = 1; i <= n; i++) {
+      if(!leaves_to_forget.contains(i)) {
+	remaining_map[i] = next_index;
+	next_index++;
+      }
+    }
+    
+    //Compute the unit vectors corresponding to the 1-edge-flats in the target M_0,small_n
+    Map<int, Map<int,int> > unit_edges;
+    int unit_index = 0;
+    for(int i = 1; i < small_n-2; i++) {
+      unit_edges[i] = Map<int,int>();
+      for(int j = i+1; j < small_n; j++) {
+	(unit_edges[i])[j] = unit_index;
+	unit_index++;
+      }
+    }
+    
+    //Prepare matrix representing forgetful map
+    Matrix<Rational> ffm(image_dim,0);
+    
+    //Compute image of each neagtive unit vector -e_i, correpsonding to all v_{k,l}
+    //with 1 <= k < l < n and {k,l} != {n-2,n-1}
+    for(int k = 1; k < n-2; k++) {
+      for(int l = k+1; l < n; l++) {
+	Set<int> klset; klset += k; klset +=l;
+	//If klset contains forgotten leaves, the ray is mapped to zero
+	if( (leaves_to_forget * klset).size() > 0) {
+	  ffm |= zero_vector<Rational>(image_dim);
+	}
+	else {
+	  //First we compute the new number of the leaves in the image
+	  int newk = remaining_map[k];
+	  int newl = remaining_map[l];
+	  
+	  //The easy case is that newl is not the new maximal leaf
+	  if(newl < small_n) {
+	    //If (newk,newl) != (small_n - 2, small_n-1), the image is just the corr. unit vector,
+	    //otherwise its minus the sum of all unit_vectors
+	    if(newk < small_n -2) {
+	      ffm |= unit_vector<Rational>(image_dim, (unit_edges[newk])[newl]);
+	    }
+	    else {
+	      ffm |= (- ones_vector<Rational>(image_dim));
+	    }
+	  }//END if newl < small_n
+	  else {
+	    //If the new set contains the maximal leaf, we have to take the complement to 
+	    //compute the moduli coordinates
+	    Set<int> complement = (sequence(1,small_n) - newk) - newl;
+	    //Compute moduli coordinates as usual: Sum up over all flat vectors of the 
+	    //1-edge flats, i.e. all pairs contained in complement
+	    Vector<Rational> ray_image(image_dim);
+	    Vector<int> slist(complement);
+	    for(int i = 0; i < slist.dim(); i++) {
+	      for(int j = i+1; j < slist.dim(); j++) {
+		//If its the last edge (small_n-2, small_n-1), we add the ones_vector, otherwise, 
+		//we  substract the corr. unit_vector
+		if(slist[i] == small_n-2) {
+		  ray_image += ones_vector<Rational>(image_dim);
+		}
+		else {
+		  ray_image[(unit_edges[slist[i]])[slist[j]]] -= 1;
+		}
+	      }
+	    }//END compute ray image
+	    
+	    //Recall that we computed the image of -e_i, so we have - ray_image as image
+	    ffm |= (- ray_image);
+	    
+	  }//END if newl == small_n
+	  
+	}//END compute image of ray
+      }//END iterate l
+    }//END iterate k
+    
+    
+    //Return result
+    perl::Object result("Morphism");
+      result.take("MATRIX") << ffm;
+      
+    return result;
+    
+  }//END function forgetful_map
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Tropical geometry/Morphisms"
@@ -182,6 +302,14 @@ namespace polymake { namespace atint {
 		    "# @param Int m Dimension of image"
 		    "# @return Morphism The corresponding projection",
 		    &projection_map_default, "projection_map($,$)");
+  
+  UserFunction4perl("# @category Tropical geometry/Morphismms"
+		    "# This computes the forgetful map from the moduli space M_0,n to M_0,(n-|S|)"
+		    "# @param Int n The number of leaves in the moduli space M_0,n"
+		    "# @param Set<Int> S The set of leaves to be forgotten. Should be a subset of (1,..,n)"
+		    "# @return Morphism The forgetful map. It will identify the remaining leaves "
+		    "# i_1,..,i_(n-|S|) with the leaves of M_0,(n-|S|) in order of their size",
+		    &forgetful_map,"forgetful_map($,Set<Int>)");
   
   
 }}

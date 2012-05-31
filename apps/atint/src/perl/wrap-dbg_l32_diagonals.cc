@@ -39,5 +39,11 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (perl::Object, perl::Object) );
 
+   FunctionWrapper4perl( pm::Matrix<pm::Rational> (perl::Object, pm::IncidenceMatrix<pm::NonSymmetric>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Rational> (perl::Object, pm::IncidenceMatrix<pm::NonSymmetric>) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

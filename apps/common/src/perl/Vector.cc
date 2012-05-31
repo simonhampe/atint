@@ -50,5 +50,6 @@ namespace polymake { namespace common {
    OperatorInstance4perl(Binary__or, int, perl::Canned< const pm::SameElementVector<pm::Rational const&> >);
    OperatorInstance4perl(Binary__or, perl::Canned< const pm::IndexedSlice<pm::VectorChain<pm::SingleElementVector<pm::Rational const&>, pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> > const&, pm::Array<int, void> const&, void> >, int);
    OperatorInstance4perl(Binary__or, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> >, int);
+   Class4perl("Polymake::common::Vector__IncidenceMatrix__NonSymmetric", Vector< IncidenceMatrix< NonSymmetric > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

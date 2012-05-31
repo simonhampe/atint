@@ -118,16 +118,20 @@ namespace polymake { namespace atint {
   
   Matrix<Rational> test_diagonal_combinations(perl::Object D) {
     
-    Vector<Rational> first_index;
-    Vector<Rational> second_index;
-    for(int i = 0; i < 4; i++) {
-      for(int j = i+1; j < 4; j++) {
-	first_index |= i;
-	second_index |= j;
-      }
-    }
+//     Vector<Rational> first_index;
+//     Vector<Rational> second_index;
+//     Vector<Rational> third_index;
+//     for(int i = 0; i < 4; i++) {
+//       for(int j = i+1; j < 4; j++) {
+// 	for(int k = j+1; k < 4; k++) {
+// 	  first_index |= i;
+// 	  second_index |= j;
+// 	  third_index |= k;
+// 	}
+//       }
+//     }
     
-    int translate = 4;
+    int translate = 5;
     
     pm::cout << "Creating possibilities" << endl;
     Matrix<int> possibilities = fill_value_vector(12, Vector<int>(sequence(0,3)));
@@ -135,19 +139,22 @@ namespace polymake { namespace atint {
     
     Matrix<Rational> result(0,12);
     for(int p = 0; p < possibilities.rows(); p++) {
-      pm::cout << "Testing " << p << " of " << possibilities.rows() << endl;
+      pm::cout << "Testing " << p << " of " << possibilities.rows() << ", " << result.rows() << " found " << endl;
       
       int i = 0;
       Vector<Set<int> > piecewise;
       Vector<Integer> signs;
       for(int a = 0; a < 4; a++) {
 	for(int b = a+1; b < 4; b++) {
+	   for(int c = b+1; c < 4; c++) {
 	    Set<int> cone;
 	    cone += (a + translate * possibilities(p,i));
 	    cone += (b + translate * possibilities(p,i+1));
+	    cone += (c + translate * possibilities(p,i+2));
 	    piecewise |= cone;
-	    signs |= (possibilities(p,i) == 2? -1 : 1) * (possibilities(p,i+1) == 2? -1 : 1);
-	    i+=2;
+	    signs |= (possibilities(p,i) == 2? -1 : 1) * (possibilities(p,i+1) == 2? -1 : 1) * (possibilities(p,i+2) == 2? -1 : 1);
+	    i+=3;
+	   }
 	}
       }
       
@@ -156,7 +163,7 @@ namespace polymake { namespace atint {
       //Extract values
       Vector<Integer> weights = div.give("TROPICAL_WEIGHTS");
       Matrix<Rational> rays = div.give("RAYS");
-      if(weights == ones_vector<Integer>(6)) {
+      if(weights == ones_vector<Integer>(4)) {
 	if(rays.minor(All,sequence(0,3)) == rays.minor(All,sequence(3,3))) {
 	    result /= possibilities.row(p);
 	    pm::cout << "WORKS" << endl;
@@ -172,6 +179,36 @@ namespace polymake { namespace atint {
     return result;
   }
   
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  Matrix<Rational> test_sign_combinations(perl::Object d, IncidenceMatrix<> cones) {
+    
+    Vector<int> signs; signs |= 1; signs |= -1;
+    Matrix<int> possibilities = fill_value_vector(10,signs);
+    
+    Matrix<Rational> result(0,10);
+    
+    for(int s = 0; s < possibilities.rows(); s++) {
+      pm::cout << "Testing " << s << " of " << possibilities.rows() << endl;
+      
+      perl::Object div  = piecewise_divisor(d, cones, Vector<Integer>(possibilities.row(s)));
+      
+      //Extract values
+      Vector<Integer> weights = div.give("TROPICAL_WEIGHTS");
+      Matrix<Rational> rays = div.give("RAYS");
+      if(weights == ones_vector<Integer>(6)) {
+	if(rays.minor(All,sequence(0,3)) == rays.minor(All,sequence(3,3))) {
+	    result /= possibilities.row(s);
+	    pm::cout << "WORKS" << endl;
+	}
+      }
+      
+    }
+    
+    return result;
+    
+  }
 
   
 //   
@@ -180,5 +217,6 @@ namespace polymake { namespace atint {
  
   Function4perl(&eq_matrix, "l32em(WeightedComplex)");
   Function4perl(&test_diagonal_combinations, "l32td(WeightedComplex)");
+  Function4perl(&test_sign_combinations, "l43ts(WeightedComplex,IncidenceMatrix)");
   
 }}
