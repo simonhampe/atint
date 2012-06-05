@@ -82,7 +82,7 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  //Documentaion see perl wrapper
+  //Documentation see perl wrapper
   Integer count_mn_rays(int n) {
     if(n == 3) {
       return Integer(0);
@@ -126,6 +126,69 @@ namespace polymake { namespace atint {
     }
     return E;
   }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  Vector<Set<int> > decodePrueferSequence(const Vector<int> &pseq, int n) {
+    //Construct vertex set
+    if(n < 0) { n = pseq[0];} //The first element is always the number of leaves
+    //Compute number of bounded edges
+    int no_of_edges = pseq.dim() - n +1;
+    Set<int> V = sequence(0,n + no_of_edges +1);
+    Vector<Set<int> > adjacencies(no_of_edges +1); //Which leaves lie "behind" which interior vertex?
+    Vector<Set<int> > result;
+    Set<int> allLeafs = sequence(0,n);
+    
+    //dbgtrace << "Connecting leaves" << endl;
+    int firstindex = 0; //We pretend that pseq starts at this index
+    //Connect leaves
+    for(int i = 0; i < n; i++) {
+      adjacencies[pseq[firstindex]-n] += i;
+      V = V - i;
+      firstindex++;
+    }//END add leaves
+    
+    //dbgtrace << "Connecting edges" << endl;
+    //dbgtrace << "V: " << V << endl;
+    //dbgtrace << "Adjacencies: " << adjacencies << endl;
+    
+    //Now create edges
+    for(int i = 1; i <= no_of_edges; i++) {
+      Set<int> rayset;
+      //If there are only two vertices left, connect them
+      if(i == no_of_edges) {
+	Vector<int> lasttwo(V);
+	rayset = adjacencies[lasttwo[0]-n];
+      }
+      else {
+	//Find the minimal element in V that is not in the sequence (starting at firstindex)
+	Set<int> pset(pseq.slice(~sequence(0,firstindex)));
+	int smallest = -1;
+	for(Entire<Set<int> >::iterator vit = entire(V); !vit.at_end(); vit++) {
+	  if(!pset.contains(*vit)) {
+	      smallest = *vit;break;
+	  }
+	}//END look for smallest in V\P
+	Set<int> Av = adjacencies[smallest-n];
+	rayset = Av;
+	adjacencies[pseq[firstindex]-n] += Av;
+	V = V - smallest;
+	firstindex++;
+	
+	
+      }
+      
+      //If rayset contains the last leaf, take the complement
+      if(rayset.contains(n-1)) {
+	rayset = allLeafs - rayset;
+      }
+      
+      result |= rayset;
+    }//END create edges
+    
+    return result;
+  }//END decodePrueferSequence
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -376,6 +439,8 @@ namespace polymake { namespace atint {
 		    "# @param Int n The number of leaves. Should be at least 4"
 		    "# @return WeightedComplex The tropical moduli space M_0,n",
 		    &tropical_mn, "tropical_m0n($)");
+  
+  Function4perl(&decodePrueferSequence,"dcp(Vector<Int>)");
 //   UserFunction4perl("",&adjacentRays,"adjacentRays(RationalCurve)");
   
 }}

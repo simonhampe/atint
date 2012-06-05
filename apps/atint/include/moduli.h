@@ -19,6 +19,7 @@
  */
 
 #include "polymake/client.h"
+#include "polymake/Set.h"
 #include "polymake/Matrix.h"
 
 #ifndef ATINT_MODULI_H_
@@ -37,9 +38,17 @@ Matrix<int> pair_index_map(int n);
 Integer count_mn_cones(int n);
 
 /**
- @brief Does exactly the same as count_mn_cones, but returns an int. This will only work for n <= 12, since larger values produce too large integer. In that case you have to use count_mn_cones
+ @brief Does exactly the same as count_mn_cones, but returns an int. This will only work for n <= 12, since larger values produce too large integers. In that case you have to use count_mn_cones
  */
 int count_mn_cones_int(int n);
+
+/**
+ @brief Takes a Pruefer sequence encoding a combinatorial type of n-marked rational curve and decodes it into the edge partitions of the corresponding graph
+ @param Vector<int> seq The Pruefer sequence. Should be of length n + (no of bounded edges -1) and should contain only entries in (n,..) and each entry should occur at least twice. 
+ @param int  The number of leafs. If not given (or set to something negative), the function assumes that the Pruefer sequence is ordered and that the first entry is hence equal to the number of leaves.
+ @return Vector<Set<int> > A list of the partitions each edge induces. The leaves are given with indices (0,..,n-1) and each set is given such that it doesn't contain (n-1).
+ */
+Vector<Set<int> > decodePrueferSequence(const Vector<int> &seq, int n = -1);
 
 }}
 

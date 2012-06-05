@@ -265,9 +265,12 @@ namespace polymake { namespace atint {
 		    "# (which is actually realized as M_0,(n+|Delta|) x R^r)"
 		    "# @param Int n The number of marked points"
 		    "# @param Int r The dimension of the embedding space"
-		    "# @param Matrix<Rational> Delta The directions of the unbounded edges"
+		    "# @param Matrix<Rational> Delta The directions of the unbounded edges (given as row vectors)"
 		    "# @param Int i The index of the marked point that should be evaluated. i "
 		    "# should lie in between 1 and n"
+		    "# Note that the i-th marked point is realized as the n+i-th leaf in M_0,(n+|Delta|)"
+		    "# and that the R^r - coordinate is interpreted as the position of the n-th leaf. "
+		    "# In particular, ev_n is just the projection to the R^r-coordinates"
 		    "# @return Morphism ev_i. Its domain is the ambient space of the moduli space "
 		    "# in matroid coordinates cross R^r",
 		    &evaluation_map,"evaluation_map($,$,Matrix<Rational>,$)");

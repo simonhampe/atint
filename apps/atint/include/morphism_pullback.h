@@ -52,6 +52,13 @@ namespace polymake { namespace atint {
    */
   void computeConeFunction(const Matrix<Rational> &rays, const Matrix<Rational> &linspace, bool uses_homog, const Vector<Rational> &ray_values, const Vector<Rational> &lin_values, Rational &translate, Vector<Rational> &functional);
   
+  /**
+    @brief Computes the pull-back of a min/max function along a global affine linear function
+    @param perl::Object morphism A Morphism object that represents a global affine linear function
+    @param perl::Object function A MinMaxFunction object
+    @return perl::Object The pull-back function
+  */
+  perl::Object pb_minmax_global(perl::Object morphism, perl::Object function);
 }}
 
 

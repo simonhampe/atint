@@ -131,7 +131,7 @@ namespace polymake { namespace atint {
 //       }
 //     }
     
-    int translate = 5;
+    int translate = 4;
     
     pm::cout << "Creating possibilities" << endl;
     Matrix<int> possibilities = fill_value_vector(12, Vector<int>(sequence(0,3)));

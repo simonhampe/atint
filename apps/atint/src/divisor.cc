@@ -349,6 +349,9 @@ namespace polymake { namespace atint {
       
       Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");
       bool uses_min = function.give("USES_MIN");
+      int power = function.give("POWER");
+      
+      power = (k < 1? power : k);
       
       //dbgtrace << "Extracted values" << endl;
       
@@ -382,7 +385,7 @@ namespace polymake { namespace atint {
       
       //Glue together to a value matrix
       Matrix<Rational> vmatrix(0,values.dim());
-      for(int l = 1; l <= k; l++) {
+      for(int l = 1; l <= power; l++) {
 	vmatrix /= values;
       }
       
@@ -420,13 +423,14 @@ namespace polymake { namespace atint {
  
     ///////////////////////////////////////////////////////////////////////////////////////
     
-    perl::Object divisor_rational(perl::Object complex, perl::Object function, int k=1) {
+    perl::Object divisor_rational(perl::Object complex, perl::Object function, int k=-1) {
       //Homogenize the fan if necessary and then refine it
       bool cmplx_uses_homog = complex.give("USES_HOMOGENEOUS_C");
       perl::Object domain = function.give("DOMAIN");
       bool fct_uses_homog = domain.give("USES_HOMOGENEOUS_C");
       Vector<Rational> rvalues = function.give("RAY_VALUES");
       Vector<Rational> lvalues = function.give("LIN_VALUES");
+      int power = function.give("POWER");
       Vector<Rational> values = rvalues | lvalues;
       
       //Before we do anything, we check that the function is sane to avoid /0 divisions and segfaults
@@ -458,7 +462,7 @@ namespace polymake { namespace atint {
       
       //Glue together to a matrix
       Matrix<Rational> fmatrix(0,newvalues.dim());
-      for(int l = 1; l <= k; l++) {
+      for(int l = 1; l <= (k == -1? power : k); l++) {
 	fmatrix /= newvalues;
       }
       

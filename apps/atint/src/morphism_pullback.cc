@@ -135,12 +135,7 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  /**
-    @brief Computes the pull-back of a min/max function along a global affine linear function
-    @param perl::Object morphism A Morphism object that represents a global affine linear function
-    @param perl::Object function A MinMaxFunction object
-    @return perl::Object The pull-back function
-  */
+  //Documentation see header
   perl::Object pb_minmax_global(perl::Object morphism, perl::Object function) {
     //Extract values
     Matrix<Rational> m_matrix = morphism.give("MATRIX");

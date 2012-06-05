@@ -91,64 +91,6 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  /**
-   @brief Takes a ordered paired Prüfer sequence (as for example computed by computePrueferSequences and decodes it into a list of edge partitions of the combinatorial type
-   @param Vector<int> pseq An ordered paired Prüfer sequence
-   @return Vector<Set<int> > A list of partitions of the corresponding combinatorial type
-   */
-  Vector<Set<int> > decodePrueferSequence(const Vector<int> &pseq) {
-    //Construct vertex set
-    int n = pseq[0]; //The first element is always the number of leaves
-    Set<int> V = sequence(0,2*n-2);
-    Vector<Set<int> > adjacencies(n-2); //Which leaves lie "behind" which interior vertex?
-    Vector<Set<int> > result;
-    
-    //dbgtrace << "Connecting leaves" << endl;
-    int firstindex = 0; //We pretend that pseq starts at this index
-    //Connect leaves
-    for(int i = 0; i < n; i++) {
-      adjacencies[pseq[firstindex]-n] += i;
-      V = V - i;
-      firstindex++;
-    }//END add leaves
-    
-    //dbgtrace << "Connecting edges" << endl;
-    //dbgtrace << "V: " << V << endl;
-    //dbgtrace << "Adjacencies: " << adjacencies << endl;
-    
-    //Now create edges
-    for(int i = 1; i <= n-3; i++) {
-      //If there are only two vertices left, connect them
-      if(i == n-3) {
-	Vector<int> lasttwo(V);
-	result |= adjacencies[lasttwo[0]-n];
-      }
-      else {
-	//Find the minimal element in V that is not in the sequence (starting at firstindex)
-	Set<int> pset(pseq.slice(~sequence(0,firstindex)));
-	int smallest = -1;
-	for(Entire<Set<int> >::iterator vit = entire(V); !vit.at_end(); vit++) {
-	  if(!pset.contains(*vit)) {
-	      smallest = *vit;break;
-	  }
-	}//END look for smallest in V\P
-	Set<int> Av = adjacencies[smallest-n];
-	result |= Av;
-	adjacencies[pseq[firstindex]-n] += Av;
-	V = V - smallest;
-	firstindex++;
-      }
-    }//END create edges
-    
-    return result;
-  }//END decodePrueferSequence
-  
-  ///////////////////////////////////////////////////////////////////////////////////////
-  
-  
-  
-  ///////////////////////////////////////////////////////////////////////////////////////
-  
   //Documentation see perl wrapper
   perl::Object local_mn(std::vector<perl::Object> curves) {
     
@@ -430,6 +372,4 @@ namespace polymake { namespace atint {
 		    "# @param Int coneIndex The index of the maximal cone"
 		    "# @return RationalCurve c The curve corresponding to an interior point",
 		    &rational_curve_from_cone, "rational_curve_from_cone(WeightedComplex, $,$)");
-  
-  Function4perl(&decodePrueferSequence,"dcp(Vector<Int>)");
 }}
