@@ -268,7 +268,7 @@ namespace polymake { namespace atint {
 		    "# @param Matrix<Rational> Delta The directions of the unbounded edges (given as row vectors)"
 		    "# @param Int i The index of the marked point that should be evaluated. i "
 		    "# should lie in between 1 and n"
-		    "# Note that the i-th marked point is realized as the n+i-th leaf in M_0,(n+|Delta|)"
+		    "# Note that the i-th marked point is realized as the |Delta|+i-th leaf in M_0,(n+|Delta|)"
 		    "# and that the R^r - coordinate is interpreted as the position of the n-th leaf. "
 		    "# In particular, ev_n is just the projection to the R^r-coordinates"
 		    "# @return Morphism ev_i. Its domain is the ambient space of the moduli space "

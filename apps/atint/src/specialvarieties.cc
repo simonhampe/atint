@@ -157,7 +157,7 @@ namespace polymake { namespace atint {
 	}
 	if(!hasZero) {
 	    //dbgtrace << "Cone " << mc << " is valid with interior vector " << v << endl;
-	    listOfFacets = listOfFacets | maximalCones.row(mc);
+	    listOfFacets |= maximalCones.row(mc);
 	}
       }
       
@@ -184,7 +184,7 @@ namespace polymake { namespace atint {
 	}
 	//dbgtrace << "Remaining rays : " << raySet << endl; 
 	//Make this a cone (might be empty, if we have only a lin space)
-	if(raySet.size() > 0) bergmanCones = bergmanCones | raySet;
+	if(raySet.size() > 0) bergmanCones |= raySet;
       }
       
       //Reorder rays: Not all rays might be used in cones, so we have to go through all cones

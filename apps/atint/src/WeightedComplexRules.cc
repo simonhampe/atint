@@ -151,10 +151,10 @@ namespace polymake { namespace atint {
 	}
 	//Add the facet if necessary and add its maximal-cone indices
 	if(fcIndex == -1) {
-	  facetArray = facetArray | facetToCheck;
+	  facetArray |= facetToCheck;
 	  Set<int> singlecone;
 	    singlecone = singlecone + maxcone;
-	  fIncones = fIncones | singlecone;
+	  fIncones |= singlecone;
 	}
 	else {
 	fIncones[fcIndex] = fIncones[fcIndex] + maxcone;
@@ -279,7 +279,7 @@ namespace polymake { namespace atint {
 	  //dbgtrace << "Creating new component" << endl;
 	  //Create new component
 	  Set<int> newset; newset = newset + *mc;
-	  connectedComponents = connectedComponents | newset;
+	  connectedComponents |= newset;
 	  inverseMap[*mc] = connectedComponents.dim()-1;
 	  
 	  //Do a breadth-first search for all other cones in the component

@@ -121,7 +121,7 @@ namespace polymake { namespace atint {
 	centermatrix = centermatrix / center;
 	std::ostringstream wlabel;
 	wlabel << "# " << mc << ": " << weights[mc];
-	centerlabels = centerlabels | wlabel.str();
+	centerlabels |= wlabel.str();
       }      
       
       
@@ -289,7 +289,7 @@ namespace polymake { namespace atint {
 	  else {
 	    if(mc < clabels.size()) wlabel << clabels[mc];
 	  }
-	  centerlabels = centerlabels | wlabel.str();
+	  centerlabels |= wlabel.str();
 	}
       }
 //       }

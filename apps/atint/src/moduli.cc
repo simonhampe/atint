@@ -386,7 +386,7 @@ namespace polymake { namespace atint {
 	  rays.row(rIndex) = newray;
 	}
       }//END iterate edges
-      cones = cones | newcone;
+      cones |= newcone;
     
       
       //dbgtrace << "Increasing counter" << endl;   

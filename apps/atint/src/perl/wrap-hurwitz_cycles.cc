@@ -21,11 +21,11 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( perl::Object (pm::Vector<int>) );
 
-   FunctionWrapper4perl( pm::Integer (pm::Vector<int>) ) {
-      perl::Value arg0(stack[0]);
-      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< int > > >() );
+   FunctionWrapper4perl( perl::Object (int, pm::Vector<int>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Vector< int > > >() );
    }
-   FunctionWrapperInstance4perl( pm::Integer (pm::Vector<int>) );
+   FunctionWrapperInstance4perl( perl::Object (int, pm::Vector<int>) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

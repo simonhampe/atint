@@ -138,7 +138,8 @@ namespace polymake { namespace atint {
 	if(occurences_so_far > 0 && current_vertex < numbers_needed.dim() - 1) {
 	  int placements_so_far = (placements_tried[current_vertex])[occurences_so_far].dim() ;
 	  //If we have tried any placements so far, we try to take the next free position after
-	  //the last one tried, otherwise we take the first free entry
+	  //the last one tried, otherwise we take the first free entry after the placement of
+	  //the last occurence
 	  if(placements_so_far > 0) {
 	    next_pos = ((placements_tried[current_vertex])[occurences_so_far] )[ placements_so_far-1];
 	  }

@@ -87,6 +87,7 @@ namespace polymake { namespace atint {
     Matrix<Rational> rays = precycle.give("RAYS");
     IncidenceMatrix<> cones = precycle.give("MAXIMAL_CONES");
     Vector<Integer> weights = precycle.give("TROPICAL_WEIGHTS");
+    bool uses_homog = precycle.give("USES_HOMOGENEOUS_C");
     
     //Result variables
     Matrix<Rational> curve_rays(0,rays.cols());
@@ -94,14 +95,21 @@ namespace polymake { namespace atint {
     Vector<Integer> curve_weights;
     
     //First of all, we find the homogenizing ray and remove it
-    int homog_index = -1;
-    for(int r = 0; r < rays.rows(); r++) {
-      if(rays(r,0) == 1) {
-	homog_index = r; break;
+    if(uses_homog) {
+      int homog_index = -1;
+      for(int r = 0; r < rays.rows(); r++) {
+	if(rays(r,0) == 1) {
+	  homog_index = r; break;
+	}
       }
+      rays = rays.minor(~scalar2set(homog_index),~scalar2set(0));
+      cones = cones.minor(All,~scalar2set(homog_index));
     }
-    rays = rays.minor(~scalar2set(homog_index),~scalar2set(0));
-    cones = cones.minor(All,~scalar2set(homog_index));
+    
+    //Then we apply the forgetful map to the rays
+    perl::Object ffmap = CallPolymakeFunction("forgetful_map",2*degree.dim() -3, sequence(degree.dim()+1, degree.dim()-3));
+    Matrix<Rational> ffmatrix = ffmap.give("MATRIX");
+    rays = rays * T(ffmatrix);
     
     //Iterate all cones
     for(int c = 0; c < cones.rows(); c++) {
@@ -123,7 +131,7 @@ namespace polymake { namespace atint {
 	curve_cones |= single_set;
 	curve_weights |= weights[c];
       }
-      //Otherwise add its weigh to the appropriate cone 
+      //Otherwise add its weight to the appropriate cone 
       //(whose index is now equal to the ray index)
       else {
 	curve_weights[n_index] += weights[c];

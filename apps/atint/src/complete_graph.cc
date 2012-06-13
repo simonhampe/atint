@@ -57,7 +57,7 @@ namespace polymake { namespace atint {
     //Now we generate the set of all Prüfer sequences, i.e. all sequences of length n-2 with elements from 0 to n-1 (repetitions allowed)
     Vector<Vector<int> > prseq;
     Vector<int> counter = zero_vector<int>(n-2);
-    prseq = prseq | Vector<int>(counter);
+    prseq |= Vector<int>(counter);
     int iterations = pow(n,n-2)-1;
     for(int i = 0; i < iterations; i++) {
       int counterindex = n-3;
@@ -66,7 +66,7 @@ namespace polymake { namespace atint {
 	counterindex--;
       }
       counter[counterindex]++;
-      prseq = prseq | Vector<int>(counter);
+      prseq |= Vector<int>(counter);
     }
     
     //dbgtrace << "Computed all prüfer sequences " << prseq << endl;

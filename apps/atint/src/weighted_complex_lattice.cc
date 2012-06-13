@@ -73,10 +73,10 @@ namespace polymake { namespace atint {
     Vector<Matrix<Rational> > codimone;
     Vector<Matrix<Rational> > maximal;
     for(int facet = 0; facet < codimOneCones.rows(); facet++) {
-      codimone = codimone | null_space(rays.minor(codimOneCones.row(facet),All) / linspace);
+      codimone |= null_space(rays.minor(codimOneCones.row(facet),All) / linspace);
     }
     for(int mcone = 0; mcone < maximalCones.rows(); mcone++) {
-      maximal = maximal | null_space(rays.minor(maximalCones.row(mcone),All) / linspace);
+      maximal |=  null_space(rays.minor(maximalCones.row(mcone),All) / linspace);
     }
     
     //dbgtrace << "Computing lattice normals" << endl;

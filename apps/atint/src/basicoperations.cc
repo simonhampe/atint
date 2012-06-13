@@ -264,7 +264,7 @@ namespace polymake { namespace atint{
 	Vector<Set<int> > newMaxCones;
 	Vector<Integer> newWeights;
 	//Make sure, we have at least one "cone" in each fan, even if it is empty
-	if(maximalCones.dim() == 0) { maximalCones = maximalCones | Set<int>();}
+	if(maximalCones.dim() == 0) { maximalCones |= Set<int>();}
 	if(premax.rows() == 0) { premax = premax / Set<int>();}
 	for(int pmax = 0; pmax < maximalCones.dim(); pmax++) {
 	    Set<int> product_cone = maximalCones[pmax];
@@ -300,7 +300,7 @@ namespace polymake { namespace atint{
 		newcone = newcone + cdirIndices[*cd];
 	      }
 	      //dbgtrace << "Result: " << newcone << endl;
-	      newMaxCones = newMaxCones | newcone;
+	      newMaxCones |= newcone;
 	      //Compute weight
 	      if(product_has_weights || uses_weights) {
 		newWeights = newWeights | (product_has_weights? weights[pmax] : Integer(1)) * (uses_weights? preweights[cmax] : Integer(1));
@@ -364,7 +364,7 @@ namespace polymake { namespace atint{
 	      for(Entire<Set<int> >::iterator cd = entire(cDirectional); !cd.at_end(); cd++) {
 		local_cone = local_cone + cdirIndices[*cd];
 	      }
-	      new_local_restriction = new_local_restriction | local_cone;
+	      new_local_restriction |=  local_cone;
 	    }
 	  }
 	}
