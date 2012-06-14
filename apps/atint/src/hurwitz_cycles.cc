@@ -39,16 +39,21 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
-  perl::Object hurwitz_pre_cycle(int k, Vector<int> degree) {
+  perl::Object hurwitz_pre_cycle(int k, Vector<int> degree, Vector<int> pullback_points = Vector<int>()) {
     
     //First, compute the psi-class product
     int n = degree.dim();
+    
+    if(pullback_points.dim() < n-3-k) {
+      pullback_points |= zero_vector<int>(n-3-k - pullback_points.dim());
+    }
+    
     int big_moduli_dim = 2*n - k - 2;
     Vector<int> exponents = zero_vector<int>(n) | ones_vector<int>(n-2-k);
     //dbgtrace << "Computing psi product in M_N, N = " << big_moduli_dim << " with exponents " << exponents << endl;
     perl::Object P = psi_product(big_moduli_dim,exponents);
     
-    //Then compute evaluation map pullbacks (in each case of the same point = 0 cut out by max(0,x))
+    //Then compute evaluation map pullbacks (in each case of the pullback point p_i cut out by max(x,p_i))
     Matrix<Rational> rat_degree(degree.dim(),0);
       rat_degree |= degree;
     
@@ -57,12 +62,13 @@ namespace polymake { namespace atint {
       perl::Object evi = evaluation_map(n-2-k, 1, rat_degree, i-n-1);
       Matrix<Rational> evi_matrix = evi.give("MATRIX");
       
-      //Pulling back 0 = max(x,0) * R means we take the vector representing the morphism and 
-      //attach a zero row below
+      //Pulling back p_i = max(x,p_i) * R means we take the vector representing the morphism and 
+      //attach a row below that has p_i at the end
       evi_matrix /= zero_vector<Rational>(evi_matrix.cols());
+      evi_matrix(1, evi_matrix.cols()-1) = pullback_points[i-n-2];
       //Since we restrict ourselves to M_0,N x {0}, we actually ignore the last coefficient
-      //and replace it by the constant coefficients (0,0)
-      evi_matrix.col(evi_matrix.cols()-1) = zero_vector<Rational>(2);
+      //of ev_i and replace it by the constant coefficient 0
+      evi_matrix(0, evi_matrix.cols()-1) = 0;
       //dbgtrace << "Pullback evaluation matrix is " << evi_matrix << endl;
       perl::Object pb("MinMaxFunction");
 	pb.take("FUNCTION_MATRIX") << Matrix<Rational>(evi_matrix);
@@ -75,6 +81,10 @@ namespace polymake { namespace atint {
     return P;
     
   }//END function hurwitz_pre_cycle
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -169,8 +179,11 @@ namespace polymake { namespace atint {
 		    "# @param int k The dimension of the Hurwitz cycle"
 		    "# @param Vector<int> degree The degree of the covering. The sum over all entries should "
 		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
+		    "# @param Vector<int> pullback_points The points p_i that should be pulled back to "
+		    "# determine the Hurwitz cycle. Should have length n-3-k. If it is not given, all p_i"
+		    "# are by default equal to 0 (same for missing points)"
 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree) before push-forward",    
-		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>)");
+		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>; Vector<Int> = new Vector<Int>())");
   
   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
 		    "# Computes the Hurwitz curve H_1(degree)"
