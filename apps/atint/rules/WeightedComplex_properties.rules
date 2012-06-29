@@ -192,8 +192,9 @@ object WeightedComplex {
 	# Careful: The implementation assumes that ALL maximal cones are compatible. If in doubt,
 	# you can create a complex with a local restriction from a given complex by using one of
 	# the "local_..." creation methods
-	# This list is assumed to be irredundant, i.e. there are no doubles and no element
-	# is a subset of another element.
+	# This list is assumed to be irredundant, i.e. there are no doubles (though this should not
+	# break anything, it is simply less efficient). It is, however, possible that one element
+	# is a subset of another.
 	property LOCAL_RESTRICTION : IncidenceMatrix;
 
 	# @category Tropical geometry / Lattice normals
