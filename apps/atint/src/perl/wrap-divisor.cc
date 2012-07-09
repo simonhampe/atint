@@ -21,5 +21,11 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, int) );
 
+   FunctionWrapper4perl( perl::Object (perl::Object, perl::Object, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      IndirectWrapperReturn( arg0, arg1, arg2 );
+   }
+   FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, bool) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

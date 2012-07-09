@@ -331,6 +331,7 @@ object MinMaxFunction {
   }
   
   rule DOMAIN : NORMAL_FAN, DOMAIN_DIMENSION {
+    #Intersect the normal fan with the positive half
     my $F = intersect_complete_fan(linear_nspace($this->DOMAIN_DIMENSION)->homogenize,$this->NORMAL_FAN);
     #Forget the weights: 
     $this->DOMAIN = new WeightedComplex(RAYS=>$F->RAYS,MAXIMAL_CONES=>$F->MAXIMAL_CONES,LINEALITY_SPACE=>$F->LINEALITY_SPACE,USES_HOMOGENEOUS_C=>TRUE);
