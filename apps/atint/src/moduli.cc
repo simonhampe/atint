@@ -56,6 +56,7 @@ namespace polymake { namespace atint {
   Integer count_mn_cones(int n) {
     if(n == 3) {
       return Integer(1);
+
     }
     Integer result(1);
     Integer nint(n);

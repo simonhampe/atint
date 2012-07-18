@@ -26,6 +26,7 @@
 #include "polymake/Vector.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/polytope/cdd_interface.h"
+#include "polymake/Graph.h"
 #include "polymake/atint/psi_classes.h"
 #include "polymake/atint/divisor.h"
 #include "polymake/atint/morphism_special.h"
@@ -147,81 +148,81 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  //Documentation see perl wrapper
-  perl::Object hurwitz_cycle(int k, Vector<int> degree, Vector<Rational> points) {
-    int n = degree.dim();
-    int big_n = 2*n - k - 2;
-    
-    //Check points
-    if(points.dim() < n-k-3) {
-      throw std::runtime_error("Cannot compute Hurwitz cycle. Not enough points given.");
-    }
-    for(int i = 0; i < points.dim(); i++) {
-      for(int j = i+1; j < points.dim(); j++) {
-	if(points[i] == points[j] || points[i] == 0) {
-	  throw std::runtime_error("Cannot compute Hurwitz cycle. Need distinct points != 0 to allow easy push-forward. Try different points or hurwitz_pre_cycle(...)");
-	}
-      }
-    }
-    
-    //First we compute the pre-cycle    
-    perl::Object precycle =  hurwitz_pre_cycle(1, degree, points);
-    Matrix<Rational> rays = precycle.give("RAYS");
-    IncidenceMatrix<> cones = precycle.give("MAXIMAL_CONES");
-    Vector<Integer> weights = precycle.give("TROPICAL_WEIGHTS");
-    bool uses_homog = precycle.give("USES_HOMOGENEOUS_C");
-    
-    //Then apply the forgetful map to the rays
-    perl::Object ffmap = CallPolymakeFunction("forgetful_map",big_n, sequence(degree.dim()+1, n-k-2));
-    Matrix<Rational> ffmatrix = ffmap.give("MATRIX");
-    //If we use homog. coordiantes, keep the homogenizing coord.
-    Vector<Rational> homog_coord = rays.col(0);
-    if(uses_homog) rays = rays.minor(All,~scalar2set(0));
-    
-    rays = T(ffmatrix * T(rays));
-    if(uses_homog) rays = homog_coord | rays;
-    
-    //Check for double rays
-    Map<int,int> ray_map;
-    Set<int> used_rays;
-    for(int r = 0; r < rays.rows(); r++) {
-      ray_map[r] = r;
-      for(int s = 0; s < r; s++) {
-	if(rays.row(r) == rays.row(s)) {
-	    ray_map[r] = s; break;
-	}
-      }
-      if(ray_map[r] == r) used_rays += r;
-    }//END check doubles
-    Vector<Set<int> > translated_cones;
-    Vector<Integer> translated_weights;
-    for(int c = 0; c < cones.rows(); c++) {
-      Set<int> tcone = attach_operation(cones.row(c), pm::operations::associative_access<Map<int,int>, int>(&ray_map));
-      //Check if the cone already exists
-      int oc_index = -1;
-      for(int oc = 0; oc < translated_cones.dim(); oc++) {
-	if( (tcone * translated_cones[oc]).size() == tcone.size()) {
-	  oc_index = oc; break;
-	}
-      }
-      if(oc_index == -1) {
-	translated_cones |= tcone;
-	translated_weights |= weights[c];
-      }
-      else {
-	translated_weights[oc_index] += weights[c];
-      }
-    }
-    IncidenceMatrix<> cone_matrix(translated_cones);
-    
-    perl::Object result("WeightedComplex");
-      result.take("RAYS") << rays.minor(used_rays,All);
-      result.take("MAXIMAL_CONES") << cone_matrix.minor(All, used_rays);
-      result.take("TROPICAL_WEIGHTS") << translated_weights;
-      result.take("USES_HOMOGENEOUS_C") << uses_homog;
-      
-    return result;
-  }
+//   //Documentation see perl wrapper
+//   perl::Object hurwitz_cycle(int k, Vector<int> degree, Vector<Rational> points) {
+//     int n = degree.dim();
+//     int big_n = 2*n - k - 2;
+//     
+//     //Check points
+//     if(points.dim() < n-k-3) {
+//       throw std::runtime_error("Cannot compute Hurwitz cycle. Not enough points given.");
+//     }
+//     for(int i = 0; i < points.dim(); i++) {
+//       for(int j = i+1; j < points.dim(); j++) {
+// 	if(points[i] == points[j] || points[i] == 0) {
+// 	  throw std::runtime_error("Cannot compute Hurwitz cycle. Need distinct points != 0 to allow easy push-forward. Try different points or hurwitz_pre_cycle(...)");
+// 	}
+//       }
+//     }
+//     
+//     //First we compute the pre-cycle    
+//     perl::Object precycle =  hurwitz_pre_cycle(1, degree, points);
+//     Matrix<Rational> rays = precycle.give("RAYS");
+//     IncidenceMatrix<> cones = precycle.give("MAXIMAL_CONES");
+//     Vector<Integer> weights = precycle.give("TROPICAL_WEIGHTS");
+//     bool uses_homog = precycle.give("USES_HOMOGENEOUS_C");
+//     
+//     //Then apply the forgetful map to the rays
+//     perl::Object ffmap = CallPolymakeFunction("forgetful_map",big_n, sequence(degree.dim()+1, n-k-2));
+//     Matrix<Rational> ffmatrix = ffmap.give("MATRIX");
+//     //If we use homog. coordiantes, keep the homogenizing coord.
+//     Vector<Rational> homog_coord = rays.col(0);
+//     if(uses_homog) rays = rays.minor(All,~scalar2set(0));
+//     
+//     rays = T(ffmatrix * T(rays));
+//     if(uses_homog) rays = homog_coord | rays;
+//     
+//     //Check for double rays
+//     Map<int,int> ray_map;
+//     Set<int> used_rays;
+//     for(int r = 0; r < rays.rows(); r++) {
+//       ray_map[r] = r;
+//       for(int s = 0; s < r; s++) {
+// 	if(rays.row(r) == rays.row(s)) {
+// 	    ray_map[r] = s; break;
+// 	}
+//       }
+//       if(ray_map[r] == r) used_rays += r;
+//     }//END check doubles
+//     Vector<Set<int> > translated_cones;
+//     Vector<Integer> translated_weights;
+//     for(int c = 0; c < cones.rows(); c++) {
+//       Set<int> tcone = attach_operation(cones.row(c), pm::operations::associative_access<Map<int,int>, int>(&ray_map));
+//       //Check if the cone already exists
+//       int oc_index = -1;
+//       for(int oc = 0; oc < translated_cones.dim(); oc++) {
+// 	if( (tcone * translated_cones[oc]).size() == tcone.size()) {
+// 	  oc_index = oc; break;
+// 	}
+//       }
+//       if(oc_index == -1) {
+// 	translated_cones |= tcone;
+// 	translated_weights |= weights[c];
+//       }
+//       else {
+// 	translated_weights[oc_index] += weights[c];
+//       }
+//     }
+//     IncidenceMatrix<> cone_matrix(translated_cones);
+//     
+//     perl::Object result("WeightedComplex");
+//       result.take("RAYS") << rays.minor(used_rays,All);
+//       result.take("MAXIMAL_CONES") << cone_matrix.minor(All, used_rays);
+//       result.take("TROPICAL_WEIGHTS") << translated_weights;
+//       result.take("USES_HOMOGENEOUS_C") << uses_homog;
+//       
+//     return result;
+//   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -322,6 +323,72 @@ namespace polymake { namespace atint {
     
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object hurwitz_graph(perl::Object cycle) {
+    //Homogenize
+    cycle = cycle.CallPolymakeMethod("homogenize");
+    //Extract values
+    Matrix<Rational> rays = cycle.give("RAYS");
+      rays = rays.minor(All,~scalar2set(0));
+    IncidenceMatrix<> cones = cycle.give("MAXIMAL_CONES");
+    IncidenceMatrix<> rays_in_cones = T(cones);
+    Set<int> vertices = cycle.give("VERTICES");
+    Set<int> dirrays = cycle.give("DIRECTIONAL_RAYS");
+    
+    Vector<std::string> labels;
+    
+    //Compute how many vertices the graph has: #vertices + sum of directional rays at each vertex
+    //Also create vertex labels
+    int nodes = vertices.size();
+    Vector<Set<int> > dir_at_vertices;
+    for(Entire<Set<int> >::iterator v = entire(vertices); !v.at_end(); v++) {
+      Set<int> rays_at_v = accumulate(rows(cones.minor(rays_in_cones.row(*v),All)),operations::add());
+	rays_at_v *= dirrays;
+      dir_at_vertices |= rays_at_v;
+      nodes += rays_at_v.size();
+      
+      perl::Object vcurve = CallPolymakeFunction("rational_curve_from_moduli",rays.row(*v));
+      std::string vstring = vcurve.CallPolymakeMethod("to_string");
+      labels |= vstring;
+    }
+    
+    //Graph object. The first #vertices nodes correspond to vertices, the rest are directional rays
+    Graph<> G(nodes);
+    
+    
+    //First create the bounded part
+    IncidenceMatrix<> bounded_part = T(rays_in_cones.minor(vertices,All));
+    for(int r = 0; r < bounded_part.rows(); r++) {
+      if(bounded_part.row(r).size() > 1) {
+	Vector<int> bp(bounded_part.row(r));
+	G.edge( bp[0], bp[1] );
+      }
+    }//END create bounded part
+    
+    //Attach directional rays and create remaining labels
+    int next_node_index = vertices.size();
+    for(int v = 0; v < vertices.size(); v++) {
+      Vector<int> raylist(dir_at_vertices[v]);
+      for(int i = 0; i < raylist.dim(); i++) {
+	G.edge(v,next_node_index);
+	next_node_index++;
+	
+	perl::Object icurve = CallPolymakeFunction("rational_curve_from_moduli",rays.row(raylist[i]));
+	std::string istring = icurve.CallPolymakeMethod("to_string");
+	labels |= istring;
+      }
+    }//END attach directional rays
+    
+    perl::Object result("graph::Graph");
+      result.take("N_NODES") << nodes;
+      result.take("ADJACENCY") << G;
+      result.take("NODE_LABELS") << labels;
+      
+    return result;
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
@@ -336,17 +403,17 @@ namespace polymake { namespace atint {
 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree) before push-forward",    
 		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>; Vector<Rational> = new Vector<Rational>())");
 
-  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
-		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), including"
-		    "# push-forward to M_0,n"
-		    "# @param Int k The dimension of the Hurwitz cycle"
-		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
-		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
-		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
-		    "# determine the Hurwitz cycle. Should have length n-3-k and BE ALL DISTINCT AND NONZERO."
-		    "# If points are missing or some are equal, an error is thrown"
-		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree)",    
-		    &hurwitz_cycle, "hurwitz_cycle($, Vector<Int>, Vector<Rational>)");
+//   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+// 		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), including"
+// 		    "# push-forward to M_0,n"
+// 		    "# @param Int k The dimension of the Hurwitz cycle"
+// 		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
+// 		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
+// 		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
+// 		    "# determine the Hurwitz cycle. Should have length n-3-k and BE ALL DISTINCT AND NONZERO."
+// 		    "# If points are missing or some are equal, an error is thrown"
+// 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree)",    
+// 		    &hurwitz_cycle, "hurwitz_cycle($, Vector<Int>, Vector<Rational>)");
   
   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
 		    "# Computes the Hurwitz curve H_1(degree)"
@@ -361,5 +428,13 @@ namespace polymake { namespace atint {
 		    "# be 0 and if n := degree.dim, then 0 <= n-3"
 		    "# @return Integer The Hurwitz degree H_0(degree)", 
 		    &hurwitz_degree, "hurwitz_degree(Vector<Int>)");
+  
+  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+		    "# Takes as input a hurwitz curve and computes the corresponding graph object"
+		    "# Directional rays are modeled as terminal vertices. Each vertex (including directional rays)"
+		    "# is labeled with its combinatorial type"
+		    "# @param WeightedComplex cycle A Hurwitz curve object (or any one-dimensional cycle in M_0,n)"
+		    "# @return graph::Graph",
+		    hurwitz_graph,"hurwitz_graph(WeightedComplex)");
   
 }}

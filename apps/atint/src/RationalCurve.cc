@@ -228,6 +228,10 @@ namespace polymake { namespace atint {
     //For the graph case, we prepare a graph object
     Graph<> G(n);
     
+    //To make the order of SETS/COEFFS agree with the order of the edges in graph, 
+    //we keep track of the original graph edge order.
+    Vector<std::pair<int,int> > edge_order;
+    
     //The algorithm possibly produces "double" vertices when creating a new vertex t
     // that has distance 0 to p or q. In this case we have to remember the original index p (or q)
     // to be able to create the graph correctly
@@ -320,6 +324,8 @@ namespace polymake { namespace atint {
 	//Graph case
 	G.edge(orig[p]-1,orig[x]-1);
 	G.edge(orig[q]-1,orig[x]-1);
+	edge_order |= std::pair<int,int>(orig[p]-1,orig[x]-1);
+	edge_order |= std::pair<int,int>(orig[q]-1,orig[x]-1);
       }
       else {
 	//Note: It can not be possible that t=q and q is a leaf, since the removal
@@ -375,8 +381,14 @@ namespace polymake { namespace atint {
 	
 	
 	//dbgtrace << "New orig vertex " << orig << endl;
-	if(dtp != 0) G.edge(orig[t]-1,orig[p]-1);
-	if(dtx[q] != 0) G.edge(orig[t]-1,orig[q]-1);
+	if(dtp != 0) {
+	  G.edge(orig[t]-1,orig[p]-1);
+	  edge_order |= std::pair<int,int>(orig[t]-1,orig[p]-1);
+	}
+	if(dtx[q] != 0) {
+	  G.edge(orig[t]-1,orig[q]-1);
+	  edge_order |= std::pair<int,int>(orig[t]-1,orig[q]-1);
+	}
       }
       //dbgtrace << "Distance matrix\n" << d << endl;
       //dbgtrace << "Leaf map\n" << leaves << endl;
@@ -422,6 +434,7 @@ namespace polymake { namespace atint {
 	nodes_by_sets |= Set<int>();
 	for(int j=0;j<3;j++) { 
 	  G.edge(t,orig[vAsList[j]]-1);
+	  edge_order |= std::pair<int,int>(t,orig[vAsList[j]]-1);
 	  if(leaves[vAsList[j]].size() == 1) {
 	    nodes_by_leaves[t] += leaves[vAsList[j]];
 	  }
@@ -436,6 +449,7 @@ namespace polymake { namespace atint {
 	for(int j=0; j<3; j++) {
 	    if(j != zeroa) {
 	      G.edge(orig[vAsList[j]]-1,orig[vAsList[zeroa]]-1);
+	      edge_order |= std::pair<int,int>(orig[vAsList[j]]-1,orig[vAsList[zeroa]]-1);
 	      if(leaves[vAsList[j]].size() ==1) {
 		nodes_by_leaves[orig[vAsList[zeroa]]-1] += leaves[vAsList[j]];
 	      }
@@ -467,6 +481,7 @@ namespace polymake { namespace atint {
       }
       //Graph case
       G.edge(orig[vAsList[0]]-1,orig[vAsList[1]]-1);
+      edge_order |= std::pair<int,int>(orig[vAsList[0]]-1,orig[vAsList[1]]-1);
     }
     
     
@@ -499,10 +514,45 @@ namespace polymake { namespace atint {
       //dbgtrace << "Adjacency: " << G << endl;
       //dbgtrace << "Labels: " << labels << endl;
     
+//     pm::cout << "Edge Order: " << edge_order << endl;
+//     pm::cout << "Sets and coeffs: " << sets << ", " << coeffs << endl;
+    
     perl::Object graph("graph::Graph");
       graph.take("N_NODES") << G.nodes();
       graph.take("ADJACENCY") << G;
       graph.take("NODE_LABELS") << labels;
+      
+    //The edges in G might now have a different order than the one in which we put it in
+    //Hence we have to make sure, the order of SETS and COEFFS is compatible with the EDGES order
+    //For this we have kept edge_order as a record of the original order of edges.
+    Vector<Set<int> > edge_list = graph.CallPolymakeMethod("EDGES");
+    //First we throw out all the edges in the original ordering that are actually leaves
+    Set<int> leaf_edges;
+    for(int oe = 0; oe < edge_order.dim(); oe++) {
+      if(edge_order[oe].first < n || edge_order[oe].second < n) leaf_edges += oe;
+    }
+    edge_order = edge_order.slice(~leaf_edges);
+    
+    Vector<Set<int> > ordered_sets;
+    Vector<Rational> ordered_coeffs;
+    for(int e = 0; e < edge_list.dim(); e++) {
+      //First, see if it has an entry < n. Then its actually a leaf, not a bounded edge
+      Vector<int> elist(edge_list[e]);
+      if(elist[0] >= n && elist[1] >= n) {
+	//Check which edge (in the original ordering) agrees with this one
+	int oeindex = -1;
+	for(int oe = 0; oe < edge_order.dim(); oe++) {
+	    Set<int> oeset; oeset += edge_order[oe].first; oeset += edge_order[oe].second;
+	    if( (oeset * edge_list[e]).size() == 2) {
+	      oeindex = oe; break;
+	    }
+	}
+	ordered_sets |= sets[oeindex];
+	ordered_coeffs |= coeffs[oeindex];
+      }
+    }//END re-order sets and coeffs
+    
+      
     
     if(sets.dim() == 0) {
       sets |= Set<int>();
@@ -510,10 +560,11 @@ namespace polymake { namespace atint {
     }
       
     perl::Object curve("RationalCurve");
-      curve.take("SETS") << sets;
-      curve.take("COEFFS") << coeffs;
+      curve.take("SETS") << ordered_sets;
+      curve.take("COEFFS") << ordered_coeffs;
       curve.take("N_LEAVES") << n;
       curve.take("GRAPH") << graph;
+      curve.take("GRAPH_EDGE_LENGTHS") << ordered_coeffs;
       curve.take("NODES_BY_LEAVES") << nodes_by_leaves;
       curve.take("NODES_BY_SETS") << nodes_by_sets;
       curve.take("NODE_DEGREES") << node_degrees;

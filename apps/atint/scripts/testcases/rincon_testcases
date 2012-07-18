@@ -15,55 +15,55 @@ my $t1;
 my @a;
 my $I;
 
-open (RESULT, ">atscript/bergmantesting.txt");
-
-print "Comparing M_0,n computation\n";
-print RESULT "Matroid on complete graph on n vertices:\n";
-
-#Now we compare the first few M_n's
-for(my $n = 4; $n <= 8; $n++) {
-    my $m = $n-1;
-    print RESULT "n = $m:";
-    @a = atint::spanning_complete($m);
-    my $mat = new matroid::Matroid(N_ELEMENTS=>binomial($m,2),BASES=>\@a);  
+# open (RESULT, ">atscript/bergmantesting.txt");
+# 
+# print "Comparing M_0,n computation\n";
+# print RESULT "Matroid on complete graph on n vertices:\n";
+# 
+# #Now we compare the first few M_n's
+# for(my $n = 4; $n <= 8; $n++) {
+#     my $m = $n-1;
+#     print RESULT "n = $m:";
+#     @a = atint::spanning_complete($m);
+#     my $mat = new matroid::Matroid(N_ELEMENTS=>binomial($m,2),BASES=>\@a);  
+# #     $t0 = Benchmark->new;
+# #     atint::bergman_fan($mat);  
+# #     $t1 = Benchmark->new;
+# #     print RESULT "Original algorithm: ", timestr(timediff($t1,$t0)),"\n";
 #     $t0 = Benchmark->new;
-#     atint::bergman_fan($mat);  
+#     atint::tropical_m0n($n);
 #     $t1 = Benchmark->new;
-#     print RESULT "Original algorithm: ", timestr(timediff($t1,$t0)),"\n";
-    $t0 = Benchmark->new;
-    atint::tropical_m0n($n);
-    $t1 = Benchmark->new;
-    print "m0$n: ", timestr(timediff($t1,$t0)),"\n";
-    print RESULT "Combinatorial: ", timestr(timediff($t1,$t0)),"\n";
-    @a = atint::spanning_complete($n-1);
-    $I = new IncidenceMatrix(@a);
-    $t0 = Benchmark->new;
-    atint::bergman_fan_matroid($mat);
-    $t1 = Benchmark->new;
-    print "rincon: ", timestr(timediff($t1,$t0)),"\n";
-    print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";
-}
-
-print "\nComputing L^n_k's:\n";
-print RESULT "\n\nUniform matroid U_k,n:\n";
-
-for(my $n = 5; $n <= 10; $n++) {
-  for(my $k = 1; $k < $n; $k= $k+2) {
-    my $m = $n+1; my $l = $k+1;
-    print RESULT "n = $m, k = $l:\n";
-    my $mat = matroid::uniform_matroid($k+1,$n+1);
-    $t0 = Benchmark->new;
-    atint::bergman_fan($mat);
-    $t1 = Benchmark->new;
-    print "L$n,$k: ", timestr(timediff($t1,$t0)),"\n";	
-    print RESULT "Original algorithm: ", timestr(timediff($t1,$t0)),"\n";	
-    $t0 = Benchmark->new;
-    atint::bergman_fan_matroid($mat);
-    $t1 = Benchmark->new;
-    print "Rincon: ", timestr(timediff($t1,$t0)),"\n";
-    print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";		
-  }
-}
+#     print "m0$n: ", timestr(timediff($t1,$t0)),"\n";
+#     print RESULT "Combinatorial: ", timestr(timediff($t1,$t0)),"\n";
+#     @a = atint::spanning_complete($n-1);
+#     $I = new IncidenceMatrix(@a);
+#     $t0 = Benchmark->new;
+#     atint::bergman_fan_matroid($mat);
+#     $t1 = Benchmark->new;
+#     print "rincon: ", timestr(timediff($t1,$t0)),"\n";
+#     print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";
+# }
+# 
+# print "\nComputing L^n_k's:\n";
+# print RESULT "\n\nUniform matroid U_k,n:\n";
+# 
+# for(my $n = 5; $n <= 10; $n++) {
+#   for(my $k = 1; $k < $n; $k= $k+2) {
+#     my $m = $n+1; my $l = $k+1;
+#     print RESULT "n = $m, k = $l:\n";
+#     my $mat = matroid::uniform_matroid($k+1,$n+1);
+#     $t0 = Benchmark->new;
+#     atint::bergman_fan($mat);
+#     $t1 = Benchmark->new;
+#     print "L$n,$k: ", timestr(timediff($t1,$t0)),"\n";	
+#     print RESULT "Original algorithm: ", timestr(timediff($t1,$t0)),"\n";	
+#     $t0 = Benchmark->new;
+#     atint::bergman_fan_matroid($mat);
+#     $t1 = Benchmark->new;
+#     print "Rincon: ", timestr(timediff($t1,$t0)),"\n";
+#     print RESULT "TropLi: ", timestr(timediff($t1,$t0)),"\n";		
+#   }
+# }
 
 print "\nComputing examples from paper:\n";
 print RESULT "\n\nComputing examples from paper:\n";
