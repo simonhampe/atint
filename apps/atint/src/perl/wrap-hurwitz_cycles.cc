@@ -26,5 +26,11 @@ namespace polymake { namespace atint {
    FunctionWrapperInstance4perl( perl::Object (int, pm::Vector<int>, pm::Vector<pm::Rational>) );
 
    OperatorInstance4perl(assign, pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)2>, false, (pm::sparse2d::restriction_kind)2> > >, perl::Canned< const pm::Series<int, true> >);
+   FunctionWrapper4perl( perl::Object (pm::Vector<int>) ) {
+      perl::Value arg0(stack[0]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< int > > >() );
+   }
+   FunctionWrapperInstance4perl( perl::Object (pm::Vector<int>) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

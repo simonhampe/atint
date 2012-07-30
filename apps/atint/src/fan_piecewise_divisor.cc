@@ -139,7 +139,7 @@ namespace polymake { namespace atint {
 		    "# dimension). Each cone t corresponds to a piecewise polynomial psi_t, defined by "
 		    "# subsequently applying the rational functions that are 1 one exactly one ray of t and "
 		    "# 0 elsewhere. "
-		    "# @param Vector<Integer> coefficients A list of coefficients a_tcorresponding to the "
+		    "# @param Vector<Integer> coefficients A list of coefficients a_t corresponding to the "
 		    "# cones. "
 		    "# @return WeightedComplex The divisor sum_t a_t psi_t * F",
 		    &piecewise_divisor, "piecewise_divisor(WeightedComplex, IncidenceMatrix, Vector<Integer>)");

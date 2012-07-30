@@ -413,8 +413,7 @@ namespace polymake { namespace atint {
 	      
 	      //dbgtrace << "Ray indices " << interIndices << endl;
 	      //dbgtrace << "new rays: " << newRays << endl;
-  // 	    dbgtrace << "directional: " << newDirectionalRays << endl;
-  // 	    dbgtrace << "Associated vertex: " << associatedVertex << endl;
+    	    
 	      
 	      //Check if the cone exists - if there are new rays, then the cone must be new as well
 	      bool addCone = newRays.size() > 0;
