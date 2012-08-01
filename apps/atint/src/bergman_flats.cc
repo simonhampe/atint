@@ -17,7 +17,7 @@
  * ---
  * Copyright (C) 2012, Simon Hampe <hampe@mathematik.uni-kl.de>
  * 
- * 
+ * This file computes matroid fans via their flats (i.e. very inefficiently)
  */
 
 #include "polymake/client.h"
@@ -25,6 +25,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 #include "polymake/Set.h"
+#include "polymake/Map.h"
 #include "polymake/linalg.h"
 #include "polymake/PowerSet.h"
 #include "polymake/atint/LoggingPrinter.h"
@@ -35,48 +36,23 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
   
+  
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  void computeFlats(Matrix<Rational> m) {
-    int r = rank(m);
-    
-    Vector<Vector<Set<int> > > flats(r);
-    
-    Set<int> all_cols = sequence(0,m.cols());
-    Array<Set<int> > ssets = all_subsets(all_cols);    
-    for(int s = 0; s < ssets.size(); s++) {
-      int x = rank(m.minor(All,ssets[s]));
-      if(x == 0) continue;
-      //Check if s is a flat
-      Set<int> complement = all_cols - ssets[s];
-      bool found_bad_element = false;
-      for(Entire<Set<int> >::iterator c = entire(complement); !c.at_end(); c++) {
-	if(rank(m.minor(All,ssets[s] + *c)) == x) {
-	  found_bad_element = true; break;
-	}
-      }
-      if(!found_bad_element) {
-	flats[x-1] |= ssets[s];
-      }
-    }
-    
-    pm::cout << "Done: " << endl;
-    
-    //Output
-    for(int i = 0; i < flats.size(); i++) {
-      pm::cout << "Rank " << (i+1) << ": " << flats[i] << endl;
-    }
-    
-  }
-/*
-  perl::Object bergman_by_flats(perl::Object matroid) {
+  /**
+   @brief Computes the set of flats and all maximal chains of flats of a matroid
+   @param perl::Object matroid A matroid::Matroid object
+   @param Vector<Vector<Set<int> > > flats A reference. Will be filled with the flats. At position i = 0,..,rank(matroid)-1 it contains a list of all flats with rank (i+1) (i.e. the empty set and the complete set are excluded)
+   @param Vector<Vector<int> > chains A reference. Will be filled with the maximal chains of flats: Each element in the list is again a list of indices. chains[i][j] is the index of the rank-(j+1)-flat in flats[j] for the i-th chain.
+   */
+  void chains_of_flats(perl::Object matroid, Vector<Vector<Set<int> > > &flats, Vector<Vector<int> > &chains) {
     //First we need to compute all flats of the matroid
     Array<Set<int> > bases = matroid.give("BASES");
     int rank = matroid.give("RANK");
     int n = matroid.give("N_ELEMENTS");
     
     //Contains at position i the rank i+1-flats
-    Vector<Vector<Set<int> > > flats(rank-1); 
+    flats = Vector<Vector<Set<int> > >(rank-1); 
     
     //Go through all subsets
     Array<Set<int> > ssets= all_subsets(sequence(0,n));
@@ -102,7 +78,7 @@ namespace polymake { namespace atint {
     }//END compute flats
     
     //Now we need to compute maximal chains
-    Vector<Vector<int> > chains;
+    chains = Vector<Vector<int> >() ;
     //Start with rank-1-flats
     for(int i = 0; i < flats[0].dim(); i++) {
       Vector<int> oneflat; oneflat |= i;
@@ -125,6 +101,19 @@ namespace polymake { namespace atint {
       }//END iterate rank k flats
       chains = newchains;
     }//END iterate ranks
+  }//END chains_of_flats
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object bergman_by_flats(perl::Object matroid) {
+    int rank = matroid.give("RANK");
+    int n = matroid.give("N_ELEMENTS");
+    
+    //Compute flats and chains of flats
+    Vector<Vector<Set<int> > > flats(rank-1); 
+    Vector<Vector<int> > chains;
+    chains_of_flats(matroid, flats,chains);
     
     //Now create the matroid fan
     Matrix<Rational> rays(0,n-1);
@@ -164,11 +153,65 @@ namespace polymake { namespace atint {
       
     return result;
     
-  }*/
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+//   //Documentation see perl wrapper
+//   perl::Object matroid_intersection_by_flats(perl::Object X, perl::Object Y, perl::Object matroid) {
+//     //Extract values
+//     int Xdim = X.give("CMPLX_DIM");
+//     int Ydim = Y.give("CMPLX_DIM");
+//     int n = matroid.give("N_ELEMENTS");
+//     Array<Set<int> > bases = matroid.give("BASES");
+//     
+//     //dbgtrace << "Checking codimension" << endl;
+//     
+//     //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
+//     if(Xdim + Ydim - (n-1) < 0) {
+//       return CallPolymakeFunction("zero_cycle");
+//     }
+//     
+//     //Better: Compute flats of matroid, take sums and compute corr. bergman fan from there together
+//     //with rational functions
+//     
+//     
+// //     //Compute the sum matroid + matroid
+// //     Vector<Set<int> > bases_pairs;
+// //     Map<int,int> shift_map;
+// //       for(int i = 0; i < n; i++) {
+// // 	shift_map[i] = i+n;
+// //       }
+// //     for(int b = 0; b< bases.size(); b++) {
+// //       for(int c = 0; c < bases.size(); c++) {
+// // 	Set<int> shifted_set = attach_operation(bases[c], pm::operations::associative_access<Map<int,int>, int>(&shift_map));
+// // 	bases_pairs |= (bases[b] * shifted_set);
+// //       }
+// //     }
+// //     perl::Object sum_matroid("matroid::Matroid");
+// //       sum_matroid.take("N_ELEMENTS") << 2*n;
+// //       sum_matroid.take("BASES") << bases_pairs;
+// //       
+// //     //Compute the corresponding bergman fan
+// //     perl::Object bergman_fan = bergman_by_flats(sum_matroid);
+// //     
+// //     //Extract the rays and construct the corresponding diagonal functions
+//     
+//     
+//     
+//     
+//   }
 
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
-  Function4perl(&computeFlats, "computeFlats(Matrix<Rational>)");
-//   Function4perl(&bergman_by_flats,"bbf(matroid::Matroid)");
+  
+  UserFunction4perl("# @category Tropical geometry / Matroid fans"
+		    "# This function computes the bergman fan of a matroid in the subdivision associated"
+		    "# to its lattice of flats. In particular it computes all flats and all maximal"
+		    "# chains of flats. Hence this function is terribly inefficient and should only be used"
+		    "# with comparatively small matroids"
+		    "# @param matroid::Matroid m Any matroid"
+		    "# @return WeightedComplex The bergman fan B(m) in its flat subdivision",
+		    &bergman_by_flats,"bergman_fan_flats(matroid::Matroid)");
   
 }}
