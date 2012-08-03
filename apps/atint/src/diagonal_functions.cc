@@ -32,6 +32,7 @@
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/divisor.h"
 #include "polymake/atint/minmax_functions.h"
+#include "polymake/atint/diagonal_functions.h"
 
 namespace polymake { namespace atint { 
   
@@ -144,11 +145,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   
-  /**
-   @brief This function lifts a tropical variety to one dimension higher by adding a last coordinate = 0 and a lineality space generator (1,...,1)
-   @param perl::Object X A WeightedComplex
-   @return perl::Object The lifted WeightedComplex
-  */
+  //Documentation see header
   perl::Object lift_variety(perl::Object X) {
     Matrix<Rational> xrays = X.give("RAYS");
     Matrix<Rational> xlin = X.give("LINEALITY_SPACE");
@@ -181,11 +178,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   
-  /**
-   @brief This function mods out the lineality space (1,..,1) by setting the last coordinate to be minus the sum of the remaining coordinates
-   @param perl::Object X A WeightedComplex
-   @return perl::Object The projected WeightedComplex
-  */
+  //Documentation see header
   perl::Object project_variety(perl::Object X) {
     //Extract values
     Matrix<Rational> xrays = X.give("RAYS");

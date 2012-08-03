@@ -77,6 +77,11 @@ perl::Object divisor_minmax(perl::Object complex, perl::Object function, int k =
 perl::Object divisor_nr(perl::Object complex, perl::Object function, int k = -1);
 
 /**
+ @brief Computes the divisor of a RationalFunction on a WeightedComplex. Works exactly as divisor_minmax, except that it takes an arbitrary RationalFunction as input instead of a MinMaxFunction
+ */
+perl::Object divisor_rational(perl::Object complex, perl::Object function, int k=-1);
+
+/**
   @brief Computes the function value of a min-max function at a given point
   @param Matrix<Rational> functionMatrix The function matrix of the min-max-function. Each row corresponds to a function, the last column contains the constant coefficients
   @param Vector<Rational> point The point at which the function should be evaluated

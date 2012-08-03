@@ -423,7 +423,7 @@ namespace polymake { namespace atint {
  
     ///////////////////////////////////////////////////////////////////////////////////////
     
-    perl::Object divisor_rational(perl::Object complex, perl::Object function, int k=-1) {
+    perl::Object divisor_rational(perl::Object complex, perl::Object function, int k) {
       //Homogenize the fan if necessary and then refine it
       bool cmplx_uses_homog = complex.give("USES_HOMOGENEOUS_C");
       perl::Object domain = function.give("DOMAIN");
