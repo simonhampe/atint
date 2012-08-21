@@ -227,7 +227,27 @@ object WeightedComplex {
 	# much faster.
 	property IS_UNIMODULAR : Bool; 
 	
+	# Not used at the moment
 	property GLUING_FACES : Map<Set<Int>, Set<Int> >;
+	
+	# @category Tropical geometry / Irreducibility
+	# A Z-basis (as rows) for the space of weight distributions on this 
+	# tropical cycle making it balanced (i.e. this cycle is balanced, if and only if 
+	# [[WEIGHT_SPACE]] has only one row and the gcd of [[TROPICAL_WEIGHTS]] is 1.
+	property WEIGHT_SPACE : Matrix<Integer>;
+	
+	# @category Tropical geometry / Irreducibility
+	# The dual of [[WEIGHT_SPACE]].
+	property WEIGHT_SYSTEM : Matrix<Rational>;
+	
+	# @category Tropical geometry / Irreducibility
+	# The intersection of [[WEIGHT_SPACE]] with the positive orthant.
+	property WEIGHT_CONE : polytope::Cone<Rational>;
+	
+	# @category Tropical geometry / Irreducibility
+	# Whether this complex is irreducible.
+	property IS_IRREDUCIBLE : Bool;
+	
 	
 	
 	## RULES ################################################################
@@ -411,6 +431,52 @@ object WeightedComplex {
 	rule LATTICE_BASES, LATTICE_GENERATORS : RAYS, MAXIMAL_CONES, DIRECTIONAL_RAYS, VERTICES, IS_UNIMODULAR, LINEALITY_SPACE {
 	  computeLatticeBases($this);
 	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule WEIGHT_SYSTEM : RAYS, LINEALITY_SPACE, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, 				LATTICE_NORMALS, USES_HOMOGENEOUS_C, CMPLX_AMBIENT_DIM, CMPLX_DIM {
+	  $this->WEIGHT_SYSTEM = cycle_weight_system($this);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule WEIGHT_SPACE : WEIGHT_SYSTEM {
+	  my $sys = $this->WEIGHT_SYSTEM;
+	  my $nspace = null_space($sys);
+	  $this->WEIGHT_SPACE = latticeBasisFromRays($nspace, (new Matrix<Rational>(0, $nspace->cols())), 0);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule WEIGHT_CONE : WEIGHT_SYSTEM {
+	  my $sys = $this->WEIGHT_SYSTEM;
+	  my $wsys = new Matrix<Rational>($sys);
+	  
+	  #Create inequalities of the positive orthant
+	  my $positive = unit_matrix<Rational>($wsys->cols());
+	  $this->WEIGHT_CONE = new polytope::Cone(INEQUALITIES=>$positive, EQUATIONS=>$wsys);
+	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule IS_IRREDUCIBLE : WEIGHT_SPACE, TROPICAL_WEIGHTS {
+	  if($this->WEIGHT_SPACE->rows() > 1) {
+	    $this->IS_IRREDUCIBLE = FALSE;
+	  }
+	  else {
+	    my $g = $this->TROPICAL_WEIGHTS->[0];
+	    for(my $w = 1; $w < $this->TROPICAL_WEIGHTS->dim(); $w++) {
+	      $g = gcd($g,$this->TROPICAL_WEIGHTS->[$w]);
+	    }
+	    if($g != 1) {
+	      $this->IS_IRREDUCIBLE = FALSE;
+	    }
+	    else {
+	      $this->IS_IRREDUCIBLE = TRUE;
+	    }	    
+	  }	  
+	}
+
 	
 	## METHODS #################################################################
 	

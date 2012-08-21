@@ -482,6 +482,8 @@ namespace polymake { namespace atint {
                   "# @return Matrix",
                   &znormaltransform,"znormaltransform(Matrix<Integer>,Integer)");   */               
 
+Function4perl(&latticeBasisFromRays,"latticeBasisFromRays(Matrix<Rational>, Matrix<Rational>,$)");
+
 UserFunction4perl("# @category Arithmetic"
 					  "# Computes the gcd of //a// and //b// and returns it. //s// and //t// are set"
 					  "# such that gcd(//a//,//b//) = //s// * //a// + //t// * //b//"

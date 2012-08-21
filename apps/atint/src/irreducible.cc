@@ -293,9 +293,9 @@ namespace polymake { namespace atint {
 		    &is_irreducible, "is_irreducible(WeightedComplex)");
   
   UserFunction4perl("# @category Tropical geometry / Irreducibility"
-		    "# This function computes a Z-basis for the space of weight distributions on a "
+		    "# This function computes a Z-basis (as rows) for the space of weight distributions on a "
 		    "# tropical cycle making it balanced (i.e. the cycle is irreducible, if and only if"
-		    "# the basis consists of one element"
+		    "# the basis consists of one element and the gcd of all weights is 1)"
 		    "# @param WeightedComplex C A tropical cycle"
 		    "# @return Matrix<Integer> A Z-basis of the weight space (given as row vectors)",
 		    &cycle_weight_space, "cycle_weight_space(WeightedComplex)");
@@ -303,7 +303,9 @@ namespace polymake { namespace atint {
   UserFunction4perl("# @category Tropical geometry / Irreducibility"
 		    "# This function computes for a given tropical cycle C a representation of "
 		    "# cycle_weight_space(C) in terms of linear equations. More precisely, this computes"
-		    "# a matrix, whose integer kernel is cycle_weight_space(C)",
+		    "# a matrix, whose integer kernel is cycle_weight_space(C)"
+		    "# @param WeightedComplex C a tropical cycle"
+		    "# @return Matrix<Integer> The dual of cycle_weight_space(C)",
 		    &cycle_weight_system, "cycle_weight_system(WeightedComplex)");
   
   UserFunction4perl("# @category Tropical geometry / Irreducibility"
