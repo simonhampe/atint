@@ -53,17 +53,52 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
-  Integer count_mn_cones(int n) {
+  Integer count_mn_cones(int n,int k) {
     if(n == 3) {
       return Integer(1);
 
     }
-    Integer result(1);
-    Integer nint(n);
-    for(Integer i(0); i <= n-4; i++) {
-	result = result * (2*(nint-i) -5);
+    
+    int vertex_count = k+1;
+    int seq_length = n + k-1;
+    
+    //First we create a polytope whose lattice points describe the possible distributions of
+    //valences on the interior vertices p_1 < ... < p_k
+    
+    Matrix<Rational> eq(0,vertex_count+1);
+      Vector<Rational> eqvec = ones_vector<Rational>(vertex_count); 
+      eqvec = Rational(-seq_length) | eqvec;
+      eq /= eqvec;
+      
+    Matrix<Rational> ineq = unit_matrix<Rational>(vertex_count);
+      ineq = ( (-2) * ones_vector<Rational>(vertex_count)) | ineq;
+      
+    perl::Object p("polytope::Polytope");
+      p.take("INEQUALITIES") << ineq;
+      p.take("EQUATIONS") << eq;
+    Matrix<Integer> latt = p.give("LATTICE_POINTS");
+      latt = latt.minor(All,~scalar2set(0));
+      
+    Integer total(0);
+    for(int l = 0; l < latt.rows(); l++) {
+      Integer prod(1);
+      int sum_vi = 0;
+      for(int v = 0; v < vertex_count-1; v++) {
+	int vi = latt(l,v).to_int();
+	prod *= Integer::binom(seq_length-sum_vi-1,vi-1);
+	sum_vi += vi;
+      }
+      total += prod;
     }
-    return result;
+    return total;
+
+    
+//     Integer result(1);
+//     Integer nint(n);
+//     for(Integer i(0); i <= n-4; i++) {
+// 	result = result * (2*(nint-i) -5);
+//     }
+//     return result;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -418,11 +453,13 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Tropical geometry"
-		    "# Computes the number of maximal cones of the tropical moduli space M_0,n"
+		    "# Computes the number of k-dimensional cones of the tropical moduli space M_0,n"
 		    "# @param Int n The number of leaves. Should be >= 3"
-		    "# @return Integer The number of maximal cones",
-		    &count_mn_cones,"count_mn_cones($)");
-		    
+		    "# @param Int k The number of bounded edges. This argument is optional and n-3 by default"
+		    "# @return Integer The number of k-dimensional cones of M_0,n",
+		    &count_mn_cones,"count_mn_cones($;$=$_[0]-3)");
+
+
   UserFunction4perl("# @category Tropical geometry"
 		    "# Computes the number of rays of the tropical moduli space M_0,n"
 		    "# @param int n The number of leaves. Should be >= 3"
