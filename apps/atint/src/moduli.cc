@@ -478,7 +478,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex The tropical moduli space M_0,n",
 		    &tropical_mn, "tropical_m0n($)");
   
-  Function4perl(&decodePrueferSequence,"dcp(Vector<Int>)");
+  Function4perl(&decodePrueferSequence,"dcp(Vector<Int>;$=-1)");
 //   UserFunction4perl("",&adjacentRays,"adjacentRays(RationalCurve)");
   
 }}

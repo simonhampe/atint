@@ -21,5 +21,11 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( pm::Integer (int) );
 
+   FunctionWrapper4perl( pm::Integer (int, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( pm::Integer (int, int) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
