@@ -228,7 +228,10 @@ object WeightedComplex {
     #Set some default values
     my $dim = $this->CMPLX_DIM;
     if(!defined($$decor{"FacetTransparency"}) && $dim >= 2) {
-      $$decor{"FacetTransparency"} = 1;
+      $$decor{"FacetTransparency"} = 0.7;
+    }
+    if(!defined($$decor{"PointThickness"})) {
+      $$decor{"PointThickness"} = 0.1;
     }
     
     #Make sure that the bounding box has the right dimension, otherwise, we get a segfault
