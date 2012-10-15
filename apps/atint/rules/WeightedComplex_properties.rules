@@ -232,7 +232,7 @@ object WeightedComplex {
 	
 	# @category Tropical geometry / Irreducibility
 	# A Z-basis (as rows) for the space of weight distributions on this 
-	# tropical cycle making it balanced (i.e. this cycle is balanced, if and only if 
+	# tropical cycle making it balanced (i.e. this cycle is irreducible, if and only if 
 	# [[WEIGHT_SPACE]] has only one row and the gcd of [[TROPICAL_WEIGHTS]] is 1.
 	property WEIGHT_SPACE : Matrix<Integer>;
 	
