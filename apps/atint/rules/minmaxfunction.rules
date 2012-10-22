@@ -251,7 +251,7 @@ object MinMaxFunction {
 	    for my $v (@vararray) {
 	      @row = (@row,(defined($h{$v})? $h{$v} : 0));
 	    }
-	    $m = $m / new Vector<Rational>(\@row);
+	    $m = new Matrix<Rational>($m / new Vector<Rational>(\@row));
 	}
 	$this->LINEAR_COEFFICIENTS = $m;
 	

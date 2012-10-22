@@ -72,6 +72,8 @@ object WeightedComplex {
 	# according to their index in [[CMPLX_RAYS]], s_j are the rays of the cone with x0 = 0 and l_k are the lineality space 
 	# generators. We will then store the coefficients a_i of (r_i - r_0) at the index of r_i, then - sum(a_i) at 
 	# the index of r_0 and the remaining coefficients at the appropriate places.
+	# In particular, the value of a lattice normal under a rational function can be computed
+	# simply by taking the scalar product of RAY_VALUES | LIN_VALUES with ist FCT_VECTOR
 	property LATTICE_NORMAL_FCT_VECTOR : Map<Int,Map<Int,Vector<Rational>>>;
 	
 	# @category Tropical geometry
