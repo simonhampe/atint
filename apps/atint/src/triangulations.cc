@@ -103,7 +103,7 @@ namespace polymake { namespace atint {
   //Documentation see perl wrapper
   perl::Object insert_rays(perl::Object fan, Matrix<Rational> add_rays) {
     
-    dbglog << "Triangulating fan " << endl;
+    //dbgtrace << "Triangulating fan " << endl;
     
     //Triangulate fan first
     fan = triangulateFan(fan);
@@ -119,7 +119,7 @@ namespace polymake { namespace atint {
     
     //First we check if any of the additional rays is already a ray of the fan
     
-    dbglog << "Checking if rays exist " << endl;
+    //dbgtrace << "Checking if rays exist " << endl;
     
     Set<int> rays_to_check;
     for(int r = 0; r < add_rays.rows(); r++) {
@@ -134,13 +134,13 @@ namespace polymake { namespace atint {
     
     add_rays = add_rays.minor(rays_to_check,All);
     
-    dbgtrace << "Rays remaining: " << rays_to_check << endl;
+    //dbgtrace << "Rays remaining: " << rays_to_check << endl;
     
-    dbglog << "Inserting remaining rays " << endl;
+    //dbgtrace << "Inserting remaining rays " << endl;
     
     //Now iterate over the remaining rays
     for(int nr = 0; nr < add_rays.rows(); nr++) {
-      dbgtrace << "Inserting ray nr. " << nr << endl;
+      //dbgtrace << "Inserting ray nr. " << nr << endl;
       
       Vector<Set<int> > nr_cones;
       Vector<Integer> nr_weights;
@@ -150,11 +150,11 @@ namespace polymake { namespace atint {
       
       //Go through all cones and check if they contain this ray
       for(int mc = 0; mc < cones.dim(); mc++) {
-	 dbgtrace << "Checking cone nr. " << mc << endl;
+	 //dbgtrace << "Checking cone nr. " << mc << endl;
 	 bool contains_ray = false;
 	 Matrix<Rational> relations = 
 	  null_space( T(rays.minor(cones[mc],All) / add_rays.row(nr)));
-	 dbgtrace << "Relation is " << relations << endl;
+	 //dbgtrace << "Relation is " << relations << endl;
 	 //Since fan is simplicial, this matrix can have at most one relation
 	 if(relations.rows() > 0) {
 	    //Check if - assuming the last coefficient is < 0 - all other coeffs are >= 0
@@ -175,7 +175,7 @@ namespace polymake { namespace atint {
 	    //For each non-zero-coefficient: take the codimension one face obtained
 	    //by removing the corresponding ray and add the new ray
 	    if(contains_ray) {
-	      dbgtrace << "Non-zero coeffs: " << greater_zero << endl;
+	      //dbgtrace << "Non-zero coeffs: " << greater_zero << endl;
 	      Vector<int> rays_as_list(cones[mc]);
 	      for(Entire<Set<int> >::iterator gzrays = entire(greater_zero); !gzrays.at_end(); gzrays++) {
 		Set<int> nr_cone(rays_as_list.slice(~scalar2set(*gzrays)));
@@ -189,7 +189,7 @@ namespace polymake { namespace atint {
 	 
 	 //If it does not contain the ray, just copy it
 	 if(!contains_ray) {
-	   dbgtrace << "Does not contain, copying..." << endl;
+	   //dbgtrace << "Does not contain, copying..." << endl;
 	   nr_cones |= cones[mc];
 	   if(weights_exist) nr_weights |= weights[mc];
 	 }
@@ -199,7 +199,7 @@ namespace polymake { namespace atint {
       cones = nr_cones;
       weights = nr_weights;
       
-      dbgtrace << "Cones are " << cones << endl;
+      //dbgtrace << "Cones are " << cones << endl;
       
     }//END iterate new rays
     

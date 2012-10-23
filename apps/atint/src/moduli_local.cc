@@ -295,19 +295,21 @@ namespace polymake { namespace atint {
 	if(rays(r,0) == 1) vertices += r;
       }
       if(vertices.size() > 0) {
-	Rational factor(1/vertices.size());
 	//Add 1/noOfVertices * sum of vertices
 	interior = accumulate(rows(rays.minor(vertices,All)),operations::add());
-	interior *= factor;
+	interior /= vertices.size();
       }
     }
     
+    
+    
     //Add rays
-    interior += accumulate(rows(rays.minor(~vertices,All)),operations::add());
+    if(vertices.size() < rays.rows()) 
+      interior += accumulate(rows(rays.minor(~vertices,All)),operations::add());
     
     //Strip homog. coordinate, if necessary
     if(uses_homog) interior = interior.slice(~scalar2set(0));
-    
+        
     perl::Object result = CallPolymakeFunction("rational_curve_from_moduli",interior);
     return result;
   }
