@@ -102,31 +102,32 @@ namespace polymake { namespace atint {
 
     //dbgtrace << "Evaluation maps: " << ev_maps << "\npos. orthant: " << inequalities << endl;
 	
-    Set<int> kept_cones;
-    for(int c = 0; c < psi_cones.rows(); c++) {
-      //dbgtrace << "Computing preimage of points in cone " << c << " of " << psi_cones.rows() << endl;
-      //Compute the intersection of the preimages of all points p_i (as a cone in the current cone)
-      //If it is empty, throw out this cone
-      //dbgtrace << "Rays: " << psi_rays.minor(psi_cones.row(c),All) << endl;
-      Matrix<Rational> equalities = T( psi_rays.minor(psi_cones.row(c),All) * ev_maps);
-      equalities = (-Vector<Rational>(pullback_points)) | equalities;
-      //We intersect with the positive orthant, since we only allow positive scalar combinations of rays
-      //dbgtrace << "Eq: " << equalities << endl;
-
-      try {
-	Matrix<Rational> sol_rays = (sv.enumerate_vertices(inequalities, equalities, true,true)).first;
-	if(sol_rays.rows() > 0) {
-	  //dbgtrace << "Solution: " << sol_rays << endl;
-	  kept_cones += c;
-	}
-      }
-      catch(...){ //Catch any "infeasible-system"-exception
-	//Go to the next cone
-	continue;
-      }
-      
-      
-    }//END sort out cones
+    Set<int> kept_cones = sequence(0, psi_cones.rows());
+    //FIXME: This doesn't seem to work for non-generic points?? (or k = 0?)
+//     for(int c = 0; c < psi_cones.rows(); c++) {
+//       dbgtrace << "Computing preimage of points in cone " << c << " of " << psi_cones.rows() << endl;
+//       //Compute the intersection of the preimages of all points p_i (as a cone in the current cone)
+//       //If it is empty, throw out this cone
+//       dbgtrace << "Rays: " << psi_rays.minor(psi_cones.row(c),All) << endl;
+//       Matrix<Rational> equalities = T( psi_rays.minor(psi_cones.row(c),All) * ev_maps);
+//       equalities = (-Vector<Rational>(pullback_points)) | equalities;
+//       //We intersect with the positive orthant, since we only allow positive scalar combinations of rays
+//       dbgtrace << "Eq: " << equalities << endl;
+// 
+//       try {
+// 	Matrix<Rational> sol_rays = (sv.enumerate_vertices(inequalities, equalities, true,true)).first;
+// 	if(sol_rays.rows() > 0) {
+// 	  dbgtrace << "Solution: " << sol_rays << endl;
+// 	  kept_cones += c;
+// 	}
+//       }
+//       catch(...){ //Catch any "infeasible-system"-exception
+// 	//Go to the next cone
+// 	continue;
+//       }
+//       
+//       
+//     }//END sort out cones
     //dbgtrace << "Cones remaining: " << kept_cones.size() << " out of " << psi_cones.rows() << endl;
     
     Set<int> used_rays = accumulate(rows(psi_cones.minor(kept_cones,All)), operations::add());
@@ -368,7 +369,7 @@ namespace polymake { namespace atint {
   //Documentation see perl wrapper
   Integer hurwitz_degree(Vector<int> degree) {
     //First we compute the pre-cycle
-    perl::Object precycle = hurwitz_pre_cycle(1, degree);
+    perl::Object precycle = hurwitz_pre_cycle(0, degree);
     
     Vector<Integer> weights = precycle.give("TROPICAL_WEIGHTS");
     
@@ -451,7 +452,7 @@ namespace polymake { namespace atint {
 		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
 		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
 		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
-		    "# determine the Hurwitz cycle. Should have length n-3-k. If it is not given, all p_i"
+		    "# determine the Hurwitz cycle (in addition to 0). Should have length n-3-k. If it is not given, all p_i"
 		    "# are by default equal to 0 (same for missing points)"
 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree) before push-forward",    
 		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>; Vector<Rational> = new Vector<Rational>())");
