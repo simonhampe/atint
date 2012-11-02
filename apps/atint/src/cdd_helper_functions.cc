@@ -17,7 +17,8 @@
  * ---
  * Copyright (C) 2012, Simon Hampe <hampe@mathematik.uni-kl.de>
  * 
- * 
+ * This file contains some helper functions for cone intersection / ray normalization functionality,
+ * especially for the polymake-cddlib interface
  */
 
 #include "polymake/client.h"
@@ -37,6 +38,34 @@ namespace polymake { namespace atint {
   //using namespace atintlog::dolog;
   //using namespace atintlog::dotrace;
 
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see header
+  Vector<int> insert_rays(Matrix<Rational> &rays, Matrix<Rational> nrays, bool is_normalized, bool uses_homog) {
+    //Normalize new rays, if necessary
+    if(!is_normalized) {
+      cdd_normalize_rays(nrays,uses_homog);
+    }
+    
+    //Insert rays
+    Vector<int> new_ray_indices;
+    for(int nr = 0; nr < nrays.rows(); nr++) {
+      int new_rayindex = -1;
+      for(int oray = 0; oray < rays.rows(); oray++) {
+	if(rays.row(oray) == nrays.row(nr)) {
+	  new_rayindex = oray; break;
+	}
+      }
+      if(new_rayindex == -1) {
+	rays /= nrays.row(nr);
+	new_rayindex = rays.rows()-1;
+      }
+      new_ray_indices |= new_rayindex;
+    }
+    
+    return new_ray_indices;
+  }//END insert_rays
   
   ///////////////////////////////////////////////////////////////////////////////////////
   

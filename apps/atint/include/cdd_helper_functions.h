@@ -39,6 +39,17 @@ namespace polymake { namespace atint {
     IncidenceMatrix<> ycontainers;
   };
   
+  
+  /**
+   @brief Inserts a list of new rays into a matrix of existing rays, taking care of doubles. This method DOES change the matrix of existing rays.
+   @param Matrix<Rational> rays A reference to a matrix of (normalized) rays or vertices. This matrix will potentially be changed
+   @param Matrix<Rational> nrays A list of new rays or vertices (not necessarily normalized), that will be added
+   @param bool is_normalized Whether the new rays are also already normalized
+   @param bool uses_homog Whether both matrices are given in homogeneous coordinates or not
+   @return Vector<int> At position i contains the row index of the new ray nrays[i] in the modified matrix rays
+   */
+  Vector<int> insert_rays(Matrix<Rational> &rays, Matrix<Rational> nrays, bool is_normalized, bool uses_homog);
+  
   /**
    @brief Normalizes a ray matrix: Vertices begin with a 1 and the first non-zero coordinate of a ray is +-1
    @param Matrix<Rational> The row vectors to be normalized. This method modifies this matrix!

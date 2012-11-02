@@ -57,11 +57,8 @@ namespace polymake { namespace atint {
   }
   
   void insert_cone(Vector<Set<int> > &cones, Vector<Integer> &weights, Set<int> ncone, Integer nweight) {
-    //Normalize
-    if(!ncone.contains(1)) {
-      ncone = sequence(1,6) - ncone;
-    }
-    
+    dbgtrace << "Inserting a cone" << endl;
+    dbgtrace << "Cones are " << cones << ", weights are " << weights << " new cone: " << ncone << endl;
     int ncone_index = -1;
     for(int c = 0; c < cones.dim(); c++) {
       Set<int> inter = ncone * cones[c];
@@ -76,6 +73,8 @@ namespace polymake { namespace atint {
     else {
       weights[ncone_index] += nweight;
     }
+    
+    dbgtrace << "New weights " << weights << endl;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +125,10 @@ namespace polymake { namespace atint {
       }
     }//END sort maximal cones
     
+    //DEBUG:
+//     cone_groups = cone_groups.slice(scalar2set(0));
+//     dbgtrace << "Cones: " << cone_groups << endl;
+    
     perl::Object ffm = CallPolymakeFunction("forgetful_map", 8,leaves_to_remove);
     Matrix<Rational> ff_matrix = ffm.give("MATRIX");
     
@@ -161,15 +164,19 @@ namespace polymake { namespace atint {
       dbgtrace << "Iterating queue...\n";
       
       while(queue.dim() > 0) {
+	dbgtrace << "Queue: " << queue << endl;
 	//Extract first element
 	Set<int> front = queue[0]; 
+	dbgtrace << "Checking cone " << front << endl;
 	queue = queue.slice(~scalar2set(0));
 	Integer front_weight = wqueue[0];
 	wqueue = wqueue.slice(~scalar2set(0));
 	//Find badly intersecting cone
+	bool found_bad_cone = false;
 	for(int q = 0; q < queue.dim(); q++) {
 	  if( (front * queue[q]).size() == 0) {
 	    //Compute intersection
+	    dbgtrace << "Intersecting with cone " << queue[q] << endl;
 	    perl::Object c1("polytope::Cone");
 	      c1.take("RAYS") << rfan_rays.minor(front,All);
 	    perl::Object c2("polytope::Cone");
@@ -178,6 +185,7 @@ namespace polymake { namespace atint {
 	    Matrix<Rational> interrays = intercone.give("RAYS");
 	    if(interrays.rows() > 0) {
 		int nindex = insert_ray(rfan_rays, interrays.row(0));
+		dbgtrace << "Intersection in ray  " << nindex << endl;
 		//If a cone already contains the new ray, just add it to the queue
 		//otherwise subdivide it
 		Vector<Set<int> > cones_sub;
@@ -186,25 +194,30 @@ namespace polymake { namespace atint {
 		    Set<int> ssub = cones_sub[i];
 		    if(ssub.contains(nindex)) {
 		      queue |= ssub;
+		      wqueue |= (i == 0? front_weight : wqueue[q]);
 		    }
 		    else {
 		      Vector<int> slist(ssub);
-		      for(int v = 0; v < 1; v++) {
+		      for(int v = 0; v < 2; v++) {
 			Set<int> ssubset;
 			ssubset += nindex; ssubset += slist[v];
 			queue |= ssubset;
+			wqueue |= (i == 0? front_weight : wqueue[q]);
 		      }
 		    }
 		}//END subdivide cones and add to queue
-		
-		
-		
+		//Also remove badly intersecting cone
+		queue = queue.slice(~scalar2set(q));
+		wqueue = wqueue.slice(~scalar2set(q));
+		found_bad_cone = true;
+		break;
 	    }//END if intersection is bad
 	  }//END if no intersection a priori
 	}//END iterate queue
 	
 	//If we arrive here, there was none, we can add the current cone
-	insert_cone(rfan_cones, rfan_weights, front, front_weight);
+	dbglog << "Inserting cone " << front << endl;
+	if(!found_bad_cone) insert_cone(rfan_cones, rfan_weights, front, front_weight);
       }
       
       
@@ -216,6 +229,144 @@ namespace polymake { namespace atint {
       result.take("TROPICAL_WEIGHTS") << rfan_weights;
     
     return result;
+    
+  }
+  
+  perl::Object refinem6(perl::Object recfan) {
+    
+    Matrix<Rational> rays = recfan.give("RAYS");
+    IncidenceMatrix<> cones = recfan.give("MAXIMAL_CONES");
+    
+    //Compute M_0,6
+    perl::Object m6 = CallPolymakeFunction("tropical_m0n",6);
+    Matrix<Rational> mrays = m6.give("RAYS");
+    IncidenceMatrix<> mcones = m6.give("MAXIMAL_CONES");
+    
+    //Result variables
+    Matrix<Rational> rrays = rays;
+    Map<int,int> m6tores;
+    for(int mr = 0; mr < mrays.rows(); mr++) {
+      m6tores[mr] = insert_ray(rrays, mrays.row(mr));
+    }
+    Vector<Set<int> > rcones;
+    
+    //Iterate cones of m6
+    for(int mc = 0; mc < mcones.rows(); mc++) {
+      //Find cones contained in this one 
+      perl::Object mccurve = CallPolymakeFunction("rational_curve_from_cone",m6,6,mc);
+      Vector<Set<int> > mcsetlist = mccurve.give("SETS");
+      dbgtrace << "Refining cone " << mc << ": " << mcsetlist <<  endl;
+	for(int v = 0; v < mcsetlist.dim(); v++) {
+	    if(!mcsetlist[v].contains(1)) mcsetlist[v] = sequence(1,6) - mcsetlist[v];
+	}
+      Set<Set<int> > mcsets(mcsetlist);
+      
+      Vector<int> relevant_cones;
+      Vector<int> expected_cones;
+      bool found_interior = false;
+      for(int rc = 0; rc < cones.rows(); rc++) {
+	perl::Object rccurve = CallPolymakeFunction("rational_curve_from_cone",recfan,6,rc);
+	Vector<Set<int> > rcsetlist = rccurve.give("SETS");
+	  for(int w = 0; w < rcsetlist.dim(); w++) {
+	      if(!rcsetlist[w].contains(1)) rcsetlist[w] = sequence(1,6) - rcsetlist[w];
+	  }
+	if( (mcsets * Set<Set<int> >(rcsetlist)).size() == rcsetlist.dim()) {
+	  relevant_cones |= rc;
+	  if(rcsetlist.dim() == 3) found_interior = true;
+	  expected_cones |= (rcsetlist.dim() == 3 ? 2 : 1);
+	}
+	
+      }//END iterate recession fan cones
+      
+      dbgtrace << "Relevant cones: " << relevant_cones << endl;
+      dbgtrace << "Expected cones: " << expected_cones << endl;
+      
+      //If there were no interior cones, just add the cone of m6
+      if(!found_interior) {
+	Set<int> translated_cone = attach_operation(mcones.row(mc), pm::operations::associative_access<Map<int,int>, int>(&m6tores));
+	rcones |= translated_cone;
+      }
+      else {
+	Vector<int> found_cones(relevant_cones.dim());
+	for(int c = 0; c < relevant_cones.dim(); c++) {
+	    if(found_cones[c] < expected_cones[c]) {
+	      dbgtrace << "Starting a cone with " << c << endl;
+	      found_cones[c]++;
+	      Set<int> newcone = cones.row(relevant_cones[c]);
+	      //Find first cone to add
+	      for(int d1 = 0; d1 < relevant_cones.dim(); d1++) {
+		if( d1 != c && found_cones[d1] < expected_cones[d1] &&
+		  (newcone * cones.row(relevant_cones[d1])).size()  == newcone.size() -1) {
+		  //Find second cone to add
+		  Set<int> coned1 = newcone + cones.row(relevant_cones[d1]);
+		  bool found_one = false;
+		  for(int d2 = 0; d2 < relevant_cones.dim(); d2++) {
+		    if(d1 != d2 && d2 != c && found_cones[d2] < expected_cones[d2] &&
+		      (coned1 * cones.row(relevant_cones[d2])).size()  == coned1.size() -1) {
+			dbgtrace << "Adding " << d1 << " and " << d2 << endl;
+			coned1 += cones.row(relevant_cones[d2]);
+			found_cones[d1]++;found_cones[d2]++;
+			rcones |= coned1;
+			found_one = true;
+			break;
+		    }
+		  }
+		  if(found_one)  break;
+		}
+		
+	      }
+	      
+	    }
+	}
+//  	if(mc == 9) return perl::Object("WeightedComplex");
+      }
+      dbgtrace << "Refined cones: " << rcones << endl;
+      
+    }//END iterate cones of m6
+    
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << rrays;
+      result.take("MAXIMAL_CONES") << rcones;
+      result.take("TROPICAL_WEIGHTS") << ones_vector<Integer>(rcones.dim());
+      
+    return result;  
+    
+  }
+  
+  Vector<Integer> weight_aim(perl::Object mref, perl::Object hurwitz) {
+    
+    Matrix<Rational> mref_rays = mref.give("RAYS"); 
+    IncidenceMatrix<> mref_codim = mref.give("CODIM_1_FACES");
+    
+    Matrix<Rational> hurwitz_rays = hurwitz.give("RAYS");
+    IncidenceMatrix<> hurwitz_cones = hurwitz.give("MAXIMAL_CONES");
+    Vector<Integer> hurwitz_weights = hurwitz.give("TROPICAL_WEIGHTS");
+    
+    //Identify rays
+    Map<int,int> htom;
+    for(int h = 0; h < hurwitz_rays.rows(); h++) {
+      for(int m = 0; m < mref_rays.rows(); m++) {
+	if(hurwitz_rays.row(h) == mref_rays.row(m)) {
+	    htom[h] = m; break;
+	}
+      }
+    }
+    
+    //Identify cones
+    Map<int,int> cone_htom;
+    Vector<Integer> aim(mref_codim.rows());
+    for(int hc = 0; hc < hurwitz_cones.rows(); hc++) {
+      Set<int> hcone_conv = attach_operation(hurwitz_cones.row(hc), pm::operations::associative_access<Map<int,int>,int>(&htom));
+      for(int mc = 0; mc < mref_codim.rows(); mc++) {
+	if( (hcone_conv * mref_codim.row(mc)).size() == hcone_conv.size()) {
+	  aim[mc] = hurwitz_weights[hc];
+	  break;
+	}
+      }
+    }
+    
+    return aim;
+    
     
   }
   
@@ -289,5 +440,7 @@ namespace polymake { namespace atint {
   
 //   Function4perl(&findShelling,"fshell(WeightedComplex)");
     Function4perl(&hurwitz6_recession, "h6r(WeightedComplex)");
+    Function4perl(&refinem6,"rm6(WeightedComplex)");
+    Function4perl(&weight_aim,"wa6(WeightedComplex,WeightedComplex)");
   
 }}
