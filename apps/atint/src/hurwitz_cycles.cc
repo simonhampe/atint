@@ -153,133 +153,133 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
-//   perl::Object hurwitz_cycle(int k, Vector<int> degree, Vector<Rational> points) {
-//     int n = degree.dim();
-//     int big_n = 2*n - k - 2;
-//     
-//     //Check points
-//     if(points.dim() < n-k-3) {
-//       throw std::runtime_error("Cannot compute Hurwitz cycle. Not enough points given.");
-//     }
-//     for(int i = 0; i < points.dim(); i++) {
-//       for(int j = i+1; j < points.dim(); j++) {
-// 	if(points[i] == points[j] || points[i] == 0) {
-// 	  throw std::runtime_error("Cannot compute Hurwitz cycle. Need distinct points != 0 to allow easy push-forward. Try different points or hurwitz_pre_cycle(...)");
-// 	}
-//       }
-//     }
-//     
-//     //First we compute the pre-cycle    
-//     perl::Object precycle =  hurwitz_pre_cycle(1, degree, points);
-//     Matrix<Rational> rays = precycle.give("RAYS");
-//     IncidenceMatrix<> cones = precycle.give("MAXIMAL_CONES");
-//     Vector<Integer> weights = precycle.give("TROPICAL_WEIGHTS");
-//     bool uses_homog = precycle.give("USES_HOMOGENEOUS_C");
-//     
-//     //Then apply the forgetful map to the rays
-//     perl::Object ffmap = CallPolymakeFunction("forgetful_map",big_n, sequence(degree.dim()+1, n-k-2));
-//     Matrix<Rational> ffmatrix = ffmap.give("MATRIX");
-//     //If we use homog. coordiantes, keep the homogenizing coord.
-//     Vector<Rational> homog_coord = rays.col(0);
-//     if(uses_homog) rays = rays.minor(All,~scalar2set(0));
-//     
-//     rays = T(ffmatrix * T(rays));
-//     if(uses_homog) rays = homog_coord | rays;
-//     
-//     //Check for double rays
-//     Map<int,int> ray_map;
-//     Set<int> used_rays;
-//     for(int r = 0; r < rays.rows(); r++) {
-//       ray_map[r] = r;
-//       for(int s = 0; s < r; s++) {
-// 	if(rays.row(r) == rays.row(s)) {
-// 	    ray_map[r] = s; break;
-// 	}
-//       }
-//       if(ray_map[r] == r) used_rays += r;
-//     }//END check doubles
-//     
-//     //Translate cones to new ray indices
-//     Vector<Set<int> > translated_cones;
-//     for(int oc = 0; oc < cones.rows(); oc++) {
-//       Set<int> tcone = 
-// 	attach_operation(cones.row(oc), pm::operations::associative_access<Map<int,int>, int>(&ray_map));
-//       translated_cones |= tcone;
-//     }
-//     
-//     //Now we check if two cones intersect transversally and replace them accordingly
-//     solver<Rational> sv;
-//     bool added_something = true;
-//     while(added_something) {
-//       added_something = false;
-//       //Go through all cone pairs of cones that don't intersect in a vertex already
-//       for(int first_cone = 0; first_cone < translated_cones.dim() && !added_something; first_cone++) {
-// 	Matrix<Rational> fconerays = rays.minor(translated_cones[first_cone],All);
-// 	for(int sec_cone = first_cone+1; sec_cone < translated_cones.dim(); sec_cone++) {
-// 	  if( (translated_cones[first_cone] * translated_cones[sec_cone]).size() == 0) {
-// 	    //Compute H-reps
-// 	    std::pair<Matrix<Rational>, Matrix<Rational> > frep = 
-// 	      sv.enumerate_facets( zero_vector<Rational>() | fconerays, Matrix<Rational>(0, rays.cols()+1), true,false);
-// 	    std::pair<Matrix<Rational>, Matrix<Rational> > srep =
-// 	      sv.enumerate_facets( zero_vector<Rational>() | rays.minor(translated_cones[sec_cone],All),
-// 				   Matrix<Rational>(0,rays.cols()+1), true,false);
-// 	    //Compute intersection
-// 	    Matrix<Rational> vertex_matrix = sv.enumerate_vertices( frep.first / srep.first, 
-// 							     frep.second / srep.second,
-// 							    true,true).first.minor(All,~scalar2set(0));
-// 							    
-// 	    if(vertex_matrix.rows() == 0 || vertex_matrix(0,0) == 0) continue;
-// 	    
-// 	    //Normalize
-// 	    Vector<Rational> vertex = vertex_matrix.row(0) / vertex_matrix(0,0);
-// 	   
-// 	    rays = rays / vertex;
-// 	    int vertex_index = rays.rows() -1;
-// 	    used_rays += vertex_index;
-// 	    //Replace cones
-// 	    added_something = true;
-// 	    
-// 	    Integer fweight = weights[first_cone];
-// 	    Integer sweight = weights[sec_cone];
-// 	    Vector<int> fset(translated_cones[first_cone]);
-// 	    Vector<int> sset(translated_cones[sec_cone]);
-// 	    //Remove old cones
-// 	    Set<int> rem_cones; rem_cones += first_cone; rem_cones += sec_cone;
-// 	    translated_cones = translated_cones.slice(~rem_cones);
-// 	    weights = weights.slice(~rem_cones);
-// 	    //Add new ones
-// 	    Set<int> a1,a2,b1,b2;
-// 	    a1 += fset[0]; a1 += vertex_index;
-// 	    a2 += fset[1]; a2 += vertex_index;
-// 	    b1 += sset[0]; b1 += vertex_index;
-// 	    b2 += sset[1]; b2 += vertex_index;
-// 	    translated_cones |= a1; translated_cones |= a2;
-// 	    translated_cones |= b1; translated_cones |= b2;
-// 	    weights |= fweight; weights |= fweight;
-// 	    weights |= sweight; weights |= sweight;
-// 	    
-// 	    break;
-// // 	    }
-// // 	    catch(...) {//Catch any "infeasible system" exceptions
-// // 	      //Do nothing
-// // 	    }
-// 	    
-// 	  }//END if intersection is empty
-// 	}//END iterate second cone
-//       }//END iterate first cone
-//     }//END check transversal intersections
-//     
-// 
-//     IncidenceMatrix<> cone_matrix(translated_cones);
-//     
-//     perl::Object result("WeightedComplex");
-//       result.take("RAYS") << rays.minor(used_rays,All);
-//       result.take("MAXIMAL_CONES") << cone_matrix.minor(All, used_rays);
-//       result.take("TROPICAL_WEIGHTS") << weights;
-//       result.take("USES_HOMOGENEOUS_C") << uses_homog;
-//       
-//     return result;
-//   }
+  perl::Object hurwitz_push_cycle(int k, Vector<int> degree, Vector<Rational> points) {
+    int n = degree.dim();
+    int big_n = 2*n - k - 2;
+    
+    //Check points
+    if(points.dim() < n-k-3) {
+      throw std::runtime_error("Cannot compute Hurwitz cycle. Not enough points given.");
+    }
+    for(int i = 0; i < points.dim(); i++) {
+      for(int j = i+1; j < points.dim(); j++) {
+	if(points[i] == points[j] || points[i] == 0) {
+	  throw std::runtime_error("Cannot compute Hurwitz cycle. Need distinct points != 0 to allow easy push-forward. Try different points or hurwitz_pre_cycle(...)");
+	}
+      }
+    }
+    
+    //First we compute the pre-cycle    
+    perl::Object precycle =  hurwitz_pre_cycle(1, degree, points);
+    Matrix<Rational> rays = precycle.give("RAYS");
+    IncidenceMatrix<> cones = precycle.give("MAXIMAL_CONES");
+    Vector<Integer> weights = precycle.give("TROPICAL_WEIGHTS");
+    bool uses_homog = precycle.give("USES_HOMOGENEOUS_C");
+    
+    //Then apply the forgetful map to the rays
+    perl::Object ffmap = CallPolymakeFunction("forgetful_map",big_n, sequence(degree.dim()+1, n-k-2));
+    Matrix<Rational> ffmatrix = ffmap.give("MATRIX");
+    //If we use homog. coordiantes, keep the homogenizing coord.
+    Vector<Rational> homog_coord = rays.col(0);
+    if(uses_homog) rays = rays.minor(All,~scalar2set(0));
+    
+    rays = T(ffmatrix * T(rays));
+    if(uses_homog) rays = homog_coord | rays;
+    
+    //Check for double rays
+    Map<int,int> ray_map;
+    Set<int> used_rays;
+    for(int r = 0; r < rays.rows(); r++) {
+      ray_map[r] = r;
+      for(int s = 0; s < r; s++) {
+	if(rays.row(r) == rays.row(s)) {
+	    ray_map[r] = s; break;
+	}
+      }
+      if(ray_map[r] == r) used_rays += r;
+    }//END check doubles
+    
+    //Translate cones to new ray indices
+    Vector<Set<int> > translated_cones;
+    for(int oc = 0; oc < cones.rows(); oc++) {
+      Set<int> tcone = 
+	attach_operation(cones.row(oc), pm::operations::associative_access<Map<int,int>, int>(&ray_map));
+      translated_cones |= tcone;
+    }
+    
+    //Now we check if two cones intersect transversally and replace them accordingly
+    solver<Rational> sv;
+    bool added_something = true;
+    while(added_something) {
+      added_something = false;
+      //Go through all cone pairs of cones that don't intersect in a vertex already
+      for(int first_cone = 0; first_cone < translated_cones.dim() && !added_something; first_cone++) {
+	Matrix<Rational> fconerays = rays.minor(translated_cones[first_cone],All);
+	for(int sec_cone = first_cone+1; sec_cone < translated_cones.dim(); sec_cone++) {
+	  if( (translated_cones[first_cone] * translated_cones[sec_cone]).size() == 0) {
+	    //Compute H-reps
+	    std::pair<Matrix<Rational>, Matrix<Rational> > frep = 
+	      sv.enumerate_facets( zero_vector<Rational>() | fconerays, Matrix<Rational>(0, rays.cols()+1), true,false);
+	    std::pair<Matrix<Rational>, Matrix<Rational> > srep =
+	      sv.enumerate_facets( zero_vector<Rational>() | rays.minor(translated_cones[sec_cone],All),
+				   Matrix<Rational>(0,rays.cols()+1), true,false);
+	    //Compute intersection
+	    Matrix<Rational> vertex_matrix = sv.enumerate_vertices( frep.first / srep.first, 
+							     frep.second / srep.second,
+							    true,true).first.minor(All,~scalar2set(0));
+							    
+	    if(vertex_matrix.rows() == 0 || vertex_matrix(0,0) == 0) continue;
+	    
+	    //Normalize
+	    Vector<Rational> vertex = vertex_matrix.row(0) / vertex_matrix(0,0);
+	   
+	    rays = rays / vertex;
+	    int vertex_index = rays.rows() -1;
+	    used_rays += vertex_index;
+	    //Replace cones
+	    added_something = true;
+	    
+	    Integer fweight = weights[first_cone];
+	    Integer sweight = weights[sec_cone];
+	    Vector<int> fset(translated_cones[first_cone]);
+	    Vector<int> sset(translated_cones[sec_cone]);
+	    //Remove old cones
+	    Set<int> rem_cones; rem_cones += first_cone; rem_cones += sec_cone;
+	    translated_cones = translated_cones.slice(~rem_cones);
+	    weights = weights.slice(~rem_cones);
+	    //Add new ones
+	    Set<int> a1,a2,b1,b2;
+	    a1 += fset[0]; a1 += vertex_index;
+	    a2 += fset[1]; a2 += vertex_index;
+	    b1 += sset[0]; b1 += vertex_index;
+	    b2 += sset[1]; b2 += vertex_index;
+	    translated_cones |= a1; translated_cones |= a2;
+	    translated_cones |= b1; translated_cones |= b2;
+	    weights |= fweight; weights |= fweight;
+	    weights |= sweight; weights |= sweight;
+	    
+	    break;
+// 	    }
+// 	    catch(...) {//Catch any "infeasible system" exceptions
+// 	      //Do nothing
+// 	    }
+	    
+	  }//END if intersection is empty
+	}//END iterate second cone
+      }//END iterate first cone
+    }//END check transversal intersections
+    
+
+    IncidenceMatrix<> cone_matrix(translated_cones);
+    
+    perl::Object result("WeightedComplex");
+      result.take("RAYS") << rays.minor(used_rays,All);
+      result.take("MAXIMAL_CONES") << cone_matrix.minor(All, used_rays);
+      result.take("TROPICAL_WEIGHTS") << weights;
+      result.take("USES_HOMOGENEOUS_C") << uses_homog;
+      
+    return result;
+  }
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -493,5 +493,7 @@ namespace polymake { namespace atint {
 		    "# @param WeightedComplex cycle A Hurwitz curve object (or any one-dimensional cycle in M_0,n)"
 		    "# @return graph::Graph",
 		    hurwitz_graph,"hurwitz_graph(WeightedComplex)");
+  
+  Function4perl(&hurwitz_push_cycle, "hpc($, Vector<Int>, Vector<Rational>)");
   
 }}

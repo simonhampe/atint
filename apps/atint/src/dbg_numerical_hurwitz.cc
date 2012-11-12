@@ -56,7 +56,7 @@ namespace polymake { namespace atint {
     return new_rayindex;
   }
   
-  void insert_cone(Vector<Set<int> > &cones, Vector<Integer> &weights, Set<int> ncone, Integer nweight) {
+  void insert_cone_in_list(Vector<Set<int> > &cones, Vector<Integer> &weights, Set<int> ncone, Integer nweight) {
     dbgtrace << "Inserting a cone" << endl;
     dbgtrace << "Cones are " << cones << ", weights are " << weights << " new cone: " << ncone << endl;
     int ncone_index = -1;
@@ -127,7 +127,7 @@ namespace polymake { namespace atint {
     
     //DEBUG:
 //     cone_groups = cone_groups.slice(scalar2set(0));
-//     dbgtrace << "Cones: " << cone_groups << endl;
+     dbgtrace << "Cones: " << cone_groups << endl;
     
     perl::Object ffm = CallPolymakeFunction("forgetful_map", 8,leaves_to_remove);
     Matrix<Rational> ff_matrix = ffm.give("MATRIX");
@@ -217,7 +217,7 @@ namespace polymake { namespace atint {
 	
 	//If we arrive here, there was none, we can add the current cone
 	dbglog << "Inserting cone " << front << endl;
-	if(!found_bad_cone) insert_cone(rfan_cones, rfan_weights, front, front_weight);
+	if(!found_bad_cone) insert_cone_in_list(rfan_cones, rfan_weights, front, front_weight);
       }
       
       
