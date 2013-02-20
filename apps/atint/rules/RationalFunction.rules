@@ -25,23 +25,23 @@ object RationalFunction {
 #   use overload('^' => 'powerf');
   use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'powerf', '+' => 'sum','-' => 'minus','neg'=>'neg');
   
-  # @category Tropical geometry
+  # @category Basic properties
   # This property describes the linearity domains of the function. I.e. the function is
   # affine integral linear on each maximal cone of [[DOMAIN]]. It is of type WeightedComplex, but
   # actually only the basic geometric properties [[RAYS]]/[[CMPLX_RAYS]],[[MAXIMAL_CONES]]/[[CMPLX_MAXIMAL_CONES]],[[LINEALITY_SPACE]] and [[USES_HOMOGENEOUS_C]] are of any interest. Further properties are ignored and can be omitted upon generation.
   property DOMAIN : WeightedComplex;
   
-  # @category Tropical geometry
+  # @category Basic properties
   # The value at index i describes the function value of ray [[DOMAIN]]->CMPLX_RAYS->row(i). More precisely, if the
   # corresponding ray is a vertex, it describes its function value. If it is a directional ray, it describes 
   # the slope on that ray.
   property RAY_VALUES : Vector<Rational>;
   
-  # @category Tropical geometry
+  # @category Basic properties
   # The value at index i describes the function value of [[DOMAIN]]->LINEALITY_SPACE->row(i)
   property LIN_VALUES : Vector<Rational>; 
   
-  # @category Tropical geometry / Rational functions
+  # @category Basic properties
   # This property describes how many times a function should be applied, if it occurs in a divisor term
   # E.g. if you create a MinMaxFunction f and you set its POWER property to 2, a call to
   # divisor(X,f) actually computes f*f*X
@@ -155,7 +155,7 @@ object RationalFunction {
   
 }
 
-# @category Rational functions
+# @category Basic polyhedral operations
 # This function takes a fan::PolyhedralFan and converts it into a WeightedComplex object.
 # @param fan::PolyhedralFan fan The fan to be converted
 # @param Bool homog Whether the fan is to be interpreted in homogeneous coordinates
@@ -165,7 +165,7 @@ user_function wfan {
   return new WeightedComplex(RAYS=>$fan->RAYS,MAXIMAL_CONES=>$fan->MAXIMAL_CONES,LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$homog);
 }
 
-# @category Rational functions
+# @category Morphisms and functions
 # This creates a RationalFunction by directly defining it on the rays of a given domain. It is simply shorter then
 # using the constructor.
 # @param WeightedComplex X The DOMAIN of the function
@@ -194,8 +194,9 @@ user_function function_value {
 			      LIN_VALUES=>(new Vector<Rational>(@lvalues)),POWER=>1);
 }
 
-# @category Rational functions
-# This function takes a RationalFunction f and a Rational value r and returns the RationalFunction r*f
+# @category Morphisms and functions
+# This function takes a RationalFunction f and a Rational value r and returns the RationalFunction r*f. You can
+# also use the operator '*' instead.
 # @param RationalFunction f
 # @param Rational r
 # @return RationalFunction

@@ -27,6 +27,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/moduli.h"
+#include "polymake/atint/moduli_local.h"
 
 namespace polymake { namespace atint { 
   
@@ -332,7 +333,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Moduli spaces / Local geometry"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Computes the moduli space M_0,n locally around a given list of combinatorial"
 		    "# types. More precisely: It computes the weighted complex consisting of all"
 		    "# maximal cones containing any of the given combinatorial types and localizes "
@@ -344,11 +345,11 @@ namespace polymake { namespace atint {
 		    "# number of curves)"
 		    "# The coordinates are the same that would be produced by the function "
 		    "# tropical_m0n"
-		    "# @param Int n Should be >= 3"
+		    "# @param RationalCurve A list of rational curves (preferrably in the same M_0,n)"
 		    "# @return WeightedComplex The local complex",
 		    &local_mn,"local_m0n(;@)");
   
-  UserFunction4perl("# @category Tropial geometry / Moduli spaces / Rational curves"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# This takes a matrix of rays of a given cone that is supposed to lie"
 		    "# in a moduli space M_0,n and computes the rational curve corresponding"
 		    "# to an interior point. More precisely, if there are k vertices in "
@@ -362,7 +363,7 @@ namespace polymake { namespace atint {
 		    "# @return RationalCurve c The curve corresponding to an interior point",
 		    &rational_curve_from_rays, "rational_curve_from_rays(Matrix<Rational>;$=0)");
   
-  UserFunction4perl("# @category Tropial geometry / Moduli spaces / Rational curves"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# This takes a weighted complex X that is supposed to be of the form"
 		    "# M_0,n x Y for some Y (It assumes that M_0,n occupies the first "
 		    "# coordinates) and an index of a maximal cone of that complex."

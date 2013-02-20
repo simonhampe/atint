@@ -21,7 +21,8 @@
 ########################################################################
 
 package Visual::RationalCurve;
-
+  
+  # Visualization options for RationalCurve->VISUAL
   options %Visual::RationalCurve::decorations=(
     %Visual::Graph::decorations,
     
@@ -33,6 +34,11 @@ package Visual::RationalCurve;
 
 object RationalCurve {
   
+  # @category Visualization
+  # Visualizes a RationalCurve object. This visualization uses the VISUAL method of its GRAPH, so 
+  # it accepts all the options of Visual::Graph::decorations. In addition it has another option
+  # @options
+  # @option String LengthLabels If "hidden", the edges are not labelled with their lengths. Any other text is ignored. Not set to "hidden" by default.
   user_method VISUAL(%Visual::RationalCurve::decorations) {
     my ($this,$decor) = @_;
     # Find out if edge labelling is turned off

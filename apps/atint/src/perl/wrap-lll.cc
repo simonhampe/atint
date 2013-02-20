@@ -21,5 +21,11 @@ namespace polymake { namespace atint {
    }
    FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer> const&) );
 
+   FunctionWrapper4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer> const&, pm::Matrix<pm::Integer>&, pm::Integer&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Integer > > >(), arg1.get< perl::TryCanned< Matrix< Integer > > >(), arg2.get< perl::TryCanned< Integer > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Integer> const&, pm::Matrix<pm::Integer>&, pm::Integer&) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

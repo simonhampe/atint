@@ -286,33 +286,38 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
 //   Function4perl(&cycle_irreducibility_system, "cycle_irreducibility_system(WeightedComplex)");
   
-  UserFunction4perl("# @category Tropical geometry / Irreducibility "
-		    "# This function computes whether a given tropical cycle is irreducible"
-		    "# @param WeightedComplex C A tropical cycle"
-		    "# @return Bool Whether the cycle is irreducible",
-		    &is_irreducible, "is_irreducible(WeightedComplex)");
-  
-  UserFunction4perl("# @category Tropical geometry / Irreducibility"
-		    "# This function computes a Z-basis (as rows) for the space of weight distributions on a "
-		    "# tropical cycle making it balanced (i.e. the cycle is irreducible, if and only if"
-		    "# the basis consists of one element and the gcd of all weights is 1)"
-		    "# @param WeightedComplex C A tropical cycle"
-		    "# @return Matrix<Integer> A Z-basis of the weight space (given as row vectors)",
-		    &cycle_weight_space, "cycle_weight_space(WeightedComplex)");
+//   UserFunction4perl("# @category Tropical geometry / Irreducibility "
+// 		    "# This function computes whether a given tropical cycle is irreducible"
+// 		    "# @param WeightedComplex C A tropical cycle"
+// 		    "# @return Bool Whether the cycle is irreducible",
+// 		    &is_irreducible, "is_irreducible(WeightedComplex)");
+//   
+//   UserFunction4perl("# @category Tropical geometry / Irreducibility"
+// 		    "# This function computes a Z-basis (as rows) for the space of weight distributions on a "
+// 		    "# tropical cycle making it balanced (i.e. the cycle is irreducible, if and only if"
+// 		    "# the basis consists of one element and the gcd of all weights is 1)"
+// 		    "# @param WeightedComplex C A tropical cycle"
+// 		    "# @return Matrix<Integer> A Z-basis of the weight space (given as row vectors)",
+// 		    &cycle_weight_space, "cycle_weight_space(WeightedComplex)");
+// 
+//   UserFunction4perl("# @category Tropical geometry / Irreducibility"
+// 		    "# This function computes for a given tropical cycle C a representation of "
+// 		    "# cycle_weight_space(C) in terms of linear equations. More precisely, this computes"
+// 		    "# a matrix, whose integer kernel is cycle_weight_space(C)"
+// 		    "# @param WeightedComplex C a tropical cycle"
+// 		    "# @return Matrix<Integer> The dual of cycle_weight_space(C)",
+// 		    &cycle_weight_system, "cycle_weight_system(WeightedComplex)");
+//   
+//   UserFunction4perl("# @category Tropical geometry / Irreducibility"
+// 		    "# This function computes the intersection of the weight space of a cycle (as given by "
+// 		    "# cycle_weight_space) with the positive orthant."
+// 		    "# @param WeightedComplex C"
+// 		    "# @return polytope::Cone The positive part of the weight space as a (rational) cone", 
+// 		    &cycle_weight_cone, "cycle_weight_cone(WeightedComplex)");
+//   
+    Function4perl(&is_irreducible,"is_irreducible(WeightedComplex)");
+    Function4perl(&cycle_weight_space,"cycle_weight_space(WeightedComplex)");
+    Function4perl(&cycle_weight_system,"cycle_weight_system(WeightedComplex)");
+    Function4perl(&cycle_weight_cone,"cycle_weight_cone(WeightedComplex)");
 
-  UserFunction4perl("# @category Tropical geometry / Irreducibility"
-		    "# This function computes for a given tropical cycle C a representation of "
-		    "# cycle_weight_space(C) in terms of linear equations. More precisely, this computes"
-		    "# a matrix, whose integer kernel is cycle_weight_space(C)"
-		    "# @param WeightedComplex C a tropical cycle"
-		    "# @return Matrix<Integer> The dual of cycle_weight_space(C)",
-		    &cycle_weight_system, "cycle_weight_system(WeightedComplex)");
-  
-  UserFunction4perl("# @category Tropical geometry / Irreducibility"
-		    "# This function computes the intersection of the weight space of a cycle (as given by "
-		    "# cycle_weight_space) with the positive orthant."
-		    "# @param WeightedComplex C"
-		    "# @return polytope::Cone The positive part of the weight space as a (rational) cone", 
-		    &cycle_weight_cone, "cycle_weight_cone(WeightedComplex)");
-  
 }}

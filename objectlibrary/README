@@ -1,0 +1,11 @@
+# This file contains some tropical objects that take rather long to 
+# compute
+
+diag_u_*_*.tar.gz: 
+	Used by the script atint_diagonals. Contains functions 
+	that cut out the diagonal in B(U_*_*)
+moduli9/moduli10: 
+	The tropical moduli spaces M_0,9 and M_0,10. M_0,10 has been
+	tar-gzipped since the actual file is 90 MB large (and takes
+	around 3 min to load into polymake). untar with 
+	"tar -xzvf moduli10.atint.tar.gz"

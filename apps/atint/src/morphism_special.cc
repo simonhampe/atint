@@ -260,7 +260,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry/Morphisms"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# This creates the i-th evaluation function on M_0,n^(lab)(R^r,Delta)"
 		    "# (which is actually realized as M_0,(n+|Delta|) x R^r)"
 		    "# @param Int n The number of marked points"
@@ -275,7 +275,7 @@ namespace polymake { namespace atint {
 		    "# in matroid coordinates cross R^r",
 		    &evaluation_map,"evaluation_map($,$,Matrix<Rational>,$)");
   
-  UserFunction4perl("# @category Tropical geometry/Morphisms"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# This creates the i-th evaluation function on M_0,n^(lab)(R^r,d)"
 		    "# (which is actually realized as M_0,(n+d(r+1)) x R^r)"
 		    "# This is the same as calling the function"
@@ -291,22 +291,22 @@ namespace polymake { namespace atint {
 		    "# in matroid coordinates cross R^r",
 		    &evaluation_map_d,"evaluation_map($,$,$,$)"); 
   
-  UserFunction4perl("# @category Tropical geometry/Morphisms"
+  UserFunction4perl("# @category Morphisms and functions"
 		    "# This creates a linear projection from R^n to a given set of coordinates"
 		    "# @param Int n The dimension of the domain"
-		    "# @param Set<Int> The set of coordinates to which this map should project (starting "
+		    "# @param Set<Int> s The set of coordinates to which this map should project (starting "
 		    "# the count at 0)"
 		    "# @return Morphism The corresponding projection as a global linear map",
 		    &projection_map, "projection_map($, Set<Int>)");
   
-  UserFunction4perl("# @category Tropical geometry/Morphisms"
+  UserFunction4perl("# @category Morphisms and functions"
 		    "# This computes the projection from R^n to R^m (for m < n) onto the first m coordinates"
 		    "# @param Int n Dimension of domain"
 		    "# @param Int m Dimension of image"
 		    "# @return Morphism The corresponding projection",
 		    &projection_map_default, "projection_map($,$)");
   
-  UserFunction4perl("# @category Tropical geometry/Morphismms"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# This computes the forgetful map from the moduli space M_0,n to M_0,(n-|S|)"
 		    "# @param Int n The number of leaves in the moduli space M_0,n"
 		    "# @param Set<Int> S The set of leaves to be forgotten. Should be a subset of (1,..,n)"

@@ -21,7 +21,7 @@
 #  k-skeleton of a complex or computing the cartesian product of two varieties
 ########################################################################
 
-# @category Polyhedral geometry
+# @category Basic polyhedral operations
 # Takes a polyhedral complex and computes the k-skeleton. Will return an empty fan, if k is larger then the dimension of the given complex or smaller than 0.
 # @param WeightedComplex fan A fan (or polyhedral complex)
 # @param Int k The dimension of the skeleton that should be computed
@@ -35,7 +35,7 @@ user_function skeleton_complex {
   return calculate_skeleton_complex($fan,$k, $preserve eq TRUE? 1 : 0);
 }
 
-# @category Polyhedral geometry
+# @category Basic polyhedral operations
 # Computes the cartesian product of a set of polyhedral fans. If any of them uses homogeneous coordinates, so will the result
 # @param complexes A list of WeightedComplex objects
 # @return the cartesian product of the complexes. If any of the complexes use homogeneous coordinates, so does the result. If any of the complexex carries weights, the result carries the sum of the weights of its factors (Complexes without weights are treated as complexes with weight 1). If you want to compute the properties [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] as cartesian products of the corr. properties of the complexes, use product_complex_lattice instead.
@@ -43,7 +43,7 @@ user_function product_complex {
   return compute_product_complex(@_);
 }
 
-# @category Polyhedral geometry
+# @category Basic polyhedral operations
 # Computes the cartesian product of a set of polyhedral fans. If any of them uses homogeneous coordinates, so will the result
 # @param complexes A list of WeightedComplex objects
 # @return the cartesian product of the complexes. If any of the complexes use homogeneous coordinates, so does the result. If any of the complexex carries weights, the result carries the sum of the weights of its factors (Complexes without weights are treated as complexes with weight 1). This function will precompute the properties [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] for  all complexes and the result will have the corr. properties set to the cartesian product of these
@@ -51,24 +51,3 @@ user_function product_complex_lattice {
   return compute_product_complex_lattice(@_);
 }
 
-# @category Linear algebra 
-# Takes a polyhedral complex and applies an affine linear transformation, given by a translate 
-# vector and a matrix. The method assumes the function is bijective and preserves cones, i.e. it 
-# just applies the transformation to the rays and lineality space and leaves the cones and weights
-# unchanged.
-# @param WeightedComplex complex The complex to be transformed, supposed to be in homogeneous 
-# coordinates (if translate != 0)
-# @param Vector<Rational> translate A vector whose dimension should be equal to the column dimension
-# of the transformation matrix
-# @param Matrix<Integer> matrix An integer (square) invertible matrix. 
-# @return WeightedComplex The transformed complex
-user_function affineTransform {
-  my ($this, $t, $m) = @_;
-  
-  #Check if the translate vector is non-zero. If so, homogenize the complex
-  if($t != zero_vector<Rational>($t->dim())) {
-    $this = $this->homogenize;
-  }
-  
-  return affineTransformation($this,$t,$m);
-}

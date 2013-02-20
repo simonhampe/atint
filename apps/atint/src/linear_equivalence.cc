@@ -136,7 +136,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Linear equivalence"
+  UserFunction4perl("# @category Basic polyhedral properties"
 		    "# This takes two pure-dimensional polyhedral complexes and checks if they are equal"
 		    "# i.e. if they have the same lineality space, the same rays (modulo lineality space)"
 		    "# and the same cones. Optionally, it can also check if the weights are equal"

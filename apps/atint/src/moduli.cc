@@ -452,7 +452,7 @@ namespace polymake { namespace atint {
 
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Computes the number of k-dimensional cones of the tropical moduli space M_0,n"
 		    "# @param Int n The number of leaves. Should be >= 3"
 		    "# @param Int k The number of bounded edges. This argument is optional and n-3 by default"
@@ -460,13 +460,13 @@ namespace polymake { namespace atint {
 		    &count_mn_cones,"count_mn_cones($;$=$_[0]-3)");
 
 
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Computes the number of rays of the tropical moduli space M_0,n"
 		    "# @param int n The number of leaves. Should be >= 3"
 		    "# @return Integer The number of rays",
 		    &count_mn_rays,"count_mn_rays($)");
 
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Creates the moduli space of abstract rational n-marked curves. Its coordinates are"
 		    "# given as the coordinates of the bergman fan of the matroid of the complete graph on "
 		    "# n-1 nodes (but not computed as such)"

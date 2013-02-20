@@ -181,7 +181,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry /Local geometry"
+  UserFunction4perl("# @category Local computations"
 		    "# This takes a tropical variety and an IncidenceMatrix describing a set"
 		    "# of cones (not necessarily maximal ones) of this variety. It will then"
 		    "# create a variety that contains all compatible maximal cones and is"
@@ -192,7 +192,7 @@ namespace polymake { namespace atint {
 		    "# cones",
 		    &local_restrict, "local_restrict(WeightedComplex,IncidenceMatrix)");
   
-  UserFunction4perl("#@category Tropical geometry / Local geometry"
+  UserFunction4perl("#@category Local computations"
 		    "# This takes a weighted complex and an index of one of its vertices or rays "
 		    "# (the index is to be understood in RAYS)"
 		    "# It then localizes the variety at this vertex / ray. The index should never"
@@ -202,7 +202,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex The complex locally restricted to the given ray/vertex",
 		    &local_ray, "local_ray(WeightedComplex,$)");
   
-  UserFunction4perl("# @category Tropical geometry / Local geometry"
+  UserFunction4perl("# @category Local computations"
 		    "# This takes a weighted complex and an index of one of its codimension one faces"
 		    "# (The index is in CODIM_1_FACES) and computes the complex locally restricted"
 		    "# to that face"
@@ -211,7 +211,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex The complex locally restricted to the given face",
 		    &local_codim_1, "local_codim_1(WeightedComplex,$)");
   
-  UserFunction4perl("# @category Tropical geometry / Local geometry"
+  UserFunction4perl("# @category Local computations"
 		    "# This takes a weighted complex and an arbitrary vertex in homogeneous "
 		    "# coordinates that is supposed to lie in the support of the complex"
 		    "# It then refines the complex such that the vertex is a cell in the polyhedral "
@@ -222,7 +222,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex The complex localized at the vertex",
 		    &local_point, "local_point(WeightedComplex,Vector<Rational>)");
   
-  UserFunction4perl("# @category Tropical geometry / Local geometry"
+  UserFunction4perl("# @category Basic polyhedral properties"
 		    "# Takes a weighted complex and a point and computed whether that point lies in "
 		    "# the complex"
 		    "# @param perl::Object complex A weighted complex"

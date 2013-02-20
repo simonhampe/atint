@@ -32,6 +32,7 @@
 #include "polymake/atint/specialvarieties.h"
 #include "polymake/atint/refine.h"
 #include "polymake/atint/cdd_helper_functions.h"
+#include "polymake/atint/moduli_local.h"
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/atint/LoggingPrinter.h"
 
@@ -42,6 +43,11 @@ namespace polymake { namespace atint {
   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
 //   using namespace atintlog::dotrace;
+  
+  struct HurwitzResult {
+    perl::Object subdivision;
+    perl::Object cycle;
+  };
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -178,7 +184,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
-   @brief This takes a list of cones (in terms of ray indices) and their weights and inserts another cone wit given weight. If the new cone already exists in the list, nothing happens
+   @brief This takes a list of cones (in terms of ray indices) and their weights and inserts another cone with given weight. If the new cone already exists in the list, the weight is added
    */
   void insert_cone(Vector<Set<int> > &cones, Vector<Integer> &weights, Set<int> ncone, Integer nweight) {
     int ncone_index = -1;
@@ -193,7 +199,7 @@ namespace polymake { namespace atint {
       weights |= nweight;
     }
     else {
-      weights[ncone_index] += nweight;
+      if(weights.dim() > ncone_index) weights[ncone_index] += nweight;
     }
   }
   
@@ -241,25 +247,44 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
-   @brief Computes either a subdivision of M_0,n containing H_k(degree) or the cycle itself. The function 
+   @brief Computes a subdivision of M_0,n containing H_k(degree) and (possibly) the cycle itself. The function returns a struct containing the subdivision as subobject "subdivision" and the Hurwitz cycle as subobject "cycle", both as perl::Object. Optionally one can specify a RationalCurve object representing a ray around which the whole computation is performed locally.
    */
-  perl::Object hurwitz_computation(int k, Vector<int> degree, Vector<Rational> points, bool compute_only_subdivision) {
+  HurwitzResult hurwitz_computation(int k, Vector<int> degree, Vector<Rational> points, bool compute_cycle, std::vector<perl::Object> local_restriction = std::vector<perl::Object>()) {
     
     //Make points default points ( = 0) if not given and find out if the points are generic
-    bool is_generic = true;
     if(points.dim() < degree.dim() - 3- k) {
       points = points | zero_vector<Rational>( degree.dim()-3-k-points.dim());
-      is_generic = false;
     }
-    if( (Set<Rational>(points)).size() < points.dim()) is_generic = false;
+    
     
     int n = degree.dim();
     int big_moduli_dim = 2*n - k - 2;
     
     //Compute M_0,n and extract cones
-    perl::Object m0n = CallPolymakeFunction("tropical_m0n",n);
+    perl::Object m0n;
+    Vector<Rational> compare_vector;
+    bool restrict = false;
+    
+      if(local_restriction.size() == 0) {
+	m0n = CallPolymakeFunction("tropical_m0n",n);
+      }
+      else {
+	perl::Object lr_ray = local_restriction[0];
+	m0n = local_mn(local_restriction);
+	lr_ray.CallPolymakeMethod("matroid_vector") >> compare_vector;
+	compare_vector = (Rational(0)) | compare_vector;
+	restrict = true;	
+      }
+      
     Matrix<Rational> mn_rays = m0n.give("RAYS");
     IncidenceMatrix<> mn_cones = m0n.give("MAXIMAL_CONES");
+    IncidenceMatrix<> mn_restrict = m0n.give("LOCAL_RESTRICTION");
+    int restrict_index = -1;
+    if(restrict) {
+      restrict_index = *(mn_restrict.row(0).begin());
+      dbgtrace << "Restricting at ray " << restrict_index << endl;
+    }
+    
     
     //Create evaluation maps
     Matrix<Rational> ev_maps(0, big_moduli_dim);
@@ -275,6 +300,13 @@ namespace polymake { namespace atint {
     Matrix<Rational> subdiv_rays(0,mn_rays.cols()+1);
     Vector<Set<int> > subdiv_cones;
     Vector<Integer> subdiv_weights;
+//     Vector<Set<int> > subdiv_local;
+    
+    //Will contain the rays/cones/weights of the Hurwitz cycle
+    Matrix<Rational> cycle_rays(0,mn_rays.cols()+1);
+    Vector<Set<int> > cycle_cones;
+    Vector<Integer> cycle_weights;
+//     Vector<Set<int> > cycle_local;
     
     //Iterate all cones of M_0,n and compute their refinement as well as the 
     //Hurwitz cycle cones within
@@ -283,18 +315,36 @@ namespace polymake { namespace atint {
 	//This will be a model of the subdivided cone of M_0,n
 	Matrix<Rational> model_rays = unit_matrix<Rational>(degree.dim()-3);
 	Vector<Set<int> > model_cones; model_cones |= sequence(0, degree.dim()-3);
+	//Translate the local restriction if necessary
+	Vector<Set<int> > model_local_restrict;
+	if(restrict && mn_cones.row(mc).contains(restrict_index)) {
+	  Set<int> single_index_set;
+	  Vector<int> mc_as_list(mn_cones.row(mc));
+	  for(int mcrow = 0; mcrow < mc_as_list.dim(); mcrow++) {
+	    if(mc_as_list[mcrow] == restrict_index) {
+	      single_index_set += mcrow; break;
+	    }
+	  }
+	  model_local_restrict |= single_index_set;
+	}
+	
 	perl::Object model_complex("WeightedComplex");
 	  model_complex.take("RAYS") << model_rays;
 	  model_complex.take("MAXIMAL_CONES") << model_cones;
-	model_complex = model_complex.CallPolymakeMethod("homogenize");  
+	  if(restrict) {
+	    model_complex.take("LOCAL_RESTRICTION") << model_local_restrict;
+	  }
 	  
+	model_complex = model_complex.CallPolymakeMethod("homogenize");  
+	
 	//Extract the combinatorial type to compute evaluation maps
 	perl::Object mc_type = CallPolymakeFunction("rational_curve_from_cone",m0n,degree.dim(),mc);
 	  Vector<int> node_degrees = mc_type.give("NODE_DEGREES");
+		    dbgtrace << "Node degrees: " << node_degrees << endl;
 	  
 	//Iterate over all possible ordered choices of (#vert-k)-subsets of nodes  
 	Matrix<int> fix_node_sets = ordered_k_choices(node_degrees.dim(), node_degrees.dim()-k);
-	//dbgtrace << "Iterating all choices of fixed vertices " << endl;
+	dbgtrace << "Iterating all choices of fixed vertices " << endl;
 	
 	//We save the evaluation matrices for use in the computation
 	//of tropical weights in the Hurwitz cycle
@@ -304,16 +354,18 @@ namespace polymake { namespace atint {
 	  //Compute combinatorial type obtained by adding further ends to chosen nodes
 	  perl::Object higher_type = insert_leaves(mc_type, fix_node_sets.row(nchoice));
 	  std::string s = higher_type.CallPolymakeMethod("to_string");
-	  //dbgtrace << "Intersecting with type " << s << endl;
+	  dbgtrace << "Intersecting with type " << s << endl;
 	  //Convert evaluation maps to local basis of rays
 	  Matrix<Rational> local_basis = edge_rays(higher_type);
 	  Matrix<Rational> converted_maps = ev_maps * T(local_basis);
 	  
 	  //Check if this choice of fixed vertices induces some valid Hurwitz type
 	  //(in the generic case)
-	  if(!is_valid_choice(converted_maps)) continue;
+ 	  if(is_valid_choice(converted_maps)) {
+	      dbgtrace << "Is valid" << endl;
+	      evmap_list |= converted_maps;
+ 	  }
 	  
-	  evmap_list |= converted_maps;
 	  
 	  //Now refine along each evaluation map
 	  for(int evmap = 0; evmap < converted_maps.rows(); evmap++) {
@@ -329,22 +381,23 @@ namespace polymake { namespace atint {
 	//If we are actually computing the Hurwitz cycle, we take the evalutation map
 	//corresponding to each choice of vertex placement. We then compute the k-cones
 	//in the subdivision on which this map is (p_1,..,p_r) and add the gcd of the maximal minors of the
-	//matrix as tropical weigh to these cones
+	//matrix as tropical weight to these cones
 	IncidenceMatrix<> model_hurwitz_cones;
 	Vector<Integer> model_hurwitz_weights;
 	Matrix<Rational> model_hurwitz_rays;
-	if(!compute_only_subdivision) {
+	Vector<Set<int> > model_hurwitz_local;
+	if(compute_cycle) {
 	  perl::Object skeleton = CallPolymakeFunction("skeleton_complex",model_complex,k,false);
 	  //We go through all dimension - k cones of the subdivision
 	  Matrix<Rational> k_rays = skeleton.give("RAYS");
 	  Vector<Set<int > > k_cones = skeleton.give("MAXIMAL_CONES");
 	    model_hurwitz_weights = zero_vector<Integer>(k_cones.dim());
-	    //dbgtrace << "Rays: " << k_rays << endl;
-	    //dbgtrace << "Cones: " << k_cones << endl;
+// 	    dbgtrace << "Rays: " << k_rays << endl;
+// 	    dbgtrace << "Cones: " << k_cones << endl;
 	  Set<int> non_zero_cones;
 	  for(int m = 0; m < evmap_list.dim(); m++) {
 	    //Compute gcd of max-minors
-	    //dbgtrace << "Matrix is " << evmap_list[m] << endl;
+	    dbgtrace << "Matrix is " << evmap_list[m] << endl;
 	    Integer g = gcd_maxminor(evmap_list[m]);
 	    for(int c = 0; c < k_cones.dim(); c++) {
 	      //Check if ev maps to the p_i on this cone (rays have to be mapped to 0!)
@@ -360,7 +413,7 @@ namespace polymake { namespace atint {
 	      if(maps_to_pi) {
 		model_hurwitz_weights[c] += g;
 		if(g != 0) non_zero_cones += c;
-		//dbgtrace << "Adding weight to cone " << c << endl;
+		dbgtrace << "Adding weight to cone " << c << endl;
 	      }
 	    }
 	  }//END iterate evaluation maps
@@ -370,48 +423,110 @@ namespace polymake { namespace atint {
 	  model_hurwitz_cones = IncidenceMatrix<>(k_cones).minor(non_zero_cones,used_rays);
 	  model_hurwitz_weights = model_hurwitz_weights.slice(non_zero_cones);
 	  
-	  //dbgtrace << "Model weight: " << model_hurwitz_weights << endl;
+	  dbgtrace << "Model weight: " << model_hurwitz_weights << endl;
 	  
 	}//END compute hurwitz weights
 	
-	//dbgtrace << "Re-converting refined cone " << endl;
+	dbgtrace << "Re-converting refined cone " << endl;
 	
-	//Finally convert the model cone back to M_0,n-coordinates
+	//Finally convert the model cones back to M_0,n-coordinates
+	
 	Matrix<Rational> model_subdiv_rays = model_complex.give("RAYS");
 	IncidenceMatrix<> model_subdiv_cones = model_complex.give("MAXIMAL_CONES");
+// 	Vector<Set<int> > model_subdiv_local = model_complex.give("LOCAL_RESTRICTION");
 	Vector<Integer> model_subdiv_weights = ones_vector<Integer>(model_subdiv_cones.rows());
 	//If we want to compute the Hurwitz cycle, we take the k-cones instead
-	if(!compute_only_subdivision) {
-	  model_subdiv_rays = model_hurwitz_rays;
-	  model_subdiv_cones = model_hurwitz_cones;
-	  model_subdiv_weights = model_hurwitz_weights;
+	
+	for(int i = 0; i <= 1; i++) {
+	  if(i == 1 && !compute_cycle) break;
+	  Matrix<Rational> rays_to_convert = (i==0? model_subdiv_rays : model_hurwitz_rays);
+	  IncidenceMatrix<> cones_to_convert = (i == 0? model_subdiv_cones: model_hurwitz_cones);
+	  Vector<Integer> weights_to_convert = (i == 0? model_subdiv_weights : model_hurwitz_weights);
+// 	  Vector<Set<int> > local_to_convert = (i == 0? model_subdiv_local : model_hurwitz_local);
+	  //First convert the rays back
+// 	  dbgtrace << "Final rays are: " << model_subdiv_rays << endl;
+	  Matrix<Rational> model_conv_rays = 
+	    rays_to_convert.col(0) | (rays_to_convert.minor(All,~scalar2set(0)) * edge_rays(mc_type));
+// 	    dbgtrace << "Converted rays are: " << model_conv_rays << endl;
+	  Vector<int> model_rays_perm  = insert_rays(i == 0? subdiv_rays : cycle_rays, model_conv_rays,false,true);
+	  Map<int,int> ray_index_map;
+	  for(int mrp = 0; mrp < model_rays_perm.dim(); mrp++) {
+	    ray_index_map[mrp] = model_rays_perm[mrp];
+	  }
+	  //Then use the above index list to transform the cones
+	  for(int msc = 0; msc < cones_to_convert.rows(); msc++) {
+	    insert_cone(i == 0? subdiv_cones : cycle_cones, 
+			i == 0? subdiv_weights : cycle_weights, 
+			attach_operation(cones_to_convert.row(msc), pm::operations::associative_access<Map<int,int>,int>(&ray_index_map)), 
+			weights_to_convert[msc]);
+	  }
+	  //Do the same for the local restriction
+// 	  for(int lsc = 0; lsc < local_to_convert.dim(); lsc++) {
+// 	    Vector<Integer> dummy;
+// 	    insert_cone(i == 0? subdiv_local : cycle_local,
+// 			dummy, 
+// 			attach_operation(local_to_convert[lsc],
+// 			pm::operations::associative_access<Map<int,int>,int>(&ray_index_map)),0);
+//  		      
+// 	  }
 	}
-	//First convert the rays back
-	//dbgtrace << "Final rays are: " << model_subdiv_rays << endl;
-	Matrix<Rational> model_conv_rays = 
-	  model_subdiv_rays.col(0) | (model_subdiv_rays.minor(All,~scalar2set(0)) * edge_rays(mc_type));
-	  //dbgtrace << "Converted rays are: " << model_conv_rays << endl;
-	Vector<int> model_rays_perm  = insert_rays(subdiv_rays, model_conv_rays,false,true);
-	Map<int,int> ray_index_map;
-	for(int mrp = 0; mrp < model_rays_perm.dim(); mrp++) {
-	  ray_index_map[mrp] = model_rays_perm[mrp];
-	}
-	//Then use the above index list to transform the cones
-	for(int msc = 0; msc < model_subdiv_cones.rows(); msc++) {
-	  insert_cone(subdiv_cones, subdiv_weights, 
-		      attach_operation(model_subdiv_cones.row(msc), pm::operations::associative_access<Map<int,int>,int>(&ray_index_map)), 
-		      model_subdiv_weights[msc]);
-	}
-
+	
     }//END iterate cones of M_0,n
+    
+    //Finally find the localizing ray in both complexes
+    Set<int> subdiv_local;
+    Set<int> cycle_local;
+    if(restrict) {
+      for(int sr = 0; sr < subdiv_rays.rows(); sr++) {
+	if(subdiv_rays.row(sr) == compare_vector) {
+	    subdiv_local += sr;break;
+	}
+      }
+      for(int cr = 0; cr < cycle_rays.rows(); cr++) {
+	if(cycle_rays.row(cr) == compare_vector) {
+	    cycle_local += cr;break;
+	}
+      }
+      
+      //Find vertex
+      for(int sr = 0; sr < subdiv_rays.rows(); sr++) {
+	  if(subdiv_rays.row(sr) == unit_vector<Rational>(subdiv_rays.cols(),0)) {
+	    subdiv_local += sr;break;
+	  }
+      }
+      for(int cr = 0; cr < cycle_rays.rows(); cr++) {
+	  if(cycle_rays.row(cr) == unit_vector<Rational>(cycle_rays.cols(),0)) {
+	    cycle_local += cr;	break;
+	  }
+      }
+    }//END restrict
     
     perl::Object result("WeightedComplex");
       result.take("RAYS") << subdiv_rays;
       result.take("MAXIMAL_CONES") << subdiv_cones;
       result.take("TROPICAL_WEIGHTS") << subdiv_weights;
       result.take("USES_HOMOGENEOUS_C") << true;
+      if(restrict) {
+	Vector<Set<int> > subdiv_loc_inc; subdiv_loc_inc |= subdiv_local;
+	CallPolymakeFunction("local_restrict",result,IncidenceMatrix<>(subdiv_loc_inc)) >> result;
+      }
       
-    return result;
+    perl::Object cycle("WeightedComplex");
+      cycle.take("RAYS") << cycle_rays;
+      cycle.take("MAXIMAL_CONES") << cycle_cones;
+      cycle.take("TROPICAL_WEIGHTS") << cycle_weights;
+      cycle.take("USES_HOMOGENEOUS_C") << true;
+      if(restrict) {
+	Vector<Set<int> > cycle_loc_inc; cycle_loc_inc |= cycle_local;
+	CallPolymakeFunction("local_restrict",cycle,IncidenceMatrix<>(cycle_loc_inc)) >> cycle;
+	
+      }
+      
+    HurwitzResult final_result;
+      final_result.subdivision = result;
+      final_result.cycle = cycle;
+      
+    return final_result;
   }//END hurwitz_computation
   
   
@@ -419,12 +534,32 @@ namespace polymake { namespace atint {
   
   //Documentation see perl wrapper
   perl::Object hurwitz_subdivision(int k, Vector<int> degree, Vector<Rational> points = Vector<Rational>()) {
-    return hurwitz_computation(k,degree,points,true);
+    return hurwitz_computation(k,degree,points,false).subdivision;
   }
   
   //Documentation see perl wrapper
   perl::Object hurwitz_cycle(int k,  Vector<int> degree, Vector<Rational> points = Vector<Rational>()) {
-    return hurwitz_computation(k,degree,points,false);
+    return hurwitz_computation(k,degree,points,true).cycle;
+  }
+  
+  //Documentation see perl wrapper
+  perl::ListReturn hurwitz_pair(int k,  Vector<int> degree, Vector<Rational> points = Vector<Rational>()) {
+    HurwitzResult r = hurwitz_computation(k,degree,points,true);
+    perl::ListReturn l;
+      l << r.subdivision;
+      l << r.cycle;
+      return l;
+  }
+  
+  //Documentation see perl wrapper
+  perl::ListReturn hurwitz_pair_local(int k, Vector<int> degree, perl::Object local_restriction) {
+    std::vector<perl::Object> ray_to_list;
+      ray_to_list.push_back(local_restriction);
+    HurwitzResult r = hurwitz_computation(k,degree, Vector<Rational>(), true,ray_to_list);
+    perl::ListReturn l;
+      l << r.subdivision;
+      l << r.cycle;
+      return l;
   }
   
   
@@ -433,7 +568,7 @@ namespace polymake { namespace atint {
   Function4perl(&insert_leaves,"insert_leaves(RationalCurve, Set<Int>)");
   Function4perl(&edge_rays,"edge_rays(RationalCurve)");
 
-  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+  UserFunction4perl("# @category Hurwitz cycles"
 		    "# This function computes a subdivision of M_0,n containing the Hurwitz cycle"
 		    "# H_k(x), x = (x_1,...,x_n) as a subfan. If k = n-4, this subdivision is the unique"
 		    "# coarsest subdivision fulfilling this property"
@@ -445,7 +580,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex A subdivision of M_0,n, in homogeneous coordinates",
 		    &hurwitz_subdivision,"hurwitz_subdivision($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
   
-  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+  UserFunction4perl("# @category Hurwitz cycles"
 		    "# This function computes the Hurwitz cycle H_k(x), x = (x_1,...,x_n)"
 		    "# @param Int k The dimension of the Hurwitz cycle, i.e. the number of moving vertices"
 		    "# @param Vector<Int> degree The degree x. Should add up to 0"
@@ -454,5 +589,35 @@ namespace polymake { namespace atint {
 		    "# and the function computes the recession fan of H_k(x)"
 		    "# @return WeightedComplex H_k(x), in homogeneous coordinates",
 		    &hurwitz_cycle, "hurwitz_cycle($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
+  
+  UserFunction4perl("# @category Hurwitz cycles"
+		    "# This function computes hurwitz_subdivision and hurwitz_cycle at the same time, "
+		    "# returning the result in an array"
+		    "# @param Int k The dimension of the Hurwitz cycle, i.e. the number of moving vertices"
+		    "# @param Vector<Int> degree The degree x. Should add up to 0"
+		    "# @param Vector<Rational> points Optional. Should have length n-3-k. Gives the images of "
+		    "# the fixed vertices (besides 0). If not given all fixed vertices are mapped to 0"
+		    "# and the function computes the subdivision of M_0,n containing the recession fan of H_k(x)"
+		    "# @param RationalCurve list Optional. A list of rational curves. If given, the computation"
+		    "# will be performed locally around the given combinatorial types."
+		    "# @return An array, containing first the subdivision of M_0,n, then the Hurwitz cycle",
+		    hurwitz_pair, "hurwitz_pair($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
 		    
+//   UserFunction4perl("# @category Hurwitz cycles"
+// 		    "# Does the same as hurwitz_pair, except that no points are given and the user can give a "
+// 		    "# RationalCurve object representing a ray. If given, the computation"
+// 		    "# will be performed locally around the ray."
+// 		    "# @param Int k"
+// 		    "# @param Vector<Int> degree"
+// 		    "# @param RationalCurve local_curve",
+// 		    hurwitz_pair_local, "hurwitz_pair_local($,Vector<Int>,RationalCurve)");
+  
+  UserFunction4perl("# @category Abstract rational curves"
+		    "# Takes a RationalCurve and a list of node indices. Then inserts additional "
+		    "# leaves (starting from N_LEAVES+1) at these nodes and returns the resulting "
+		    "# RationalCurve object"
+		    "# @param RationalCurve curve A RationalCurve object"
+		    "# @param Vector<Int> nodes A list of node indices of the curve",
+		    &insert_leaves, "insert_leaves(RationalCurve;@)");
+  
 }}

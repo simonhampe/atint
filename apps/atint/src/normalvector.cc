@@ -399,7 +399,9 @@ namespace polymake { namespace atint {
 	  Vector<Rational> baseray;
 	  int baseRayIndex = -1; //Index of baseray in fixedIndices
 	  
-	  //Compute matrix of generators
+	  //Compute matrix of generators:
+	  //We want to write v as a*first_vertex + sum b_i (vertex_i - first_vertex) + sum c_i ray_i 
+	  // + sum d_i lin_i
 	  if(!uses_homog) {
 	    m = m / rays.minor(rayIndices,All);
 	  }
@@ -484,9 +486,10 @@ namespace polymake { namespace atint {
 
 Function4perl(&latticeBasisFromRays,"latticeBasisFromRays(Matrix<Rational>, Matrix<Rational>,$)");
 
-UserFunction4perl("# @category Arithmetic"
+UserFunction4perl("# @category Integer and lattice arithmetic"
 					  "# Computes the gcd of //a// and //b// and returns it. //s// and //t// are set"
 					  "# such that gcd(//a//,//b//) = //s// * //a// + //t// * //b//"
+					  "# This is just a wrapper for the GMP's gcdext method"
 					  "# @param Integer a first argument of gcd(,)"
 					  "# @param Integer b second argument of gcd(,)"
 					  "# @param Integer s coefficient of a (will be set)"
@@ -494,7 +497,7 @@ UserFunction4perl("# @category Arithmetic"
 					  "# @return Integer",
 					  &gcdext, "gcdext(Integer, Integer, Integer, Integer)");               
 
-UserFunction4perl("# @category Tropical geometry"
+UserFunction4perl("# @category Integer and lattice arithmetic"
 						"# Assuming that tau is a codimension one face of sigma, computes a representative of"
 						"# the primitive lattice normal vector of sigma with respect to tau"
 						"# @param polytope::Cone tau a codimension one face of tau, given as a cone"
@@ -503,7 +506,7 @@ UserFunction4perl("# @category Tropical geometry"
 						&latticeNormalByCone, "latticeNormalByCone(polytope::Cone,polytope::Cone)");
 					
 
-UserFunction4perl("# @category Tropical geometry"
+UserFunction4perl("# @category Integer and lattice arithmetic"
 						"# Takes two matrices whose rows define the dual of the linear span of cone tau and sigma."
 						"# Assuming that tau is a codimension one face of sigma, computes a representative of"
 						"# the primitive lattice normal vector of sigma with respect to tau"
@@ -513,7 +516,7 @@ UserFunction4perl("# @category Tropical geometry"
 						"# @return Vector",
 						&latticeNormal, "latticeNormal(Matrix<Rational>,Matrix<Rational>, Vector<Rational>)");
 
-UserFunction4perl("# @category Tropical geometry"
+UserFunction4perl("# @category Integer and lattice arithmetic"
 					  "# Takes a cone and computes a Z-basis of the vector space spanned by the cone,"
 					  "# returned as row vectors of a matrix"
 					  "# @param polytope::Cone cone A cone for which a Z-basis is to be computed"

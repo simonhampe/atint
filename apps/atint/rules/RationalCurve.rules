@@ -58,11 +58,11 @@ object RationalCurve {
   # with corresponding lenghth 0.
   property COEFFS : Vector<Rational>;
   
-  # @category Basic properties
+  # @category Input properties
   # Same as [[SETS]], except that sets may appear several times.
   property INPUT_SETS : IncidenceMatrix;
   
-  # @category Basic properties
+  # @category Input properties
   # Same as [[COEFFS]], except that entries may be <=0. This should have the same length as [[INPUT_SETS]].
   property INPUT_COEFFS : Vector<Rational>;
   
@@ -70,7 +70,7 @@ object RationalCurve {
   # The number of leaves of the rational curve.
   property N_LEAVES : Int;
   
-  # @category Basic properties
+  # @category Input properties
   # This property can also be used to define a rational curve: A linear combination of partitions is
   # given as a string, using the following syntax:
   # A partition is given as a subset of {1,..,n} and written as a comma-separated list of leaf
@@ -83,30 +83,30 @@ object RationalCurve {
   # element is not in the moduli space, an error is thrown.
   property INPUT_STRING : String;
   
-  # @category Basic properties
+  # @category Graph properties
   # Contains the abstract graph (non-metric) corresponding to the curve. All unbounded leaves are modelled
   # as bounded edges.
   # The vertices at the ends of the "leaves" are always the first [[N_LEAVES]] vertices.
   property GRAPH : graph::Graph;
   
-  # @category Basic properties
+  # @category Graph properties
   # Contains the lengths of the edges of [[GRAPH]] that represent bounded edges of the curve.
   # The coefficients appear in the order that the corr. edges appear in [[EDGES]].
   property GRAPH_EDGE_LENGTHS : Vector<Rational>;
   
-  # @category Basic properties
+  # @category Graph properties
   # This incidence matrix gives a list of the vertices of the curve
   # Each row corresponds to a vertex and contains as a set the row indices of the [[SETS]] that
   # correspond to edges attached to that vertex
   property NODES_BY_SETS : IncidenceMatrix;
   
-  # @category Basic properties
+  # @category Graph properties
   # This incidence matrix gives a list of the vertices of the curve
   # Each row corresponds to a vertex and contains as a set the [[LEAVES] that are
   # attached to that vertex (again, counting from 1!)
   property NODES_BY_LEAVES : IncidenceMatrix;
   
-  # @category Basic properties
+  # @category Graph properties
   # This gives a list of the vertices of the curve in terms of their valences
   # They appear in the same order as in [[NODES_BY_LEAVES]] or [[NODES_BY_SETS]]
   property NODE_DEGREES : Vector<Int>;
@@ -211,14 +211,14 @@ object RationalCurve {
   
   # -------------------------- METHODS --------------------------------
   
-  # @category Tropical geometry
+  # @category Conversion
   # Returns the (n over 2) metric vector of the rational n-marked curve
   user_method metric_vector {
     my $this = shift;
     return metric_from_curve($this->SETS,$this->COEFFS,$this->N_LEAVES);
   }
   
-  # @category Tropical geometry
+  # @category Conversion
   # Computes the coordinates of the curve in the moduli space given in matroid coordinates.
   # In the isomorphism of the metric curve space and the moduli coordinates
   # the last leaf is considered as the special leaf
@@ -303,7 +303,7 @@ object RationalCurve {
 
 # ----------------------------- FUNCTIONS --------------------------------------
 
-# @category Tropical geometry
+# @category Abstract rational curves
 # This function takes a vector of coefficients a_i and a list of RationalCurves c_i and computes
 # sum(a_i * c_i). In particular, it also checks, whether the result lies in M_0,n. If not, it returns undef
 # @param RationalCurve An arbitrary list of RationalCurve objects

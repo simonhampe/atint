@@ -43,6 +43,8 @@ namespace polymake { namespace atint {
     
     //Documentation see perl wrapper
     perl::Object selective_cycle_intersection(perl::Object X, perl::Object Y) {
+      pm::cout << "This function is marked deprecated. It is recommended you use intersect(...) instead" << endl;
+      
       //Extract values
       int Xcodim = X.give("CMPLX_CODIMENSION");
       int Ycodim = Y.give("CMPLX_CODIMENSION");
@@ -392,7 +394,8 @@ namespace polymake { namespace atint {
     
     // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
-    UserFunction4perl("# @category Tropical geometry"
+    UserFunction4perl("# @category Intersection products"
+		      "# DEPRECATED: Use intersect(...)"
 		      "# Computes the intersection product of two tropical cycles in a common ambient vector space V."
 		      "# @param WeightedComplex X The first tropical variety"
 		      "# @param WeightedComplex Y The second tropical variety. Should have the same actual ambient "
@@ -401,18 +404,19 @@ namespace polymake { namespace atint {
 		      "# dimension of X and Y. The result has homogeneous coordinates in any case",
 		      &selective_cycle_intersection,"cycle_intersection(WeightedComplex, WeightedComplex)");
 
-    UserFunction4perl("# @category Tropical geometry"
-		      "# Computes the recession fan of a tropical variety"
+    UserFunction4perl("# @category Basic polyhedral operations"
+		      "# Computes the recession fan of a tropical variety. WARNING: This is a highly experimental"
+		      "# function. If it works at all, it is likely to take a very long time."
 		      "# @param WeightedComplex complex A tropical variety. If it is a fan, the complex itself is returned"
 		      "# @return WeightedComplex A tropical fan, the recession fan of the complex",
 		      &recession_fan, "recession_fan(WeightedComplex)");
 
-    UserFunction4perl("# @category Tropical geometry"
-		      "# Computes the degree of a tropical variety as the degree of the "
+    UserFunction4perl("# @category Intersection products"
+		      "# Computes the property [[DEGREE]] of a tropical variety as the degree of the "
 		      "# 0-dimensional complex obtained when intersecting "
 		      "# the variety with an appropriate linear space L^n_k"
 		      "# @param WeightedComplex complex"
-		      "# @return Int",
+		      "# @return Int ",
 		      &degree, "degree(WeightedComplex)");
     //Function4perl(&selective_cycle_intersection,"selective_cycle_intersection(WeightedComplex,WeightedComplex)");
     

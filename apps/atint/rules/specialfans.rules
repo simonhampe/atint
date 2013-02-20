@@ -20,7 +20,7 @@
 # This file provides convenience methods for creation of special tropical varieties
 ########################################################################
 
-# @category Tropical geometry
+# @category Creation functions for specific varieties
 # Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
 # @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan).
 # If you already know that your rows are a basis, call linear_space_by_basis instead.
@@ -40,7 +40,7 @@ user_function linear_space_by_matrix {
   
 }
 
-# @category Tropical geometry
+# @category Creation functions for specific varieties
 # Creates a tropical variety consisting of a single linear space defined by a matrix and assigns it a given weight.
 # @param Matrix<Rational> rowspace A matrix whose rows span the lineality space of the fan (hence the whole fan) and
 # which are assumed to be linearly independent. If you are not sure of this, call linear_space_by_matrix instead.
@@ -57,7 +57,7 @@ user_function linear_space_by_basis {
   return new WeightedComplex(LINEALITY_SPACE=>$matrix,TROPICAL_WEIGHTS=>\@weightarray);
 }
 
-# @category Tropical geometry
+# @category Creation functions for specific varieties
 # Creates the tropical variety R^n as a single lineality space with a given weight 
 # @param int n The dimension of the linear space
 # @param int weight The weight of the linear space (1, if none is given)
@@ -95,8 +95,8 @@ user_function linear_nspace {
 #   return bergman_fan($matroid,!$preserve);
 # }
 
-# @category Tropical geometry
-# Creates the bergman fan of a given matroid fan.
+# @category Matroid fans
+# Creates the bergman fan of a given matroid fan. This is much slower than using bergman_fan_matroid. The difference in output is that is always gives the coarsest polyhedral structure (but this can also be achieved by calling coarsen(...) after creation).
 # @param matroid::Matroid m A matroid
 # @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
 # fan. The next parameter specifies the exact modalities of the division. By default, this parameter is set to FALSE
@@ -120,7 +120,7 @@ user_function bergman_fan {
   return computeBergmanFan($skeleton, $poly,$modOutLineality eq TRUE? 1 : 0, $projectionCoordinate);
 }
 
-# @category Tropical geometry
+# @category Divisors
 # Creates a divisor of a random MinMaxFunction (in n-space) with integer coefficients.
 # By default this uses maximum for the function. It returns an array containing the function created and its
 # divisor in n-space.
@@ -159,7 +159,7 @@ user_function random_minmaxdivisor {
   }
 }
 
-# @category Tropical geometry
+# @category Creation functions for specific varieties
 # Returns the zero cycle, i.e. a weighted complex with no rays and cones
 user_function zero_cycle {
   my $w = new WeightedComplex(RAYS=>[],MAXIMAL_CONES=>[],TROPICAL_WEIGHTS=>[]);
@@ -167,7 +167,7 @@ user_function zero_cycle {
   return $w;
 }
 
-# @category Tropical geometry
+# @category Basic polyhedral properties
 # Checks whether a cycle is the 0 cycle
 # @param WeightedComplex c
 # @return Bool

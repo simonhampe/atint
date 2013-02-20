@@ -253,10 +253,10 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Intersection theory / Diagonal functions"
-		    "# Computes a list of functions that cut out the diagonal on B(U^n_k) x B(U^n_k)"
-		    "# @param Int n The ambient dimension of L^n_k"
-		    "# @param Int k The dimension of L^n_k"
+  UserFunction4perl("# @category Intersection products"
+  "# Computes a list of functions that cut out the diagonal on B(U<sup>n</sup><sub>k</sub>) x B(U<sup>n</sup><sub>k</sub>) "
+		    "# @param Int n The ambient dimension of B(U<sup>n</sup><sub>k</sub>) "
+		    "# @param Int k The dimension of B(U<sup>n</sup><sub>k</sub>) "
 		    "# @return RationalFunction An array of functions, cutting out the diagonal",
 		    &diagonal_unk, "diagonal_unk($,$)");
   

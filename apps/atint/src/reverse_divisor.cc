@@ -69,7 +69,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Rational Functions / Inverse problem"
+  UserFunction4perl("# @category Inverse problems"
 		    "# Takes a weighted complex and a list of desired weights on its codimension one"
 		    "# faces and computes all possible rational functions on (this subdivision of )"
 		    "# the complex"

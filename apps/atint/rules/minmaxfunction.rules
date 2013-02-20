@@ -35,11 +35,11 @@ object MinMaxFunction {
   
   # @category Basic properties
   # The syntax for STRING in pseudo-regex is the following (after deleting any whitespace): 
-  # "(min|max)\((SUM)+(,SUM)*\)"
+  # "(min|max)(\(|\{)(SUM)+(,SUM)*(\)|\})"
   # where SUM = "(TERM)+([\+\-](TERM))*"
   # where TERM = (RAT)|(RAT[:alpha:][^\+,\)]*)
   # where RAT is any string that can be parsed to a polymake Rational and does not contain any letters.
-  # To make this more comprehensible: STRING takes anything of the form min(...) or max(...), 
+  # To make this more comprehensible: STRING takes anything of the form min(...) or max(...) (or min{...}, max{...}), 
   # where ... is a comma-separated list of strings of the form a + bx + cy + ... , where a,b,c are rational 
   # numbers and x,y are variables. Any string that starts with a letter and does not contain "+" or "," can be 
   # a variable. Such a sum can contain several such terms for the same variable and they need not be in any order.
@@ -49,11 +49,11 @@ object MinMaxFunction {
   # assign the variables to the standard basis vectors by sorting them alphabetically. 
   # E.g. INPUT_STRING=>"min(x+2z,3+z)",INPUT_VARS=>["x","y","z"] is a different function than INPUT_STRING=>"min(x+2z,3+z)",
   # since the second is the function f:R² -> R, (a,b) -> min(a+2b,3+b) and the first is f: R³->R, (a,b,c)->min(a+2c,3+c)
-  # If however, [[INPUT_VARS]] is given, the parse will *ignore* any terms containing variables that are not 
+  # If however, [[INPUT_VARS]] is given, the parser will *ignore* any terms containing variables that are not 
   # defined in [[INPUT_VARS]]. The variables will be assigned to the standard basis vectors in order of their
   # appearance in [[INPUT_VARS]].
   # E.g. INPUT_STRING=>"min(x+2c,3+x)",INPUT_VARS=>["x","y"] will give the function f:R²->R, (a,b) -> min(a,3+a)
-  # Note that ANY whitespace in [[INPUT_STRING]] is ignore, as well as any brackets '(',')' besides the ones enclosing
+  # Note that ANY whitespace in [[INPUT_STRING]] is ignored, as well as any brackets '(',')' besides the ones enclosing
   # the function list.
   property INPUT_STRING : String;
   
@@ -63,6 +63,7 @@ object MinMaxFunction {
   # in [[INPUT_STRING]], so their coefficients will be 0. If you assign a value to this, only terms with variables in 
   # this array will be parsed. Note that ANY whitespace in a variable name will be ignored. The i-th element of this array
   # will be assigned to the i-th standard basis vector.
+  # You might want to use [[input_vars]] for defining this property.
   property INPUT_VARS : Array<String>;
   
   # @category Basic properties
@@ -77,7 +78,7 @@ object MinMaxFunction {
   property USES_MIN : Bool;
   
   # @category Basic properties
-  # The dimension n of the domain Rn of the function. Is equal to the columns of [[LINEAR_COEFFICIENTS]]
+  # The dimension n of the domain R<sup>n</sup> of the function. Is equal to the columns of [[LINEAR_COEFFICIENTS]]
   property DOMAIN_DIMENSION : Int;
   
   # @category Basic properties
@@ -97,20 +98,9 @@ object MinMaxFunction {
   # @category Basic properties
   # This computes the normal fan of the polytope conv( (c_i,a_i) ) in Q^{n+1}, where the function is 
   # max/min(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q. (For min it actually computes the negative
-  # of the normal fan
+  # of the normal fan)
   property NORMAL_FAN : WeightedComplex;
-  
-  # @category Tropical geometry
-  # This computes the (homogenized version of the) domains of linearity of the function. More precisely, it computes the 
-  # normal fan of the polytope defined by this function in the following way:
-  # If the positive form reads max(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q, then the polytope is
-  # conv( (c_i,a_i) ) in Q^{n+1} (in homog. coordinates its actually in n+2 coordinates).
-  # If you want to refine a tropical variety along these domains, you have to do the following: If the variety is already
-  # in homogeneous coordinates, simply call intersect_complete_fan(variety, linearityDomains). Otherwise you have to 
-  # homogenize the variety (call method homogenize on the variety) and intersect then.
-  # If the function uses min, the coefficients are multiplied by -1 before computing the polytope. Note that, since
-  # min(f_i) = - max (-f_i), this doesn't change the domain of linearity.
-  #property LINEARITY_DOMAINS : fan::PolyhedralFan;
+
   
   ## RULES ###################################################################################################
   
@@ -332,7 +322,7 @@ object MinMaxFunction {
   
   rule DOMAIN : NORMAL_FAN, DOMAIN_DIMENSION {
     #Intersect the normal fan with the positive half
-    my $F = intersect_complete_fan(linear_nspace($this->DOMAIN_DIMENSION)->homogenize,$this->NORMAL_FAN);
+    my $F = intersect_container(linear_nspace($this->DOMAIN_DIMENSION)->homogenize,$this->NORMAL_FAN);
     #Forget the weights: 
     $this->DOMAIN = new WeightedComplex(RAYS=>$F->RAYS,MAXIMAL_CONES=>$F->MAXIMAL_CONES,LINEALITY_SPACE=>$F->LINEALITY_SPACE,USES_HOMOGENEOUS_C=>TRUE);
   }
@@ -349,19 +339,19 @@ object MinMaxFunction {
   
   ## METHODS #################################################################################################
   
-  # @category Tropical geometry
+  # @category Rational functions
   # This computes the (homogenized version of the) domains of linearity of the function. More precisely, it computes the 
   # normal fan of the polytope defined by this function in the following way:
   # If the standard form reads max(a_i*x + c_i,i=1,..,k) with a_i in Q^n and c_i in Q, then the polytope is
   # conv( (c_i,a_i) ) in Q^{n+1} (in homog. coordinates its actually in n+2 coordinates).
-  # In fact, this returns the property [[DOMAIN]].
+  # In fact, this simply returns the property [[DOMAIN]]. It is kept for backwards compatibility.
   # @return WeightedComplex
   user_method linearityDomains {
     my $this = shift;
     return $this->DOMAIN;
   }
   
-  # @category Tropical geometry
+  # @category Rational functions
   # Computes the value of this function at a given point. If the point has dimension DOMAIN_DIMENSION, it simply computes the value. 
   # If it has dimension DOMAIN_DIMENSION +1, it assumes the point is given in homogeneous coordinates (i.e. the first coordinate should be one or zero, 
   # this is not checked, however) and computes the function value of the last DOMAIN_DIMENSION coordinates.
@@ -391,12 +381,17 @@ object MinMaxFunction {
     
   }
   
+  # @category Rational functions
+  # Does the same as pow for RationalFunction, i.e. returns the same function but with a given internal power
+  # @param Int k The new power of this function, i.e. using it in a divisorial expression will be interpretes as 
+  # applying it k times
+  # @return MinMaxFunction
   user_method pow {
     my ($this,$k) = @_;
     return new MinMaxFunction(FUNCTION_MATRIX=>$this->FUNCTION_MATRIX,USES_MIN=>$this->USES_MIN, POWER=>$k);
   }
   
-  # @category Rational functions
+  # @category Reduction
   # Takes a MinMaxFunction and reduces its terms to the necessary ones. That means it computes the newton polytope
   # and returns a function that has only terms corresponding to the vertices.
   # @return MinMaxFunction The reduced version of the function
@@ -425,7 +420,7 @@ object MinMaxFunction {
 
 ## FUNCTIONS ###################################################################################################
   
-  # @category Tropical geometry
+  # @category Intersection products
   # Produces the rational functions that cut out the diagonal of the vector space R^n.
   # @param Int n Them dimension of the vector space (and the number of functions)
   # @return MinMaxFunction A list of the functions (max(x_n,y_n),...,max(x_1,y_1)), where x_i is the coordinate function in the first part of the cartesian product R^n x R^n and y_i is the coordinate function of the second half.
@@ -442,7 +437,7 @@ object MinMaxFunction {
   }
   
   
-  # @category Rational functions
+  # @category Morphisms and functions
   # This takes a vector v = (v_1,...,v_n) in R^n and returns the list of rational functions
   # max(v_i,x_i), i.e. a list of functions cutting out that point in R^n. 
   # @param Vector<Rational> v A vector in R^n (in non-homog. coordinates!)
@@ -460,7 +455,7 @@ object MinMaxFunction {
     return @result;
   }
   
-  # @category Rational functions
+  # @category Morphisms and functions
   # Creates an array of strings from a single string by separating along commas. This can be used as a convenience 
   # function to pass a list of variables to INPUT_VARS of MinMaxFunction, e.g. ...INPUT_VARS=>input_vars("x,y,z")
   # @param String A single string containing a comma-separated list of variable names

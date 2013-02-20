@@ -27,11 +27,7 @@ package Visual::WeightedComplex;
 #    '$PolyhedralComplex',
 # );
 
-# require Visual;
-# require Visual::PointSet;
-# require Visual::Wire;
-# require Visual::Polygon;
-
+# A set of basic visualization options for CMPLX_VISUAL and BB_VISUAL
 options %Visual::WeightedComplex::decorations=(
     %Visual::Polygons::decorations,
       
@@ -49,6 +45,7 @@ options %Visual::WeightedComplex::decorations=(
    # WeightLabelStyle => "",
 );
 
+# Some options only used for BB_VISUAL
 options %Visual::WeightedComplex::BoundingDecorations=(
     %Visual::WeightedComplex::decorations,
     
@@ -70,12 +67,14 @@ object WeightedComplex {
   
   
   # @category Visualization
+  # DEPRECATED. Use [[BB_VISUAL]] instead.
   # Displays a weighted polyhedral complex in ambient dimension up to 3 (4 in homog. coordinates) by visualizing all its
   # cells in the following way: For each cell, every directional ray is added to every affine ray (which is only the origin
   # in the non-homog. case) and the resulting polytope is displayed. The visualization has the following options:
-  # * DirScale: A rational number with which the directional rays are multiplied before added to the affine rays
-  # * WeightLabels:  if set to "hidden", the labels indicating the weights are hidden 
-  # * CoordLabels: If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
+  # @options
+  # @option Rational DirScale A rational number with which the directional rays are multiplied before added to the affine rays
+  # @option String WeightLabels  if set to "hidden", the labels indicating the weights are hidden 
+  # @option String CoordLabels If set to "show", the labels indicating the vertex coordinates are displayed, otherwise they are not. Note that this is expensive and significantly increases computation time.
   user_method CMPLX_VISUAL(%Visual::WeightedComplex::decorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES {
     my ($this,$decor,$cutoff_decor)=@_;
     
@@ -168,6 +167,12 @@ object WeightedComplex {
   # Displays a (possibly weighted) polyhedral complex by intersecting it with a bounding box. This bounding box
   # is either defined by the vertices of the complex and the option "BoundingDistance" or explicitly given by
   # "BoundingBox" and by setting "BoundingMode" to "absolute"
+  # @options
+  # @option String WeightLabels If "hidden", no weight labels are displayed. Not hidden by default.
+  # @option String CoordLabels If "show", coordinate labels are displayed at vertices. Hidden by default.
+  # @option String BoundingMode Can be "relative" (intersects with the bounding box returned by the method  boundingBox(BoundingDistance)) or "absolute" (intersects with the given BoundingBox). "relative" by default.
+  # @option Rational BoundingDistance The distance parameter for relative bounding mode
+  # @option Matrix<Rational> BoundingBox The bounding parameter for absolute bounding mode
   user_method BB_VISUAL(%Visual::WeightedComplex::BoundingDecorations, {CutOff => $Visual::Color::cutoff}) : RAYS, MAXIMAL_CONES, CMPLX_DIM, CMPLX_AMBIENT_DIM {
     my ($this,$decor,$cutoff_decor)=@_;
     
@@ -276,9 +281,10 @@ object WeightedComplex {
   # ---------------------------------------------------------------------------------------------------------
   
   # @category Visualization
-  # Takes a tropical variety and a (positive) Rational as input and computes the relative bounding box of the visualization with the Rational as BoundingDistance (see also the description of [[BB_VISUAL]]
+  # Takes a tropical variety and a (positive) Rational as input and computes the relative bounding box of the visualization with the Rational as BoundingDistance. I.e. will compute for each coordinate the minimum and
+  # maximum over all vertices and then add/substract the parameter distance. This is returned as a matrix. (see also the description of [[BB_VISUAL]]),
   # @param Rational distance The distance of the bounding box from the affine part of the variety (Can also be a standard perl number type)
-  # @return Matrix<Rational>  A 2x[[CMPLX_AMBIENT_DIM]]-matrix specifying the bounding box (it can be used as input for BoundingBox in [[BB_VISUAL]]
+  # @return Matrix<Rational>  A 2x[[CMPLX_AMBIENT_DIM]]-matrix specifying the bounding box (it can be used as input for BoundingBox in [[BB_VISUAL]])
   user_method boundingBox {
     my ($variety, $distance) = @_;
     my $clabels = new Array<String>(); 

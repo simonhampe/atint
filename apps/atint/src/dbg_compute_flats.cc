@@ -31,43 +31,43 @@
 
 namespace polymake { namespace atint { 
   
-  using namespace atintlog::donotlog;
-  //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
-  
-  ///////////////////////////////////////////////////////////////////////////////////////
-  
-  void computeFlats(Matrix<Rational> m) {
-    int r = rank(m);
-    
-    Vector<Vector<Set<int> > > flats(r);
-    
-    Set<int> all_cols = sequence(0,m.cols());
-    Array<Set<int> > ssets = all_subsets(all_cols);    
-    for(int s = 0; s < ssets.size(); s++) {
-      int x = rank(m.minor(All,ssets[s]));
-      if(x == 0) continue;
-      //Check if s is a flat
-      Set<int> complement = all_cols - ssets[s];
-      bool found_bad_element = false;
-      for(Entire<Set<int> >::iterator c = entire(complement); !c.at_end(); c++) {
-	if(rank(m.minor(All,ssets[s] + *c)) == x) {
-	  found_bad_element = true; break;
-	}
-      }
-      if(!found_bad_element) {
-	flats[x-1] |= ssets[s];
-      }
-    }
-    
-    pm::cout << "Done: " << endl;
-    
-    //Output
-    for(int i = 0; i < flats.size(); i++) {
-      pm::cout << "Rank " << (i+1) << ": " << flats[i] << endl;
-    }
-    
-  }
+//   using namespace atintlog::donotlog;
+//   //using namespace atintlog::dolog;
+//   //using namespace atintlog::dotrace;
+//   
+//   ///////////////////////////////////////////////////////////////////////////////////////
+//   
+//   void computeFlats(Matrix<Rational> m) {
+//     int r = rank(m);
+//     
+//     Vector<Vector<Set<int> > > flats(r);
+//     
+//     Set<int> all_cols = sequence(0,m.cols());
+//     Array<Set<int> > ssets = all_subsets(all_cols);    
+//     for(int s = 0; s < ssets.size(); s++) {
+//       int x = rank(m.minor(All,ssets[s]));
+//       if(x == 0) continue;
+//       //Check if s is a flat
+//       Set<int> complement = all_cols - ssets[s];
+//       bool found_bad_element = false;
+//       for(Entire<Set<int> >::iterator c = entire(complement); !c.at_end(); c++) {
+// 	if(rank(m.minor(All,ssets[s] + *c)) == x) {
+// 	  found_bad_element = true; break;
+// 	}
+//       }
+//       if(!found_bad_element) {
+// 	flats[x-1] |= ssets[s];
+//       }
+//     }
+//     
+//     pm::cout << "Done: " << endl;
+//     
+//     //Output
+//     for(int i = 0; i < flats.size(); i++) {
+//       pm::cout << "Rank " << (i+1) << ": " << flats[i] << endl;
+//     }
+//     
+//   }
 /*
   perl::Object bergman_by_flats(perl::Object matroid) {
     //First we need to compute all flats of the matroid
@@ -168,7 +168,7 @@ namespace polymake { namespace atint {
 
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
-  Function4perl(&computeFlats, "computeFlats(Matrix<Rational>)");
+//   Function4perl(&computeFlats, "computeFlats(Matrix<Rational>)");
 //   Function4perl(&bergman_by_flats,"bbf(matroid::Matroid)");
   
 }}

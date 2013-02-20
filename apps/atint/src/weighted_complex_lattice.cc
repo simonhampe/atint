@@ -123,7 +123,7 @@ namespace polymake { namespace atint {
      Map<int, Map<int, Vector<Integer> > > latticeNormals = fan.give("LATTICE_NORMALS");
     int ambient_dim = fan.give("FAN_AMBIENT_DIM");
     IncidenceMatrix<> codimOneCones = fan.give("CODIM_1_FACES");
-    Array<Integer> weights = fan.give("TROPICAL_WEIGHTS");
+    Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
     IncidenceMatrix<> codimInc = fan.give("CODIM_1_IN_MAXIMAL_CONES");
     
     //This will contain the result

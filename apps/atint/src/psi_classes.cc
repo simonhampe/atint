@@ -337,7 +337,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Moduli spaces"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Computes a product of psi classes psi_1^k_1 * ... * psi_n^k_n on the moduli space"
 		    "# of rational n-marked tropical curves M_0,n"
 		    "# @param Int n The number of leaves in M_0,n"
@@ -346,7 +346,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex The corresponding psi class divisor",
 		    &psi_product, "psi_product($, Vector<Int>)");
   
-  UserFunction4perl("# @category Tropical geometry / Moduli spaces"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Computes the i-th psi class in the moduli space of n-marked rational tropical curves"
 		    "# M_0,n"
 		    "# @param Int n The number of leaves in M_0,n"

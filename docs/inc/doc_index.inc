@@ -13,7 +13,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i56">adjacencyComplex</a>
+          <a href="atint.html#i46">add_minmax_functions</a>
         </b>
       </td>
       <td>function</td>
@@ -27,7 +27,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i106">affineTransform</a>
+          <a href="atint.html#i66">affineTransformation</a>
         </b>
       </td>
       <td>function</td>
@@ -41,12 +41,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i150">after</a>
+          <a href="atint.html#i168">after</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -69,26 +69,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i45">atint_testrun</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a/>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i179">BALANCED_FACES</a>
+          <a href="atint.html#i208">BALANCED_FACES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -97,12 +83,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i161">BB_VISUAL</a>
+          <a href="atint.html#i180">BB_VISUAL</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -111,12 +97,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i216">BB_VISUAL</a>
+          <a href="atint.html#i245">BB_VISUAL</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -125,12 +111,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i149">BB_VISUAL</a>
+          <a href="atint.html#i167">BB_VISUAL</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -139,12 +125,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i152">before</a>
+          <a href="atint.html#i171">before</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -153,21 +139,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i80">bergman_fan</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a/>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i70">bergman_fan_linear</a>
+          <a href="atint.html#i77">bergman_fan</a>
         </b>
       </td>
       <td>function</td>
@@ -181,7 +153,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i74">bergman_fan_matroid</a>
+          <a href="atint.html#i76">bergman_fan_flats</a>
         </b>
       </td>
       <td>function</td>
@@ -195,12 +167,40 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i27">BoundingBox</a>
+          <a href="atint.html#i79">bergman_fan_linear</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i78">bergman_fan_matroid</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i22">BoundingBox</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i27">Visual::WeightedComplex::BoundingDecorations</a>
+        <a href="atint.html#i22">Visual::WeightedComplex::BoundingDecorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -209,12 +209,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i160">boundingBox</a>
+          <a href="atint.html#i179">boundingBox</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -223,12 +223,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i27">BoundingDistance</a>
+          <a href="atint.html#i22">BoundingDistance</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i27">Visual::WeightedComplex::BoundingDecorations</a>
+        <a href="atint.html#i22">Visual::WeightedComplex::BoundingDecorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -237,12 +237,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i27">BoundingMode</a>
+          <a href="atint.html#i22">BoundingMode</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i27">Visual::WeightedComplex::BoundingDecorations</a>
+        <a href="atint.html#i22">Visual::WeightedComplex::BoundingDecorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -251,147 +251,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i132">characteristic</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i176">CMPLX_AMBIENT_DIM</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i174">CMPLX_CODIM_1_FACES</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i165">CMPLX_CODIMENSION</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i175">CMPLX_CONES</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i166">CMPLX_CONVERSION_VECTOR</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i167">CMPLX_DIM</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i177">CMPLX_MAXIMAL_CONES</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i168">CMPLX_RAYS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i159">CMPLX_VISUAL</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i100">coarsen</a>
+          <a href="atint.html#i117">check_cycle_equality</a>
         </b>
       </td>
       <td>function</td>
@@ -405,12 +265,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i182">CODIM_1_FACES</a>
+          <a href="atint.html#i200">CMPLX_AMBIENT_DIM</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -419,12 +279,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i184">CODIM_1_IN_MAXIMAL_CONES</a>
+          <a href="atint.html#i198">CMPLX_CODIM_1_FACES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -433,12 +293,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i210">COEFFS</a>
+          <a href="atint.html#i189">CMPLX_CODIMENSION</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -447,7 +307,91 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i50">complexify</a>
+          <a href="atint.html#i199">CMPLX_CONES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i190">CMPLX_CONVERSION_VECTOR</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i191">CMPLX_DIM</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i201">CMPLX_MAXIMAL_CONES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i192">CMPLX_RAYS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i178">CMPLX_VISUAL</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i70">coarsen</a>
         </b>
       </td>
       <td>function</td>
@@ -461,7 +405,49 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i104">computeMatrixBases</a>
+          <a href="atint.html#i196">CODIM_1_FACES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i193">CODIM_1_IN_MAXIMAL_CONES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i235">COEFFS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i28">RationalCurve</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i114">computeMatrixBases</a>
         </b>
       </td>
       <td>function</td>
@@ -475,7 +461,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i103">computeMatrixColoops</a>
+          <a href="atint.html#i113">computeMatrixColoops</a>
         </b>
       </td>
       <td>function</td>
@@ -489,12 +475,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i27">ConeLabels</a>
+          <a href="atint.html#i22">ConeLabels</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i27">Visual::WeightedComplex::BoundingDecorations</a>
+        <a href="atint.html#i22">Visual::WeightedComplex::BoundingDecorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -503,12 +489,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i201">CONSTANT_COEFFICIENTS</a>
+          <a href="atint.html#i229">CONSTANT_COEFFICIENTS</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -517,7 +503,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i57">contains_point</a>
+          <a href="atint.html#i115">contains_point</a>
         </b>
       </td>
       <td>function</td>
@@ -531,12 +517,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i28">CoordLabels</a>
+          <a href="atint.html#i23">CoordLabels</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i28">Visual::WeightedComplex::decorations</a>
+        <a href="atint.html#i23">Visual::WeightedComplex::decorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -545,7 +531,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i63">count_mn_cones</a>
+          <a href="atint.html#i120">count_mn_cones</a>
         </b>
       </td>
       <td>function</td>
@@ -559,7 +545,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i66">count_mn_rays</a>
+          <a href="atint.html#i122">count_mn_rays</a>
         </b>
       </td>
       <td>function</td>
@@ -573,7 +559,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i95">curve_graph_from_metric</a>
+          <a href="atint.html#i101">curve_graph_from_metric</a>
         </b>
       </td>
       <td>function</td>
@@ -587,7 +573,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i87">cycle_intersection</a>
+          <a href="atint.html#i52">cutting_functions</a>
         </b>
       </td>
       <td>function</td>
@@ -601,7 +587,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i79">degree</a>
+          <a href="atint.html#i57">cycle_intersection</a>
         </b>
       </td>
       <td>function</td>
@@ -615,26 +601,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i163">delocalize</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i183">DESCRIPTION</a>
+          <a href="atint.html#i204">DEGREE</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -643,7 +615,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i94">diagonal_functions</a>
+          <a href="atint.html#i54">degree</a>
         </b>
       </td>
       <td>function</td>
@@ -657,12 +629,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i171">DIRECTIONAL_RAYS</a>
+          <a href="atint.html#i181">dehomogenize</a>
         </b>
       </td>
-      <td>property</td>
+      <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -671,12 +643,68 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i28">DirScale</a>
+          <a href="atint.html#i183">delocalize</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i58">diagonal_functions</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i60">diagonal_unk</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i195">DIRECTIONAL_RAYS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i23">DirScale</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i28">Visual::WeightedComplex::decorations</a>
+        <a href="atint.html#i23">Visual::WeightedComplex::decorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -685,7 +713,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i88">divisor</a>
+          <a href="atint.html#i84">divisor</a>
         </b>
       </td>
       <td>function</td>
@@ -699,7 +727,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i85">divisorByPLF</a>
+          <a href="atint.html#i83">divisorByPLF</a>
         </b>
       </td>
       <td>function</td>
@@ -713,7 +741,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i69">divisorByValue</a>
+          <a href="atint.html#i85">divisorByValue</a>
         </b>
       </td>
       <td>function</td>
@@ -727,7 +755,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i83">divisor_list</a>
+          <a href="atint.html#i82">divisor_list</a>
         </b>
       </td>
       <td>function</td>
@@ -741,7 +769,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i91">divisor_list_nr</a>
+          <a href="atint.html#i87">divisor_list_nr</a>
         </b>
       </td>
       <td>function</td>
@@ -755,7 +783,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i73">divisor_nr</a>
+          <a href="atint.html#i86">divisor_nr</a>
         </b>
       </td>
       <td>function</td>
@@ -769,12 +797,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i221">DOMAIN</a>
+          <a href="atint.html#i250">DOMAIN</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -783,12 +811,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i154">DOMAIN</a>
+          <a href="atint.html#i176">DOMAIN</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -797,12 +825,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i195">DOMAIN_DIMENSION</a>
+          <a href="atint.html#i223">DOMAIN_DIMENSION</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -811,7 +839,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i55">equivalenceComplex</a>
+          <a href="atint.html#i126">evaluation_map</a>
         </b>
       </td>
       <td>function</td>
@@ -825,7 +853,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i39">evaluation_map</a>
+          <a href="atint.html#i142">evaluation_map</a>
         </b>
       </td>
       <td>function</td>
@@ -839,7 +867,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i121">evaluation_map</a>
+          <a href="atint.html#i75">fan_decomposition</a>
         </b>
       </td>
       <td>function</td>
@@ -853,7 +881,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i98">fan_decomposition</a>
+          <a href="atint.html#i123">forgetful_map</a>
         </b>
       </td>
       <td>function</td>
@@ -867,12 +895,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i29">FunctionLabels</a>
+          <a href="atint.html#i24">FunctionLabels</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i29">Visual::WeightedComplex::FunctionDecorations</a>
+        <a href="atint.html#i24">Visual::WeightedComplex::FunctionDecorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -881,12 +909,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i199">FUNCTION_MATRIX</a>
+          <a href="atint.html#i227">FUNCTION_MATRIX</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -895,7 +923,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i46">function_mult</a>
+          <a href="atint.html#i47">function_mult</a>
         </b>
       </td>
       <td>function</td>
@@ -909,7 +937,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i48">function_point</a>
+          <a href="atint.html#i44">function_point</a>
         </b>
       </td>
       <td>function</td>
@@ -923,7 +951,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i47">function_value</a>
+          <a href="atint.html#i43">function_value</a>
         </b>
       </td>
       <td>function</td>
@@ -937,7 +965,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i101">gcdext</a>
+          <a href="atint.html#i32">gcdext</a>
         </b>
       </td>
       <td>function</td>
@@ -951,12 +979,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i213">GRAPH</a>
+          <a href="atint.html#i210">GLUING_FACES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -965,12 +993,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i211">GRAPH_EDGE_LENGTHS</a>
+          <a href="atint.html#i239">GRAPH</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -979,7 +1007,21 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i65">halfspace_complex</a>
+          <a href="atint.html#i237">GRAPH_EDGE_LENGTHS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i28">RationalCurve</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i104">halfspace_complex</a>
         </b>
       </td>
       <td>function</td>
@@ -993,12 +1035,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i162">homogenize</a>
+          <a href="atint.html#i182">homogenize</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1007,12 +1049,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i218">homogenize</a>
+          <a href="atint.html#i247">homogenize</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1021,12 +1063,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i151">homogenize</a>
+          <a href="atint.html#i169">homogenize</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1035,105 +1077,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i207">INPUT_COEFFS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i33">RationalCurve</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i172">INPUT_HOM_LINEALITY</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i169">INPUT_HOM_RAYS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i214">INPUT_SETS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i33">RationalCurve</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i205">INPUT_STRING</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i33">RationalCurve</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i197">INPUT_STRING</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i198">INPUT_VARS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i90">intersect_complete_fan</a>
+          <a href="atint.html#i91">hurwitz_cycle</a>
         </b>
       </td>
       <td>function</td>
@@ -1147,49 +1091,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i187">IS_BALANCED</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i157">IS_GLOBAL</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i30">Morphism</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i190">IS_UNIMODULAR</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i86">is_zerocycle</a>
+          <a href="atint.html#i90">hurwitz_graph</a>
         </b>
       </td>
       <td>function</td>
@@ -1203,21 +1105,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i188">LATTICE_BASES</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i93">latticeBasis</a>
+          <a href="atint.html#i88">hurwitz_pair</a>
         </b>
       </td>
       <td>function</td>
@@ -1231,21 +1119,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i189">LATTICE_GENERATORS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i96">latticeNormal</a>
+          <a href="atint.html#i89">hurwitz_subdivision</a>
         </b>
       </td>
       <td>function</td>
@@ -1259,12 +1133,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i164">lattice_normal</a>
+          <a href="atint.html#i244">INPUT_COEFFS</a>
         </b>
       </td>
-      <td>function</td>
+      <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1273,7 +1147,91 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i67">latticeNormalByCone</a>
+          <a href="atint.html#i186">INPUT_HOM_LINEALITY</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i187">INPUT_HOM_RAYS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i243">INPUT_SETS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i28">RationalCurve</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i242">INPUT_STRING</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i28">RationalCurve</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i225">INPUT_STRING</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i27">MinMaxFunction</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i226">INPUT_VARS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i27">MinMaxFunction</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i45">input_vars</a>
         </b>
       </td>
       <td>function</td>
@@ -1287,12 +1245,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i178">LATTICE_NORMAL_FCT_VECTOR</a>
+          <a href="atint.html#i94">insert_leaves</a>
         </b>
       </td>
-      <td>property</td>
+      <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1301,12 +1259,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i185">LATTICE_NORMALS</a>
+          <a href="atint.html#i64">insert_rays</a>
         </b>
       </td>
-      <td>property</td>
+      <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1315,12 +1273,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i181">LATTICE_NORMAL_SUM</a>
+          <a href="atint.html#i61">intersect</a>
         </b>
       </td>
-      <td>property</td>
+      <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1329,12 +1287,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i180">LATTICE_NORMAL_SUM_FCT_VECTOR</a>
+          <a href="atint.html#i56">intersect_by_diagonal</a>
         </b>
       </td>
-      <td>property</td>
+      <td>function</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1343,12 +1301,306 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i26">LengthLabels</a>
+          <a href="atint.html#i72">intersect_complete_fan</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i71">intersect_container</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i63">intersect_in_lnk</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i55">intersect_in_unk</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i184">invert</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i207">IS_BALANCED</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i173">IS_GLOBAL</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i25">Morphism</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i209">IS_IRREDUCIBLE</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i217">IS_UNIMODULAR</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i116">is_zerocycle</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i212">LATTICE_BASES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i36">latticeBasis</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i215">LATTICE_GENERATORS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i33">lattice_index</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i34">latticeNormal</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i185">lattice_normal</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i37">latticeNormalByCone</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i213">LATTICE_NORMAL_FCT_VECTOR</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i211">LATTICE_NORMALS</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i216">LATTICE_NORMAL_SUM</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i214">LATTICE_NORMAL_SUM_FCT_VECTOR</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i21">LengthLabels</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i26">Visual::RationalCurve::decorations</a>
+        <a href="atint.html#i21">Visual::RationalCurve::decorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1357,12 +1609,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i200">LINEAR_COEFFICIENTS</a>
+          <a href="atint.html#i228">LINEAR_COEFFICIENTS</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1371,12 +1623,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i193">linearityDomains</a>
+          <a href="atint.html#i221">linearityDomains</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1385,21 +1637,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i89">linear_nspace</a>
-        </b>
-      </td>
-      <td>function</td>
-      <td>
-        <a/>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i105">linearRepresentation</a>
+          <a href="atint.html#i106">linear_nspace</a>
         </b>
       </td>
       <td>function</td>
@@ -1413,7 +1651,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i99">linear_space_by_basis</a>
+          <a href="atint.html#i112">linearRepresentation</a>
         </b>
       </td>
       <td>function</td>
@@ -1427,7 +1665,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i75">linear_space_by_matrix</a>
+          <a href="atint.html#i110">linear_space_by_basis</a>
         </b>
       </td>
       <td>function</td>
@@ -1441,12 +1679,26 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i222">LIN_VALUES</a>
+          <a href="atint.html#i107">linear_space_by_matrix</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i251">LIN_VALUES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1455,12 +1707,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i155">LIN_VALUES</a>
+          <a href="atint.html#i177">LIN_VALUES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1469,7 +1721,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i102">lllHNF</a>
+          <a href="atint.html#i111">lllHNF</a>
         </b>
       </td>
       <td>function</td>
@@ -1483,7 +1735,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i123">lllHNF</a>
+          <a href="atint.html#i140">lllHNF</a>
         </b>
       </td>
       <td>function</td>
@@ -1497,7 +1749,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i59">local_codim_1</a>
+          <a href="atint.html#i39">local_codim_1</a>
         </b>
       </td>
       <td>function</td>
@@ -1511,7 +1763,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i40">local_m0n</a>
+          <a href="atint.html#i125">local_m0n</a>
         </b>
       </td>
       <td>function</td>
@@ -1525,7 +1777,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i58">local_point</a>
+          <a href="atint.html#i38">local_point</a>
         </b>
       </td>
       <td>function</td>
@@ -1539,7 +1791,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i60">local_ray</a>
+          <a href="atint.html#i41">local_ray</a>
         </b>
       </td>
       <td>function</td>
@@ -1553,7 +1805,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i37">local_restrict</a>
+          <a href="atint.html#i40">local_restrict</a>
         </b>
       </td>
       <td>function</td>
@@ -1567,12 +1819,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i191">LOCAL_RESTRICTION</a>
+          <a href="atint.html#i188">LOCAL_RESTRICTION</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1581,12 +1833,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i158">MATRIX</a>
+          <a href="atint.html#i175">MATRIX</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1595,12 +1847,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i203">matroid_vector</a>
+          <a href="atint.html#i59">matroid_intersection_by_flats</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1609,12 +1861,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i204">metric_vector</a>
+          <a href="atint.html#i232">matroid_vector</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1623,7 +1875,35 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i32">MinMaxFunction</a>
+          <a href="atint.html#i233">metric_vector</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i28">RationalCurve</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i62">minkowski_multiplicity</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i27">MinMaxFunction</a>
         </b>
       </td>
       <td>object</td>
@@ -1637,7 +1917,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i82">moduliDimensionFromLength</a>
+          <a href="atint.html#i121">moduliDimensionFromLength</a>
         </b>
       </td>
       <td>function</td>
@@ -1651,7 +1931,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i30">Morphism</a>
+          <a href="atint.html#i25">Morphism</a>
         </b>
       </td>
       <td>object</td>
@@ -1665,12 +1945,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i209">N_LEAVES</a>
+          <a href="atint.html#i234">N_LEAVES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1679,12 +1959,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i206">NODE_DEGREES</a>
+          <a href="atint.html#i240">NODE_DEGREES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1693,12 +1973,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i208">NODES_BY_LEAVES</a>
+          <a href="atint.html#i241">NODES_BY_LEAVES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1707,12 +1987,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i212">NODES_BY_SETS</a>
+          <a href="atint.html#i238">NODES_BY_SETS</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1721,12 +2001,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i194">NORMAL_FAN</a>
+          <a href="atint.html#i222">NORMAL_FAN</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1735,7 +2015,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i36">point_variety</a>
+          <a href="atint.html#i81">piecewise_divisor</a>
         </b>
       </td>
       <td>function</td>
@@ -1749,12 +2029,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i217">pow</a>
+          <a href="atint.html#i109">point_variety</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1763,12 +2043,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i139">pow</a>
+          <a href="atint.html#i246">pow</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1777,12 +2057,26 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i219">POWER</a>
+          <a href="atint.html#i219">pow</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i27">MinMaxFunction</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i249">POWER</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -1791,7 +2085,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i51">product_complex</a>
+          <a href="atint.html#i67">product_complex</a>
         </b>
       </td>
       <td>function</td>
@@ -1805,7 +2099,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i53">product_complex_lattice</a>
+          <a href="atint.html#i74">product_complex_lattice</a>
         </b>
       </td>
       <td>function</td>
@@ -1819,7 +2113,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i38">projection_map</a>
+          <a href="atint.html#i42">projection_map</a>
         </b>
       </td>
       <td>function</td>
@@ -1833,7 +2127,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i119">projection_map</a>
+          <a href="atint.html#i138">projection_map</a>
         </b>
       </td>
       <td>function</td>
@@ -1847,7 +2141,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i62">pull_back</a>
+          <a href="atint.html#i119">psi_class</a>
         </b>
       </td>
       <td>function</td>
@@ -1861,7 +2155,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i54">randomInteger</a>
+          <a href="atint.html#i118">psi_product</a>
         </b>
       </td>
       <td>function</td>
@@ -1875,7 +2169,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i81">random_minmaxdivisor</a>
+          <a href="atint.html#i48">pull_back</a>
         </b>
       </td>
       <td>function</td>
@@ -1889,7 +2183,35 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i33">RationalCurve</a>
+          <a href="atint.html#i35">randomInteger</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i80">random_minmaxdivisor</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i28">RationalCurve</a>
         </b>
       </td>
       <td>object</td>
@@ -1903,7 +2225,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i43">rational_curve_embedding</a>
+          <a href="atint.html#i97">rational_curve_embedding</a>
         </b>
       </td>
       <td>function</td>
@@ -1917,7 +2239,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i42">rational_curve_from_cone</a>
+          <a href="atint.html#i100">rational_curve_from_cone</a>
         </b>
       </td>
       <td>function</td>
@@ -1931,7 +2253,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i107">rational_curve_from_metric</a>
+          <a href="atint.html#i102">rational_curve_from_metric</a>
         </b>
       </td>
       <td>function</td>
@@ -1945,7 +2267,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i77">rational_curve_from_moduli</a>
+          <a href="atint.html#i92">rational_curve_from_moduli</a>
         </b>
       </td>
       <td>function</td>
@@ -1959,7 +2281,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i41">rational_curve_from_rays</a>
+          <a href="atint.html#i93">rational_curve_from_rays</a>
         </b>
       </td>
       <td>function</td>
@@ -1973,7 +2295,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i71">rational_curve_list_from_metric</a>
+          <a href="atint.html#i95">rational_curve_list_from_metric</a>
         </b>
       </td>
       <td>function</td>
@@ -1987,7 +2309,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i68">rational_curve_list_from_moduli</a>
+          <a href="atint.html#i98">rational_curve_list_from_moduli</a>
         </b>
       </td>
       <td>function</td>
@@ -2001,7 +2323,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i34">RationalFunction</a>
+          <a href="atint.html#i29">RationalFunction</a>
         </b>
       </td>
       <td>object</td>
@@ -2015,12 +2337,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i220">RAY_VALUES</a>
+          <a href="atint.html#i248">RAY_VALUES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i34">RationalFunction</a>
+        <a href="atint.html#i29">RationalFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2029,12 +2351,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i153">RAY_VALUES</a>
+          <a href="atint.html#i174">RAY_VALUES</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2043,7 +2365,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i78">recession_fan</a>
+          <a href="atint.html#i65">recession_fan</a>
         </b>
       </td>
       <td>function</td>
@@ -2057,7 +2379,35 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i44">restrict</a>
+          <a href="atint.html#i218">reduce</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i27">MinMaxFunction</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i170">restrict</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i25">Morphism</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i49">scale_minmax_function</a>
         </b>
       </td>
       <td>function</td>
@@ -2071,12 +2421,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i215">SETS</a>
+          <a href="atint.html#i236">SETS</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i28">RationalCurve</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2085,7 +2435,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i52">skeleton_complex</a>
+          <a href="atint.html#i53">simplicial_diagonal_system</a>
         </b>
       </td>
       <td>function</td>
@@ -2099,7 +2449,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i61">spanning_complete</a>
+          <a href="atint.html#i50">simplicial_piecewise_system</a>
         </b>
       </td>
       <td>function</td>
@@ -2113,12 +2463,40 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i202">STANDARD_FORM</a>
+          <a href="atint.html#i51">simplicial_with_diagonal</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i68">skeleton_complex</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i230">STANDARD_FORM</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2127,7 +2505,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i84">sum_curves</a>
+          <a href="atint.html#i96">sum_curves</a>
         </b>
       </td>
       <td>function</td>
@@ -2141,7 +2519,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i72">testFourPointCondition</a>
+          <a href="atint.html#i99">testFourPointCondition</a>
         </b>
       </td>
       <td>function</td>
@@ -2155,12 +2533,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i156">TRANSLATE</a>
+          <a href="atint.html#i172">TRANSLATE</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i30">Morphism</a>
+        <a href="atint.html#i25">Morphism</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2169,7 +2547,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i64">tropical_cube</a>
+          <a href="atint.html#i73">triangulateFan</a>
         </b>
       </td>
       <td>function</td>
@@ -2183,7 +2561,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i76">tropical_lnk</a>
+          <a href="atint.html#i103">tropical_cube</a>
         </b>
       </td>
       <td>function</td>
@@ -2197,7 +2575,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i97">tropical_m0n</a>
+          <a href="atint.html#i108">tropical_lnk</a>
         </b>
       </td>
       <td>function</td>
@@ -2211,54 +2589,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i186">TROPICAL_WEIGHTS</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i173">USES_HOMOGENEOUS_C</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i31">WeightedComplex</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i196">USES_MIN</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
-      </td>
-      <td>
-        <a href="atint.html">atint</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
-          <a href="atint.html#i192">valueAt</a>
+          <a href="atint.html#i124">tropical_m0n</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i32">MinMaxFunction</a>
+        <a/>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2267,12 +2603,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i170">VERTICES</a>
+          <a href="atint.html#i203">TROPICAL_WEIGHTS</a>
         </b>
       </td>
       <td>property</td>
       <td>
-        <a href="atint.html#i31">WeightedComplex</a>
+        <a href="atint.html#i26">WeightedComplex</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2281,12 +2617,40 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i142">VISUAL</a>
+          <a href="atint.html#i197">USES_HOMOGENEOUS_C</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i224">USES_MIN</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i27">MinMaxFunction</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i220">valueAt</a>
         </b>
       </td>
       <td>function</td>
       <td>
-        <a href="atint.html#i33">RationalCurve</a>
+        <a href="atint.html#i27">MinMaxFunction</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2295,7 +2659,49 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i26">Visual::RationalCurve::decorations</a>
+          <a href="atint.html#i31">variety_from_gfan</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i194">VERTICES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i231">VISUAL</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a href="atint.html#i28">RationalCurve</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i21">Visual::RationalCurve::decorations</a>
         </b>
       </td>
       <td>common-option-list</td>
@@ -2309,7 +2715,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i27">Visual::WeightedComplex::BoundingDecorations</a>
+          <a href="atint.html#i22">Visual::WeightedComplex::BoundingDecorations</a>
         </b>
       </td>
       <td>common-option-list</td>
@@ -2323,7 +2729,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i28">Visual::WeightedComplex::decorations</a>
+          <a href="atint.html#i23">Visual::WeightedComplex::decorations</a>
         </b>
       </td>
       <td>common-option-list</td>
@@ -2337,7 +2743,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i29">Visual::WeightedComplex::FunctionDecorations</a>
+          <a href="atint.html#i24">Visual::WeightedComplex::FunctionDecorations</a>
         </b>
       </td>
       <td>common-option-list</td>
@@ -2351,7 +2757,21 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i31">WeightedComplex</a>
+          <a href="atint.html#i205">WEIGHT_CONE</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i26">WeightedComplex</a>
         </b>
       </td>
       <td>object</td>
@@ -2365,12 +2785,12 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i28">WeightLabels</a>
+          <a href="atint.html#i23">WeightLabels</a>
         </b>
       </td>
       <td>option</td>
       <td>
-        <a href="atint.html#i28">Visual::WeightedComplex::decorations</a>
+        <a href="atint.html#i23">Visual::WeightedComplex::decorations</a>
       </td>
       <td>
         <a href="atint.html">atint</a>
@@ -2379,7 +2799,35 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i49">wfan</a>
+          <a href="atint.html#i206">WEIGHT_SPACE</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i202">WEIGHT_SYSTEM</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="atint.html#i26">WeightedComplex</a>
+      </td>
+      <td>
+        <a href="atint.html">atint</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="atint.html#i69">wfan</a>
         </b>
       </td>
       <td>function</td>
@@ -2393,7 +2841,7 @@
     <tr>
       <td>
         <b>
-          <a href="atint.html#i92">zero_cycle</a>
+          <a href="atint.html#i105">zero_cycle</a>
         </b>
       </td>
       <td>function</td>

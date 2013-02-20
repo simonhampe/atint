@@ -130,7 +130,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Intersection theory "
+  UserFunction4perl("# @category Divisors"
 		    "# Computes a divisor of a linear sum of certain piecewise polynomials on a simplicial "
 		    "# fan. "
 		    "# @param WeightedComplex F A simplicial fan without lineality space in non-homog."

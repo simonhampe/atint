@@ -353,7 +353,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Matroid fans"
+  UserFunction4perl("# @category Matroid fans"
 		    "# This function computes the bergman fan of a matroid in the subdivision associated"
 		    "# to its lattice of flats. In particular it computes all flats and all maximal"
 		    "# chains of flats. Hence this function is terribly inefficient and should only be used"
@@ -365,7 +365,7 @@ namespace polymake { namespace atint {
 		    "# @return WeightedComplex The bergman fan B(m) in its flat subdivision",
 		    &bergman_by_flats,"bergman_fan_flats(matroid::Matroid; $=1)");
   
-  UserFunction4perl("# @category Tropical geometry / Intersection theory"
+  UserFunction4perl("# @category Intersection products"
 		    "# Computes an intersection product of two cycles in a bergman fan"
 		    "# @param WeightedComplex X A tropical cycle living either in B(M) or B(M)/L, where"
 		    "# L = <(1,...,1)>"

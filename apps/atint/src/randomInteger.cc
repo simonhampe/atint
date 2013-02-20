@@ -47,11 +47,11 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Random number generators"
+  UserFunction4perl("# @category Integer and lattice arithmetic"
                   "# Returns n random integers in the range 0.. (max_arg-1),inclusive"
                   "# Note that this algorithm is not optimal for real randomness:"
                   "# If you change the range parameter and then change it back, you will"
-                  "# usually get the exact same sequence"
+                  "# usually get the exact same sequence as the first time"
                   "# @param int max_arg The upper bound for the random integers"
                   "# @param int n The number of integers to be created"
                   "# @return Array<Integer>",

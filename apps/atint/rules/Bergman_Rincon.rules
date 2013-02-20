@@ -27,7 +27,7 @@ CREDIT TropLi
   http://math.berkeley.edu/~felipe/tropli/ 
   See also: Felipe Rincón, "Computing tropical linear spaces", arXiv:1109.4130
   
-# @category Tropical geometry
+# @category Matroid fans
 # Uses an algorithm by Felipe Rincón to compute the bergman fan of a linear matroid
 # @param Matrix<Rational> m Any rational matrix
 # @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 
@@ -44,7 +44,7 @@ user_function bergman_fan_linear {
   return prepareBergmanMatrix($matrix, ($modOutLineality eq TRUE || $modOutLineality == 1)? 1 : 0, $projectionCoordinate);
 }
 
-# @category Tropical geometry
+# @category Matroid fans
 # Uses an algorithm by Felipe Rincón to compute the bergman fan of a general matroid
 # @param matroid::Matroid m Any matroid
 # @param Bool modOutLineality Optional argument. If set to TRUE, the lineality space is divided out before returning the 

@@ -146,12 +146,11 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Polyhedral geometry"
+  UserFunction4perl("# @category Basic polyhedral operations"
 		    "# Takes a tropical variety on which a coarsest polyhedral structure exists"
 		    "# and computes this structure."
 		    "# @param WeightedComplex complex A tropical variety which has a unique "
-		    "# coarsest polyhedral structre (e.g. it is locally connected in codimension "
-		    "# one."
+		    "# coarsest polyhedral structre "
 		    "# @return WeightedComplex The corresponding coarse complex",
 		    &coarsen, "coarsen(WeightedComplex)");
   

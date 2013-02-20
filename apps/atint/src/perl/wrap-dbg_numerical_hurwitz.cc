@@ -15,17 +15,35 @@
 
 namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( pm::Vector<int> (perl::Object) ) {
-      perl::Value arg0(stack[0]);
-      IndirectWrapperReturn( arg0 );
+   FunctionWrapper4perl( perl::Object (perl::Object, perl::Object, pm::Vector<int>, int, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]);
+      IndirectWrapperReturn( arg0, arg1, arg2.get< perl::TryCanned< const Vector< int > > >(), arg3, arg4 );
    }
-   FunctionWrapperInstance4perl( pm::Vector<int> (perl::Object) );
+   FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, pm::Vector<int>, int, int) );
 
    FunctionWrapper4perl( pm::Vector<pm::Integer> (perl::Object, perl::Object) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
       IndirectWrapperReturn( arg0, arg1 );
    }
    FunctionWrapperInstance4perl( pm::Vector<pm::Integer> (perl::Object, perl::Object) );
+
+   FunctionWrapper4perl( pm::Matrix<pm::Rational> (perl::Object, perl::Object, pm::Vector<int>, int, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]);
+      IndirectWrapperReturn( arg0, arg1, arg2.get< perl::TryCanned< const Vector< int > > >(), arg3, arg4 );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Rational> (perl::Object, perl::Object, pm::Vector<int>, int, int) );
+
+   FunctionWrapper4perl( pm::Matrix<pm::Rational> (perl::Object, perl::Object) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Rational> (perl::Object, perl::Object) );
+
+   FunctionWrapper4perl( pm::Map<int, int, pm::operations::cmp> (perl::Object, perl::Object) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( pm::Map<int, int, pm::operations::cmp> (perl::Object, perl::Object) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

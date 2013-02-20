@@ -23,7 +23,7 @@
 
 #USE fan polytope
 
-# @category Tropical geometry
+# @category Divisors
 # NOTE: Deprecated. Use divisor(...) or divisor_nr(...) in conjunction with function_value instead
 # Takes as input a tropical fan / tropical variety and an array of rational values. The array length should coincide 
 # with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational
@@ -40,7 +40,7 @@ user_function divisorByValue {
   return divisorByValueVector($fan,new Vector<Rational>(@values));
 }
 
-# @category Tropical geometry
+# @category Divisors
 # Takes as input a tropical variety X , a rational function f and optionally a positive integer k. It then computes
 # f^k * X
 #Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which the complex is balanced and computing weights there.
@@ -65,7 +65,7 @@ user_function divisor {
   }
 }
 
-# @category Tropical geometry
+# @category Divisors
 # Takes as input a tropical variety and an arbitrarily long list of RationalFunction objects f_1,...,f_k. It will 
 ## then compute f_k^a_k * ... * f_1^a_1 * X, where a_i = f_i->POWER
 # @param WeightedComplex X
@@ -86,7 +86,7 @@ user_function divisor_list {
   return $X;
 }
 
-# @category Tropical geometry
+# @category Divisors
 # Works exactly as divisor_list(WeightedComplex;RationalFunction,...). Should be called
 # ONLY,when every occuring function f is defined on a DOMAIN equal to X (in the sense that
 # all properties like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not

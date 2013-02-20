@@ -213,15 +213,15 @@ namespace polymake { namespace atint {
                   "# It returns the normal form and stores the unimodular transformation matrix and the kernel dimension  of the transposed matrix in"
                   "# the last two parameters. The algorithm is the LLL-based HNF alg. by Havas, Majevski, Matthews"
                   "# @param Matrix<Integer> matrix the matrix for which the transformation is computed"
-                  "# @param Matrix<Integer> tfmatrix The matrix that will contain the transformation matrix"
-                  "# @param Integer kdim This will be set to dim Ker(A)"                  
+                  "# @param Matrix<Integer> tfmatrix The matrix that will contain the transformation matrix, i.e. tfmatrix * matrix = lllHNF(matrix)"
+                  "# @param Integer kdim This will be set to dim Ker(A^T) (This is needed for lattice normal computation)"                  
                   "# @return Matrix",
                   &lllHNF_IntegerWrap,"lllHNF(Matrix<Integer>,Matrix<Integer>,Integer)");           
 
   UserFunction4perl("# @category Linear algebra"
 		    "# Does exactly the same as lllHNF(Matrix,Matrix,Integer), except "
 		    "# that it only returns the normal form and not the transformation matrix"
-		    "# and the kernel dimension"
+		    "# and the transposed kernel dimension"
 		    "# @param Matrix<Integer> matrix the matrix for which the transformation is computed"
 		    "# @return Matrix<Integer> The HNF of matrix",
 		    &lllHNF_OnlyResult,"lllHNF(Matrix<Integer>)");

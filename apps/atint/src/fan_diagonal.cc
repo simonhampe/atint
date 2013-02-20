@@ -220,7 +220,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Intersection theory / Diagonal-related"
+  UserFunction4perl("# @category Inverse problems"
 		    "# This function takes a simplicial fan F (in non-homog. coordinates and without "
 		    "# lineality space) and computes the coarsest subdivision of F x F containing all "
 		    "# diagonal rays (r,r)"
@@ -230,7 +230,7 @@ namespace polymake { namespace atint {
 		    "# all diagonal rays",
 		    &simplicial_with_diagonal, "simplicial_with_diagonal(WeightedComplex)");
   
-  UserFunction4perl("# @category Intersection theory / Diagonal-related"
+  UserFunction4perl("# @category Inverse problems"
 		    "# This function takes a d-dimensional simplicial fan F and computes the linear system "
 		    "# defined in the following way: For each d-dimensional cone t in the diagonal subdivision of FxF, let psi_t be the "
 		    "# piecewise polynomial defined by subsequently applying the rational functions that "
@@ -243,13 +243,13 @@ namespace polymake { namespace atint {
 		    "# by skeleton_complex(simplicial_with_diagonal(F), d,TRUE)",
 		    &simplicial_piecewise_system, "simplicial_piecewise_system(WeightedComplex)");
   
-  UserFunction4perl("# @category Intersection theory / Diagonal-related"
+  UserFunction4perl("# @category Inverse problems"
 		    "# This function computes the inhomogeneous version of simplicial_piecewise_system"
 		    "# in the sense that it computes the result of the above mentioned function (i.e. "
 		    "# which coefficients for the piecewise polynomials yield the zero divisor)"
 		    "# and adds another column at the end where only the entries corresponding to the "
-		    "# diagonal cones are 1, the rest is zero. This can be seen as appending a non-zero"
-		    "# solution to the system",
+		    "# diagonal cones are 1, the rest is zero. This can be seen as asking for a "
+		    "# solution to the system that cuts out the diagonal (all solutions whose last entry is 1)",
 		    &simplicial_diagonal_system, "simplicial_diagonal_system(WeightedComplex)");
   
 }}

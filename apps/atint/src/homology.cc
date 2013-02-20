@@ -209,7 +209,7 @@ namespace polymake { namespace atint {
     }
     
     // ------------------------- PERL WRAPPERS ---------------------------------------------------
-    
+   /* 
     UserFunction4perl("# @category Homology"
 		      "# Computes the codimension one adjacency graph of a tropical variety and returns it as a "
 		      "# simplicial complex. The nodes of the graph are the maximal cones, which are connected, iff "  
@@ -227,6 +227,6 @@ namespace polymake { namespace atint {
 		      "# them are connected."
 		      "# @param WeightedComplex fan A tropical variety"
 		      "# @return topaz::SimplicialComplex The canonical complex of the variety.",
-		      &equivalencyComplex, "equivalenceComplex(WeightedComplex)");
+		      &equivalencyComplex, "equivalenceComplex(WeightedComplex)");*/
     
 }}

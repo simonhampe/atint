@@ -553,20 +553,21 @@ namespace polymake { namespace atint {
 
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Polyhedral geometry"
-		    "# Takes a collection of weighted cones of the same dimension and refines them such that they "
-		    "# form a weighted complex. Weights of cones lying one over the other add up."
-		    "# @param Matrix<Rational> rays A matrix of rays of the cones. Has to be irredundant and "
-		    "# normalized."
-		    "# @param Vector<Set<int> > cones The maximal cones, given in terms of row indices of their "
-		    "# rays "
-		    "# @param Vector<Integer> weights The i-th element is the weight of the cone described by the "
-		    "# i-th row of cones"
-		    "# @param bool uses_homog Whether the rays are given in homogeneous coordinates "
-		    "# @return perl::Object A WeightedComplex object, whose support is the union of the cones. "
-		    "# The weight of a cone is the sum of the weights of the orginal cones containing it. The "
-		    "# result is homogeneous iff uses_homog is true",
-    &complexify,"complexify(Matrix<Rational>,IncidenceMatrix,Vector<Integer>, $)");
+//   UserFunction4perl("# @category Polyhedral geometry"
+// 		    "# Takes a collection of weighted cones of the same dimension and refines them such that they "
+// 		    "# form a weighted complex. Weights of cones lying one over the other add up."
+// 		    "# @param Matrix<Rational> rays A matrix of rays of the cones. Has to be irredundant and "
+// 		    "# normalized."
+// 		    "# @param Vector<Set<int> > cones The maximal cones, given in terms of row indices of their "
+// 		    "# rays "
+// 		    "# @param Vector<Integer> weights The i-th element is the weight of the cone described by the "
+// 		    "# i-th row of cones"
+// 		    "# @param bool uses_homog Whether the rays are given in homogeneous coordinates "
+// 		    "# @return perl::Object A WeightedComplex object, whose support is the union of the cones. "
+// 		    "# The weight of a cone is the sum of the weights of the orginal cones containing it. The "
+// 		    "# result is homogeneous iff uses_homog is true",
+//     &complexify,"complexify(Matrix<Rational>,IncidenceMatrix,Vector<Integer>, $)");
+  Function4perl(&complexify,"complexify(Matrix<Rational>,IncidenceMatrix,Vector<Integer>,$)");
   //Function4perl(&testcone, "testcone(polytope::Polytope)");
   
 }}

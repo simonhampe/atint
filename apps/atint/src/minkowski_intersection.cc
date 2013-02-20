@@ -369,23 +369,26 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Lattice arithmetic"
+  UserFunction4perl("# @category Integer and lattice arithmetic"
 		    "# This computes the index of a lattice of rank n in Z^n"
 		    "# @param Matrix<Integer> m A list of (row) generators of the lattice. The matrix must have"
 		    "# full column rank, otherwise an error is thrown"
 		    "# @return Integer The index of the lattice",
 		    &lattice_index,"lattice_index(Matrix<Integer>)");
   
-  UserFunction4perl("# @category Tropical geometry / Intersection theory"
+  UserFunction4perl("# @category Intersection products"
 		    "# Computes the intersection product of two tropical cycles in R^n"
 		    "# @param WeightedComplex X A tropical cycle"
 		    "# @param WeightedComplex Y A tropical cycle, living in the same space as X"
 		    "# @return WeightedComplex The intersection product, always in homogeneous coordinates",
 		    &minkowski_intersection,"intersect(WeightedComplex,WeightedComplex)");
   
-  UserFunction4perl("# @category Tropical geometry / Intersection theory"
+  UserFunction4perl("# @category Intersection products"
 		    "# Computes the minkowski multiplicity of two fans, i.e. it computes the unique weight of "
-		    "# the Minkowski sum X + (-Y) "
+		    "# the Minkowski sum X + (-Y). More precisely: If the sum is not full-dimensional, it "
+		    "# returns 0. Otherwise it runs over all pairs of cones whose Minkowski sum contains"
+		    "# a generic vector and adds the product of their weight times the lattice index of the sum"
+		    "# of the lattices."
 		    "# @param WeightedComplex X A tropical fan"
 		    "# @param WeightedComplex Y A tropical fan, living in the same space as X"
 		    "# @return Integer The Minkowski multiplicity",

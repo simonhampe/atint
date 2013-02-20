@@ -131,8 +131,8 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Rational functions"
-		    "# Computes the sum of two MinMaxFunctions that are supposed to have the same USES_MIN property"
+  UserFunction4perl("# @category Morphisms and functions"
+		    "# Computes the sum of two MinMaxFunctions that are supposed to have the same USES_MIN property. You can also simply use '+' instead."
 		    "# @param MinMaxFunction f An arbitrary MinMaxFunction"
 		    "# @param MinMaxFunction g A MinMaxFunction such that f->[[USES_MIN]] == g->[[USES_MIN]] and is"
 		    "# defined on the same domain."
@@ -140,8 +140,8 @@ namespace polymake { namespace atint {
 		    "# @return MinMaxFunction The sum of both functions. ",
 		    &add_minmax_functions, "add_minmax_functions(MinMaxFunction, MinMaxFunction;$= 0)");
   
-  UserFunction4perl("# @category Rational functions"
-		    "# Scales a MinMaxFunction by a given Rational a"
+  UserFunction4perl("# @category Morphisms and functions"
+		    "# Scales a MinMaxFunction by a given Rational a. You can also use the '*' operator."
 		    "# @param MinMaxFunction f An arbitrary MinMaxFunction"
 		    "# @param Rational a A scalar values"
 		    "# @return MinMaxFunction The scaled function",

@@ -545,7 +545,7 @@ namespace polymake { namespace atint {
 		    "# Computes a list of sets of column indices of a matrix such that"
 		    "# the corresponding column sets form a basis of the column space"
 		    "# @param Matrix<Rational> m "
-		    "# @return Set<int> An array of Set<int>",
+		    "# @return IncidenceMatrix A list of all bases",
 		    &computeMatrixBases,"computeMatrixBases(Matrix<Rational>)");
   UserFunction4perl("# @category Linear algebra"
 		    "# Computes a list of column indices of a matrix such that "
@@ -553,7 +553,7 @@ namespace polymake { namespace atint {
 		    "# column space. Is equal to the intersection of all sets returned by"
 		    "# [[computeMatrixBases]]"
 		    "# @param Matrix<Rational> m"
-		    "# @return Set<int> ",
+		    "# @return Set<int> A list of all coloops ",
 		    &computeMatrixColoops,"computeMatrixColoops(Matrix<Rational>)");
   
   

@@ -37,18 +37,18 @@ object WeightedComplex {
 	# [[LOCAL_RESTRICTION]], this will only be checked at the compatible codim one faces.
 	property IS_BALANCED : Bool;	
 
-	# @category Basic properties
+	# @category Polyhedral properties
 	# An incidence matrix of all codimension one faces. Each row is a face and column indices refer to [[RAYS]].
 	# If the fan uses homogeneous coordinates, only those faces that intersect {x0 = 1} are listed here.
 	# If there is a [[LOCAL_RESTRICTION]], only compatible codimension one faces are kept.
 	property CODIM_1_FACES : IncidenceMatrix;
 	
-	# @category Basic properties
+	# @category Polyhedral properties
 	# An incidence matrix indicating which codim 1 faces are contained in which maximal cone. Rows refer
 	# to (rows of) [[CODIM_1_FACES]], columns to (rows of) [[MAXIMAL_CONES]]
 	property CODIM_1_IN_MAXIMAL_CONES : IncidenceMatrix;
 	
-	# @category Tropical properties
+	# @category Lattice properties
 	# A list of lattice normal vectors. They are associated to the faces and maximal cones in the following 
 	# way: For codimension one face i and adjacent maximal cone j, the element [[LATTICE_NORMALS]]->{i}->{j} is the corresp.
 	# lattice normal vector. There is a convenience method lattice_normal(i,j)
@@ -58,7 +58,7 @@ object WeightedComplex {
 	# are computed (naturally, since [[CODIM_1_FACES]] only contains those)
 	property LATTICE_NORMALS : Map<Int,Map<Int,Vector<Integer>>>; 
 	
-	# @category Tropical geometry
+	# @category Lattice properties
 	# For each lattice normal vector, this gives a vector of length (number of rays) + (lineality dim.), such that
 	# if a rational function is given by values on the rays and lin space generators, the value of the corresponding
 	# normal [[LATTICE_NORMALS]]->{i}->{j} can be computed by multiplying the function value vector with 
@@ -76,12 +76,12 @@ object WeightedComplex {
 	# simply by taking the scalar product of RAY_VALUES | LIN_VALUES with ist FCT_VECTOR
 	property LATTICE_NORMAL_FCT_VECTOR : Map<Int,Map<Int,Vector<Rational>>>;
 	
-	# @category Tropical geometry
+	# @category Lattice properties
 	# Rows of this matrix correspond to [[CODIM_1_FACES]], and each row contains the weighted sum:
 	# sum_{cone > codim-1-face}( weight(cone) * [[LATTICE_NORMALS]]->{codim-1-face}->{cone})
 	property LATTICE_NORMAL_SUM : Matrix<Rational>;
 	
-	# @category Tropical geometry
+	# @category Lattice properties
 	# Rows of this matrix correspond to [[CODIM_1_FACES]] (or [[CMPLX_CODIM_1_FACES]] in the homog. case), and each row 
 	# contains a function vector for the corresponding row of [[LATTICE_NORMAL_SUM]]. This function vector is computed 
 	# in the same way as described under [[LATTICE_NORMAL_FCT_VECTOR]].
@@ -89,12 +89,14 @@ object WeightedComplex {
 	# If a face is balanced can be checked under [[BALANCED_FACES]].
 	property LATTICE_NORMAL_SUM_FCT_VECTOR : Matrix<Rational>;
 	
-	# @category Tropical geometry
+	# @category Tropical properties
 	# A vector whose entries correspond to the rows of CODIM_1_FACES. The i-th entry is true, if and only 
 	# if the complex is balanced at that face
 	property BALANCED_FACES : Vector<Bool>;
 	
-	# @category Polyhedral complex
+	# @category Input properties
+	# USE IS NOT RECOMMENDED, since [[TROPICAL_WEIGHTS]] are always given with respect to [[MAXIMAL_CONES]] 
+	# anyway. 
 	# A matrix of the rays of the fan. This should be used *instead of* [[INPUT_RAYS]], if the coordinates of the
 	# fan should be interpreted as homogeneous coordinates and the fan as the complex at x0 = 1.
 	# The input rays are normalized to x0 = 1 and the fan is then initialized with the normalized rays as
@@ -103,12 +105,14 @@ object WeightedComplex {
 	# are also your rays, you can directly put this into RAYS and manually set USES_HOMOGENEOUS_C=>TRUE
 	property INPUT_HOM_RAYS: Matrix<Rational>;
 	
-	# @category Polyhedral complex
+	# @category Input properties
+	# USE IS NOT RECOMMENDED, since [[TROPICAL_WEIGHTS]] are always given with respect to [[MAXIMAL_CONES]] 
+	# anyway. 
 	# A matrix of generators of the lineality space, but in homogeneous coordinates (i.e. x0 should be 0, otherwise 
 	# this throws an error). This should be used *instead of* [[INPUT_LINEALITY]] / [[LINEALITY_SPACE]]
 	property INPUT_HOM_LINEALITY : Matrix<Rational>;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# Indicates whethere this fan's coordinates should be interpreted as affine coordinates or as homogeneous coordinates.
 	# In the latter case the fan would actually represent the polyhedral complex that comes from intersecting the fan
 	# (in affine coordinates) with the affine hyperplane x0 = 1. This property should not be set manually. It will be set
@@ -116,7 +120,7 @@ object WeightedComplex {
 	# are used.
 	property USES_HOMOGENEOUS_C : Bool;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# If the fan does not use homogeneous coordinates, this is just a copy of RAYS and actually needn't be requested. Otherwise this computes
 	# a matrix of rays of the complex obtained by intersecting the fan with {x0 = 1}. More precisely, each ray r from [[RAYS]] occurs  
 	# as a row in this matrix...
@@ -132,7 +136,7 @@ object WeightedComplex {
 	# two subsequent cones must be a compatible ray
 	property CMPLX_RAYS : Matrix<Rational>;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# An incidence matrix describing which maximal cone in the complex at x0 = 1 is generated by which rays. 
 	# Each row corresponds to a maximal cone (More precisely, the i-th element represents the
 	# same maximal cone as the i-th element of [[MAXIMAL_CONES]]). The indices in a row refer to rows of [[CMPLX_RAYS]], i.e. the maximal
@@ -140,7 +144,7 @@ object WeightedComplex {
 	# If the fan does not use homogeneous coordinates, it is just a copy of [[MAXIMAL_CONES]]
 	property CMPLX_MAXIMAL_CONES : IncidenceMatrix;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# An incidence matrix describing which codim 1 cone in the complex at x0 = 1 is generated by which rays. 
 	# Each row corresponds to a codimension one cone (More precisely, the i-th element represents the
 	# same codim 1 cone as the i-th element of [[CODIM_1_FACES]]). The indices in a row refer to rows of [[CMPLX_RAYS]], i.e. the cone
@@ -148,42 +152,42 @@ object WeightedComplex {
 	# If the fan does not use homogeneous coordinates, it is just a copy of [[CODIM_1_FACES]].
 	property CMPLX_CODIM_1_FACES : IncidenceMatrix;
 		
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# This incidence matrix describes the complete polyhedral complex, i.e. it contains all faces
 	# of the polyhedral complex
 	property CMPLX_CONES : IncidenceMatrix;
 
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# A vector with an entry for each row in [[CMPLX_RAYS]]. More precisely, the i-th entry gives the row index
 	# of the ray in [[RAYS]] that is equal to the i-th row of [[CMPLX_RAYS]].
 	property CMPLX_CONVERSION_VECTOR : Vector<Int>;	
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# Returns the dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
 	# just DIM, otherwise DIM-1. When computing this property, it is assumed that the complex is pure.
 	property CMPLX_DIM: Int;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# Returns the ambient dimension of the polyhedral complex. In the case of non-homogeneous coordinates, this is 
 	# just FAN_AMBIENT_DIM, otherwise FAN_AMBIENT_DIM-1
 	property CMPLX_AMBIENT_DIM: Int;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# Returns the codimension of the polyhedral complex in its ambient vector space. More precisely, this
 	# value is equal to [[CMPLX_AMBIENT_DIM]] - [[CMPLX_DIM]]
 	property CMPLX_CODIMENSION: Int;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# Computes the subset of row indices of RAYS, such that the corresponding rows describe a vertex of the complex.
 	# This set is empty if [[USES_HOMOGENEOUS_C]] is false and is the complement of [[DIRECTIONAL_RAYS]]
 	property VERTICES : Set<Int>;
 	
-	# @category Polyhedral complex
+	# @category Polyhedral properties
 	# Computes the subset of row indices of RAYS, such that the corresponding rows describe a directional ray of the complex.
 	# This set contains all row indices  if [[USES_HOMOGENEOUS_C]] is false and is the complement of [[VERTICES]]
 	property DIRECTIONAL_RAYS : Set<Int>;
 	
-	# @category Tropical geometry/Local computations
+	# @category Polyhedral properties
 	# This contains a list of sets of ray indices (referring to RAYS). All of these sets should 
 	# describe cones of the polyhedral complex (though not necessarily maximal ones).
 	# A cone is now called compatible with this property, if contains one of these cones
@@ -199,14 +203,14 @@ object WeightedComplex {
 	# is a subset of another.
 	property LOCAL_RESTRICTION : IncidenceMatrix;
 
-	# @category Tropical geometry / Lattice normals
+	# @category Lattice properties
 	# This is an irredundant list of all lattice generators of all maximal cones
 	# If this property exists, lattice normals might be computed faster
 	# If you create a variety with the property [[IS_UNIMODULAR]] set to TRUE, then
 	# this will simply be a copy of [[RAYS]] (made primitive integer)
 	property LATTICE_GENERATORS : Matrix<Integer>;
 	
-	# @category Tropical geometry / Lattice normals
+	# @category Lattice properties
 	# This incidence matrix gives a lattice basis for each maximal cone. More precisely it 
 	# gives a lattice basis whose span contains the lattice of the maximal cone. Row i 
 	# corresponds to cone i and gives lattice generator indices referring to
@@ -219,7 +223,7 @@ object WeightedComplex {
 	# this will simply be a copy of [[MAXIMAL_CONES]]
 	property LATTICE_BASES : IncidenceMatrix;
 	
-	# @category Tropical geometry / Lattice normals
+	# @category Lattice properties
 	# This property is not computed anywhere but should be set to TRUE by the user upon 
 	# initialization, if all cones of the fan are unimodular in the sense that 
 	# ANY linearly independent subset of their rays generates 
@@ -229,27 +233,32 @@ object WeightedComplex {
 	# much faster.
 	property IS_UNIMODULAR : Bool; 
 	
+	# @category Unused
 	# Not used at the moment
 	property GLUING_FACES : Map<Set<Int>, Set<Int> >;
 	
-	# @category Tropical geometry / Irreducibility
+	# @category Tropical properties
 	# A Z-basis (as rows) for the space of weight distributions on this 
 	# tropical cycle making it balanced (i.e. this cycle is irreducible, if and only if 
 	# [[WEIGHT_SPACE]] has only one row and the gcd of [[TROPICAL_WEIGHTS]] is 1.
 	property WEIGHT_SPACE : Matrix<Integer>;
 	
-	# @category Tropical geometry / Irreducibility
+	# @category Tropical properties
 	# The dual of [[WEIGHT_SPACE]].
 	property WEIGHT_SYSTEM : Matrix<Rational>;
 	
-	# @category Tropical geometry / Irreducibility
+	# @category Tropical properties
 	# The intersection of [[WEIGHT_SPACE]] with the positive orthant.
 	property WEIGHT_CONE : polytope::Cone<Rational>;
 	
-	# @category Tropical geometry / Irreducibility
+	# @category Tropical properties
 	# Whether this complex is irreducible.
 	property IS_IRREDUCIBLE : Bool;
 	
+	# @category Tropical properties
+	# The degree of the tropical variety, i.e. the weight of the intersection product with an 
+	# appropriate tropical linear space.
+	property DEGREE : Integer;
 	
 	
 	## RULES ################################################################
@@ -478,52 +487,17 @@ object WeightedComplex {
 	    }	    
 	  }	  
 	}
+	
+	#------------------------------------------------------------------------#
+	
+	rule DEGREE : CMPLX_RAYS, CMPLX_MAXIMAL_CONES, TROPICAL_WEIGHTS, LINEALITY_SPACE,CMPLX_DIM, CMPLX_AMBIENT_DIM, CMPLX_CODIMENSION {
+	  $this->DEGREE = degree($this);
+	}
 
 	
 	## METHODS #################################################################
 	
-	# @category Basic properties
-	# This computes the dimension of the fan in the following way: If the fan has rays, it simply
-	# calls DIM, otherwise it returns LINEALITY_DIM.
-	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'dimension 0'
-	# (Actually, if we give only one ray [0,..0], it will break and start filling up the RAM)
-	# So we should delete this function when this is fixed.
-# 	user_method dim_fix {
-# 	  my $this = shift;
-# 	  if(defined($this->lookup("INPUT_RAYS")) || defined($this->lookup("INPUT_HOM_RAYS")) || defined($this->lookup("RAYS"))) {
-# 	    if($this->RAYS->rows() > 0) {
-# 	      return $this->DIM;
-# 	    }
-# 	  }
-# 	  return $this->LINEALITY_DIM;
-# 	}
-	
-	# @category Basic properties
-	# This computes the ambient dimension in the following way: If the fan has rays, it simply
-	# calls AMBIENT_DIM, otherwise it returns LINEALITY_SPACE->cols().
-	# FIXME: This is a fix for the problem that a fan only defined with lineality space will have 'ambient dimension 0'
-	# (if I give INPUT_RAYS=>[])
-	# So we should delete this function when this is fixed.
-# 	user_method ambient_dim_fix {
-# 	  my $this = shift;
-# 	  my $ir = $this->lookup("INPUT_RAYS");
-# 	  if(defined($ir)) {
-# 	    if($ir->cols() == 0) {
-# 	      return $this->LINEALITY_SPACE->cols();
-# 	    }
-# 	  }
-# 	  return $this->AMBIENT_DIM;
-# 	}
-	
-	# @category Basic properties
-	# This computes the ambient dimension ignoring homogeneous coordinates. More precisely, returns
-	# ambient_dim_fix, if the fan does not use homog. coordinates, otherwise it returns ambient_dim_fix-1
-# 	user_method real_ambient_dim {
-# 	  my $this = shift;
-# 	  return $this->USES_HOMOGENEOUS_C? $this->ambient_dim_fix-1 : $this->ambient_dim_fix; # FIXME
-# 	}
-	
-	# @category Tropical methods
+	# @category Lattice properties
 	# Convenience method, returns LATTICE_NORMALS->{i}->{j}
 	# @param Int i The index of the facet
 	# @param Int j The index of the maximal cone
@@ -540,7 +514,7 @@ object WeightedComplex {
 	# Transforms the fan into homogeneous coordinates
 	# @return If this fan uses homog. coordinates, returns the fan itself, Otherwise it will replace the ray matrix
 	# by the following matrix: [0,ray] for any ray of the original fan and one affine ray [1,0,...0] appended. In [[MAXIMAL_CONES]]
-	# all get the additional affine ray and [[TROPICAL WEIGHTS]] is simply copied
+	# all get the additional affine ray and [[TROPICAL WEIGHTS]] is simply copied. Local restriction is adapted as well.
 	user_method homogenize {
 	  my $this = shift;
 	  if($this->USES_HOMOGENEOUS_C) {
@@ -603,7 +577,48 @@ object WeightedComplex {
 	  }
 	}
 	
-# 	# @category Polyhedral geometry
+	# @category Polyhedral geometry
+	# Assuming that this weighted complex is actually a fan, given in homogeneous coordinates, it will 
+	# convert it to non-homogeneous coordinates. This will return an error, if the complex has more than
+	# one vertex. Local restriction is also adapted.
+	user_method dehomogenize {
+	  my $this = shift;
+	  
+	  if(!$this->USES_HOMOGENEOUS_C) {
+	    return $this;
+	  }
+	  
+	  my $vertices = $this->VERTICES;
+	  if($vertices->size() > 1) {
+	    die "Cannot dehomogenize. The complex is not a fan.";
+	  }
+	  
+	  my $sv = @{$vertices}[0];
+	  
+	  my $newrays = $this->RAYS->minor(~scalar2set($sv),~scalar2set(0));
+	  my $newcones = $this->MAXIMAL_CONES->minor(All,~scalar2set($sv));
+	  my $newlin = $this->LINEALITY_DIM > 0? $this->LINEALITY_SPACE->minor(All,~scalar2set(0)) :
+						 (new Matrix<Rational>(0,$newrays->cols()));
+# 	  my @local_restriction = @{$this->LOCAL_RESTRICTION};
+# 	  my @new_local_restriction;
+# 	    for my $l (@local_restriction) {
+# 	      @new_local_restriction = (@new_local_restriction, $l -$sv);
+# 	    }
+	  my $local_restriction = $this->LOCAL_RESTRICTION;
+	  if($local_restriction->rows() > 0) {
+	    $local_restriction = $local_restriction->minor(All,~scalar2set($sv));
+	  }
+	  
+
+	  my @weight = defined($this->lookup("TROPICAL_WEIGHTS"))? @{$this->TROPICAL_WEIGHTS} : ();
+	  
+	  
+	  return new WeightedComplex(RAYS=>$newrays, MAXIMAL_CONES=>$newcones, LINEALITY_SPACE=>$newlin, LOCAL_RESTRICTION=>$local_restriction, TROPICAL_WEIGHTS=>\@weight);
+						 
+						 
+	}
+	
+	# 	# category Polyhedral geometry
 # 	# Removes the lineality space of the weighted complex
 # 	# @return WeightedComplex The same fan, but without its lineality space
 # 	user_method remove_lineality {
@@ -637,12 +652,12 @@ object WeightedComplex {
 # 	  return $cplx->HOMOLOGY;
 # 	}
 
-	user_method characteristic {
-	  my $this = shift;
-	  my $cplx = equivalenceComplex($this);
-	  if($cplx->HOMOLOGY->size() > 1) {return $cplx->HOMOLOGY->[1]->[1];}
-	  else { return 0;}
-	}
+# 	user_method characteristic {
+# 	  my $this = shift;
+# 	  my $cplx = equivalenceComplex($this);
+# 	  if($cplx->HOMOLOGY->size() > 1) {return $cplx->HOMOLOGY->[1]->[1];}
+# 	  else { return 0;}
+# 	}
 	
 	# @category Tropical geometry / Local computations
 	# Takes a WeightedComplex and returns the same complex, but without any 

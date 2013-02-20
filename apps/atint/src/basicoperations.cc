@@ -438,7 +438,7 @@ namespace polymake { namespace atint{
   //Documentation see header
   perl::Object facetRefinement(perl::Object fan, Matrix<Rational> facets) {
     for(int r = 0; r < facets.rows(); r++) {
-      fan = intersect_complete_fan(fan,halfspace_complex(0,facets.row(r)));
+      fan = intersect_container(fan,halfspace_complex(0,facets.row(r)));
     }
     return fan;
   }
@@ -597,7 +597,7 @@ namespace polymake { namespace atint{
     //Now return the result - made irredundant, if preserve is false
     Matrix<Rational> newrays = rays;
     if(!preserve) {
-      //Take the union of all cones to see what rays are uses
+      //Take the union of all cones to see what rays are used
       Set<int> usedRays;
       for(int c = 0; c < newMaximalCones.rows(); c++) {
 	usedRays += newMaximalCones.row(c);
@@ -641,11 +641,22 @@ namespace polymake { namespace atint{
   
   Function4perl(&facetRefinement,"facetRefinement(WeightedComplex,Matrix<Rational>)");
   
-  Function4perl(&affineTransformation, "affineTransformation(WeightedComplex, Vector<Rational>, Matrix<Integer>)");
+  
+  UserFunction4perl("# @category Basic polyhedral operations"
+		    "# Takes a polyhedral complex and applies an affine linear transformation, given by a"
+		    "# translate vector and a matrix. The method assumes the function is bijective (on the "
+		    "# complex) and preserves cones, i.e. it just applies the transformation to the rays and "
+		    "# lineality space and leaves the cones and weights unchanged."
+		    "# @param WeightedComplex complex The complex to be transformed"
+		    "# @param Vector<Rational> translate A vector whose dimension should be equal to the column "
+		    "# dimension of the transformation matrix"
+		    "# @param Matrix<Integer> matrix An integer matrix "
+		    "# @return WeightedComplex The transformed complex, in homogeneous coordinates",
+    &affineTransformation, "affineTransformation(WeightedComplex, Vector<Rational>, Matrix<Integer>)");
   
   Function4perl(&skeleton_complex,"calculate_skeleton_complex(WeightedComplex,$;$=1)");
   
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @categoryBasic polyhedral operations"
 		    "# Take a polyhedral complex and returns a list of all the local vertex fans, "
 		    "# i.e. for each affine ray r, the list contains the fan Star_complex(r) "
 		    "# (in non-homogeneous coordinates)"

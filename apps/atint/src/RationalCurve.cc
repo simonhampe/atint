@@ -811,14 +811,14 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category The moduli space M_0,n"
 		    "# Takes a positive length (of a vector) and assumes it is of the form (n over 2)"
 		    "# It then computes n"
 		    "# @param Int k The length = (n over 2)"
 		    "# @return Int n. If k is not of the form (n over 2), an error is thrown.",
 		    &moduliDimensionFromLength, "moduliDimensionFromLength($)");
 		     
-  UserFunction4perl("# @category Tropial geometry"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# Takes a vector from Q^(n over 2) that describes an n-marked rational abstract"
 		    "# curve as a distance vector between its leaves. It then computes the "
 		    "# curve corresponding to this vector."
@@ -828,7 +828,7 @@ namespace polymake { namespace atint {
 		    "# @return RationalCurve",
 		    &curveFromMetric,"rational_curve_from_metric(Vector<Rational>)");
   
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# Takes a vector from Q^(n over 2) that describes an n-marked rational abstract"
 		    "# curve as a distance vector between its leaves. It then computes the "
 		    "# graph of the curve corresponding to this vector."
@@ -839,7 +839,7 @@ namespace polymake { namespace atint {
 		    "# the lengths of the bounded edges (in the order they appear in EDGES)",
 		    &graphFromMetric,"curve_graph_from_metric(Vector<Rational>)");
   
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# Takes a vector from Q^((n over 2) - n) that lies in M_0,n (in its matroid coordinates "
 		    "# and computes the corresponding rational curve."
 		    "# In the isomorphism of the metric curve space and the moduli coordinates"
@@ -848,7 +848,7 @@ namespace polymake { namespace atint {
 		    "# @return RationalCurve",
 		    &curveFromModuli,"rational_curve_from_moduli(Vector<Rational>)");
   
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# Takes a matrix whose rows are elements in the moduli space M_0,n in matroid "
 		    "# coordinates. Returns a list, where the i-th element is the curve corr. to "
 		    "# the i-th row in the matrix"
@@ -856,7 +856,7 @@ namespace polymake { namespace atint {
 		    "# @return RationalCurve : An array of RationalCurves",
 		    &curveFromModuliMatrix, "rational_curve_list_from_moduli(Matrix<Rational>)");
   
-  UserFunction4perl("# @category Tropical geometry"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# Takes a matrix whose rows are metrics of rational n-marked curves."
 		    "# Returns a list, where the i-th element is the curve corr. to "
 		    "# the i-th row in the matrix"
@@ -864,7 +864,7 @@ namespace polymake { namespace atint {
 		    "# @return RationalCurve : An array of RationalCurves",
 		    &curveFromMetricMatrix, "rational_curve_list_from_metric(Matrix<Rational>)");
   
-  UserFunction4perl("# @category Tropical geometry" 
+  UserFunction4perl("# @category Abstract rational curves" 
 		    "# Takes a metric vector in Q^{(n over 2)} and checks whether it fulfills "
 		    "# the four-point condition, i.e. whether it lies in M_0,n. More precisely "
 		    "# it only needs to be equivalent to such a vector"

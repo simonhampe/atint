@@ -216,14 +216,14 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Triangulations"
+  UserFunction4perl("# @category Basic polyhedral operations"
 		    "# Takes a polyhedral fan and computes a triangulation"
 		    "# @param WeightedComplex F A polyhedral fan (i.e. USES_HOMOGENEOUS_C = FALSE),"
 		    "# possibly with weights"
 		    "# @return WeightedComplex A simplicial refinement of F",
 		    &triangulateFan,"triangulateFan(WeightedComplex)");
   
-  UserFunction4perl("# @category Triangulations"
+  UserFunction4perl("# @category Basic polyhedral operations"
 		    "# Takes a polyhedral fan wihtout lineality and a list of rays and triangulates the fan"
 		    "# such that it contains these rays"
 		    "# @param WeightedComplex F A polyhedral fan (i.e. USES_HOMOGENEOUS_C = FALSE),"

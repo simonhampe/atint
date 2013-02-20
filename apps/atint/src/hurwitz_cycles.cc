@@ -448,45 +448,45 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
-		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), except that it doesn't"
-		    "# compute the push-forward to M_0,n"
-		    "# @param int k The dimension of the Hurwitz cycle"
-		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
-		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
-		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
-		    "# determine the Hurwitz cycle (in addition to 0). Should have length n-3-k. If it is not given, all p_i"
-		    "# are by default equal to 0 (same for missing points)"
-		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree) before push-forward",    
-		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>; Vector<Rational> = new Vector<Rational>())");
-
 //   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
-// 		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), including"
-// 		    "# push-forward to M_0,n"
-// 		    "# @param Int k The dimension of the Hurwitz cycle"
+// 		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), except that it doesn't"
+// 		    "# compute the push-forward to M_0,n"
+// 		    "# @param int k The dimension of the Hurwitz cycle"
 // 		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
 // 		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
 // 		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
-// 		    "# determine the Hurwitz cycle. Should have length n-3-k and BE ALL DISTINCT AND NONZERO."
-// 		    "# If points are missing or some are equal, an error is thrown"
-// 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree)",    
-// 		    &hurwitz_cycle, "hurwitz_cycle($, Vector<Int>, Vector<Rational>)");
-  
-  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
-		    "# Computes the Hurwitz curve H_1(degree)"
-		    "# @param Vector<int> degree The degree of the covering. The sum over all entries should "
-		    "# be 0 and if n := degree.dim, then 0 <= 1 <= n-3"
-		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_1(degree). This will always be a fan cycle", 
-		    &hurwitz_curve, "hurwitz_curve(Vector<Int>)");
-  
+// 		    "# determine the Hurwitz cycle (in addition to 0). Should have length n-3-k. If it is not given, all p_i"
+// 		    "# are by default equal to 0 (same for missing points)"
+// 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree) before push-forward",    
+// 		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>; Vector<Rational> = new Vector<Rational>())");
+// 
+// //   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+// // 		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), including"
+// // 		    "# push-forward to M_0,n"
+// // 		    "# @param Int k The dimension of the Hurwitz cycle"
+// // 		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
+// // 		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
+// // 		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
+// // 		    "# determine the Hurwitz cycle. Should have length n-3-k and BE ALL DISTINCT AND NONZERO."
+// // 		    "# If points are missing or some are equal, an error is thrown"
+// // 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree)",    
+// // 		    &hurwitz_cycle, "hurwitz_cycle($, Vector<Int>, Vector<Rational>)");
+//   
+//   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+// 		    "# Computes the Hurwitz curve H_1(degree)"
+// 		    "# @param Vector<int> degree The degree of the covering. The sum over all entries should "
+// 		    "# be 0 and if n := degree.dim, then 0 <= 1 <= n-3"
+// 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_1(degree). This will always be a fan cycle", 
+// 		    &hurwitz_curve, "hurwitz_curve(Vector<Int>)");
+/*  
   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
 		    "# Computes the Hurwitz degree H_0(degree)"
 		    "# @param Vector<int> degree The degree of the covering. The sum over all entries should "
 		    "# be 0 and if n := degree.dim, then 0 <= n-3"
 		    "# @return Integer The Hurwitz degree H_0(degree)", 
-		    &hurwitz_degree, "hurwitz_degree(Vector<Int>)");
+		    &hurwitz_degree, "hurwitz_degree(Vector<Int>)");*/
   
-  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+  UserFunction4perl("# @category Hurwitz cycles"
 		    "# Takes as input a hurwitz curve and computes the corresponding graph object"
 		    "# Directional rays are modeled as terminal vertices. Each vertex (including directional rays)"
 		    "# is labeled with its combinatorial type"

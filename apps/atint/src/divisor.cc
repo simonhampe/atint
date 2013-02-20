@@ -54,7 +54,7 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
     
     //Documentation see header -------------------------------------------------------------
-    perl::Object intersect_complete_fan(perl::Object fan, perl::Object completeFan, bool forceLatticeComputation) {
+    perl::Object intersect_container(perl::Object fan, perl::Object completeFan, bool forceLatticeComputation) {
 	 RefinementResult r = refinement(fan,completeFan,false,false,false,true,forceLatticeComputation);
 	 return r.complex;
     }
@@ -580,7 +580,11 @@ namespace polymake { namespace atint {
     
 // ------------------------- PERL WRAPPERS ---------------------------------------------------
     
-    UserFunction4perl("# @category Tropical geometry"
+    UserFunction4perl("# @category Basic polyhedral operations"
+		      "# DEPRECATED. Use intersect_container instead." ,
+		      &intersect_container,"intersect_complete_fan(WeightedComplex, fan::PolyhedralFan;$=0)");
+    
+    UserFunction4perl("# @category Basic polyhedral operations"
 		      "# Takes two fans and computes the intersection of both. The function"
 		      "# relies on the fact that the latter fan contains the first fan to "
 		      "# compute the refinement correctly"
@@ -595,7 +599,7 @@ namespace polymake { namespace atint {
 		      "# @return WeightedComplex The intersection of both fans (whose support is equal to the support of fan). The "
 		      "# resulting fan uses homogeneous coordinates if and only fan does. If fan has a property TROPICAL_WEIGHTS, "
 		      "# the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned." ,
-		      &intersect_complete_fan,"intersect_complete_fan(WeightedComplex, fan::PolyhedralFan;$=0)");
+		      &intersect_container,"intersect_container(WeightedComplex, fan::PolyhedralFan;$=0)");
     
     Function4perl(&divisorByValueVector,"divisorByValueVector(WeightedComplex, Vector<Rational>)");  
     
@@ -609,7 +613,7 @@ namespace polymake { namespace atint {
     
     Function4perl(&add_rational_functions,"add_rational_functions(RationalFunction,RationalFunction)");
     
-    UserFunction4perl("# @category Tropical geometry"
+    UserFunction4perl("# @category Divisors"
 		      "# NOTE: Deprecated. Use divisor(..) instead"
 		      "# Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be "
 		      "# in homogeneous coordinates, whether the tropical variety uses them or not. The function "
@@ -621,7 +625,7 @@ namespace polymake { namespace atint {
 		      "# @return The corresponding divisor as a tropical variety in homogeneous coordinates.",
 		      &divisorByPLF, "divisorByPLF(WeightedComplex,MinMaxFunction)");
     
-   UserFunction4perl("# @category Tropical geometry"
+   UserFunction4perl("# @category Divisors"
 		     "# Works exactly as divisor(WeightedComplex, RationalFunction;Int). Should be called ONLY,"
 		     "# when the function f is defined on a DOMAIN equal to X (in the sense that all properties"
 		     "# like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not sufficient). In this"

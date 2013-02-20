@@ -194,7 +194,7 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-  UserFunction4perl("# @category Tropical geometry / Rational curves"
+  UserFunction4perl("# @category Abstract rational curves"
 		    "# This function creates an embedding of a rational tropical curve using"
 		    "# a given abstract curve and degree"
 		    "# @param Matrix<Rational> delta The degree of the curve in non-homogeneous "
