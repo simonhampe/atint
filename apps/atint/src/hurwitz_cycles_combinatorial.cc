@@ -312,17 +312,23 @@ namespace polymake { namespace atint {
     //Hurwitz cycle cones within
     for(int mc = 0; mc < mn_cones.rows(); mc++) {
 	pm::cout << "Refining cone " << mc << " of " << mn_cones.rows() << endl;
+	
+	//Extract the combinatorial type to compute evaluation maps
+	perl::Object mc_type = CallPolymakeFunction("rational_curve_from_cone",m0n,degree.dim(),mc);
+	  Vector<int> node_degrees = mc_type.give("NODE_DEGREES");
+		    dbgtrace << "Node degrees: " << node_degrees << endl;
+	
 	//This will be a model of the subdivided cone of M_0,n
 	Matrix<Rational> model_rays = unit_matrix<Rational>(degree.dim()-3);
 	Vector<Set<int> > model_cones; model_cones |= sequence(0, degree.dim()-3);
 	//Translate the local restriction if necessary
 	Vector<Set<int> > model_local_restrict;
-	if(restrict && mn_cones.row(mc).contains(restrict_index)) {
+	if(restrict) {
 	  Set<int> single_index_set;
-	  Vector<int> mc_as_list(mn_cones.row(mc));
-	  for(int mcrow = 0; mcrow < mc_as_list.dim(); mcrow++) {
-	    if(mc_as_list[mcrow] == restrict_index) {
-	      single_index_set += mcrow; break;
+	  Matrix<Rational> erays = edge_rays(mc_type);
+	  for(int er = 0; er < erays.rows(); er++) {
+	    if(erays.row(er) == compare_vector) {
+	      single_index_set += er; break;
 	    }
 	  }
 	  model_local_restrict |= single_index_set;
@@ -337,10 +343,7 @@ namespace polymake { namespace atint {
 	  
 	model_complex = model_complex.CallPolymakeMethod("homogenize");  
 	
-	//Extract the combinatorial type to compute evaluation maps
-	perl::Object mc_type = CallPolymakeFunction("rational_curve_from_cone",m0n,degree.dim(),mc);
-	  Vector<int> node_degrees = mc_type.give("NODE_DEGREES");
-		    dbgtrace << "Node degrees: " << node_degrees << endl;
+	
 	  
 	//Iterate over all possible ordered choices of (#vert-k)-subsets of nodes  
 	Matrix<int> fix_node_sets = ordered_k_choices(node_degrees.dim(), node_degrees.dim()-k);
@@ -603,14 +606,14 @@ namespace polymake { namespace atint {
 		    "# @return An array, containing first the subdivision of M_0,n, then the Hurwitz cycle",
 		    hurwitz_pair, "hurwitz_pair($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
 		    
-//   UserFunction4perl("# @category Hurwitz cycles"
-// 		    "# Does the same as hurwitz_pair, except that no points are given and the user can give a "
-// 		    "# RationalCurve object representing a ray. If given, the computation"
-// 		    "# will be performed locally around the ray."
-// 		    "# @param Int k"
-// 		    "# @param Vector<Int> degree"
-// 		    "# @param RationalCurve local_curve",
-// 		    hurwitz_pair_local, "hurwitz_pair_local($,Vector<Int>,RationalCurve)");
+  UserFunction4perl("# @category Hurwitz cycles"
+		    "# Does the same as hurwitz_pair, except that no points are given and the user can give a "
+		    "# RationalCurve object representing a ray. If given, the computation"
+		    "# will be performed locally around the ray."
+		    "# @param Int k"
+		    "# @param Vector<Int> degree"
+		    "# @param RationalCurve local_curve",
+		    hurwitz_pair_local, "hurwitz_pair_local($,Vector<Int>,RationalCurve)");
   
   UserFunction4perl("# @category Abstract rational curves"
 		    "# Takes a RationalCurve and a list of node indices. Then inserts additional "

@@ -470,8 +470,9 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule IS_IRREDUCIBLE : WEIGHT_SPACE, TROPICAL_WEIGHTS {
-	  if($this->WEIGHT_SPACE->rows() > 1) {
+	rule IS_IRREDUCIBLE : WEIGHT_SYSTEM, TROPICAL_WEIGHTS {
+	  my $n = null_space($this->WEIGHT_SYSTEM);
+	  if($n->rows() > 1) {
 	    $this->IS_IRREDUCIBLE = FALSE;
 	  }
 	  else {

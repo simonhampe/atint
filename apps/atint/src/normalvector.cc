@@ -142,6 +142,11 @@ namespace polymake { namespace atint {
 	  return result;
 	}
 	
+	//differently named version for perl wrapper
+	Matrix<Integer> makeMatrixInteger(const Matrix<Rational> &m) {
+	  return makeInteger(m);
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	Vector<Integer> makeInteger(const Vector<Rational> &v) {
@@ -153,6 +158,11 @@ namespace polymake { namespace atint {
 	  result = lc* v;
 	  
 	  return result;
+	}
+	
+	//differently named version for perl wrapper
+	Vector<Integer> makeVectorInteger(const Vector<Rational> &m) {
+	  return makeInteger(m);
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -175,6 +185,11 @@ namespace polymake { namespace atint {
 		return result;
 	}
 	
+	//differently named version for perl wrapper
+	Matrix<Integer> makeMatrixPrimitiveInteger(const Matrix<Rational> &m) {
+	      return makePrimitiveInteger(m);
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////
 	
 	Vector<Integer> makePrimitiveInteger(const Vector<Rational> &v) {
@@ -191,6 +206,11 @@ namespace polymake { namespace atint {
 	  result = (1/Rational(gc)) * result;
 	  
 	  return result;
+	}
+	
+	//differently named version for perl wrapper
+	Vector<Integer> makeVectorPrimitiveInteger(const Vector<Rational> &v) {
+	  return makePrimitiveInteger(v);
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -483,6 +503,11 @@ namespace polymake { namespace atint {
                   "# @param kdim This will be set to dim Ker(A)"
                   "# @return Matrix",
                   &znormaltransform,"znormaltransform(Matrix<Integer>,Integer)");   */               
+
+Function4perl( &makeVectorInteger,"makeInteger(Vector<Rational>)");
+Function4perl(&makeMatrixInteger,"makeInteger(Matrix<Rational>)");
+Function4perl(&makeVectorPrimitiveInteger,"makePrimitiveInteger(Vector<Rational>)");
+Function4perl(&makeMatrixPrimitiveInteger,"makePrimitiveInteger(Matrix<Rational>)");
 
 Function4perl(&latticeBasisFromRays,"latticeBasisFromRays(Matrix<Rational>, Matrix<Rational>,$)");
 
