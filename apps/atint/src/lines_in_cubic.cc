@@ -7,6 +7,7 @@
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/divisor.h"
 #include "polymake/atint/normalvector.h"
+#include "polymake/atint/cdd_helper_functions.h"
 
 namespace polymake { namespace atint{ 
   
@@ -14,6 +15,84 @@ namespace polymake { namespace atint{
   //using namespace atintlog::dolog;
   using namespace atintlog::dotrace;
 
+  
+  /**
+   * This contains the result of reachablePoints(...):
+   * - The rays of the complex
+   * - The maximal two-dimensional cells in terms of the rays
+   * - The maximal one-dimensional cells in terms of the rays
+   */
+  struct ReachableResult {
+    Matrix<Rational> rays;
+    IncidenceMatrix<> cells;
+    IncidenceMatrix<> edges;
+  };
+  
+  /**
+   * This contains the intersection of two ReachableResults:
+   * - The rays of the complex
+   * - The maximal two-dimensional cells
+   * - The maximal one-dimensional cells
+   * - The maximal zero-dimensional cells
+   */
+  struct DirectionIntersection {
+    Matrix<Rational> rays;
+    IncidenceMatrix<> cells;
+    IncidenceMatrix<> edges;
+    IncidenceMatrix<> points;    
+  };
+  
+  /**
+   @brief Takes a fan_intersection_result and cleans up the result so that no cone is contained in another and that cones are sorted according to their dimension
+   @param fan_intersection_result fir
+   @return DirectionIntersection
+   */
+  DirectionIntersection cleanUpIntersection(fan_intersection_result fir) {
+    DirectionIntersection result;
+      result.rays = fir.rays;
+    IncidenceMatrix<> fir_cones = fir.cones;
+    //First we sort all cells according to their dimension
+    Set<int> cell_set;
+    Set<int> edge_set;
+    Set<int> point_set;
+    for(int fc = 0; fc < fir_cones.rows(); fc++) {
+	 if(fir_cones.row(fc).size() > 2) cell_set += fc;
+	 if(fir_cones.row(fc).size() == 2) edge_set += fc;
+	 if(fir_cones.row(fc).size() == 1) point_set += fc;
+    }
+    //Go through all edges, compare to cells, remove redundant ones
+    Set<int> redundant_edges;
+    for(Entire<Set<int> >::iterator e = entire(edge_set); !e.at_end(); e++) {
+	bool found_container = false;
+	for(Entire<Set<int> >::iterator c = entire(cell_set); !c.at_end(); c++) {
+	    if ( (fir_cones.row(*c) * fir_cones.row(*e)).size() == fir_cones.row(*e).size()) {
+		found_container = true; break;
+	    }
+	}
+	if(found_container) redundant_edges += (*e);
+    }
+    edge_set -= redundant_edges;
+    //Same for points
+    Set<int> redundant_points;
+    for(Entire<Set<int> >::iterator p = entire(point_set); !p.at_end(); p++) {
+	bool found_container = false;
+	Set<int> containers = cell_set + edge_set;
+	for(Entire<Set<int> >::iterator c = entire(containers); !c.at_end(); c++) {
+	    if ( (fir_cones.row(*c) * fir_cones.row(*p)).size() == fir_cones.row(*p).size()) {
+		found_container = true; break;
+	    }
+	}
+	if(found_container) redundant_points += (*p);
+    }
+    point_set -= redundant_points;
+    
+    
+    result.cells = fir_cones.minor(cell_set,All);
+    result.edges = fir_cones.minor(edge_set,All);
+    result.points = fir_cones.minor(point_set,All);
+    
+    return result;
+  }//END cleanUpIntersection
   
   /**
    @brief Computes whether in a list of values the maximum is attained at least twice.
@@ -35,23 +114,17 @@ namespace polymake { namespace atint{
   
   /**
    @brief This takes a cubic surface defined by a tropical polynomial f and a direction index in 0,1,2,3 and computes the set of all points p such that the line from p in the direction of e_0,-e1,..,-e3 lies in X.
-   @param MinMaxFunction f
+   @param MinMaxFunction f A tropical polynomial (with max) of degree 3
+   @param WeightedComplex X The divisor of f (in R^3)
    @param int direction Lies in 0,1,2,3 and means we consider the direction e_0 = (1,1,1) or -e_i for i > 0
-   @return WeightedComplex Two polyhedreal complexes, first the two-dimensional, then the one-dimensional part of the reachable locus
+   @return ReachableResult
    */
-  perl::ListReturn reachablePoints(perl::Object f, int direction) {
-    
-    
-    //TODO: Include divisor in method signature
-    
-    
+  ReachableResult reachablePoints(perl::Object f, perl::Object X, int direction) {
     
     //Extract values    
-    perl::Object r3 = CallPolymakeFunction("linear_nspace",3);
-    perl::Object X = CallPolymakeFunction("divisor",r3,f);
-    perl::Object lindom = f.give("DOMAIN");
+        perl::Object lindom = f.give("DOMAIN");
     Matrix<Rational> funmat = f.give("FUNCTION_MATRIX");
-      //Rearrange so that values of terms on points can be compute as product with matrix
+      //Rearrange so that values of terms on points can be computed as product with matrix
       funmat = funmat.col(funmat.cols()-1) | funmat.minor(All,sequence(0,funmat.cols()-1));
     
     IncidenceMatrix<> cones = X.give("MAXIMAL_CONES");
@@ -255,11 +328,11 @@ namespace polymake { namespace atint{
     }//END iterate 2-cells
     
     //Now we have already computed the 2-dimensional part of the reachable set.
-    Set<int> rays_in_two_set = accumulate(rows(final_cones.minor(reachable_2_cells,All)),operations::add());
-    perl::Object reach_two("WeightedComplex");
-      reach_two.take("RAYS") << final_rays.minor(rays_in_two_set,All);
-      reach_two.take("MAXIMAL_CONES") << final_cones.minor(reachable_2_cells,rays_in_two_set);
-      reach_two.take("USES_HOMOGENEOUS_C") << true;
+//     Set<int> rays_in_two_set = accumulate(rows(final_cones.minor(reachable_2_cells,All)),operations::add());
+//     perl::Object reach_two("WeightedComplex");
+//       reach_two.take("RAYS") << final_rays.minor(rays_in_two_set,All);
+//       reach_two.take("MAXIMAL_CONES") << final_cones.minor(reachable_2_cells,rays_in_two_set);
+//       reach_two.take("USES_HOMOGENEOUS_C") << true;
    
     dbgtrace << "Find problematic vertices " << endl;
       
@@ -319,18 +392,79 @@ namespace polymake { namespace atint{
     dbgtrace << "Prepare result " << endl;
     
     //Now we also have the one-dim. part
-    Set<int> rays_in_one_set = accumulate(rows(final_codim.minor(reachable_1_cells,All)),operations::add());
-    perl::Object reach_one("WeightedComplex");
-      reach_one.take("RAYS") << final_rays.minor(rays_in_one_set,All);
-      reach_one.take("MAXIMAL_CONES") << final_codim.minor(reachable_1_cells,rays_in_one_set);
-      reach_one.take("USES_HOMOGENEOUS_C") << true;
+//     Set<int> rays_in_one_set = accumulate(rows(final_codim.minor(reachable_1_cells,All)),operations::add());
+//     perl::Object reach_one("WeightedComplex");
+//       reach_one.take("RAYS") << final_rays.minor(rays_in_one_set,All);
+//       reach_one.take("MAXIMAL_CONES") << final_codim.minor(reachable_1_cells,rays_in_one_set);
+//       reach_one.take("USES_HOMOGENEOUS_C") << true;
+    Set<int> all_rays_used =
+      accumulate(rows(final_cones.minor(reachable_2_cells,All)),operations::add()) + 
+      accumulate(rows(final_codim.minor(reachable_1_cells,All)),operations::add()); 
+    Matrix<Rational> reachable_rays = final_rays.minor(all_rays_used,All);
+    IncidenceMatrix<> reach_cells = final_cones.minor(reachable_2_cells, all_rays_used);
+    IncidenceMatrix<> reach_edges = final_codim.minor(reachable_1_cells, all_rays_used);
       
-    perl::ListReturn result;
-      result << reach_two;
-      result << reach_one;
-      return result;
+    ReachableResult result;
+      result.rays = reachable_rays;
+      result.cells = reach_cells;
+      result.edges = reach_edges;
+    return result;
+    
   }//END reachablePoints
   
-  Function4perl(&reachablePoints,"rp(MinMaxFunction,$)");
+  //Documentation see perl wrapper
+  perl::ListReturn linesInCubic(perl::Object f) {
+    //First, we compute the divisor of f
+    perl::Object r3 = CallPolymakeFunction("linear_nspace",3);
+    perl::Object X = CallPolymakeFunction("divisor",r3,f);
+    
+    //Then we compute all reachable points for each direction
+    Vector<ReachableResult> reachable_points;
+    for(int i = 0; i < 4; i++) {
+	dbglog << "Computing reachable points from direction " << i << endl;
+	reachable_points |= reachablePoints(f,X,i);
+    }
+    
+    //Then we compute the six intersection sets of the reachable loci
+    //This contains the intersection of the 0-reachable points with the i-reachable points 
+    // at i-1
+    Vector<DirectionIntersection> zero_reachable;
+    //If zero_reachable[i] contains (0 cap i) and the other two directions are j and k, then
+    // at position i we have (j cap k)
+    Vector<DirectionIntersection> complement_reachable;
+    Matrix<Rational> dummy_lineality(0,4);
+    for(int i = 1; i <= 3; i++) {
+	dbglog << "Intersecting reachable loci from direction 0 and " << i << endl;
+	fan_intersection_result z_inter = cdd_fan_intersection(
+	  reachable_points[0].rays, dummy_lineality, reachable_points[0].cells / reachable_points[0].edges,
+	  reachable_points[i].rays, dummy_lineality, reachable_points[i].cells / reachable_points[i].edges,true
+	);
+	Vector<int> remaining(sequence(1,3) - i);
+	fan_intersection_result c_inter = cdd_fan_intersection(
+	  reachable_points[remaining[0]].rays, dummy_lineality, reachable_points[remaining[0]].cells / reachable_points[remaining[0]].edges,
+	  reachable_points[remaining[1]].rays, dummy_lineality, reachable_points[remaining[1]].cells / reachable_points[remaining[1]].edges,true
+	);
+	//Clean up the intersection
+	DirectionIntersection z_inter_clean = cleanUpIntersection(z_inter);
+	DirectionIntersection c_inter_clean = cleanUpIntersection(c_inter);
+	
+	 
+    }
+    
+    return perl::ListReturn();
+    
+  }//END linesInCubic
+  
+  // PERL WRAPPERS /////////////////////////////////////////
+  
+  UserFunction4perl("# @category Enumerative geometry"
+		    "# This takes a tropical polynomial (using max) of degree 3 and computes all"
+		    "# lines in the corresponding cubic"
+		    "# @param MinMaxFunction f A tropical polynomial of degree 3"
+		    "# @return WeightedComplex An array, containing all isolated lines in the cubic"
+		    "# and each family of lines as a two-dimensional complex"
+		    ,&linesInCubic,"lines_in_cubic(MinMaxFunction)");
+  
+//   Function4perl(&reachablePoints,"rp(MinMaxFunction,WeightedComplex,$)");
   
 }}
