@@ -19,6 +19,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Vector.h"
 #include "polymake/Set.h"
+#include "polymake/Matrix.h"
 namespace polymake { namespace common {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -37,5 +38,6 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > >);
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
+   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::MatrixMinor<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::Set<int, pm::operations::cmp> const&, pm::all_selector const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }

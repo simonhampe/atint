@@ -282,7 +282,7 @@ namespace polymake { namespace atint {
     int restrict_index = -1;
     if(restrict) {
       restrict_index = *(mn_restrict.row(0).begin());
-      dbgtrace << "Restricting at ray " << restrict_index << endl;
+      //dbgtrace << "Restricting at ray " << restrict_index << endl;
     }
     
     
@@ -316,7 +316,7 @@ namespace polymake { namespace atint {
 	//Extract the combinatorial type to compute evaluation maps
 	perl::Object mc_type = CallPolymakeFunction("rational_curve_from_cone",m0n,degree.dim(),mc);
 	  Vector<int> node_degrees = mc_type.give("NODE_DEGREES");
-		    dbgtrace << "Node degrees: " << node_degrees << endl;
+		    //dbgtrace << "Node degrees: " << node_degrees << endl;
 	
 	//This will be a model of the subdivided cone of M_0,n
 	Matrix<Rational> model_rays = unit_matrix<Rational>(degree.dim()-3);
@@ -347,7 +347,7 @@ namespace polymake { namespace atint {
 	  
 	//Iterate over all possible ordered choices of (#vert-k)-subsets of nodes  
 	Matrix<int> fix_node_sets = ordered_k_choices(node_degrees.dim(), node_degrees.dim()-k);
-	dbgtrace << "Iterating all choices of fixed vertices " << endl;
+	//dbgtrace << "Iterating all choices of fixed vertices " << endl;
 	
 	//We save the evaluation matrices for use in the computation
 	//of tropical weights in the Hurwitz cycle
@@ -357,7 +357,7 @@ namespace polymake { namespace atint {
 	  //Compute combinatorial type obtained by adding further ends to chosen nodes
 	  perl::Object higher_type = insert_leaves(mc_type, fix_node_sets.row(nchoice));
 	  std::string s = higher_type.CallPolymakeMethod("to_string");
-	  dbgtrace << "Intersecting with type " << s << endl;
+	  //dbgtrace << "Intersecting with type " << s << endl;
 	  //Convert evaluation maps to local basis of rays
 	  Matrix<Rational> local_basis = edge_rays(higher_type);
 	  Matrix<Rational> converted_maps = ev_maps * T(local_basis);
@@ -365,7 +365,7 @@ namespace polymake { namespace atint {
 	  //Check if this choice of fixed vertices induces some valid Hurwitz type
 	  //(in the generic case)
  	  if(is_valid_choice(converted_maps)) {
-	      dbgtrace << "Is valid" << endl;
+	      //dbgtrace << "Is valid" << endl;
 	      evmap_list |= converted_maps;
  	  }
 	  
@@ -400,7 +400,7 @@ namespace polymake { namespace atint {
 	  Set<int> non_zero_cones;
 	  for(int m = 0; m < evmap_list.dim(); m++) {
 	    //Compute gcd of max-minors
-	    dbgtrace << "Matrix is " << evmap_list[m] << endl;
+	    //dbgtrace << "Matrix is " << evmap_list[m] << endl;
 	    Integer g = gcd_maxminor(evmap_list[m]);
 	    for(int c = 0; c < k_cones.dim(); c++) {
 	      //Check if ev maps to the p_i on this cone (rays have to be mapped to 0!)
@@ -416,7 +416,7 @@ namespace polymake { namespace atint {
 	      if(maps_to_pi) {
 		model_hurwitz_weights[c] += g;
 		if(g != 0) non_zero_cones += c;
-		dbgtrace << "Adding weight to cone " << c << endl;
+		//dbgtrace << "Adding weight to cone " << c << endl;
 	      }
 	    }
 	  }//END iterate evaluation maps
@@ -426,11 +426,11 @@ namespace polymake { namespace atint {
 	  model_hurwitz_cones = IncidenceMatrix<>(k_cones).minor(non_zero_cones,used_rays);
 	  model_hurwitz_weights = model_hurwitz_weights.slice(non_zero_cones);
 	  
-	  dbgtrace << "Model weight: " << model_hurwitz_weights << endl;
+	  //dbgtrace << "Model weight: " << model_hurwitz_weights << endl;
 	  
 	}//END compute hurwitz weights
 	
-	dbgtrace << "Re-converting refined cone " << endl;
+	//dbgtrace << "Re-converting refined cone " << endl;
 	
 	//Finally convert the model cones back to M_0,n-coordinates
 	
