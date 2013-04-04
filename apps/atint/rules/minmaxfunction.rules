@@ -416,6 +416,23 @@ object MinMaxFunction {
     return new MinMaxFunction(LINEAR_COEFFICIENTS=>$reducedTerms->minor(All,~scalar2set(0)), CONSTANT_COEFFICIENTS=>$reducedTerms->col(0));
   }
   
+  # @category Distortion
+  # Adds a small value (in between -100/1000 and 100/1000 in steps of 1/1000) to each term of the 
+  # MinMaxFunction and returns the result as a new function
+  # @return MinMaxFunction
+  user_method distort {
+    my $this = shift;
+    my $r = randomInteger(200,$this->FUNCTION_MATRIX->rows());
+    my @r = @{$r};
+    my @v = ();
+    for my $x (@r) {
+      @v = (@v, (new Rational($x - 100) / 1000));
+    }
+    my $nfun = $this->FUNCTION_MATRIX->minor(All,sequence(0,$this->FUNCTION_MATRIX->cols()-1));
+    my $nfun = new Matrix<Rational>($nfun | ( $this->FUNCTION_MATRIX->col($this->FUNCTION_MATRIX->cols()-1) + new Vector<Rational>(\@v)) );
+    return new MinMaxFunction(FUNCTION_MATRIX=>$nfun);
+  }
+  
 }
 
 ## FUNCTIONS ###################################################################################################

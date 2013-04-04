@@ -228,6 +228,48 @@ namespace polymake { namespace atint{
       pm::cout << fd.eq << endl;
     pm::cout << visibleFaces(fd, v) << endl;
   }
+  
+  // ------------------------------------------------------------------------------------------------  
+  
+  /**
+   @brief This takes a vertex in the cubic (whose function's domain is describes by frays and fcones) and a direction and computes the vertex w farthest away from vertex in this direction, such that the convex hull of vertex and w still lies in X. It returns the empty vertex, if the complete half-line lies in X.
+   */
+  Vector<Rational> maximalDistanceVector(const Vector<Rational> &vertex, const Vector<Rational> &direction, 
+					  const Matrix<Rational> &frays, const IncidenceMatrix<> &fcones, const Matrix<Rational> &funmat) {
+    //Create the one-dimensional half-line from vertex
+    Matrix<Rational> hl_rays = vertex / direction;
+    Vector<Set<int> > hl_cones; hl_cones |= sequence(0,2);
+    Matrix<Rational> lin(0, hl_rays.cols());
+    //Intersect with f-domain
+    DirectionIntersection ref_line = cleanUpIntersection(
+	cdd_fan_intersection(hl_rays, lin, hl_cones, frays,lin,fcones,true));
+    //Find vertex
+    int v_index = -1;
+    for(int r = 0; r < ref_line.rays.rows(); r++) {
+      if(ref_line.rays.row(r) == vertex) {v_index = r; break;}
+    }
+    IncidenceMatrix<> rays_in_cones = T(ref_line.edges);
+    //Go through edges, starting at vertex and check if it is contained in X
+    int current_edge = *(rays_in_cones.row(v_index).begin());
+    int current_vertex = v_index;
+    //When the current edge has only one vertex, we're done
+    do {
+      //Check if the edge lies in X
+      Vector<Rational> interior_point = accumulate
+	(rows(ref_line.rays.minor(ref_line.edges.row(current_edge),All)), operations::add()) /
+	accumulate(ref_line.rays.minor(ref_line.edges.row(current_edge),All).col(0),operations::add());
+      if(!maximumAttainedTwice(funmat * interior_point)) return ref_line.rays.row(current_vertex);
+      else {
+	current_vertex = *( (ref_line.edges.row(current_edge) - current_vertex).begin());
+	if(ref_line.rays.row(current_vertex)[0] == 0) current_vertex = -1;
+	else {
+	    current_edge = *( (rays_in_cones.row(current_vertex) - current_edge).begin());
+	}
+      }
+    }while(current_vertex >= 0);
+  
+    return Vector<Rational>();
+  }
     
   // ------------------------------------------------------------------------------------------------  
     
@@ -380,11 +422,11 @@ namespace polymake { namespace atint{
 		      center, dummy_lineality, center_cone, lindom_rays, dummy_lineality, lindom_cones,true));
 		  
 		  //If the intersection is 1-dimensional , we have two possibilities:
-		  // (1) The center cone intersects the border cones each in a vertex. Then we check if all 
-		  //     cells of center_ref are contained in X. If so, we have an isolated line.
-		  // (2) The center cone is equal to the intersection of the two border cones. Then the 
+		  // (1) The center cone is equal to the intersection of the two border cones. Then the 
 		  //     whole cone is a one-dimensional family of lines without bounded edge.
-		  if(center.rows() == 2 && center.col(0) == ones_vector<Rational>(2)) {
+		  // (2) The center cone intersects the border cones each in a vertex. Then we check if all 
+		  //     cells of center_ref are contained in X. If so, we have an isolated line. 
+		  if(center.rows() == 2 ) {
 		    if(z_border.rows() == 2) {
 		      VertexFamily vf;
 			vf.edge = z_border;
@@ -450,84 +492,143 @@ namespace polymake { namespace atint{
     vertex_line = vertex_line.slice(~double_vertices);
     
     //TODO: For now we only check if both vertices are equal
-    Set<int> double_lines;
-    for(int el = 0; el < edge_line.dim(); el++) {
-      if(!double_lines.contains(el)) {
-	for(int oel = el+1; oel < edge_line.dim(); oel++) {
-	    if( edge_line[el].vertexAtZero == edge_line[oel].vertexAtZero &&
-	        edge_line[el].vertexAwayZero == edge_line[oel].vertexAwayZero)
-	      double_lines += oel;
-	}
-      }
-    }
-    edge_line = edge_line.slice(~double_lines);
+//     Set<int> double_lines;
+//     for(int el = 0; el < edge_line.dim(); el++) {
+//       if(!double_lines.contains(el)) {
+// 	for(int oel = el+1; oel < edge_line.dim(); oel++) {
+// 	    if( edge_line[el].vertexAtZero == edge_line[oel].vertexAtZero &&
+// 	        edge_line[el].vertexAwayZero == edge_line[oel].vertexAwayZero)
+// 	      double_lines += oel;
+// 	}
+//       }
+//     }
+//     edge_line = edge_line.slice(~double_lines);
     
     
-    //Create corresponding line objects
+    //Create corresponding line objects ...............................................................
     perl::ListReturn result;
     
-    //Create isolated vertices
-    //TODO: For now we only include non-families
+    //Create vertex_line objects:
+    // If two rays in such an object span a 2-dim-cell, this is computed as follows:
+    // We check, how far the line in direction of the sum of the two corr. rays lies in X
+    // If all of it lies in X, the 2-dim cell is just the vertex + the two rays. If not, let
+    // w be the end vertex of the line. Then we have two 2-dim. cells: conv(vertex,w) + each of the rays
     for(int ivert = 0; ivert < vertex_line.dim(); ivert++) {
-      if(vertex_line[ivert].cells.size() == 0) {
-	perl::Object var("WeightedComplex");
-	  Matrix<Rational> var_rays = vertex_line[ivert].vertex / degree;
-	  var.take("RAYS") << var_rays;
-	  Vector<Set<int> > var_cones;
-	  for(int i = 1; i <= 4; i++) {
-	    var_cones|= (scalar2set(0) + scalar2set(i));
+      perl::Object var("WeightedComplex");
+	Matrix<Rational> var_rays = degree / vertex_line[ivert].vertex ;
+	Vector<Set<int> > var_cones;
+	//Find all rays that are NOT involved in a 2-dim cell
+	Set<int> rays_in_cells;
+	  for(Entire<Set<int> >::iterator vcells = entire(vertex_line[ivert].cells); !vcells.at_end(); vcells++) {
+	    rays_in_cells += index_to_pair_map[*vcells];
 	  }
-	  var.take("MAXIMAL_CONES") << var_cones;
-	  var.take("USES_HOMOGENEOUS_C") << true;
-	result << var;
-      }
+	Set<int> rays_not_in_cells = sequence(0,4) - rays_in_cells;
+	//Add those rays not in 2-dim. cells
+	for(Entire<Set<int> >::iterator i = entire(rays_not_in_cells); !i.at_end(); i++) {
+	  var_cones|= (scalar2set(4) + scalar2set(*i));
+	}
+	//Now we compute the 2-dimensional cells as described above
+	for(Entire<Set<int> >::iterator span = entire(vertex_line[ivert].cells); !span.at_end(); span++) {
+	    Vector<Rational> md_vector = maximalDistanceVector(
+		    vertex_line[ivert].vertex, 
+		    accumulate(rows(degree.minor(index_to_pair_map[*span],All)),operations::add()),
+		    lindom_rays, lindom_cones, funmat);
+	    if(md_vector.dim() == 0) {
+	      var_cones |= (scalar2set(4) + index_to_pair_map[*span]);
+	    }
+	    else {
+	      var_rays /= md_vector;
+	      Vector<int> dirs(index_to_pair_map[*span]);
+	      var_cones |= (scalar2set(4) + scalar2set(var_rays.rows()-1) + dirs[0]);
+	      var_cones |= (scalar2set(4) + scalar2set(var_rays.rows()-1) + dirs[1]);
+	    }
+	}
+	var.take("RAYS") << var_rays;
+	var.take("MAXIMAL_CONES") << var_cones;
+	var.take("USES_HOMOGENEOUS_C") << true;
+      result << var;  
     }
     
-    //Create isolated lines
+    //Create vertex_family objects: Find the direction spanned by the family and only add the remaining three
+    //as rays
+    for(int fvert = 0; fvert < vertex_family.dim(); fvert++) {
+      Vector<Rational> dir;
+	if(vertex_family[fvert].edge(0,0) == 0) dir = vertex_family[fvert].edge.row(0);
+	if(vertex_family[fvert].edge(1,0) == 0) dir = vertex_family[fvert].edge.row(1);
+	if(dir.dim() == 0) dir = vertex_family[fvert].edge.row(0) - vertex_family[fvert].edge.row(1);
+      int missing_dir = 0;
+      if(dir[1] == 0 && dir[2] == 0) missing_dir = 3;
+      if(dir[1] == 0 && dir[3] == 0) missing_dir = 2;
+      if(dir[2] == 0 && dir[3] == 0) missing_dir = 1;
+      Matrix<Rational> var_rays = vertex_family[fvert].edge / degree.minor(~scalar2set(missing_dir),All);
+      Vector<Set<int> > var_cones;
+      for(int r = 2; r < 5; r++) {
+	var_cones |= (sequence(0,2) + r);
+      }
+      perl::Object var("WeightedComplex");
+	var.take("RAYS") << var_rays;
+	var.take("MAXIMAL_CONES") << var_cones;
+	var.take("USES_HOMOGENEOUS_C") << true;
+      result << var;
+      
+    }
+    
+    
+    
+    //Create edge_lines
+    // Two-dimensional cells at each end are computed as for vertex_line
     for(int el = 0; el < edge_line.dim(); el++) {
-      if(!edge_line[el].spanAtZero && !edge_line[el].spanAwayZero) {
-	perl::Object var("WeightedComplex");
-	  Matrix<Rational> var_rays = edge_line[el].vertexAtZero / edge_line[el].vertexAwayZero / degree;
-	  var.take("RAYS") << var_rays;
-	  Vector<Set<int> > var_cones;
-	  var_cones |= sequence(0,2);
+      perl::Object var("WeightedComplex");
+	Matrix<Rational> var_rays = edge_line[el].vertexAtZero / edge_line[el].vertexAwayZero / degree;
+	Vector<Set<int> > var_cones;
+	var_cones |= sequence(0,2);
+	if(edge_line[el].spanAtZero) {
+	  Vector<Rational> z_mdvector = maximalDistanceVector(
+	      var_rays.row(0), degree.row(0) + degree.row(edge_line[el].leafAtZero),
+		lindom_rays, lindom_cones, funmat);
+	  if(z_mdvector.dim() == 0) {
+	    var_cones |= (scalar2set(0) + scalar2set(2) + scalar2set(edge_line[el].leafAtZero+2));
+	  }
+	  else {
+	    var_rays /= z_mdvector;
+	    var_cones |= (scalar2set(0) + scalar2set(var_rays.rows()-1) + scalar2set(2));
+	    var_cones |= 
+	      (scalar2set(0) + scalar2set(var_rays.rows()-1) + scalar2set(edge_line[el].leafAtZero+2));
+	  }
+	}
+	else {
 	  var_cones |= (scalar2set(0) + scalar2set(2));
 	  var_cones |= (scalar2set(0) + scalar2set(edge_line[el].leafAtZero+2));
-	  Vector<int> rem(sequence(1,3) - edge_line[el].leafAtZero);
+	}
+	
+	Vector<int> rem(sequence(1,3) - edge_line[el].leafAtZero);	  
+	if(edge_line[el].spanAwayZero) {
+	  Vector<Rational> c_mdvector = maximalDistanceVector(
+	      var_rays.row(1), degree.row(rem[0]) + degree.row(rem[1]),
+	      lindom_rays, lindom_cones,funmat);
+	  if(c_mdvector.dim() == 0) {
+	    var_cones |= (scalar2set(1) + scalar2set(rem[0]+2) + scalar2set(rem[1]+2));
+	  }
+	  else {
+	    var_rays /= c_mdvector;
+	    var_cones |= (scalar2set(1) + scalar2set(var_rays.rows()-1) + scalar2set(rem[0]+2));
+	    var_cones |= (scalar2set(1) + scalar2set(var_rays.rows()-1) + scalar2set(rem[1]+2));
+	  }
+	}
+	else {	    
 	  var_cones |= (scalar2set(1) + (rem[0]+2));
 	  var_cones |= (scalar2set(1) + (rem[1]+2));
-	  var.take("MAXIMAL_CONES") << var_cones;
-	  var.take("USES_HOMOGENEOUS_C") << true;
-	result << var;
-      }
+	}
+	
+	
+	
+	var.take("RAYS") << var_rays;
+	var.take("MAXIMAL_CONES") << var_cones;
+	var.take("USES_HOMOGENEOUS_C") << true;
+      result << var;
+      
     }
-//     for(int ilin = 0; ilin < isolated_lines.dim(); ilin++) {
-//       perl::Object var("WeightedComplex");
-// 	Matrix<Rational> varrays = degree;
-// 	  varrays = isolated_lines[ilin].second / varrays;
-// 	  varrays = isolated_lines[ilin].first / varrays;
-//       var.take("RAYS") << varrays;
-//       Vector<Set<int> > var_cones;
-//       var_cones |= sequence(0,2);
-//       //We determine, which end belongs where by looking at the difference of the vertices
-//       Vector<Rational> diff = varrays.row(0) - varrays.row(1);
-//       //If the difference has only negative entries, then the second vertex is 0-i, otherwise the other way around
-//       bool is_negative = (accumulate(diff, operations::add()) < 0);
-//       //The zero entry is the leaf that comes together with 0
-//       int zero_entry;
-//       for(int i = 1; i <= 3; i++) { if(diff[i] == 0) zero_entry = i;}
-//       Set<int> l0; l0 += (is_negative? 1 : 0); l0 += 2;
-//       Set<int> li; li += (is_negative? 1 : 0); li += (zero_entry+2);
-//       var_cones |= l0; var_cones |= li;
-//       Vector<int> comp(sequence(1,3) - zero_entry);
-//       Set<int> lj; lj += (is_negative? 0 : 1); lj += (comp[0] + 2);
-//       Set<int> lk; lk += (is_negative? 0 : 1); lk += (comp[1] + 2);
-//       var_cones |= lj; var_cones |= lk;
-//       var.take("MAXIMAL_CONES") << var_cones;
-//       var.take("USES_HOMOGENEOUS_C") << true;
-//       
-//       result << var;
-//     }
+
     
     
     return result;
@@ -544,6 +645,8 @@ namespace polymake { namespace atint{
 		    "# and each family of lines as a two-dimensional complex"
 		    ,&linesInCubic,"lines_in_cubic(MinMaxFunction)");
 
-  Function4perl(&test,"test(Matrix<Rational>, Set<Int>, Vector<Rational>)");
+  Function4perl(&maximalDistanceVector,"mdv(Vector<Rational>, Vector<Rational>, Matrix<Rational>, IncidenceMatrix, Matrix<Rational>)");
 
+  
+  
 }}

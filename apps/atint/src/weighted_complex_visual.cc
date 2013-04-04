@@ -146,23 +146,45 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
+   @brief This takes a list of rays (as row vectors) and computes the corresponding bounding box, i.e. it computes the minima /maxima over all coordinates, subtracts/adds a given distance and returns the resulting 2x(no of coordinates)-matrix. The first row contains the min-coords, the second the max-coords
+   */
+  Matrix<Rational> boundingBox(Matrix<Rational> rays, Rational distance) {
+    if(rays.rows() == 0) return Matrix<Rational>(2,rays.cols());
+    Vector<Rational> min_values = rays.row(0);
+    Vector<Rational> max_values = rays.row(0);
+    for(int r = 1; r < rays.rows(); r++) {
+      for(int c = 0; c < rays.cols(); c++) {
+	if(rays(r,c) < min_values[c]) min_values[c] = rays(r,c);
+	if(rays(r,c) > max_values[c]) max_values[c] = rays(r,c);
+      }
+    }
+    //Add distance
+    min_values -= distance* ones_vector<Rational>(rays.cols());
+    max_values += distance* ones_vector<Rational>(rays.cols());
+    return min_values / max_values;
+  }
+  
+
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
     @brief Computes the polyhedral data necessary for visualization with a bounding box
     @param perl::Object fan The polyhedral complex to be visualized, in homogeneous coordinates
     @param bool isRelative true, iff the bounding box is given relative to the complex
     @param bool showWeights If true, the barycenters of the polytopes are computed for weight labelling
     @param Rational bbDistance The relative distance of the border of the bounding box to the affine part of the complex (should be a positive number).
-    @param bool onlyBoundingBox If true, only the relative bounding box with respect to the given bbDistance is computed and returned
     @param Matrix<Rational> bBox The absolute bounding box needed if isRelative is false. Given by two row vectors indicating the extreme points of the box
     @param Array<String> clabels If showWeights is false and this array has positive length, these strings will be used to label the maximal cones (missing labels are replaced by the emtpy string)
     @return A perl::ListReturn containing 
     1) the list of polytopes to be rendered
     2) A polytope::PointConfiguration that will contain the center of each cell as vertex, labelled with the corresponding weight. This is only computed if showWeights is true, but is contained in the ListReturn in any case.
-    If however, onlyBoundingBox is true, the ListReturn will only contain a Matrix<Rational> specifying the relative  bounding box.
   */
-  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, bool onlyBoundingBox, Matrix<Rational> bBox, Array<std::string> clabels) {
+  perl::ListReturn computeBoundedVisual(perl::Object fan, bool isRelative, bool showWeights,Rational bbDistance, Matrix<Rational> bBox, Array<std::string> clabels) {
     //Extract values
     int ambient_dim = fan.give("CMPLX_AMBIENT_DIM");
     Matrix<Rational> rays = fan.give("RAYS");
+    Set<int> vertices = fan.give("VERTICES");
     IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
     Matrix<Rational> facetNormals = fan.give("FACET_NORMALS");
     Matrix<Rational> facetNormalsInCones = fan.give("MAXIMAL_CONES_FACETS");
@@ -194,25 +216,14 @@ namespace polymake { namespace atint {
     Vector<Rational> maxCoord(ambient_dim);
     //If bounding mode is relative, determine the maximal/minimal coordinates of the affine rays
     if(isRelative) {
-      for(Entire<Set<int> >::iterator aff = entire(affineRays); !aff.at_end(); aff++) {
-	for(int i = 0; i < ambient_dim; i++) {
-	  Rational val = rays(*aff,i+1);
-	  if(val > maxCoord[i]) maxCoord[i] = val;
-	  if(val < minCoord[i]) minCoord[i] = val;
-	}
+      if(vertices.size() == 0) {
+	minCoord = - bbDistance * ones_vector<Rational>(ambient_dim);
+	maxCoord = bbDistance * ones_vector<Rational>(ambient_dim);
       }
-      //Now add the bbDistance to all values
-      for(int i = 0; i < ambient_dim; i++) {
-	maxCoord[i] += bbDistance;
-	minCoord[i] -= bbDistance;
-      }
-      if(onlyBoundingBox) {
-	Matrix<Rational> bb(0,ambient_dim);
-	bb /= minCoord; 
-	bb /= maxCoord;
-	perl::ListReturn smallResult;
-	  smallResult << bb;
-	return smallResult;
+      else {
+	Matrix<Rational> bMatrix = boundingBox(rays.minor(vertices,~scalar2set(0)), bbDistance);
+	minCoord = bMatrix.row(0);
+	maxCoord = bMatrix.row(1);
       }
     }
     //otherwise take min and max from the given bounding box
@@ -311,11 +322,15 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
+  
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   
   Function4perl(&computeVisualPolyhedra, "computeVisualPolyhedra(WeightedComplex, Rational, $)");
 
-  Function4perl(&computeBoundedVisual, "computeBoundedVisual(WeightedComplex, $, $, Rational,$, Matrix<Rational>, Array<String>)");
+  Function4perl(&computeBoundedVisual, "computeBoundedVisual(WeightedComplex, $, $, Rational, Matrix<Rational>, Array<String>)");
+  
+  Function4perl(&boundingBox, "compute_bounding_box(Matrix<Rational>,$)");
   
 }}

@@ -73,7 +73,7 @@ INCLUDE
   Function_visual.rules
   gfan_parse.rules
   matroid_intersection.rules
-  visualize_in_surface.rules
+  lines_in_cubic.rules
 
   
 ## TESTRUN FUNCTION #######################

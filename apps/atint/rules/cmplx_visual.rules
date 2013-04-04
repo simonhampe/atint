@@ -246,7 +246,7 @@ object WeightedComplex {
 	die "Bounding box has invalid dimension\n";
       }
     }
-    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),0,(new Matrix<Rational>($boundingBox)),$clabels);
+    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),(new Matrix<Rational>($boundingBox)),$clabels);
     my @cells_visual;
     my $weightCenters = pop(@result);
     
@@ -287,9 +287,19 @@ object WeightedComplex {
   # @return Matrix<Rational>  A 2x[[CMPLX_AMBIENT_DIM]]-matrix specifying the bounding box (it can be used as input for BoundingBox in [[BB_VISUAL]])
   user_method boundingBox {
     my ($variety, $distance) = @_;
-    my $clabels = new Array<String>(); 
-    my @r =  computeBoundedVisual($variety->homogenize, 1, 0, new Rational($distance),1,(new Matrix<Rational>()), $clabels);
-    return $r[0];
-  }
+    if(!defined($distance)) { $distance = 1;}
+    my $vertex_set =  $variety->VERTICES;
+    my $cdim = $variety->CMPLX_AMBIENT_DIM;
+    #If its a fan, we only have (0,..,0) as vertex
+    if($vertex_set->size() == 0) {
+      my $bb = new Matrix<Rational>(0, $cdim);
+	$bb = new Matrix<Rational>( $bb / ($distance * ones_vector<Rational>($cdim)));
+	$bb = new Matrix<Rational>( $bb / (-$distance * ones_vector<Rational>($cdim)));
+      return $bb;
+    }
+    #Otherwise it must be in homog. coordinates
+    return compute_bounding_box($variety->RAYS->minor($vertex_set,~scalar2set(0)),$distance);
+    
+  }#END boundingBox
   
 }

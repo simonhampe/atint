@@ -15,17 +15,11 @@
 
 namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( void (pm::Matrix<pm::Rational>, pm::Set<int, pm::operations::cmp>) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturnVoid( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1.get< perl::TryCanned< const Set< int > > >() );
+   FunctionWrapper4perl( pm::Vector<pm::Rational> (pm::Vector<pm::Rational> const&, pm::Vector<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::Matrix<pm::Rational> const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]), arg4(stack[4]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< Rational > > >(), arg1.get< perl::TryCanned< const Vector< Rational > > >(), arg2.get< perl::TryCanned< const Matrix< Rational > > >(), arg3.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg4.get< perl::TryCanned< const Matrix< Rational > > >() );
    }
-   FunctionWrapperInstance4perl( void (pm::Matrix<pm::Rational>, pm::Set<int, pm::operations::cmp>) );
-
-   FunctionWrapper4perl( void (pm::Matrix<pm::Rational>, pm::Set<int, pm::operations::cmp>, pm::Vector<pm::Rational>) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      IndirectWrapperReturnVoid( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1.get< perl::TryCanned< const Set< int > > >(), arg2.get< perl::TryCanned< const Vector< Rational > > >() );
-   }
-   FunctionWrapperInstance4perl( void (pm::Matrix<pm::Rational>, pm::Set<int, pm::operations::cmp>, pm::Vector<pm::Rational>) );
+   FunctionWrapperInstance4perl( pm::Vector<pm::Rational> (pm::Vector<pm::Rational> const&, pm::Vector<pm::Rational> const&, pm::Matrix<pm::Rational> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::Matrix<pm::Rational> const&) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } }
