@@ -36,24 +36,36 @@ user_function visualize_in_surface {
     for my $i (1 .. $bb->cols()-1) {
       if($bb->row(1)->[$i] > $xmax) {$xmax = $bb->row(1)->[$i];}
     }
-  my @minv = @{$bb->row(0)};
-  my @maxv = @{$bb->row(1)};
+    
+ 
+#   my @minv = @{$bb->row(0)};
+#   my @maxv = @{$bb->row(1)};
   for my $p ( @p) {
     my $pb = $p->boundingBox(1);
-    for my $i (0 .. 2) {
-      if($pb->row(0)->[$i] < $minv[$i]) {
-	$minv[$i] = $pb->row(0)->[$i];
-      }
-      if($pb->row(1)->[$i] > $maxv[$i]) {
-	$maxv[$i] = $pb->row(1)->[$i];
-      }
-    }
+    $bb = new Matrix<Rational>($bb / $pb);
+#     print "$pb\n";
+#     for my $i (0 .. 2) {
+#       print $pb->row(0)->[$i],",",$pb->row(1)->[$i],"\n";
+#       if($pb->row(0)->[$i] < $minv[$i]) {
+# 	$minv[$i] = $pb->row(0)->[$i];
+#       }
+#       if($pb->row(1)->[$i] > $maxv[$i]) {
+# 	$maxv[$i] = $pb->row(1)->[$i];
+#       }
+#     }
   }
-
   
-  my $maxvec = new Vector<Rational>(\@maxv);
-  $bb = new Matrix<Rational>((new Vector<Rational>(\@minv)));
-  $bb = new Matrix<Rational>( $bb / $maxvec);
+  $bb = compute_bounding_box($bb,0);
+# 
+#   print join(",",@minv),"\n";
+#   print join(",",@maxv),"\n";
+#   
+#   my $maxvec = new Vector<Rational>(\@maxv);
+#   my $minvec = new Vector<Rational>(\@minv);
+#   $bb = new Matrix<Rational>($bb / $minvec);
+#   $bb = new Matrix<Rational>( $bb / $maxvec);
+
+#   print $bb,"\n";
   
   
   my @vis = ();

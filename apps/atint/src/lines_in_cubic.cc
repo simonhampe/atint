@@ -474,8 +474,10 @@ namespace polymake { namespace atint{
     
     dbglog << "Cleaning up result" << endl;
     
-    // Step I: Clean up each type individually by checking if one contains the other
+    // Step I: Clean up each type individually by checking if one contains the other or has to be glued
+    // together somehow
         
+    //Vertex line: Only check if one is contained in the other
     Set<int> double_vertices;
     for(int vl = 0; vl < vertex_line.dim(); vl++) {
       if(!double_vertices.contains(vl)) {
@@ -490,6 +492,33 @@ namespace polymake { namespace atint{
       }
     }//END clean up vertex_line
     vertex_line = vertex_line.slice(~double_vertices);
+    
+    //For vertex families we have to check if two families can be glued together
+    std::list<VertexFamily> queue;
+    for(int vf = 0; vf < vertex_family.dim(); vf++) {
+      queue.push_back(vf);
+    }
+    while(queue.size() > 0) {
+      VertexFamily fam = queue.front(); queue.pop_front();
+      int vf = 0;
+      while(vf < vertex_family.dim()) {
+	//Case I: Both are identical: Just remove one and add nothing new
+	if( (vertex_family[vf].edge.row(0) == fam.edge.row(0) &&
+	      vertex_family[vf].edge.row(1) == fam.edge.row(1)) ||
+	    (vertex_family[vf].edge.row(0) == fam.edge.row(1) &&
+	      vertex_family[vf].edge.row(1) == fam.edge.row(0))) {
+	  
+	  vertex_family = vertex_family.slice(~scalar2set(vf));
+	  continue;
+	}
+	//Case II: At least one consists of two vertices, one of which is equal to
+	// a vertex of the other. Then we glue both together, add the new element and
+	// go to the next queue element
+	
+	
+	vf++;
+      }
+    }//END clean up vertex families
     
     //TODO: For now we only check if both vertices are equal
 //     Set<int> double_lines;
