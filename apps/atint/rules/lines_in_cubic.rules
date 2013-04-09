@@ -18,8 +18,77 @@
 #  Copyright (C) 2011, Simon Hampe <hampe@mathematik.uni-kl.de>
 #
 # This file contains methods treating cubic surfaces in R^3 and collections of
-# (families of) lines in this surface.
+# (families of) lines in this surface, including a data type to represent the result
+# of lines_in_cubic
 ########################################################################
+
+object LinesInCubic {
+  
+  # @category Defining properties
+  # The tropical polynomial defining the surface
+  property POLYNOMIAL : MinMaxFunction;
+  
+  # @category Defining properties
+  # The surface containing the lines
+  property DIVISOR : WeightedComplex;
+  
+  # @category Lists of lines
+  # A list of all isolated lines without a bounded edge
+  property LIST_ISOLATED_NO_EDGE : WeightedComplex : multiple;
+  
+  # @category Lists of lines
+  # A list of all isolated lines with bounded edge
+  property LIST_ISOLATED_EDGE : WeightedComplex : multiple;
+  
+  # @category Lists of lines
+  # A list of all families of lines without a bounded edge at a fixed vertex
+  property LIST_FAMILY_FIXED_VERTEX : WeightedComplex : multiple;
+  
+  # @category Lists of lines
+  # A list of all families of lines without a bounded  edge and a moving vertex.
+  property LIST_FAMILY_MOVING_VERTEX : WeightedComplex : multiple;
+  
+  # @category Lists of lines
+  # A list of all families of lines with (part of) the bounded edge fixed
+  property LIST_FAMILY_FIXED_EDGE : WeightedComplex : multiple;
+  
+  # @category Lists of lines
+  # A list of all families of lines with the bounded edge moving in transversal direction
+  property LIST_FAMILY_MOVING_EDGE : WeightedComplex : multiple;
+  
+  ### METHODS ##############################################
+  
+  user_method array_isolated_no_edge {
+    my $this = shift;
+    return @{$this->LIST_ISOLATED_NO_EDGE};
+  }
+  
+  user_method array_isolated_edge {
+    my $this = shift;
+    return @{$this->LIST_ISOLATED_EDGE};
+  }
+  
+  user_method array_family_fixed_vertex {
+    my $this = shift;
+    return @{$this->LIST_FAMILY_FIXED_VERTEX};
+  }
+  
+  user_method array_family_moving_vertex {
+    my $this = shift;
+    return @{$this->LIST_FAMILY_MOVING_VERTEX};
+  }
+  
+  user_method array_family_fixed_edge {
+    my $this = shift;
+    return @{$this->LIST_FAMILY_FIXED_EDGE};
+  }
+  
+  user_method array_family_moving_edge {
+    my $this = shift;
+    return @{$this->LIST_FAMILY_MOVING_EDGE};
+  }
+  
+}
 
 # @category Visualization
 # This visualizes a surface in R^3 and an arbitrary list of (possibly non-pure)
@@ -107,34 +176,4 @@ user_function visualize_in_surface {
   
 }#END visualize_in_surface
 
-# @category Enumerative geometry
-# This takes a result of [[lines_in_cubic]] and returns all lines (or families) of a chosen type, represented
-# by an integer:
-# 0 = isolated solutions (i.e. non-families)
-# 1 = non-pure families, i.e. the corresponding complex has 1- and 2-dimensional maximal cells
-# 2 = pure families
-# @param Int type The type as described above
-# @param WeightedComplex An arbitrary list, supposedly created via [[lines_in_cubic]].
-# @return WeightedComplex A list of all lines of that type
-user_function lines_of_type {
-  my ($type, @l) = @_;
-  if($type < 0 || $type > 2) {
-    die "Know only types 0,1,2";
-  }
-  my @result = ();
-  
-  for my $p (@l) {
-    if($p->PURE && $p->CMPLX_DIM == 1 && $type == 0) {
-      @result = (@result,$p);
-    }
-    if($p->PURE && $p->CMPLX_DIM == 2 && $type == 2) {
-	@result = (@result,$p);
-    }
-    if(!$p->PURE && $type == 1) {
-	@result = (@result,$p);
-    }
-  }
-  
-  return @result;  
-}
 

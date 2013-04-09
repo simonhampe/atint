@@ -9,6 +9,8 @@
 #include "polymake/atint/normalvector.h"
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/atint/cdd_helper_functions.h"
+#include "polymake/atint/lines_in_cubic.h"
+#include "polymake/atint/lines_in_cubic_helper.h"
 #include "polymake/atint/lines_in_cubic_reachable.h"
 
 namespace polymake { namespace atint{ 
@@ -19,262 +21,11 @@ namespace polymake { namespace atint{
 
   
   using polymake::polytope::cdd_interface::solver;
-  
-  /**
-   * This contains the intersection of two ReachableResults:
-   * - The rays of the complex
-   * - The maximal three-dimensional cells
-   * - The maximal two-dimensional cells
-   * - The maximal one-dimensional cells
-   * - The maximal zero-dimensional cells
-   */
-  struct DirectionIntersection {
-    Matrix<Rational> rays;
-    IncidenceMatrix<> cells;
-    IncidenceMatrix<> edges;
-    IncidenceMatrix<> points;    
-  };
-  
-  /**
-   * This contains the facet data of a two-dimensional cone in R^3:
-   * - The codimension one faces in terms of ray indices (in a ray matrix that was given when creating this object)
-   * - In the same order as the faces, a list of the corresponding inequalities in std polymake format, given as a matrix
-   * - The single equation of the cone, given as a vector
-   */
-  struct FacetData {
-    IncidenceMatrix<> facets;
-    Matrix<Rational> ineqs;
-    Vector<Rational> eq;
-  };
-  
-  /**
-   * Describes a line with a single vertex or a family starting in such a line:
-   * - The vertex of the line
-   * - A list of indices in 0,..,5 indicating which rays span a 2-dimensional cell in the family:
-   * 	0 = 0,1
-   * 	1 = 0,2
-   * 	2 = 0,3
-   * 	3 = 1,2
-   * 	4 = 1,3
-   * 	5 = 2,3
-   */
-  struct VertexLine {
-    Vector<Rational> vertex;
-    Set<int> cells;
-  };
-  
-  /**
-   * Describes a one-dimensional family of a line with a single vertex:
-   * - A matrix (with 2 rows) describing the edge of the family 
-   */
-  struct VertexFamily {
-    Matrix<Rational> edge;
-  };
-  
-  /**
-   * Describes a single line with a bounded edge or a family starting at such a line:
-   * - The vertex at 0
-   * - The vertex away from 0
-   * - The index of the other leaf at 0
-   * - Whether the leafs at 0 span a cell
-   * - Whether the leafs away from 0 span a cell
-   */
-  struct EdgeLine {
-    Vector<Rational> vertexAtZero;
-    Vector<Rational> vertexAwayZero;
-    int leafAtZero;
-    bool spanAtZero;
-    bool spanAwayZero;
-  };
-  
-  /**
-   * Describes a family of lines with bounded edge:
-   * - A matrix (with 2 rows) describing the edge at 0
-   * - A matrix (with 2 rows) describing the edge away from 0
-   * - The index of the other leaf at 0
-   */
-  struct EdgeFamily {
-    Matrix<Rational> edgeAtZero;
-    Matrix<Rational> edgeAwayZero;
-    int leafAtZero;
-  };
-  
-  // ------------------------------------------------------------------------------------------------
-  
-  /**
-   @brief Takes a fan_intersection_result and cleans up the result so that no cone is contained in another and that cones are sorted according to their dimension. 
-   @param fan_intersection_result fir
-   @return DirectionIntersection
-   */
-  DirectionIntersection cleanUpIntersection(fan_intersection_result fir) {
-    DirectionIntersection result;
-      result.rays = fir.rays;
-    IncidenceMatrix<> fir_cones = fir.cones;
-    //First we sort all cells according to their dimension
-    Set<int> cell_set;
-    Set<int> edge_set;
-    Set<int> point_set;
-    for(int fc = 0; fc < fir_cones.rows(); fc++) {
-	 if(fir_cones.row(fc).size() > 2) cell_set += fc;
-	 if(fir_cones.row(fc).size() == 2) edge_set += fc;
-	 if(fir_cones.row(fc).size() == 1) point_set += fc;
-    }
-    //Go through all edges, compare to cells, remove redundant ones
-    Set<int> redundant_edges;
-    for(Entire<Set<int> >::iterator e = entire(edge_set); !e.at_end(); e++) {
-	bool found_container = false;
-	for(Entire<Set<int> >::iterator c = entire(cell_set); !c.at_end(); c++) {
-	    if ( (fir_cones.row(*c) * fir_cones.row(*e)).size() == fir_cones.row(*e).size()) {
-		found_container = true; break;
-	    }
-	}
-	if(found_container) redundant_edges += (*e);
-    }
-    edge_set -= redundant_edges;
-    //Same for points
-    Set<int> redundant_points;
-    for(Entire<Set<int> >::iterator p = entire(point_set); !p.at_end(); p++) {
-	bool found_container = false;
-	Set<int> containers = cell_set + edge_set;
-	for(Entire<Set<int> >::iterator c = entire(containers); !c.at_end(); c++) {
-	    if ( (fir_cones.row(*c) * fir_cones.row(*p)).size() == fir_cones.row(*p).size()) {
-		found_container = true; break;
-	    }
-	}
-	if(found_container) redundant_points += (*p);
-    }
-    point_set -= redundant_points;
-    
-    result.cells = fir_cones.minor(cell_set,All);
-    result.edges = fir_cones.minor(edge_set,All);
-    result.points = fir_cones.minor(point_set,All);
-    
-    return result;
-  }//END cleanUpIntersection
-    
-  // ------------------------------------------------------------------------------------------------
-  
-  /**
-   @brief This takes a (two-dimensional) cone in R^3 in terms of a subset of rays and computes all codimension one faces. 
-   @return A FacetData object (see above)
-   */
-  FacetData computeFacets(const Matrix<Rational> &rays,const Set<int> &cone) {
-    //Compute facet equations and store them
-    solver<Rational> sv;
-    std::pair<Matrix<Rational>, Matrix<Rational> > ceq = sv.enumerate_facets(
-	zero_vector<Rational>() | rays.minor(cone,All),Matrix<Rational>(0,rays.cols()+1),true,false);
-    FacetData result;
-      result.eq = ceq.second.row(0).slice(~scalar2set(0));
-      result.ineqs = ceq.first.minor(All,~scalar2set(0));
-    //Now go through all inequalities and find the corresponding vertices
-    Vector<Set<int> > facets;
-    for(int i = 0; i < result.ineqs.rows(); i++)  {
-      Set<int> iset;
-      for(Entire<Set<int> >::const_iterator c = entire(cone); !c.at_end(); c++) {
-	if(result.ineqs.row(i) * rays.row(*c) == 0) iset += (*c);
-      }
-      facets |= iset;
-    }
-    //Each facet has to have at least one vertex
-    for(int f = 0; f < facets.dim(); f++) {
-      if(rays.col(0).slice(facets[f]) == zero_vector<Rational>(facets[f].size())) {
-	facets = facets.slice(~scalar2set(f));
-	result.ineqs = result.ineqs.minor(~scalar2set(f),All);
-      }
-    }
-    
-    result.facets = IncidenceMatrix<>(facets);
-    
-//     //Normlize inequalities such that normals lie in plane spanned by cone
-//     
-//     //Take the norm squared of the linear part of the equation
-//     Rational eq_norm =
-//       accumulate(attach_operation(result.eq.slice(~scalar2set(0)),operations::square()),operations::add());
-//     //For each facet normal f, subtract the equation times g the scalar product of the linear parts f'*g'
-//     for(int f = 0; f < result.ineqs.rows(); f++) {
-//       Rational scal_prod = result.ineqs.row(f).slice(~scalar2set(0)) * 
-// 			    result.eq.slice(~scalar2set(0));
-//       result.ineqs.row(f) = result.ineqs.row(f) - ( scal_prod / eq_norm) * result.eq;
-//     }
-      
-    return result;
-  } 
-    
-  void testcf(Matrix<Rational> m, Set<int> c) {
-    FacetData fd = computeFacets(m,c);
-    pm::cout << fd.ineqs << endl;
-    pm::cout << fd.eq << endl;
-  }
-    
-  // ------------------------------------------------------------------------------------------------  
-    
-  /**
-   @brief This takes a result of computeFacets and finds all the facets visible from "direction", i.e. all facets whose outer normal has strict positive scalar product with direction (it doesn't matter which normal we take: The direction must lie in the span of the two-dimensional cone, so the equation g of the cone is zero on direction. Any two representatives of a facet normal only differ by a multiple of g).
-   */
-  Vector<Set<int> > visibleFaces(FacetData fd, Vector<Rational> direction) {
-    Vector<Set<int> > result;
-    for(int f = 0; f < fd.ineqs.rows(); f++) {
-      if(fd.ineqs.row(f) * direction < 0) { //<0, since ineqs has the inner normals
-	result |= fd.facets.row(f);
-      }
-    }      
-    return result;
-  }
-  
-  void test(Matrix<Rational> m, Set<int> c, Vector<Rational> v) {
-    FacetData fd = computeFacets(m,c);
-      pm::cout << fd.facets << endl;
-      pm::cout << fd.ineqs << endl;
-      pm::cout << fd.eq << endl;
-    pm::cout << visibleFaces(fd, v) << endl;
-  }
-  
-  // ------------------------------------------------------------------------------------------------  
-  
-  /**
-   @brief This takes a vertex in the cubic (whose function's domain is describes by frays and fcones) and a direction and computes the vertex w farthest away from vertex in this direction, such that the convex hull of vertex and w still lies in X. It returns the empty vertex, if the complete half-line lies in X.
-   */
-  Vector<Rational> maximalDistanceVector(const Vector<Rational> &vertex, const Vector<Rational> &direction, 
-					  const Matrix<Rational> &frays, const IncidenceMatrix<> &fcones, const Matrix<Rational> &funmat) {
-    //Create the one-dimensional half-line from vertex
-    Matrix<Rational> hl_rays = vertex / direction;
-    Vector<Set<int> > hl_cones; hl_cones |= sequence(0,2);
-    Matrix<Rational> lin(0, hl_rays.cols());
-    //Intersect with f-domain
-    DirectionIntersection ref_line = cleanUpIntersection(
-	cdd_fan_intersection(hl_rays, lin, hl_cones, frays,lin,fcones,true));
-    //Find vertex
-    int v_index = -1;
-    for(int r = 0; r < ref_line.rays.rows(); r++) {
-      if(ref_line.rays.row(r) == vertex) {v_index = r; break;}
-    }
-    IncidenceMatrix<> rays_in_cones = T(ref_line.edges);
-    //Go through edges, starting at vertex and check if it is contained in X
-    int current_edge = *(rays_in_cones.row(v_index).begin());
-    int current_vertex = v_index;
-    //When the current edge has only one vertex, we're done
-    do {
-      //Check if the edge lies in X
-      Vector<Rational> interior_point = accumulate
-	(rows(ref_line.rays.minor(ref_line.edges.row(current_edge),All)), operations::add()) /
-	accumulate(ref_line.rays.minor(ref_line.edges.row(current_edge),All).col(0),operations::add());
-      if(!maximumAttainedTwice(funmat * interior_point)) return ref_line.rays.row(current_vertex);
-      else {
-	current_vertex = *( (ref_line.edges.row(current_edge) - current_vertex).begin());
-	if(ref_line.rays.row(current_vertex)[0] == 0) current_vertex = -1;
-	else {
-	    current_edge = *( (rays_in_cones.row(current_vertex) - current_edge).begin());
-	}
-      }
-    }while(current_vertex >= 0);
-  
-    return Vector<Rational>();
-  }
     
   // ------------------------------------------------------------------------------------------------  
     
   //Documentation see perl wrapper
-  perl::ListReturn linesInCubic(perl::Object f) {
+  perl::Object linesInCubic(perl::Object f) {
     //First, we compute the divisor of f
     perl::Object r3 = CallPolymakeFunction("linear_nspace",3);
     perl::Object X = CallPolymakeFunction("divisor",r3,f);
@@ -450,7 +201,16 @@ namespace polymake { namespace atint{
 			  el.vertexAwayZero = c_border.row(0);
 			  el.leafAtZero = i;
 			  el.spanAtZero = (z_dim == 2);
-			  el.spanAwayZero = (c_dim == 2);			
+			  el.spanAwayZero = (c_dim == 2);
+			  Vector<int> rem(sequence(1,3) - i);
+			  el.maxDistAtZero = 
+			    maximalDistanceVector(el.vertexAtZero, 
+						  degree.row(0) + degree.row(el.leafAtZero),
+						  lindom_rays, lindom_cones, funmat);
+			  el.maxDistAwayZero =
+			    maximalDistanceVector(el.vertexAwayZero,
+						  degree.row(rem[0]) + degree.row(rem[1]),
+						  lindom_rays, lindom_cones, funmat);
 			edge_line |= el;
 		      }
 		    }//END case (2)
@@ -472,6 +232,7 @@ namespace polymake { namespace atint{
 	
     }//END compute intersections of reachable loci
     
+    // .............................................................................................
     dbglog << "Cleaning up result" << endl;
     
     // Step I: Clean up each type individually by checking if one contains the other or has to be glued
@@ -494,48 +255,94 @@ namespace polymake { namespace atint{
     vertex_line = vertex_line.slice(~double_vertices);
     
     //For vertex families we have to check if two families can be glued together
-    std::list<VertexFamily> queue;
+    std::list<VertexFamily> vf_queue;
     for(int vf = 0; vf < vertex_family.dim(); vf++) {
-      queue.push_back(vf);
+      vf_queue.push_back(vertex_family[vf]);
     }
-    while(queue.size() > 0) {
-      VertexFamily fam = queue.front(); queue.pop_front();
-      int vf = 0;
-      while(vf < vertex_family.dim()) {
-	//Case I: Both are identical: Just remove one and add nothing new
-	if( (vertex_family[vf].edge.row(0) == fam.edge.row(0) &&
-	      vertex_family[vf].edge.row(1) == fam.edge.row(1)) ||
-	    (vertex_family[vf].edge.row(0) == fam.edge.row(1) &&
-	      vertex_family[vf].edge.row(1) == fam.edge.row(0))) {
-	  
-	  vertex_family = vertex_family.slice(~scalar2set(vf));
-	  continue;
+    Vector<VertexFamily> approved_vfamilies;
+    while(vf_queue.size() > 0) {
+      VertexFamily fam = vf_queue.front(); vf_queue.pop_front();
+      bool is_approved = true;
+      for(int vf = 0; vf < approved_vfamilies.dim(); vf++) {
+	//Case I: Both are identical: Just ignore the new one and add nothing new
+	if( (approved_vfamilies[vf].edge.row(0) == fam.edge.row(0) &&
+	      approved_vfamilies[vf].edge.row(1) == fam.edge.row(1)) ||
+	    (approved_vfamilies[vf].edge.row(0) == fam.edge.row(1) &&
+	      approved_vfamilies[vf].edge.row(1) == fam.edge.row(0))) {
+	  is_approved = false;
+	  break;
 	}
+	
 	//Case II: At least one consists of two vertices, one of which is equal to
-	// a vertex of the other. Then we glue both together, add the new element and
-	// go to the next queue element
-	
-	
-	vf++;
-      }
+	// a vertex of the other. Then we glue both together, add the new element to the vf_queue and
+	// go to the next vf_queue element
+	if( (approved_vfamilies[vf].edge(0,0) + approved_vfamilies[vf].edge(1,0) == 2) ||
+	    (fam.edge(0,0) + fam.edge(1,0) == 2) ) {
+	  int avf_equal = -1;
+	  int fam_equal = -1;
+	  if(approved_vfamilies[vf].edge.row(0) == fam.edge.row(0)) avf_equal = 0; fam_equal = 0;
+	  if(approved_vfamilies[vf].edge.row(0) == fam.edge.row(1)) avf_equal = 0; fam_equal = 1;
+	  if(approved_vfamilies[vf].edge.row(1) == fam.edge.row(0)) avf_equal = 1; fam_equal = 0;
+	  if(approved_vfamilies[vf].edge.row(1) == fam.edge.row(1)) avf_equal = 1; fam_equal = 1;
+	  
+	  if(avf_equal != -1) {
+	    int other_avf = avf_equal == 0? 1 : 0;
+	    int other_fam = fam_equal == 0? 1 : 0;
+	    VertexFamily replacement;
+	      replacement.edge = approved_vfamilies[vf].edge.row(other_avf) / fam.edge.row(other_fam);
+	    vf_queue.push_back(replacement);
+	    approved_vfamilies = approved_vfamilies.slice(~scalar2set(vf));
+	    is_approved = false;
+	    break;
+	  } //END create new vertex family
+	}//END Case II	
+      }//END iterate approved families
+      if(is_approved) approved_vfamilies |= fam;
     }//END clean up vertex families
+    vertex_family = approved_vfamilies;
     
-    //TODO: For now we only check if both vertices are equal
-//     Set<int> double_lines;
-//     for(int el = 0; el < edge_line.dim(); el++) {
-//       if(!double_lines.contains(el)) {
-// 	for(int oel = el+1; oel < edge_line.dim(); oel++) {
-// 	    if( edge_line[el].vertexAtZero == edge_line[oel].vertexAtZero &&
-// 	        edge_line[el].vertexAwayZero == edge_line[oel].vertexAwayZero)
-// 	      double_lines += oel;
-// 	}
-//       }
-//     }
-//     edge_line = edge_line.slice(~double_lines);
+    //For edge lines, we check if two are equal or can be glued together
+    std::list<EdgeLine> el_queue;
+    for(int el = 0; el < edge_line.dim(); el++) {
+      el_queue.push_back(edge_line[el]);
+    }
+    Vector<EdgeLine> approved_elfamilies;
+    while(el_queue.size() > 0) {
+      EdgeLine fam = el_queue.front(); el_queue.pop_front();
+      bool is_approved = true;
+      for(int el = 0; el < approved_elfamilies.dim(); el++) {
+	//Interesting things only happen if both have the same direction
+	if(approved_elfamilies[el].leafAtZero == fam.leafAtZero) {
+	  //Compatibility = Both families can be glued, i.e. in each direction either:
+	  // - the vertices at that end agree -> keep vertex with largest span
+	  // - one vertex has unbounded span and the other vertex differs by a positive multiple of 
+	  //   the edge direction -> keep vertex with unbounded span
+	  // - one vertex has bounded span, which contains the other vertex. -> keep vertex with bounded span
+	  bool isCompatibleAtZero = false;
+	  Vector<Rational> vertexAtZero;
+	  bool spanAtZero;
+	  Vector<Rational> vertexAwayZero;
+	  bool spanAwayZero;
+	  if(approved_elfamilies[el].vertexAtZero == fam.vertexAtZero) {
+	    isCompatibleAtZero = true;
+	    vertexAtZero = fam.vertexAtZero;
+	    
+	  }
+	  
+	  
+	  
+	}//END if same direction
+      }//END iterate approved families
+      if(is_approved) approved_elfamilies |= fam;
+    }//END clean up edge lines
+    edge_line = approved_elfamilies;
     
     
-    //Create corresponding line objects ...............................................................
-    perl::ListReturn result;
+    //Create corresponding line objects ...............................................................    
+    dbglog << "Creating lines as complexes..." << endl;
+    
+    perl::Object result("LinesInCubic");
+
     
     //Create vertex_line objects:
     // If two rays in such an object span a 2-dim-cell, this is computed as follows:
@@ -574,8 +381,11 @@ namespace polymake { namespace atint{
 	}
 	var.take("RAYS") << var_rays;
 	var.take("MAXIMAL_CONES") << var_cones;
-	var.take("USES_HOMOGENEOUS_C") << true;
-      result << var;  
+	var.take("USES_HOMOGENEOUS_C") << true;	
+      if(vertex_line[ivert].cells.size() == 0) 
+	result.add("LIST_ISOLATED_NO_EDGE",var);
+      else 
+	result.add("LIST_FAMILY_FIXED_VERTEX", var);
     }
     
     //Create vertex_family objects: Find the direction spanned by the family and only add the remaining three
@@ -598,7 +408,7 @@ namespace polymake { namespace atint{
 	var.take("RAYS") << var_rays;
 	var.take("MAXIMAL_CONES") << var_cones;
 	var.take("USES_HOMOGENEOUS_C") << true;
-      result << var;
+      result.add("LIST_FAMILY_MOVING_VERTEX", var);
       
     }
     
@@ -612,9 +422,7 @@ namespace polymake { namespace atint{
 	Vector<Set<int> > var_cones;
 	var_cones |= sequence(0,2);
 	if(edge_line[el].spanAtZero) {
-	  Vector<Rational> z_mdvector = maximalDistanceVector(
-	      var_rays.row(0), degree.row(0) + degree.row(edge_line[el].leafAtZero),
-		lindom_rays, lindom_cones, funmat);
+	  Vector<Rational> z_mdvector = edge_line[el].maxDistAtZero;
 	  if(z_mdvector.dim() == 0) {
 	    var_cones |= (scalar2set(0) + scalar2set(2) + scalar2set(edge_line[el].leafAtZero+2));
 	  }
@@ -632,9 +440,7 @@ namespace polymake { namespace atint{
 	
 	Vector<int> rem(sequence(1,3) - edge_line[el].leafAtZero);	  
 	if(edge_line[el].spanAwayZero) {
-	  Vector<Rational> c_mdvector = maximalDistanceVector(
-	      var_rays.row(1), degree.row(rem[0]) + degree.row(rem[1]),
-	      lindom_rays, lindom_cones,funmat);
+	  Vector<Rational> c_mdvector = edge_line[el].maxDistAwayZero;
 	  if(c_mdvector.dim() == 0) {
 	    var_cones |= (scalar2set(1) + scalar2set(rem[0]+2) + scalar2set(rem[1]+2));
 	  }
@@ -654,11 +460,13 @@ namespace polymake { namespace atint{
 	var.take("RAYS") << var_rays;
 	var.take("MAXIMAL_CONES") << var_cones;
 	var.take("USES_HOMOGENEOUS_C") << true;
-      result << var;
+      if(edge_line[el].spanAtZero || edge_line[el].spanAwayZero) 
+	result.add("LIST_FAMILY_FIXED_EDGE",var);
+      else result.add("LIST_ISOLATED_EDGE",var);
       
     }
 
-    
+    dbglog << "Done." << endl;
     
     return result;
   }//END linesInCubic
@@ -670,12 +478,10 @@ namespace polymake { namespace atint{
 		    "# lines in the corresponding cubic"
 		    "# @param MinMaxFunction f A tropical polynomial of degree 3 such that the corresponding "
 		    "# cubic surface does not have an explicit lineality space"
-		    "# @return WeightedComplex An array, containing all isolated lines in the cubic"
-		    "# and each family of lines as a two-dimensional complex"
+		    "# @return LinesInCubic An object containing the complete result of the computation"
 		    ,&linesInCubic,"lines_in_cubic(MinMaxFunction)");
 
-  Function4perl(&maximalDistanceVector,"mdv(Vector<Rational>, Vector<Rational>, Matrix<Rational>, IncidenceMatrix, Matrix<Rational>)");
-
+  
   
   
 }}

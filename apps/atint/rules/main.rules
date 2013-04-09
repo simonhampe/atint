@@ -57,6 +57,15 @@ declare object MinMaxFunction : RationalFunction;
 # care that the function is locally linear, this is not checked in any way.
 declare object Morphism;
 
+# This represents the result of the method [[lines_in_cubic]]. It contains:
+# <ul>
+#  <li>The tropical polynomial representing the surface</li>
+#  <li>The surface itself as a WeightedComplex</li>
+#  <li>Lists of lines and families of different types, each starting with LIST_... </li>
+# </ul>
+# The object also has methods, starting with array_... that return the corresponding LIST_... as a perl array
+declare object LinesInCubic;
+
 INCLUDE
   WeightedComplex_properties.rules
   RationalFunction.rules
