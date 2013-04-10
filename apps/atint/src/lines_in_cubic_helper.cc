@@ -33,6 +33,7 @@
 #include "polymake/atint/cdd_helper_functions.h"
 #include "polymake/atint/lines_in_cubic_reachable.h"
 #include "polymake/atint/lines_in_cubic.h"
+#include "polymake/atint/WeightedComplexRules.h"
 
 namespace polymake { namespace atint { 
   
@@ -212,11 +213,133 @@ namespace polymake { namespace atint {
     return Vector<Rational>();
   }
   
+  // ------------------------------------------------------------------------------------------------ 
+  
+  /**
+   @brief Takes two vectors v1 and v2 and a standard direction e_i + e_j for i,j in {0,..,3} and computes the rational number r, such that v1 + r*direction = v2. Returns also zero, if no such number exists. It also accepts a 0-dimensional vertex for v2 and will return 0 in that case.
+   */
+  Rational vertexDistance(const Vector<Rational> &v1, const Vector<Rational> &v2, const Vector<Rational> &direction) {
+      if(v2.dim() == 0) return 0;
+      Vector<Rational> diff = v2 - v1;
+      Rational div = 0;
+      for(int i = 1; i <= 3; i++) {
+	if( (diff[i] == 0 && direction[i] != 0) || (diff[i] != 0 && direction[i] == 0)) return 0;
+	if(diff[i] != 0) {
+	    Rational d = diff[i] / direction[i];
+	    if(div == 0) div = d;
+	    else {
+	      if(d != div) return 0;
+	    }
+	}
+      }
+      return div;
+  }
+  
+  // ------------------------------------------------------------------------------------------------ 
+  
+  /**
+   @brief Takes a vertex family and computes the index of the standard direction in 0,..,3 corresponding to its edge
+   */
+  int vertexFamilyDirection(VertexFamily f) {
+    Vector<Rational> dir;
+	if(f.edge(0,0) == 0) dir = f.edge.row(0);
+	if(f.edge(1,0) == 0) dir = f.edge.row(1);
+	if(dir.dim() == 0) dir = f.edge.row(0) - f.edge.row(1);
+      if(dir[1] == 0 && dir[2] == 0) return 3;
+      if(dir[1] == 0 && dir[3] == 0) return 2;
+      if(dir[2] == 0 && dir[3] == 0) return 1;
+      return 0;
+  }
+  
+  // ------------------------------------------------------------------------------------------------ 
+  
+  /**
+   @brief Computes all edge families lying in a 2-dimensional cone for a given direction
+   @param DirectionIntersection cone A cone, refined along f
+   @param Matrix<Rational> z_border The intersection of the cone with a cone in the 0-i-rechable locus
+   @param Matrix<Rational> c_border The intersection of the cone with a cone in the j-k-reachable locus
+   @param int leafAtZero The index of the leaf together with 0
+   @param Matrix<Rational> funmat The function matrix of f, made compatible for vector multiplication
+   @return std::pair< Vector<EdgeFamily>, Vector<EdgeLine> > A list of all edge families and edge lines lying in the cone	    
+   */
+  std::pair<Vector<EdgeFamily>, Vector<EdgeLine> > computeEdgeFamilies(DirectionIntersection cone, 
+					 const Matrix<Rational> &z_border, 
+					 const Matrix<Rational> &c_border,int leafAtZero, const Matrix<Rational> &funmat) {
+					  
+    Matrix<Rational> degree = (-1) *  unit_matrix<Rational>(3);
+    degree = ones_vector<Rational>(3) / degree;
+    degree = zero_vector<Rational>(4) | degree;
+					 
+    //First we project all vertices of the cone onto z_border
+    Matrix<Rational> z_edge_rays = z_border;
+    Vector<Set<int> > z_edges; z_edges |= sequence(0,2);
+    Vector<Rational> direction = degree.row(0) + degree.row(leafAtZero);
+    for(int dr = 0; dr < cone.rays.rows(); dr++) {
+    if(cone.rays(dr,0) == 1) {
+      //We go through all edges of z_edges until we find one that intersects (vertex + R_>=0 *direction)
+      //This is computed as follows: Assume p is a vertex of an edge of z_edges and that w is the direction 
+      //from p into that edge (either a ray or p2-p1, if the edge is bounded). Then we compute a linear representation of (vertex - p_1) in terms of w and 
+      //direction. If a representation exists and the second edge generator is also a vertex, we have to check 
+      //that the coefficient of w = p2-p1 is in between 0 and 1, otherwise it has to be > 0
+      //
+      //If we find an intersecting edge, we refine it (in z_edges) such that it contains the intersection point.
+      for(int ze = 0; ze < z_edges.dim(); ze++) {
+	Matrix<Rational> edge_generators = z_border.minor(z_edges[ze],All);
+	Vector<Rational> p1 = edge_generators(0,0) == 0? edge_generators.row(1) : edge_generators.row(0);
+	bool bounded = edge_generators(0,0) == edge_generators(1,0);
+	Vector<Rational> w;
+	  if(bounded) w = edge_generators.row(1) - edge_generators.row(0);
+	  else w = (edge_generators(0,0) == 0? edge_generators.row(0) : edge_generators.row(1));
+	Vector<Rational> lin_rep = linearRepresentation(cone.rays.row(dr) - p1, (w / direction));
+	// 	Check that: 
+	// 	- There is a representation
+	// 	- The coefficient of w is > 0 (and < 1 if bounded)
+	if(lin_rep.dim() > 0) {
+	  if(lin_rep[0] > 0 && (!bounded || lin_rep[0] < 1)) {
+	    //Then we add a vertex, stop searching for an edge and go to the next vertex
+	    Vector<Rational> new_vertex = p1 + lin_rep[0]*w;
+	    z_edge_rays /= new_vertex;
+	    Vector<int> edge_index_list(z_edges[ze]);
+	    z_edges = z_edges.slice(~scalar2set(ze));
+	    Set<int> one_cone; one_cone += edge_index_list[0]; one_cone += (z_edge_rays.rows()-1);
+	    Set<int> other_cone; other_cone += edge_index_list[1]; other_cone += (z_edge_rays.rows()-1);
+	    z_edges |= one_cone;
+	    z_edges |= other_cone;
+	    break;
+	  }
+	}//END if linear rep exists
+      }//END iterate z_edges
+    }//END if vertex
+    }//END project vertices
+     
+    //Then refine the cone along the new z_edges - direction
+    //and compute codim one data
+    Matrix<Rational> dummy_lineality(0, z_border.cols());
+    DirectionIntersection refined_cone = cleanUpIntersection(
+		  cdd_fan_intersection(cone.rays, dummy_lineality, cone.cells,
+					z_edge_rays, dummy_lineality / direction, z_edges,true));
+    CodimensionOneResult codimData =
+	      calculateCodimOneData(refined_cone.rays, refined_cone.cells, true, dummy_lineality, IncidenceMatrix<>());
+	      
+    
+    //Find the directionr ray
+    int dir_index = -1;
+    for(int r = 0; r < refined_cone.rays.rows(); r++) {
+      if(refined_cone.rays.row(r) == direction) {
+	dir_index = r; break;
+      }
+    }
+    
+    //Find all edges containing this ray
+								   
+     
+  }//END computeEdgeFamilies
+  
   ///////////////////////////////////////////////////////////////////////////////////////
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
 //   Function4perl(&maximalDistanceVector,"mdv(Vector<Rational>, Vector<Rational>, Matrix<Rational>, IncidenceMatrix, Matrix<Rational>)");
-
+//   Function4perl(&vertexDistance,"vd(Vector<Rational>,Vector<Rational>, Vector<Rational>)");
   
 }}

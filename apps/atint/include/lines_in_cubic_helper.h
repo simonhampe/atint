@@ -60,6 +60,15 @@ namespace polymake { namespace atint {
   Vector<Rational> maximalDistanceVector(const Vector<Rational> &vertex, const Vector<Rational> &direction, 
 					  const Matrix<Rational> &frays, const IncidenceMatrix<> &fcones, const Matrix<Rational> &funmat);
 
+  /**
+  @brief Takes two distinct(!) vectors v1 and v2 and a standard direction e_i + e_j for i,j in {0,..,3} and computes the rational number r, such that v1 + r*direction = v2. Returns null, if no such number exists
+  */
+  Rational vertexDistance(const Vector<Rational> &v1, const Vector<Rational> &v2, const Vector<Rational> &direction);
+  
+  /**
+   @brief Takes a vertex family and computes the index of the standard direction in 0,..,3 corresponding to its edge
+   */
+  int vertexFamilyDirection(VertexFamily f);
   
 }}
 #endif // LINES_IN_CUBIC_HELPER_H

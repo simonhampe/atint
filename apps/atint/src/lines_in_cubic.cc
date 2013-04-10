@@ -217,8 +217,15 @@ namespace polymake { namespace atint{
 		    continue;
 		  }//END if 1-dimensional
 		  
+		  //If the cone is 2-dimensional, we have to refine, project and refine again,
+		  // similarly to the procedure used when computing the reachable points
+		  if(center.rows() > 2) {
+		    
+		    //TODO: 2-dimensional case
+// 		    edge_family |= computedEdgeFamilies(center_ref, z_border, c_border, i, lindom_rays, lindom_cones, funmat);
+		  }
 		  
-		  //TODO: 2-dimensional case
+		  
 		  
 		}//END iterate relevant cones from c
 	      }//END iterate relevant cones from z
@@ -320,23 +327,157 @@ namespace polymake { namespace atint{
 	  // - one vertex has bounded span, which contains the other vertex. -> keep vertex with bounded span
 	  bool isCompatibleAtZero = false;
 	  Vector<Rational> vertexAtZero;
+	  Vector<Rational> mdistAtZero;
 	  bool spanAtZero;
-	  Vector<Rational> vertexAwayZero;
-	  bool spanAwayZero;
 	  if(approved_elfamilies[el].vertexAtZero == fam.vertexAtZero) {
 	    isCompatibleAtZero = true;
 	    vertexAtZero = fam.vertexAtZero;
-	    
+	    spanAtZero = approved_elfamilies[el].spanAtZero || fam.spanAtZero;
 	  }
+	  else {
+	    //Check if difference of vertices is multiple of edge direction
+	    Vector<Rational> edir = degree.row(0) + degree.row(fam.leafAtZero);
+	    Rational vdiff = vertexDistance(approved_elfamilies[el].vertexAtZero,
+					     fam.vertexAtZero, edir);
+	    //If so, check if span is compatible
+	    if(vdiff != 0) {
+	      if(vdiff > 0 && approved_elfamilies[el].spanAtZero) {
+		Rational sdiff = vertexDistance(approved_elfamilies[el].vertexAtZero,
+					       approved_elfamilies[el].maxDistAtZero, edir);
+		isCompatibleAtZero = sdiff == 0 || sdiff >= vdiff;
+		vertexAtZero = approved_elfamilies[el].vertexAtZero;
+		mdistAtZero = approved_elfamilies[el].maxDistAtZero;
+		spanAtZero = true;
+	      }		
+	      if(vdiff < 0 && fam.spanAtZero) {
+		Rational sdiff = vertexDistance(fam.vertexAtZero, fam.maxDistAtZero,edir);
+		isCompatibleAtZero = sdiff == 0 || sdiff >= -vdiff;
+		vertexAtZero = fam.vertexAtZero;
+		mdistAtZero = fam.maxDistAtZero;
+		spanAtZero = true;
+	      }
+	    }//END if is multiple of edge direction
+	  }//END check compat at zero
+	  if(!isCompatibleAtZero) continue;
 	  
+	  bool isCompatibleAwayZero = false;
+	  Vector<Rational> vertexAwayZero;
+	  Vector<Rational> mdistAwayZero;
+	  bool spanAwayZero;
+	  if(approved_elfamilies[el].vertexAwayZero == fam.vertexAwayZero) {
+	    isCompatibleAwayZero = true;
+	    vertexAwayZero = fam.vertexAwayZero;
+	    spanAwayZero = approved_elfamilies[el].spanAwayZero || fam.spanAwayZero;
+	  }
+	  else {
+	    //Check if difference of vertices is multiple of edge direction
+	    Vector<int> rem(sequence(1,3) - fam.leafAtZero);
+	    Vector<Rational> edir = degree.row(rem[0]) + degree.row(rem[1]);
+	    Rational vdiff = vertexDistance(approved_elfamilies[el].vertexAwayZero,
+					     fam.vertexAwayZero, edir);
+	    //If so, check if span is compatible
+	    if(vdiff != 0) {
+	      if(vdiff > 0 && approved_elfamilies[el].spanAwayZero) {
+		Rational sdiff = vertexDistance(approved_elfamilies[el].vertexAwayZero,
+					       approved_elfamilies[el].maxDistAwayZero, edir);
+		isCompatibleAwayZero = sdiff == 0 || sdiff >= vdiff;
+		vertexAwayZero = approved_elfamilies[el].vertexAwayZero;
+		mdistAwayZero = approved_elfamilies[el].maxDistAwayZero;
+		spanAwayZero = true;
+	      }		
+	      if(vdiff < 0 && fam.spanAwayZero) {
+		Rational sdiff = vertexDistance(fam.vertexAwayZero, fam.maxDistAwayZero,edir);
+		isCompatibleAwayZero = sdiff == 0 || sdiff >= -vdiff;
+		vertexAwayZero = fam.vertexAwayZero;
+		mdistAwayZero = fam.maxDistAwayZero;
+		spanAwayZero = true;
+	      }
+	    }//END if is multiple of edge direction
+	  }//END check compat away zero
+	  if(!isCompatibleAwayZero) continue;
 	  
-	  
+	  //If we arrive here, we have to glue
+	  EdgeLine newel;
+	    newel.vertexAtZero = vertexAtZero;
+	    newel.vertexAwayZero = vertexAwayZero;
+	    newel.leafAtZero = fam.leafAtZero;
+	    newel.spanAtZero = spanAtZero;
+	    newel.spanAwayZero = spanAwayZero;
+	    newel.maxDistAtZero = mdistAtZero;
+	    newel.maxDistAwayZero = mdistAwayZero;
+	  approved_elfamilies = approved_elfamilies.slice(~scalar2set(el));
+	  el_queue.push_back(newel);
+	  is_approved = false;
+	  break;	  
 	}//END if same direction
       }//END iterate approved families
       if(is_approved) approved_elfamilies |= fam;
     }//END clean up edge lines
     edge_line = approved_elfamilies;
     
+    // STEP II: A family of one type may be contained in a family of a different type
+    
+    //Check if any edge line is contained in a spanning vertex line
+    Set<int> redundant_el;
+    for(int el = 0; el < edge_line.dim(); el++) {
+      for(int vl = 0; vl < vertex_line.dim(); vl++) {
+	//One vertex has to be equal and the other vertex has to be in the span of the vertex line
+	if(edge_line[el].vertexAtZero == vertex_line[vl].vertex ||
+	   edge_line[el].vertexAwayZero == vertex_line[vl].vertex) {
+	  Vector<Rational> other_vertex;
+	  Set<int> dir_indices;
+	  if(edge_line[el].vertexAtZero == vertex_line[vl].vertex) {
+	      other_vertex = edge_line[el].vertexAwayZero;
+	      dir_indices = sequence(1,3) - scalar2set(edge_line[el].leafAtZero);
+	  }
+	  else {
+	      other_vertex = edge_line[el].vertexAtZero;
+	      dir_indices = scalar2set(0) + scalar2set(edge_line[el].leafAtZero);
+	  }
+	  bool span_has_dir = false;
+	  for(Entire<Set<int> >::iterator c = entire(vertex_line[vl].cells); !c.at_end(); c++) {
+	    if(  (dir_indices * index_to_pair_map[*c]).size() == 2) {
+	      span_has_dir = true; break;
+	    }
+	  }
+	  bool is_compatible = false;
+	  if(span_has_dir) {
+	    Vector<Rational> edir = accumulate(rows(degree.minor(dir_indices,All)), operations::add());
+	    Rational vdiff = vertexDistance(vertex_line[vl].vertex, other_vertex, edir);
+	    if(vdiff > 0) {
+	      Vector<Rational> mdist = maximalDistanceVector(vertex_line[vl].vertex, edir, lindom_rays, lindom_cones, funmat);
+	      Rational mdiff = vertexDistance(vertex_line[vl].vertex, mdist, edir);
+	      is_compatible = mdiff == 0 || mdiff >= vdiff;
+	    }
+	  }
+	  if(is_compatible) redundant_el += el;
+	}
+      }
+    }
+    edge_line = edge_line.slice(~redundant_el);
+    
+    //Check if any vertex_line is contained in a vertex_family
+    Set<int> redundant_vl;
+    for(int vl = 0; vl < vertex_line.dim(); vl++) {
+      for(int vf = 0; vf < vertex_family.dim(); vf++) {
+	//Check if the vertex is a vertex of the family and the spans contain the direction
+	int fam_dir = vertexFamilyDirection(vertex_family[vf]);
+	if( vertex_line[vl].vertex == vertex_family[vf].edge.row(0) ||
+	     vertex_line[vl].vertex == vertex_family[vf].edge.row(1) ){
+	  Set<int> cells = vertex_line[vl].cells;
+	  bool is_compatible = true;
+	  for(Entire<Set<int> >::iterator c = entire(cells); !c.at_end(); c++) {
+	    if(!index_to_pair_map[*c].contains(fam_dir)) {
+	      is_compatible = false; break;
+	    }
+	  }
+	  if(is_compatible) redundant_vl += vl;
+	}
+      }//END iterate vertex_family
+    }//END compare vertex_line to vertex_family
+    vertex_line = vertex_line.slice(~redundant_vl);
+    
+   
     
     //Create corresponding line objects ...............................................................    
     dbglog << "Creating lines as complexes..." << endl;
@@ -391,14 +532,7 @@ namespace polymake { namespace atint{
     //Create vertex_family objects: Find the direction spanned by the family and only add the remaining three
     //as rays
     for(int fvert = 0; fvert < vertex_family.dim(); fvert++) {
-      Vector<Rational> dir;
-	if(vertex_family[fvert].edge(0,0) == 0) dir = vertex_family[fvert].edge.row(0);
-	if(vertex_family[fvert].edge(1,0) == 0) dir = vertex_family[fvert].edge.row(1);
-	if(dir.dim() == 0) dir = vertex_family[fvert].edge.row(0) - vertex_family[fvert].edge.row(1);
-      int missing_dir = 0;
-      if(dir[1] == 0 && dir[2] == 0) missing_dir = 3;
-      if(dir[1] == 0 && dir[3] == 0) missing_dir = 2;
-      if(dir[2] == 0 && dir[3] == 0) missing_dir = 1;
+      int missing_dir = vertexFamilyDirection(vertex_family[fvert]);
       Matrix<Rational> var_rays = vertex_family[fvert].edge / degree.minor(~scalar2set(missing_dir),All);
       Vector<Set<int> > var_cones;
       for(int r = 2; r < 5; r++) {

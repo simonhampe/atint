@@ -56,36 +56,93 @@ object LinesInCubic {
   # A list of all families of lines with the bounded edge moving in transversal direction
   property LIST_FAMILY_MOVING_EDGE : WeightedComplex : multiple;
   
+  # @category Counts
+  # The total number of elements in [[LIST_ISOLATED_EDGE]] and [[LIST_ISOLATED_NO_EDGE]]
+  property N_ISOLATED : Int;
+  
+  # @category Counts
+  # The total number of families in [[LIST_FAMILY_FIXED_EDGE]], [[LIST_FAMILY_FIXED_VERTEX]], 
+  # [[LIST_FAMILY_MOVING_EDGE]] and [[LIST_FAMILY_MOVING_VERTEX]]
+  property N_FAMILIES : Int;
+  
+  
+  ### RULES ################################################
+  
+  rule N_ISOLATED : {
+    $this->N_ISOLATED = scalar($this->array_isolated_edge) + scalar($this->array_isolated_no_edge);
+  }
+  
+  rule N_FAMILIES : {
+    $this->N_FAMILIES = scalar($this->array_family_fixed_edge) + scalar($this->array_family_fixed_vertex) +
+			scalar($this->array_family_moving_edge) + scalar($this->array_family_moving_vertex);
+  }
+  
   ### METHODS ##############################################
   
   user_method array_isolated_no_edge {
     my $this = shift;
-    return @{$this->LIST_ISOLATED_NO_EDGE};
+    if(defined($this->lookup("LIST_ISOLATED_NO_EDGE"))) {
+      return @{$this->LIST_ISOLATED_NO_EDGE};
+    }
+    else {
+      my @a = ();
+      return @a;
+    }
   }
   
   user_method array_isolated_edge {
     my $this = shift;
-    return @{$this->LIST_ISOLATED_EDGE};
+    if(defined($this->lookup("LIST_ISOLATED_EDGE"))) {
+      return @{$this->LIST_ISOLATED_EDGE};
+    }
+    else {
+      my @a = ();
+      return @a;
+    }
   }
   
   user_method array_family_fixed_vertex {
     my $this = shift;
-    return @{$this->LIST_FAMILY_FIXED_VERTEX};
+    if(defined($this->lookup("LIST_FAMILY_FIXED_VERTEX"))) {
+      return @{$this->LIST_FAMILY_FIXED_VERTEX};
+    }
+    else {
+      my @a = ();
+      return @a;
+    }
   }
   
   user_method array_family_moving_vertex {
     my $this = shift;
-    return @{$this->LIST_FAMILY_MOVING_VERTEX};
+    if(defined($this->lookup("LIST_FAMILY_MOVING_VERTEX"))) {
+      return @{$this->LIST_FAMILY_MOVING_VERTEX};
+    }
+    else {
+      my @a = ();
+      return @a;
+    }
   }
   
   user_method array_family_fixed_edge {
     my $this = shift;
-    return @{$this->LIST_FAMILY_FIXED_EDGE};
+    if(defined($this->lookup("LIST_FAMILY_FIXED_EDGE"))) {
+      return @{$this->LIST_FAMILY_FIXED_EDGE};
+    }
+    else {
+      my @a = ();
+      return @a;
+    }
   }
   
   user_method array_family_moving_edge {
     my $this = shift;
-    return @{$this->LIST_FAMILY_MOVING_EDGE};
+    if(defined($this->lookup("LIST_FAMILY_MOVING_EDGE"))) {
+      return @{$this->LIST_FAMILY_MOVING_EDGE};
+    }
+    else {
+      my @a = ();
+      return @a;
+    }
   }
   
 }
