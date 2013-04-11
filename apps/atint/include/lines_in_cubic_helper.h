@@ -37,6 +37,18 @@
 namespace polymake { namespace atint {
 
   /**
+   * Returns the result of computeEdgeFamilies:
+   * - A vector of EdgeFamily objects
+   * - A vector of EdgeLine objects
+   * - A vector of VertexLine objects
+   */
+  struct LinesInCellResult {
+    Vector<EdgeFamily> edge_families;
+    Vector<EdgeLine> edge_lines;
+    Vector<VertexLine> vertex_lines;
+  };
+  
+  /**
    @brief Takes a fan_intersection_result and cleans up the result so that no cone is contained in another and that cones are sorted according to their dimension. 
    @param fan_intersection_result fir
    @return DirectionIntersection
@@ -69,6 +81,19 @@ namespace polymake { namespace atint {
    @brief Takes a vertex family and computes the index of the standard direction in 0,..,3 corresponding to its edge
    */
   int vertexFamilyDirection(VertexFamily f);
+  
+  /**
+   @brief Computes all edge families lying in a 2-dimensional cone for a given direction
+   @param DirectionIntersection cone A cone, refined along f
+   @param Matrix<Rational> z_border The intersection of the cone with a cone in the 0-i-rechable locus
+   @param Matrix<Rational> c_border The intersection of the cone with a cone in the j-k-reachable locus
+   @param int leafAtZero The index of the leaf together with 0
+   @param Matrix<Rational> funmat The function matrix of f, made compatible for vector multiplication
+   @return LinesInCellResult A list of all (families of) lines lying in the cone	    
+   */
+   LinesInCellResult computeEdgeFamilies(DirectionIntersection cone, 
+					 const Matrix<Rational> &z_border, 
+					 const Matrix<Rational> &c_border,int leafAtZero, const Matrix<Rational> &funmat);
   
 }}
 #endif // LINES_IN_CUBIC_HELPER_H

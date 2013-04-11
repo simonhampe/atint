@@ -151,8 +151,7 @@ namespace polymake { namespace atint{
 			vl.vertex = center.row(0);
 			Set<int> spans;
 			if(z_dim == 2) spans += (edge_pair_map[0])[i];
-			Vector<int> rem(sequence(1,3) - i);
-			if(c_dim == 2) spans += (edge_pair_map[rem[0]])[rem[1]];
+			if(c_dim == 2) spans += (edge_pair_map[remaining[0]])[remaining[1]];
 			vl.cells = spans;
 		      vertex_line |= vl;
 		    }
@@ -202,14 +201,13 @@ namespace polymake { namespace atint{
 			  el.leafAtZero = i;
 			  el.spanAtZero = (z_dim == 2);
 			  el.spanAwayZero = (c_dim == 2);
-			  Vector<int> rem(sequence(1,3) - i);
 			  el.maxDistAtZero = 
 			    maximalDistanceVector(el.vertexAtZero, 
 						  degree.row(0) + degree.row(el.leafAtZero),
 						  lindom_rays, lindom_cones, funmat);
 			  el.maxDistAwayZero =
 			    maximalDistanceVector(el.vertexAwayZero,
-						  degree.row(rem[0]) + degree.row(rem[1]),
+						  degree.row(remaining[0]) + degree.row(remaining[1]),
 						  lindom_rays, lindom_cones, funmat);
 			edge_line |= el;
 		      }
@@ -220,10 +218,32 @@ namespace polymake { namespace atint{
 		  //If the cone is 2-dimensional, we have to refine, project and refine again,
 		  // similarly to the procedure used when computing the reachable points
 		  if(center.rows() > 2) {
+		    LinesInCellResult lines_in_cell = 
+			computeEdgeFamilies(center_ref, z_border, c_border,i, funmat);
+		    edge_family |= lines_in_cell.edge_families;
+		    //Add spans and max-dist-vectors before adding edge_line and vertex_line
+		    for(int el = 0; el < lines_in_cell.edge_lines.dim(); el++) {
+		      lines_in_cell.edge_lines[el].spanAtZero = (z_dim == 2);
+		      lines_in_cell.edge_lines[el].spanAwayZero = (c_dim == 2);
+		      lines_in_cell.edge_lines[el].maxDistAtZero = 
+			  maximalDistanceVector(lines_in_cell.edge_lines[el].vertexAtZero, 
+						  degree.row(0) + degree.row(i),
+						  lindom_rays, lindom_cones, funmat);
+		      lines_in_cell.edge_lines[el].maxDistAwayZero = 
+			  maximalDistanceVector(lines_in_cell.edge_lines[el].vertexAwayZero,
+						  degree.row(remaining[0]) + degree.row(remaining[1]),
+						  lindom_rays, lindom_cones, funmat);
+		    }//END fine-tune edge_lines
+		    for(int vl = 0; vl < lines_in_cell.vertex_lines.dim(); vl++) {
+		      Set<int> spans;
+		      if(z_dim == 2) spans += (edge_pair_map[0])[i];
+		      if(c_dim == 2) spans += (edge_pair_map[remaining[0]])[remaining[1]];
+		      lines_in_cell.vertex_lines[vl].cells = spans;
+		    }//END fine-tune vertex_lines
 		    
-		    //TODO: 2-dimensional case
-// 		    edge_family |= computedEdgeFamilies(center_ref, z_border, c_border, i, lindom_rays, lindom_cones, funmat);
-		  }
+		    edge_line |= lines_in_cell.edge_lines;
+		    vertex_line |= lines_in_cell.vertex_lines;
+		  }//END if 2-dimensional
 		  
 		  
 		  
@@ -232,11 +252,7 @@ namespace polymake { namespace atint{
 	      
 	      
 	    }//END iterate j-k-reachable cones
-	    
 	}//END iterate 0-i-reachable cones
-	
-	
-	
     }//END compute intersections of reachable loci
     
     // .............................................................................................
@@ -414,6 +430,9 @@ namespace polymake { namespace atint{
       if(is_approved) approved_elfamilies |= fam;
     }//END clean up edge lines
     edge_line = approved_elfamilies;
+    
+    //Clean up edge_families: 
+    //TODO: Clean up
     
     // STEP II: A family of one type may be contained in a family of a different type
     
@@ -598,6 +617,38 @@ namespace polymake { namespace atint{
 	result.add("LIST_FAMILY_FIXED_EDGE",var);
       else result.add("LIST_ISOLATED_EDGE",var);
       
+    }
+    
+    //Created edge families
+    solver<Rational> sv;
+    for(int ef = 0; ef < edge_family.dim(); ef++) {
+      perl::Object var("WeightedComplex");
+	Matrix<Rational> var_rays = edge_family[ef].edgeAtZero / edge_family[ef].edgeAwayZero;
+	int no_of_edge_els = var_rays.rows();
+	Vector<Set<int> > var_cones(0);
+	var_cones |= sequence(0,no_of_edge_els);
+ 	var_rays /= degree;
+	
+	//We have to canonicalize each of the direction cones, since they might be one-dimensional
+	Vector<int> z_cone(sequence(0,2)); z_cone |= no_of_edge_els;
+	Vector<int> i_cone(sequence(0,2)); i_cone |=(no_of_edge_els + edge_family[ef].leafAtZero);
+	
+	Vector<int> rem(sequence(1,3) - edge_family[ef].leafAtZero);
+	
+	Vector<int> j_cone(sequence(2,2)); j_cone |= (no_of_edge_els + rem[0]);
+	Vector<int> k_cone(sequence(2,2)); k_cone |= (no_of_edge_els + rem[1]);
+	
+	var_cones |= Set<int>(z_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(z_cone),All), dummy_lineality).first)); 
+	var_cones |= Set<int>(i_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(i_cone),All), dummy_lineality).first)); 
+	var_cones |= Set<int>(j_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(j_cone),All), dummy_lineality).first)); 
+	var_cones |= Set<int>(k_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(k_cone),All), dummy_lineality).first)); 
+	
+	
+	var.take("RAYS") << var_rays;
+	var.take("MAXIMAL_CONES") << var_cones;
+	var.take("USES_HOMOGENEOUS_C") << true;
+	
+	result.add("LIST_FAMILY_MOVING_EDGE",var);
     }
 
     dbglog << "Done." << endl;

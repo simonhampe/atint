@@ -31,15 +31,16 @@
 #include "polymake/atint/normalvector.h"
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/atint/cdd_helper_functions.h"
+#include "polymake/atint/lines_in_cubic_helper.h"
 #include "polymake/atint/lines_in_cubic_reachable.h"
 #include "polymake/atint/lines_in_cubic.h"
 #include "polymake/atint/WeightedComplexRules.h"
 
 namespace polymake { namespace atint { 
   
-  using namespace atintlog::donotlog;
-  //using namespace atintlog::dolog;
-  //using namespace atintlog::dotrace;
+//   using namespace atintlog::donotlog;
+  using namespace atintlog::dolog;
+//   using namespace atintlog::dotrace;
   
   using polymake::polytope::cdd_interface::solver;
   
@@ -260,12 +261,13 @@ namespace polymake { namespace atint {
    @param Matrix<Rational> c_border The intersection of the cone with a cone in the j-k-reachable locus
    @param int leafAtZero The index of the leaf together with 0
    @param Matrix<Rational> funmat The function matrix of f, made compatible for vector multiplication
-   @return std::pair< Vector<EdgeFamily>, Vector<EdgeLine> > A list of all edge families and edge lines lying in the cone	    
+   @return LinesInCellResult A list of all edge families and edge lines lying in the cone	    
    */
-  std::pair<Vector<EdgeFamily>, Vector<EdgeLine> > computeEdgeFamilies(DirectionIntersection cone, 
+    LinesInCellResult computeEdgeFamilies(DirectionIntersection cone, 
 					 const Matrix<Rational> &z_border, 
 					 const Matrix<Rational> &c_border,int leafAtZero, const Matrix<Rational> &funmat) {
 					  
+
     Matrix<Rational> degree = (-1) *  unit_matrix<Rational>(3);
     degree = ones_vector<Rational>(3) / degree;
     degree = zero_vector<Rational>(4) | degree;
@@ -274,6 +276,8 @@ namespace polymake { namespace atint {
     Matrix<Rational> z_edge_rays = z_border;
     Vector<Set<int> > z_edges; z_edges |= sequence(0,2);
     Vector<Rational> direction = degree.row(0) + degree.row(leafAtZero);
+    Vector<int> rem(sequence(1,3) - leafAtZero);
+    
     for(int dr = 0; dr < cone.rays.rows(); dr++) {
     if(cone.rays(dr,0) == 1) {
       //We go through all edges of z_edges until we find one that intersects (vertex + R_>=0 *direction)
@@ -320,18 +324,178 @@ namespace polymake { namespace atint {
 					z_edge_rays, dummy_lineality / direction, z_edges,true));
     CodimensionOneResult codimData =
 	      calculateCodimOneData(refined_cone.rays, refined_cone.cells, true, dummy_lineality, IncidenceMatrix<>());
-	      
+	   IncidenceMatrix<> codim =codimData.codimOneCones;
+	   IncidenceMatrix<> rayInCo = T(codim);
+	   IncidenceMatrix<> coInMax = codimData.codimOneInMaximal;
+	   IncidenceMatrix<> maxInCo = T(coInMax);
+
+// 	  dbgtrace << fir.rays << endl;
+// 	  dbgtrace << fir.cones<< endl;
+// 	   
+// // 	   dbgtrace << cone.rays << endl;
+// // 	   dbgtrace << cone.cells << endl;
+// // 	   dbgtrace << z_edge_rays << endl;
+// // 	   dbgtrace << z_edges << endl;
+// // 	   dbgtrace << direction << endl;
+// 	   dbgtrace << refined_cone.rays << endl;
+// 	   dbgtrace << refined_cone.cells << endl;
     
-    //Find the directionr ray
-    int dir_index = -1;
-    for(int r = 0; r < refined_cone.rays.rows(); r++) {
-      if(refined_cone.rays.row(r) == direction) {
-	dir_index = r; break;
-      }
+    //Find all edges that span direction
+    Set<int> direction_edges;
+    for(int cc = 0; cc < codim.rows(); cc++) {
+      Matrix<Rational> cc_rays = refined_cone.rays.minor(codim.row(cc),All);
+      Vector<Rational> cc_span;
+	if(cc_rays(0,0) == cc_rays(1,0)) cc_span = cc_rays.row(0) - cc_rays.row(1);
+	else cc_span = (cc_rays(0,0) == 0? cc_rays.row(0) : cc_rays.row(1));
+      if(cc_span[leafAtZero] == 0 && cc_span[rem[0]] == cc_span[rem[1]]) 
+	direction_edges += cc;
     }
+    Set<int> remaining_codim = sequence(0,codim.rows()) - direction_edges;
     
-    //Find all edges containing this ray
-								   
+    //Now we go through all z_edges, find the corresponding codim cone in the refined cone
+    // and check if the complete "path" to the other side lies in X. In addition we keep track of all
+    // vertices of z_edges that do not lie in a 2-dim path to the other side and have to be checked
+    // for isolated solutions
+    Vector<EdgeFamily> family_list(0);
+    Vector<EdgeLine> line_list(0);
+    Vector<VertexLine> vertex_list(0);
+    
+    Set<int> all_vertices_this_side;
+    Set<int> covered_vertices;	      
+    
+    for(int ze = 0; ze < z_edges.dim(); ze++) {
+      Matrix<Rational> ze_rays = z_edge_rays.minor(z_edges[ze],All);
+      //Find rays in refined cone
+      int index_1 = -1;
+      int index_2 = -1;
+      for(int rc = 0; rc < refined_cone.rays.rows(); rc++) {
+	if(refined_cone.rays.row(rc) == ze_rays.row(0)) index_1 = rc;
+	if(refined_cone.rays.row(rc) == ze_rays.row(1)) index_2 = rc;
+	if(index_1 >= 0 && index_2 >= 0) break;
+      }
+      if(refined_cone.rays(index_1,0) == 1) all_vertices_this_side += index_1;
+      if(refined_cone.rays(index_2,0) == 1) all_vertices_this_side += index_2;
+      
+      //Now find the codimension one cone containing these two rays
+      int co_index = -1;
+      for(Entire<Set<int> >::iterator cc = entire(remaining_codim); !cc.at_end(); cc++) {
+	if(codim.row(*cc).contains(index_1) && codim.row(*cc).contains(index_2)) {
+	    co_index = *cc; break;
+	}
+      }
+      remaining_codim -= co_index;
+      
+      //Find all maximal cones on the "path" to the other side and check if they are in X
+      int current_cone = *(coInMax.row(co_index).begin());
+      bool found_bad = false;
+      int cone_index_other_side = -1;
+      while(current_cone >= 0) {
+	//Compute interior point and check if it is in X
+	Vector<Rational> interior_point = 
+	    accumulate( rows(refined_cone.rays.minor(refined_cone.cells.row(current_cone),All)), operations::add()) /	      accumulate(refined_cone.rays.minor(refined_cone.cells.row(current_cone),All).col(0),operations::add());
+	if(!maximumAttainedTwice(funmat * interior_point)) {
+	    found_bad = true; break;
+	}
+	
+	//If all is fine, find the next maximal cone, i.e. find an unused codimension one face 
+	// in that cone and take the other maximal cone adjacent to it.
+	int next_codim = *( (maxInCo.row(current_cone) * remaining_codim).begin() );
+	remaining_codim -= next_codim;
+	
+	Set<int> next_max = coInMax.row(next_codim) - current_cone;
+	//If there is no other maximal cone, we have arrived at the other end
+	if(next_max.size() == 0) {
+	  cone_index_other_side = next_codim;
+	  current_cone = -1;
+	}
+	else {
+	  current_cone = *(next_max.begin());
+	}
+      }//END iterate maximal cones to the other side
+      
+      //If everything lies in X, add the family (and register the vertices as "covered")
+      if(!found_bad) {
+	EdgeFamily ef;
+	  ef.leafAtZero = leafAtZero;
+	  ef.edgeAtZero = ze_rays;
+	  ef.edgeAwayZero = refined_cone.rays.minor(codim.row(cone_index_other_side),All);
+	family_list |= ef;
+	
+	covered_vertices += codim.row(co_index);
+      }
+      
+    }//END iterate z_edges
+    
+    //Finally we consider all vertices not in a 2-dim family and check if the line to the other
+    //side is contained in X
+    Set<int> vertices_to_check = all_vertices_this_side - covered_vertices;
+    Set<int> used_up_edges;
+    Set<int> used_up_vertices;
+    for(Entire<Set<int> >::iterator vtc = entire(vertices_to_check); !vtc.at_end(); vtc++) {
+      //dbgtrace << "Vertex " << (*vtc) << endl;
+      used_up_vertices += *vtc;
+      
+      //Find first edge containing it
+      Set<int> current_edge_set = rayInCo.row(*vtc) * direction_edges;
+      
+      //If there is no edge, we have a vertex line
+      if(current_edge_set.size() == 0) {
+	VertexLine vl;
+	  vl.vertex = refined_cone.rays.row(*vtc);
+	  vl.cells = Set<int>();
+	vertex_list |= vl;
+	continue;
+      }
+      
+      
+      int current_edge = *(current_edge_set.begin());
+      //dbgtrace << "Edge is " << current_edge << endl;
+      
+      used_up_edges += current_edge;
+      int  vertex_index_other_side;
+      bool found_bad = true;      
+      while(current_edge >= 0) {
+	//Compute interior point and check if it is in X
+	Vector<Rational> interior_point = 
+	    accumulate( rows(refined_cone.rays.minor(codim.row(current_edge),All)), operations::add()) /	      accumulate(refined_cone.rays.minor(codim.row(current_edge),All).col(0),operations::add());
+	if(!maximumAttainedTwice(funmat * interior_point)) {
+	    found_bad = true; break;
+	    //dbgtrace << "Bad edge found" << endl;
+	}
+	//dbgtrace << "Edge is good" << endl;
+	//dbgtrace << codim.row(current_edge) << "," << used_up_vertices <<  endl;
+	
+	//Find next edge. If there is none, we have arrived at the other side
+	int next_vertex = *( (codim.row(current_edge) - used_up_vertices).begin());
+	used_up_vertices += next_vertex;
+	Set<int> next_edge_set = (rayInCo.row(next_vertex)*direction_edges) - used_up_edges;
+	if(next_edge_set.size() == 0) {
+	  vertex_index_other_side = next_vertex;
+	  current_edge = -1;
+	}
+	else {
+	    current_edge = *(next_edge_set.begin());
+	    //dbgtrace << "Next edge " << current_edge << endl;
+	    used_up_edges += current_edge;
+	}
+      }//END iterate edges to other side
+      if(!found_bad) {
+	//dbgtrace << "Done, saving..." << endl;
+	EdgeLine el;
+	  el.leafAtZero = leafAtZero;
+	  el.vertexAtZero = refined_cone.rays.row(*vtc);
+	  el.vertexAwayZero = refined_cone.rays.row(vertex_index_other_side);
+	line_list |= el;
+      }
+    }//END iterate non-contained vertices
+    
+    //Return result
+    LinesInCellResult result;
+      result.edge_families = family_list;
+      result.edge_lines = line_list;
+      result.vertex_lines = vertex_list;
+      
+    return result;
      
   }//END computeEdgeFamilies
   
