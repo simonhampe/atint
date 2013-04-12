@@ -38,8 +38,8 @@
 
 namespace polymake { namespace atint { 
   
-//   using namespace atintlog::donotlog;
-  using namespace atintlog::dolog;
+  using namespace atintlog::donotlog;
+//   using namespace atintlog::dolog;
 //   using namespace atintlog::dotrace;
   
   using polymake::polytope::cdd_interface::solver;
@@ -416,9 +416,13 @@ namespace polymake { namespace atint {
       //If everything lies in X, add the family (and register the vertices as "covered")
       if(!found_bad) {
 	EdgeFamily ef;
+	  ef.edgesAtZero = Vector< Matrix<Rational> >(0);
+	  ef.edgesAwayZero = Vector< Matrix<Rational> >(0);
 	  ef.leafAtZero = leafAtZero;
-	  ef.edgeAtZero = ze_rays;
-	  ef.edgeAwayZero = refined_cone.rays.minor(codim.row(cone_index_other_side),All);
+	  ef.edgesAtZero |= ze_rays;
+	  ef.edgesAwayZero |= refined_cone.rays.minor(codim.row(cone_index_other_side),All);
+	  ef.borderAtZero = ef.edgesAtZero[0];
+	  ef.borderAwayZero = ef.edgesAwayZero[0];
 	family_list |= ef;
 	
 	covered_vertices += codim.row(co_index);

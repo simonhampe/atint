@@ -431,8 +431,75 @@ namespace polymake { namespace atint{
     }//END clean up edge lines
     edge_line = approved_elfamilies;
     
-    //Clean up edge_families: 
-    //TODO: Clean up
+    //Clean up edge_families: Check if two can be glued together
+    std::list<EdgeFamily> ef_queue;
+    for(int ef = 0; ef < edge_family.dim(); ef++) {
+      ef_queue.push_back(edge_family[ef]);
+    }
+    Vector<EdgeFamily> approvedFam;
+    while(ef_queue.size() > 0) {
+      EdgeFamily fam = ef_queue.front(); ef_queue.pop_front();
+      bool is_approved = true;
+      for(int ef = 0; ef < approvedFam.dim(); ef++) {
+	EdgeFamily compFam = approvedFam[ef];
+	//We can only glue, if both have the same direction
+	if(fam.leafAtZero == compFam.leafAtZero) {
+	  //We can glue if at least one family has 2-vertex-borders that intersect the other edges 
+	  // in a vertex
+	  if(fam.borderAtZero(0,0) + fam.borderAtZero(1,0) == 2 || compFam.borderAtZero(0,0) + compFam.borderAtZero(1,0) == 2) {
+	    int fam_equal = -1;
+	    int comp_equal = -1;
+	    //Check if two vertices agree
+	    if(fam.borderAtZero.row(0) == compFam.borderAtZero.row(0)) { fam_equal = 0; comp_equal = 0;}
+	    if(fam.borderAtZero.row(0) == compFam.borderAtZero.row(1)) { fam_equal = 0; comp_equal = 1;}
+	    if(fam.borderAtZero.row(1) == compFam.borderAtZero.row(0)) { fam_equal = 1; comp_equal = 0;}
+	    if(fam.borderAtZero.row(1) == compFam.borderAtZero.row(1)) { fam_equal = 1; comp_equal = 1;}
+	    
+	    if(fam_equal != -1) {
+	      int fam_other = 1 - fam_equal;
+	      int comp_other = 1 - comp_equal;
+	      //Check if on the other side also two vertices agree AND that this is not the same
+	      // vertex as on this side
+	      int side_fam_equal = -1;
+	      int side_comp_equal = -1;
+	      if(fam.borderAwayZero.row(0) == compFam.borderAwayZero.row(0) &&
+		  fam.borderAwayZero.row(0) != fam.borderAtZero.row(fam_equal)) 
+		  {side_fam_equal = 0; side_comp_equal = 0;}
+	      if(fam.borderAwayZero.row(0) == compFam.borderAwayZero.row(1) &&
+		  fam.borderAwayZero.row(0) != fam.borderAtZero.row(fam_equal)) 
+		  {side_fam_equal = 0; side_comp_equal = 1;}
+	      if(fam.borderAwayZero.row(1) == compFam.borderAwayZero.row(0) &&
+		  fam.borderAwayZero.row(1) != fam.borderAtZero.row(fam_equal)) 
+		  {side_fam_equal = 1; side_comp_equal = 0;}
+	      if(fam.borderAwayZero.row(1) == compFam.borderAwayZero.row(1) &&
+		  fam.borderAwayZero.row(1) != fam.borderAtZero.row(fam_equal)) 
+		  {side_fam_equal = 1; side_comp_equal = 1;}
+	      if(side_fam_equal != -1) {
+		int side_fam_other = 1 - side_fam_equal;
+		int side_comp_other = 1 - side_comp_equal;
+		
+		Matrix<Rational> nzero_border = 
+		  fam.borderAtZero.row(fam_other) / compFam.borderAtZero.row(comp_other);
+		Matrix<Rational> naway_border = 
+		  fam.borderAwayZero.row(side_fam_other) / compFam.borderAwayZero.row(side_comp_other);
+		EdgeFamily replacement;
+		  replacement.leafAtZero = fam.leafAtZero;
+		  replacement.edgesAtZero = fam.edgesAtZero | compFam.edgesAtZero;
+		  replacement.edgesAwayZero = fam.edgesAwayZero | compFam.edgesAwayZero;
+		  replacement.borderAtZero = nzero_border;
+		  replacement.borderAwayZero = naway_border;
+		ef_queue.push_back(replacement);
+		approvedFam = approvedFam.slice(~scalar2set(ef));
+		is_approved = false;
+		break;
+	      }//END if two vertices agree on the other side	      
+	    }//END if two vertices agree
+	  }//END if can be glued
+	}//END if direction agrees	
+      }//END iterate approved families
+      if(is_approved) approvedFam |= fam;
+    }//END clean up edge families
+    edge_family = approvedFam;
     
     // STEP II: A family of one type may be contained in a family of a different type
     
@@ -623,26 +690,33 @@ namespace polymake { namespace atint{
     solver<Rational> sv;
     for(int ef = 0; ef < edge_family.dim(); ef++) {
       perl::Object var("WeightedComplex");
-	Matrix<Rational> var_rays = edge_family[ef].edgeAtZero / edge_family[ef].edgeAwayZero;
-	int no_of_edge_els = var_rays.rows();
+	Matrix<Rational> var_rays = degree;
 	Vector<Set<int> > var_cones(0);
-	var_cones |= sequence(0,no_of_edge_els);
- 	var_rays /= degree;
-	
-	//We have to canonicalize each of the direction cones, since they might be one-dimensional
-	Vector<int> z_cone(sequence(0,2)); z_cone |= no_of_edge_els;
-	Vector<int> i_cone(sequence(0,2)); i_cone |=(no_of_edge_els + edge_family[ef].leafAtZero);
-	
-	Vector<int> rem(sequence(1,3) - edge_family[ef].leafAtZero);
-	
-	Vector<int> j_cone(sequence(2,2)); j_cone |= (no_of_edge_els + rem[0]);
-	Vector<int> k_cone(sequence(2,2)); k_cone |= (no_of_edge_els + rem[1]);
-	
-	var_cones |= Set<int>(z_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(z_cone),All), dummy_lineality).first)); 
-	var_cones |= Set<int>(i_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(i_cone),All), dummy_lineality).first)); 
-	var_cones |= Set<int>(j_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(j_cone),All), dummy_lineality).first)); 
-	var_cones |= Set<int>(k_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(k_cone),All), dummy_lineality).first)); 
-	
+	for(int eg = 0; eg < edge_family[ef].edgesAtZero.dim(); eg++) {
+	  int start_index = var_rays.rows();
+	  var_rays /= edge_family[ef].edgesAtZero[eg];
+	  var_rays /= edge_family[ef].edgesAwayZero[eg];
+	  var_cones |= sequence(start_index, 4);
+	  
+	  //We have to canonicalize each of the direction cones, since they might be one-dimensional
+	  Vector<int> z_cone(sequence(start_index,2)); 
+	    z_cone |= 0;
+	  Vector<int> i_cone(sequence(start_index,2)); 
+	    i_cone |= (edge_family[ef].leafAtZero);
+	  
+	  Vector<int> rem(sequence(1,3) - edge_family[ef].leafAtZero);
+	  
+	  Vector<int> j_cone(sequence(start_index+2,2)); 
+	      j_cone |= rem[0];
+	  Vector<int> k_cone(sequence(start_index+2,2)); 
+	      k_cone |= rem[1];
+	  
+	  var_cones |= Set<int>(z_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(z_cone),All), dummy_lineality).first)); 
+	  var_cones |= Set<int>(i_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(i_cone),All), dummy_lineality).first)); 
+	  var_cones |= Set<int>(j_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(j_cone),All), dummy_lineality).first)); 
+	  var_cones |= Set<int>(k_cone.slice(sv.canonicalize(var_rays.minor(Set<int>(k_cone),All), dummy_lineality).first)); 
+	  
+	}
 	
 	var.take("RAYS") << var_rays;
 	var.take("MAXIMAL_CONES") << var_cones;

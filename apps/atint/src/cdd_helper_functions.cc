@@ -281,6 +281,6 @@ namespace polymake { namespace atint {
   
   Function4perl(&cdd_normalize_rays, "cdd_normalize_rays(Matrix<Rational>, $)");
   
-  Function4perl(&test_fan_intersection, "tfi(WeightedComplex, WeightedComplex)");
+//   Function4perl(&test_fan_intersection, "tfi(WeightedComplex, WeightedComplex)");
   
 }}

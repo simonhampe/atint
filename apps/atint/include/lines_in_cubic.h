@@ -103,13 +103,19 @@ namespace polymake { namespace atint {
   
   /**
    * Describes a family of lines with bounded edge:
-   * - A matrix (with 2 rows) describing the edge at 0
-   * - A matrix (with 2 rows) describing the edge away from 0
+   * - A list of matrices (with 2 rows) describing the edges at 0
+   * - A list of matrices (with 2 rows) describing the edges away from 0 (should have 
+   *  the same number of elements as the first list)
+   * - The border vertices (or rays) at 0
+   * - The border vertices (or rays) away zero
    * - The index of the other leaf at 0
    */
   struct EdgeFamily {
-    Matrix<Rational> edgeAtZero;
-    Matrix<Rational> edgeAwayZero;
+    Vector< Matrix<Rational> > edgesAtZero;
+    Vector< Matrix<Rational> > edgesAwayZero;
+    Matrix<Rational> borderAtZero;
+    Matrix<Rational> borderAwayZero;
+    Matrix<Rational> center;
     int leafAtZero;
   };
 

@@ -58,12 +58,11 @@ declare object MinMaxFunction : RationalFunction;
 declare object Morphism;
 
 # This represents the result of the method [[lines_in_cubic]]. It contains:
-# <ul>
-#  <li>The tropical polynomial representing the surface</li>
-#  <li>The surface itself as a WeightedComplex</li>
-#  <li>Lists of lines and families of different types, each starting with LIST_... </li>
-# </ul>
-# The object also has methods, starting with array_... that return the corresponding LIST_... as a perl array
+# The tropical polynomial representing the surface, the surface itself as a WeightedComplex and 
+# lists of lines and families of different types, each starting with LIST_... 
+# 
+# The object also has methods, starting with array_... that return the corresponding LIST_... as a perl array.
+# The different (lists of) lines can be visualized nicely with [[visualize_in_surface]].
 declare object LinesInCubic;
 
 INCLUDE

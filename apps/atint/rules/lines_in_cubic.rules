@@ -79,6 +79,8 @@ object LinesInCubic {
   
   ### METHODS ##############################################
   
+  # @category Lists of lines
+  # @return WeightedComplex A perl array version of [[LIST_ISOLATED_NO_EDGE]]
   user_method array_isolated_no_edge {
     my $this = shift;
     if(defined($this->lookup("LIST_ISOLATED_NO_EDGE"))) {
@@ -90,6 +92,8 @@ object LinesInCubic {
     }
   }
   
+  # @category Lists of lines
+  # @return WeightedComplex A perl array version of [[LIST_ISOLATED_EDGE]]
   user_method array_isolated_edge {
     my $this = shift;
     if(defined($this->lookup("LIST_ISOLATED_EDGE"))) {
@@ -101,6 +105,8 @@ object LinesInCubic {
     }
   }
   
+  # @category Lists of lines
+  # @return WeightedComplex A perl array version of [[LIST_FAMILY_FIXED_VERTEX]]
   user_method array_family_fixed_vertex {
     my $this = shift;
     if(defined($this->lookup("LIST_FAMILY_FIXED_VERTEX"))) {
@@ -112,6 +118,8 @@ object LinesInCubic {
     }
   }
   
+  # @category Lists of lines
+  # @return WeightedComplex A perl array version of [[LIST_FAMILY_MOVING_VERTEX]]
   user_method array_family_moving_vertex {
     my $this = shift;
     if(defined($this->lookup("LIST_FAMILY_MOVING_VERTEX"))) {
@@ -123,6 +131,8 @@ object LinesInCubic {
     }
   }
   
+  # @category Lists of lines
+  # @return WeightedComplex A perl array version of [[LIST_FAMILY_FIXED_EDGE]]
   user_method array_family_fixed_edge {
     my $this = shift;
     if(defined($this->lookup("LIST_FAMILY_FIXED_EDGE"))) {
@@ -134,6 +144,8 @@ object LinesInCubic {
     }
   }
   
+  # @category Lists of lines
+  # @return WeightedComplex A perl array version of [[LIST_FAMILY_MOVING_EDGE]]
   user_method array_family_moving_edge {
     my $this = shift;
     if(defined($this->lookup("LIST_FAMILY_MOVING_EDGE"))) {
@@ -143,6 +155,21 @@ object LinesInCubic {
       my @a = ();
       return @a;
     }
+  }
+  
+  # @category Lists of lines
+  # @return WeightedComplex A perl array containing all isolated solutions
+  user_method all_isolated {
+    my $this = shift;
+    return ($this->array_isolated_edge, $this->array_isolated_no_edge);
+  }
+  
+  # @category Lists of lines
+  # @return WeightedComplex A perl array containing all families
+  user_method all_families {
+    my $this = shift;
+    return ($this->array_family_fixed_edge, $this->array_family_fixed_vertex,
+	     $this->array_family_moving_edge, $this->array_family_moving_vertex);
   }
   
 }
