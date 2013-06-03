@@ -81,8 +81,61 @@ namespace polymake { namespace atint {
 //     return ptope;
 //   }
 //   
+
+     IncidenceMatrix<> doflip(IncidenceMatrix<> cells, Set<int> tcone1, Set<int> tcone2) {
+	
+	//Compute complementary subdivision
+	Set<int> inter = tcone1 * tcone2;
+	Set<int> symdif = (tcone1 + tcone2) - inter;
+	Vector<Set<int> > triang_simpl;
+	    for(Entire<Set<int> >::iterator i = entire(inter);!i.at_end(); i++) {
+		triang_simpl |= (symdif + *i);
+	    }
+	  
+	//Go through cones, find all the ones containing a cone, remember links
+	Vector<Set<int> > links;
+	Set<int> containing_cones;
+	for(int cone = 0; cone < cells.rows(); cone++) {
+	    Set<int> rest;
+	    if( (cells.row(cone) * tcone1).size() == tcone1.size() ) {
+	      rest = cells.row(cone) - tcone1;
+	    }
+	    if( (cells.row(cone) * tcone2).size() == tcone2.size() ) {
+	      rest = cells.row(cone) - tcone2;
+	    }
+	    if(rest.size() > 0) {
+		containing_cones += cone;
+		bool found_one = false;
+		for(int l = 0; l < links.dim(); l++) {
+		    if( (links[l] * rest).size() == rest.size() ) {
+		      found_one = true; break;
+		    }
+		}
+		if(!found_one) {
+		  links |= rest;
+		}
+	    }	    
+	}
+	
+	//Replace cones
+	Vector<Set<int> > result;
+	for(int c = 0; c < cells.rows(); c++) {
+	    if(!containing_cones.contains(c)) result |= cells.row(c);
+	}
+	for(int l = 0; l < links.dim(); l++) {
+	    result |= (links[l] + triang_simpl[0]);
+	    result |= (links[l] + triang_simpl[1]);
+	}
+	
+	return IncidenceMatrix<>(result);
+       
+       
+     }//END doflip
+
 //   // ------------------------- PERL WRAPPERS ---------------------------------------------------
 //   
 //   Function4perl(&computeMinMaxSpace,"cmms(RationalFunction)");
+
+    Function4perl(&doflip,"doflip(IncidenceMatrix,Set<Int>,Set<Int>)");
   
 }}

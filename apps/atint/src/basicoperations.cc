@@ -149,8 +149,8 @@ namespace polymake { namespace atint{
 	//dbgtrace << "dim: " << dim << endl;
 		
 	//dbgtrace << "Creating ray matrix" << endl;
-	//dbgtrace << "Affine rays of product are " << rayMatrix.minor(product_affine,All) << endl;
-	//dbgtrace << "Affine rays of complex are " << prerays.minor(complex_affine,All) << endl;
+// 	dbgtrace << "Affine rays of product are " << rayMatrix.minor(product_affine,All) << endl;
+// 	dbgtrace << "Affine rays of complex are " << prerays.minor(complex_affine,All) << endl;
 	
 	//Create new ray matrix
 	Matrix<Rational> newRays(0,product_dim + dim);
@@ -200,7 +200,7 @@ namespace polymake { namespace atint{
 	  newRays = newRays / (product_zero | prerays.row(*crays));
 	  cdirIndices[*crays] = newRays.rows()-1;
 	}
-	Set<int> newDirectional = sequence(newRays.rows()-1,product_directional.size() + complex_directional.size());
+	Set<int> newDirectional = sequence(newAffine.size(),product_directional.size() + complex_directional.size());
 	
 	//dbgtrace << "Creating lineality matrix" << endl;
 	
@@ -255,10 +255,10 @@ namespace polymake { namespace atint{
 		
 	//dbgtrace << "Creating cones" << endl;
 	
-// 	dbgtrace << "Ray matrix is " << newRays << endl;
-// 	dbgtrace << "Affine indices " << affineIndices << endl;
-// 	dbgtrace << "Directional indices product" << pdirIndices << endl;
-// 	dbgtrace << "Directional indices complex" << cdirIndices << endl;
+ 	//dbgtrace << "Ray matrix is " << newRays << endl;
+ 	//dbgtrace << "Affine indices " << affineIndices << endl;
+ 	//dbgtrace << "Directional indices product" << pdirIndices << endl;
+ 	//dbgtrace << "Directional indices complex" << cdirIndices << endl;
 	
 	//Now create the new cones and weights:
 	Vector<Set<int> > newMaxCones;
@@ -271,13 +271,13 @@ namespace polymake { namespace atint{
 	    if(!product_uses_homog && uses_homog) {
 	      product_cone = product_cone + (-1);
 	    }
-// 	    dbgtrace << "Product cone: " << product_cone << endl;
+ 	    //dbgtrace << "Product cone: " << product_cone << endl;
 	    for(int cmax = 0; cmax < premax.rows(); cmax++) {
 	      Set<int> complex_cone = premax.row(cmax);
 	      if(!uses_homog && product_uses_homog) {
 		complex_cone = complex_cone + (-1);
 	      }
-// 	      dbgtrace << "Complex cone: " << complex_cone << endl;
+ 	      //dbgtrace << "Complex cone: " << complex_cone << endl;
 	      Set<int> newcone;
 	      Set<int> pAffine = product_cone * product_affine;
 	      Set<int> pDirectional = product_cone * product_directional;
@@ -313,7 +313,7 @@ namespace polymake { namespace atint{
 	    }
 	}
 	
-// 	dbgtrace << "Maximal cones now: " << newMaxCones << endl;
+ 	//dbgtrace << "Maximal cones now: " << newMaxCones << endl;
 	
 	//Compute the cross product of the local_restrictions
 	Vector<Set<int> > new_local_restriction;

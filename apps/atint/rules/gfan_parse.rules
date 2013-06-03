@@ -55,7 +55,7 @@ user_function variety_from_gfan {
 	if($ray == 0) {
 	    $rays = new Matrix<Rational>(0,$v->dim());
 	}
-	$rays = $rays / $v;
+	$rays = new Matrix<Rational>($rays / $v);
       }
     }
     
@@ -75,7 +75,7 @@ user_function variety_from_gfan {
 		$rays = new Matrix<Rational>(0,$lineality->cols());
 	    }
 	}
-	$lineality = $lineality / $l;
+	$lineality = new Matrix<Rational>($lineality / $l);
       }
     }
     if($lineality->rows() == 0) {
