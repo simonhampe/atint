@@ -109,6 +109,25 @@ namespace polymake { namespace atint {
   
   ///////////////////////////////////////////////////////////////////////////////////////
   
+  //Documentation see perl wrapper
+  perl::ListReturn returnFlats(perl::Object matroid) {
+    Vector<Vector<Set<int> > > flats;
+    Vector<Vector<int> > chains;
+    
+    chains_of_flats(matroid,flats,chains);
+    
+    perl::ListReturn result;
+    for(int i = 0; i < flats.dim(); i++) {
+      result << IncidenceMatrix<>(flats[i]);
+    }
+    for(int j = 0; j < chains.dim(); j++) {
+      result << chains[j];
+    }
+    return result;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    @brief This function takes a list of flats and chains of flats of a matroid and creates the corresponding bergman fan
    @param int n The number of elements of the matroid's ground set
@@ -375,5 +394,17 @@ namespace polymake { namespace atint {
 		    "# will detect automatically which of these cases applies"
 		    "# @return WeightedComplex The intersection product of X and Y in B(M) (possibly mod L)", 
 		    &matroid_intersection_by_flats, "matroid_intersection_by_flats(WeightedComplex, WeightedComplex, matroid::Matroid)");
+  
+  UserFunction4perl("# @category Matroids"
+	            "# This function computes all flats of a matroid and all maximal chains of flats. "
+		    "# The function does so via a brute-force method and it is not recommended to try this "
+		    "# on larger matroids"
+		    "# @param matroid::Matroid M"
+		    "# @return IncidenceMatrix An array containing first rank(M)-1 IncidenceMatrix objects, "
+		    "# I_1,...,I_k, where I_j contains the rank-j-flats. Then the array contains Vector<Int>,"
+		    "# c_0,...,c_l, where c_i[j] contains the row index of the j-th flat in I_{j+1}",
+		    &returnFlats, "compute_matroid_flats(matroid::Matroid)");
+  
+  
   
 }}

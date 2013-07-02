@@ -26,6 +26,7 @@
 #include "polymake/Vector.h"
 #include "polymake/Set.h"
 #include "polymake/linalg.h"
+#include "polymake/Map.h"
 #include "polymake/PowerSet.h"
 #include "polymake/atint/LoggingPrinter.h"
 
@@ -36,6 +37,56 @@ namespace polymake { namespace atint {
 //   //using namespace atintlog::dotrace;
 //   
 //   ///////////////////////////////////////////////////////////////////////////////////////
+
+     Vector<Set<int> > compute_fibre_bases(perl::Object matroid, Set<int> E) {
+      
+       //Extract bases
+       Array<Set<int> > m_bases = matroid.give("BASES");
+       int N = matroid.give("N_ELEMENTS");
+       
+       //Determine rank of E and E-maximal bases
+       int erank = 0;
+       Set<int> max_basis_indices;
+       for(int b = 0; b < m_bases.size(); b++) {
+	  int sz = (m_bases[b]*E).size();
+	  if(sz == erank) max_basis_indices += b;
+	  if(sz > erank) {
+	    erank = sz;
+	    max_basis_indices = Set<int>();
+	    max_basis_indices += b;
+	  }
+       }
+       
+       //Create maps lambda_i (we attach the second copy of R at the end)
+       Set<int> R = sequence(0,N) - E;
+       Map<int,int> second_r_map;
+       int current_index = N;
+       for(Entire<Set<int> >::iterator r = entire(R); !r.at_end(); r++) {
+	  second_r_map[*r] = current_index;
+	  current_index++;
+       }
+       for(Entire<Set<int> >::iterator e = entire(E); !e.at_end(); e++) {
+	  second_r_map[*e] = *e;
+       }
+       
+       //Create bases
+       Set<Set<int> > result;
+       for(int b1 = 0; b1 < m_bases.size(); b1++) {
+	  for(Entire<Set<int> >::iterator b2 = entire(max_basis_indices); !b2.at_end(); b2++) {
+		Set<int> pairset1 = m_bases[b1] + Set<int>(attach_operation(m_bases[*b2] * R,								   pm::operations::associative_access<Map<int,int> ,int >(&second_r_map)));
+		Set<int> pairset2 = R * m_bases[*b2] + Set<int>(
+		  attach_operation(m_bases[b1],					   pm::operations::associative_access<Map<int,int>,int >(&second_r_map) ) );
+		result += pairset1;
+// 		result += pairset2;	    
+	  }
+       }
+       
+       return Vector<Set<int> >(result);
+       
+       
+       
+     }
+
 //   
 //   void computeFlats(Matrix<Rational> m) {
 //     int r = rank(m);
