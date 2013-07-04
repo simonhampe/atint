@@ -31,7 +31,7 @@
 namespace polymake { namespace atint { 
   
   using namespace atintlog::donotlog;
-  //using namespace atintlog::dolog;
+//   using namespace atintlog::dolog;
 //   using namespace atintlog::dotrace;
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -82,8 +82,8 @@ namespace polymake { namespace atint {
     for(int x = 0; x < xrays.rows(); x++) {
       for(int y = 0; y < yrays.rows(); y++) {
 	//Check if yray = xray modulo lineality
-	Matrix<Rational> xray_matrix = xrays.row(x) / xlin;
-	if(rank(xray_matrix) == rank(xray_matrix / yrays.row(y))) {
+	Matrix<Rational> diff_rays = xrays.minor(scalar2set(x),All) - yrays.minor(scalar2set(y),All);
+	if(rank(xlin) == rank(xlin / diff_rays)) {
 	    permutation[x] = y;
 	    break;
 	}
