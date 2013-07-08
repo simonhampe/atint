@@ -26,6 +26,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/linalg.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/polytope/cdd_interface.h"
 
@@ -54,6 +55,10 @@ namespace polymake { namespace atint {
     
     //If the fan has no rays, it has only lineality space and we return the complex itself
     if(rays.rows() == 0)  return complex;
+    
+    //If the fan has no codim 1 faces, it must be 0- dimensional or a lineality space and we return
+    // the complex itself
+    if(codimOneCones.rows() == 0) return complex;
     
     //Compute equivalence classes of maximal cones
     Vector<Set<int> > equivalenceClasses;
@@ -129,13 +134,38 @@ namespace polymake { namespace atint {
       used_rays += ray_set;
       newweights |= weights[*(conesInClass.begin())];      
     }
-    IncidenceMatrix<> newcone_matrix(newcones);
-    newcone_matrix = newcone_matrix.minor(All,used_rays);
-    complete_matrix = complete_matrix.minor(used_rays,All);
+    
+    //Some rays might become equal (modulo lineality space) when coarsening, so we have to clean up
+    Map<int,int> ray_index_conversion;
+    int next_index = 0;
+    Matrix<Rational> final_rays(0,complete_matrix.cols());
+    int linrank = rank(newlin);
+    
+    for(Entire<Set<int> >::iterator r1 = entire(used_rays); !r1.at_end(); r1++) {
+      if(!keys(ray_index_conversion).contains(*r1)) {
+	ray_index_conversion[*r1] = next_index;
+	final_rays /= complete_matrix.row(*r1);
+	
+	for(Entire<Set<int> >::iterator r2 = entire(used_rays); !r2.at_end(); r2++) {
+	  if(!keys(ray_index_conversion).contains(*r2)) {
+	      //Check if both rays are equal mod lineality space
+	      if( rank(newlin / (complete_matrix.row(*r1) - complete_matrix.row(*r2))) == linrank) {
+		ray_index_conversion[*r2] = next_index;
+	      }
+	  }//END if second not mapped yet
+	}//END iterate second ray index
+	next_index++;
+      }//END if first not mapped yet
+    }//END iterate first ray index
+    
+    //Now convert the cones
+    for(int nc = 0; nc < newcones.dim(); nc++) {
+      newcones[nc] = attach_operation(newcones[nc],pm::operations::associative_access<Map<int,int>,int>(&ray_index_conversion));
+    }
     
     perl::Object result("WeightedComplex");
-      result.take("RAYS") << complete_matrix;
-      result.take("MAXIMAL_CONES") << newcone_matrix;
+      result.take("RAYS") << final_rays;
+      result.take("MAXIMAL_CONES") << newcones;
       result.take("LINEALITY_SPACE") << newlin;
       result.take("TROPICAL_WEIGHTS") << newweights;
       result.take("USES_HOMOGENEOUS_C") << uses_homog;
