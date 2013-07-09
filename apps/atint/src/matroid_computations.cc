@@ -65,7 +65,7 @@ namespace polymake { namespace atint {
 	Array<Set<int> > potential_flats = pm::all_subsets_of_k(sequence(0,no_of_el),card);
 	for(int flat = 0; flat < potential_flats.size(); flat++) {
 	    Vector<Rational> inc_vec(no_of_el);
-	      inc_vec.slice(potential_flats[flat]) = ones_vector<Rational>(card);
+	      inc_vec.slice(potential_flats[flat]) = -ones_vector<Rational>(card);
 	    bool is_in_fan = false;
 	    for(int mc = 0; mc < cones.rows(); mc++) {
 	      if(is_ray_in_cone(rays.minor(cones.row(mc),All),linspace,inc_vec)) {
