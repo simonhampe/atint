@@ -147,35 +147,22 @@ namespace polymake { namespace atint {
   
   //Documentation see perl wrapper
   bool contains_point(perl::Object complex, Vector<Rational> point) {
-    //Normalize the vertex
-    if(point.dim() <= 1) {
-      return false;
-    }
-    if(point[0] == 0) {
-      return false;
-    }
-    point /= point[0];
     
-    //Homogenize the complex if necessary
-    bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
-    if(!uses_homog) {
-      complex = complex.CallPolymakeMethod("homogenize");
+    //Extract values
+    Matrix<Rational> rays = complex.give("RAYS");
+    Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
+    IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
+    
+    if(point.dim() != rays.cols() && point.dim() != linspace.cols()) {
+      throw std::runtime_error("Point does not have the same dimension as the complex.");
     }
     
-    //First we refine the complex
-    RefinementResult r = refinement(complex, point_variety(point),false,false,false,true);
-    perl::Object refinedComplex = r.complex;
-    
-    //Then we look for the vertex
-    Matrix<Rational> rays = refinedComplex.give("RAYS");
-    Set<int> vertices = refinedComplex.give("VERTICES");
-    int pointindex = -1;
-    for(Entire<Set<int> >::iterator v = entire(vertices); !v.at_end(); v++) {
-      if(rays.row(*v) == point) {
-	pointindex = *v; break;
-      }
+    for(int mc = 0; mc < cones.rows(); mc++) {
+	if(is_ray_in_cone(rays.minor(cones.row(mc),All),linspace,point)) return true;
     }
-    return pointindex != -1;
+    
+    return false;
+    
   }
   
   
@@ -227,7 +214,7 @@ namespace polymake { namespace atint {
 		    "# the complex"
 		    "# @param perl::Object complex A weighted complex"
 		    "# @param Vector<Rational> point An arbitrary vector in the same ambient"
-		    "# dimension as complex"
+		    "# dimension as complex. Should be homogeneous, if and only if complex is."
 		    "# @return bool Whether the point lies in the support of complex",
 		    &contains_point,"contains_point(WeightedComplex,Vector<Rational>)");
 		    

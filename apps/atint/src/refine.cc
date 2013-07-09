@@ -43,13 +43,7 @@ namespace polymake { namespace atint {
 
   ///////////////////////////////////////////////////////////////////////////////////////
   
-  /**
-   @brief Helper function for the refinement function. Given a polyhedral cell in terms of rays and lineality space, it computes, whether a given ray is contained in this cell (works equally well for homog. and non-homog. coordinates)
-   @param Matrix<Rational> rays The rays of the cell
-   @param Matrix<Rational> lineality The lineality space of the cell
-   @param Vector<Rational> ray The ray to be tested
-   @returns true, if and only if ray lies in the cone
-   */
+  //Documentation see header
   bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, Vector<Rational> ray) {
     std::pair<Matrix<Rational>, Matrix<Rational> > facets = 
       solver<Rational>().enumerate_facets(zero_vector<Rational>() | rays, zero_vector<Rational>() | lineality,

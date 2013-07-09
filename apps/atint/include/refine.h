@@ -40,6 +40,15 @@ namespace polymake { namespace atint {
   }; 
   
   /**
+   @brief Helper function for the refinement function. Given a polyhedral cell in terms of rays and lineality space, it computes, whether a given ray is contained in this cell (works equally well for homog. and non-homog. coordinates)
+   @param Matrix<Rational> rays The rays of the cell
+   @param Matrix<Rational> lineality The lineality space of the cell
+   @param Vector<Rational> ray The ray to be tested
+   @returns true, if and only if ray lies in the cone
+   */
+  bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, Vector<Rational> ray);
+  
+  /**
   @brief This is a multi-purpose function used to refine polyhedral complexes and rational functions along each other. It is not intended for direct use by the user but should be wrapped by other function according to each purpose. Its precise behavior is the following: It takes two WeightedComplex objects, X and Y, of which we assume that |X| is contained in |Y|. Furthermore, if Y has homog. coordinates, then so does X (the converse need not be true). It then computes a weighted complex X' that has the same support as X, but each cone of which is contained in a cone of Y. It can also compute the following data: For each ray (lineality space generator) of X' it can compute an appropriate linear representation in rays (and linspace generators) of X and/or Y, which are in a cone containing that ray. This can then be uses to compute function values of a function defined on X or Y on the new complex X'. Furthermore, if X uses homogeneous coordinates, it can compute for each directional ray the index of a vertex sharing a cone with that ray. If X has a [[LOCAL_RESTRICTION]] and refine is true, the new local restriction will be all minimal interior cells of previous local cells. Furthermore, all maximal cones that are no longer compatible after refinement are removed. If [[LATTICE_BASES]] have been computed yet, each refined cone will have the lattice basis of the cone containing it.
   @param perl::Object X A WeightedComplex (not necessarily with defined TROPICAL_WEIGHTS). Note that the function doesn't  care whether the list of RAYS is irredundant.
   @param perl::Object Y A WeightedComplex (not necessarily with defined TROPICAL_WEIGHTS), such that |X| is contained in |Y|. Note that the function doesn't  care whether the list of RAYS is irredundant.

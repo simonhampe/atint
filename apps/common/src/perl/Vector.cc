@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/SparseVector.h"
 #include "polymake/Array.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
    FunctionInterface4perl( new_X, T0,T1 ) {
@@ -34,10 +34,8 @@ namespace polymake { namespace common {
    };
 
    Class4perl("Polymake::common::Vector__Bool", Vector< bool >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::SameElementVector<pm::Rational const&> >);
    Class4perl("Polymake::common::Vector__String", Vector< std::string >);
    Class4perl("Polymake::common::Vector__Set__Int", Vector< Set< int > >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Integer > >, perl::Canned< const Integer >);
    OperatorInstance4perl(Binary_mul, int, perl::Canned< const Wary< Vector< Rational > > >);
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, false>, void> >);
    FunctionInstance4perl(new_X, Vector< Integer >, perl::Canned< const Vector< Integer > >);
@@ -45,12 +43,8 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const SparseVector< Rational > >);
    FunctionInstance4perl(new_X, Vector< bool >, perl::Canned< const Vector< bool > >);
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const Array< Integer > >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> >);
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational>&>, pm::Series<int, false>, void> >);
-   OperatorInstance4perl(Binary__or, int, perl::Canned< const pm::SameElementVector<pm::Rational const&> >);
-   OperatorInstance4perl(Binary__or, perl::Canned< const pm::IndexedSlice<pm::VectorChain<pm::SingleElementVector<pm::Rational const&>, pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> > const&, pm::Array<int, void> const&, void> >, int);
-   OperatorInstance4perl(Binary__or, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> >, int);
    Class4perl("Polymake::common::Vector__IncidenceMatrix__NonSymmetric", Vector< IncidenceMatrix< NonSymmetric > >);
    OperatorInstance4perl(convert, Vector< Set< int > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }

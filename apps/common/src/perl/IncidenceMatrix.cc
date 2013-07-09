@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 #include "polymake/Vector.h"
 #include "polymake/Set.h"
 #include "polymake/Matrix.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
    FunctionInterface4perl( new_X, T0,T1 ) {
@@ -41,4 +41,4 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::MatrixMinor<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::Set<int, pm::operations::cmp> const&, pm::all_selector const&> >);
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }

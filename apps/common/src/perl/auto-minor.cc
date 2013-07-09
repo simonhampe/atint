@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -20,15 +20,7 @@
 #include "polymake/Rational.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Set.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0, typename T1, typename T2>
-   FunctionInterface4perl( minor_X_X_f5, T0,T1,T2 ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      WrapperReturnLvalue( T0, arg0.get<T0>().minor(arg1.get<T1>(), arg2.get<T2>()) );
-   };
-
-   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::all_selector const&, pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> const&> > >, perl::Enum<pm::all_selector>, perl::Canned< const pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> >);
-   FunctionInstance4perl(minor_X_X_f5, perl::Canned< const Wary< pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::all_selector const&, pm::Series<int, true> const&> > >, perl::Enum<pm::all_selector>, perl::Canned< const pm::Series<int, true> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }

@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "polymake/Integer.h"
 #include "polymake/Rational.h"
 #include "polymake/Set.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
    FunctionInterface4perl( new_X, T0,T1 ) {
@@ -46,4 +46,4 @@ namespace polymake { namespace common {
    FunctionInstance4perl(new_X, Map< int, Map< int, Vector< Rational > > >, perl::Canned< const Map< int, Map< int, Vector< Rational > > > >);
    Class4perl("Polymake::common::Map_A_Set__Int_I_Set__Int_Z", Map< Set< int >, Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }

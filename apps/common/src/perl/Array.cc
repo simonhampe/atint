@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 #include "polymake/Array.h"
 #include "polymake/Integer.h"
 #include "polymake/Vector.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
    FunctionInterface4perl( new_X, T0,T1 ) {
@@ -27,8 +27,7 @@ namespace polymake { namespace common {
       WrapperReturnNew(T0, (arg0.get<T1>()) );
    };
 
-   Class4perl("Polymake::common::Array__Integer", Array< Integer >);
    OperatorInstance4perl(convert, Array< Integer >, perl::Canned< const Vector< Integer > >);
    FunctionInstance4perl(new_X, Array< std::string >, perl::Canned< const Vector< std::string > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }

@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 #include "polymake/Map.h"
 #include "polymake/Vector.h"
 #include "polymake/Integer.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
    FunctionInterface4perl( assoc_find_X_X, T0,T1 ) {
@@ -30,4 +30,4 @@ namespace polymake { namespace common {
 
    FunctionInstance4perl(assoc_find_X_X, perl::Canned< const Map< int, Vector< Integer > > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }

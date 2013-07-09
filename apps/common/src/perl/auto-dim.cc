@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "polymake/Matrix.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Array.h"
-namespace polymake { namespace common {
+namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
    FunctionInterface4perl( dim_f1, T0 ) {
@@ -33,4 +33,4 @@ namespace polymake { namespace common {
    FunctionInstance4perl(dim_f1, perl::Canned< const pm::VectorChain<pm::IndexedSlice<pm::VectorChain<pm::SingleElementVector<pm::Rational const&>, pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> > const&, pm::Array<int, void> const&, void> const&, pm::SingleElementVector<pm::Rational> > >);
    FunctionInstance4perl(dim_f1, perl::Canned< const pm::VectorChain<pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, true>, void> const&, pm::SingleElementVector<pm::Rational> > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }
