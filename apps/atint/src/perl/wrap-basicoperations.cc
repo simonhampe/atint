@@ -1,6 +1,6 @@
 /* Copyright (c) 1997-2010
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.org
+   http://www.polymake.de
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -13,13 +13,19 @@
    GNU General Public License for more details.
 */
 
-namespace polymake { namespace atint { namespace {
+namespace polymake { namespace atint {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    FunctionWrapper4perl( pm::perl::ListReturn (pm::Matrix<pm::Rational>, bool) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
       IndirectWrapperReturnVoid( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1 );
    }
    FunctionWrapperInstance4perl( pm::perl::ListReturn (pm::Matrix<pm::Rational>, bool) );
+
+   FunctionWrapper4perl( perl::Object (std::vector<perl::Object, std::allocator<perl::Object> >) ) {
+      perl::Value arg0(stack[0]);
+      IndirectWrapperReturn( arg0 );
+   }
+   FunctionWrapperInstance4perl( perl::Object (std::vector<perl::Object, std::allocator<perl::Object> >) );
 
    FunctionWrapper4perl( perl::Object (perl::Object, int, bool) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
@@ -28,4 +34,4 @@ namespace polymake { namespace atint { namespace {
    FunctionWrapperInstance4perl( perl::Object (perl::Object, int, bool) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} } }
+} }

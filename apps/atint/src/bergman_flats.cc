@@ -175,6 +175,7 @@ namespace polymake { namespace atint {
       result.take("RAYS") << rays;
       result.take("MAXIMAL_CONES") << cones;
       result.take("TROPICAL_WEIGHTS") << ones_vector<Integer>(cones.dim());
+      result.take("IS_UNIMODULAR") << true;
       if(!mod_out_lineality) result.take("LINEALITY_SPACE") << lineality;
       
     return result;

@@ -241,7 +241,7 @@ object WeightedComplex {
 	# A Z-basis (as rows) for the space of weight distributions on this 
 	# tropical cycle making it balanced (i.e. this cycle is irreducible, if and only if 
 	# [[WEIGHT_SPACE]] has only one row and the gcd of [[TROPICAL_WEIGHTS]] is 1.
-	property WEIGHT_SPACE : Matrix<Integer>;
+	property WEIGHT_SPACE : Matrix<Rational>;
 	
 	# @category Tropical properties
 	# The dual of [[WEIGHT_SPACE]].
@@ -353,7 +353,7 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	  
-# 	We prefer this rule since it seems to be always faster
+	#We prefer this rule since it seems to be always faster
 	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM, USES_HOMOGENEOUS_C, LATTICE_GENERATORS, LATTICE_BASES {
 	  computeProjectionLattice($this);
 	}
@@ -445,16 +445,15 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule WEIGHT_SYSTEM : RAYS, LINEALITY_SPACE, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, 				LATTICE_NORMALS, USES_HOMOGENEOUS_C, CMPLX_AMBIENT_DIM, CMPLX_DIM {
-	  $this->WEIGHT_SYSTEM = cycle_weight_system($this);
+	rule WEIGHT_SYSTEM : WEIGHT_SPACE {
+	  my $sp = $this->WEIGHT_SPACE;
+	  $this->WEIGHT_SYSTEM = null_space($sp);
 	}
 	
 	#------------------------------------------------------------------------#
 	
-	rule WEIGHT_SPACE : WEIGHT_SYSTEM {
-	  my $sys = $this->WEIGHT_SYSTEM;
-	  my $nspace = null_space($sys);
-	  $this->WEIGHT_SPACE = latticeBasisFromRays($nspace, (new Matrix<Rational>(0, $nspace->cols())), 0);
+	rule WEIGHT_SPACE : RAYS, LINEALITY_SPACE, MAXIMAL_CONES, CODIM_1_FACES, CODIM_1_IN_MAXIMAL_CONES, 				LATTICE_NORMALS, USES_HOMOGENEOUS_C, CMPLX_AMBIENT_DIM, CMPLX_DIM {
+	  $this->WEIGHT_SPACE = cycle_weight_space($this);
 	}
 	
 	#------------------------------------------------------------------------#

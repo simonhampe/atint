@@ -37,7 +37,7 @@ namespace polymake { namespace atint {
 
     using namespace atintlog::donotlog;
 // // 	    using namespace atintlog::dolog;
-// using namespace atintlog::dotrace;
+//     using namespace atintlog::dotrace;
     
     ///////////////////////////////////////////////////////////////////////////////////////
     
@@ -159,6 +159,7 @@ namespace polymake { namespace atint {
 	    }
 	    cmplx_origins = cmplx_origins.slice(remainingFanRays);
 	    currentValues = values.row(r).slice(value_set);
+	    currentValues |= lineality_values.row(r);
 	  }
 	}
 	else {
@@ -310,7 +311,7 @@ namespace polymake { namespace atint {
 	  result.take("LATTICE_BASES") << lattice_bases;//(lattice_bases.minor(usedCones,All));
 	
       } //END iterate function rows
-      
+
       //dbgtrace << "Done. Returning divisor" << endl;
       
       return result;
