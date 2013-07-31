@@ -36,9 +36,9 @@
 
 namespace polymake { namespace atint { 
   
-  using namespace atintlog::donotlog;
+//   using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-//   using namespace atintlog::dotrace;
+  using namespace atintlog::dotrace;
   
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -216,21 +216,21 @@ namespace polymake { namespace atint {
       Y = lift_variety(Y);
     }
         
-    //dbgtrace << "Checking codimension" << endl;
+    dbgtrace << "Checking codimension" << endl;
     
     //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
     if(Xdim + Ydim - (rank-1) < 0) {
       return CallPolymakeFunction("zero_cycle");
     }
     
-    //dbgtrace << "Computing flats and chains " << endl;
+    dbgtrace << "Computing flats and chains " << endl;
     
     //Compute the flats of the matroid fan
     Vector<Vector<Set<int> > > flats;
     Vector<Vector<int> > chains;
     chains_of_flats(matroid,flats,chains);
     
-    //dbgtrace << "Computing pairs of flats " << endl;
+    dbgtrace << "Computing pairs of flats " << endl;
     
     //We add the empty set and the complete set for pairing
     Vector<Set<int> > empty_flat; empty_flat |= Set<int>();
@@ -280,7 +280,7 @@ namespace polymake { namespace atint {
 	      }
 	      phi_by_flats[firstrank + secondrank -1] /= phi_flat;	      
 	      
-	      //dbgtrace << flat1 << "," << flat2 << ", " << phi_flat << endl;
+	      dbgtrace << flat1 << "," << flat2 << ", " << phi_flat << endl;
 	      
 	  }//END iterate second flat
 	}//END iterate rank of second flat
@@ -289,7 +289,7 @@ namespace polymake { namespace atint {
       }//END iterate first flat
     }//END iterate rank of first flat
     
-    //dbgtrace << "Computing chains of flat pairs " << endl;
+    dbgtrace << "Computing chains of flat pairs " << endl;
     
     //Now compute chains of flat pairs
     Vector<Vector<int> > sum_chains;
@@ -319,7 +319,7 @@ namespace polymake { namespace atint {
     //Now we create the matroid fan B(M + M)
     perl::Object sum_fan = bergman_fan_from_chains(2*n, sum_flats, sum_chains,false);
     
-    //dbgtrace << "Computing divisors of diagonal functions " << endl;
+    dbgtrace << "Computing divisors of diagonal functions " << endl;
     
     //Compute the product of X and Y
     std::vector<perl::Object> XandY;
@@ -334,7 +334,7 @@ namespace polymake { namespace atint {
     
     //Now subsequently compute the divisor of phi_i
     for(int i = 1; i <= rank; i++) {
-      //dbgtrace << "Applying function " << i << endl;
+      dbgtrace << "Applying function " << i << endl;
       perl::Object phi_i("RationalFunction");
 	phi_i.take("DOMAIN") << sum_fan;
 	phi_i.take("RAY_VALUES") << phi_matrix.col(i-1);
@@ -351,10 +351,10 @@ namespace polymake { namespace atint {
     bool uses_homog = Z.give("USES_HOMOGENEOUS_C");
     
     
-    //dbgtrace << "Rays: " << zrays << endl;
-    //dbgtrace << "Cones: " << zcones << endl;
-    //dbgtrace << "Lineality: " << zlineality << endl;
-    //dbgtrace << "Weights: " << zweights << endl;
+    dbgtrace << "Rays: " << zrays << endl;
+    dbgtrace << "Cones: " << zcones << endl;
+    dbgtrace << "Lineality: " << zlineality << endl;
+    dbgtrace << "Weights: " << zweights << endl;
     
     zrays = zrays.minor(All, sequence(0, n - (uses_homog? 0 : 1)));
     zlineality = zlineality.minor(All, sequence(0, n - (uses_homog? 0 : 1)));

@@ -62,8 +62,16 @@ namespace polymake { namespace atint {
     int vertex_count = k+1;
     int seq_length = n + k-1;
     
-    //First we create a polytope whose lattice points describe the possible distributions of
-    //valences on the interior vertices p_1 < ... < p_k
+    //We compute the number of ways that a Prüfer sequence of appropriate length and
+    // order can be created:
+    // We first compute the number of distributions of total valences (i.e. the distribution of numbers 
+    // of free spaces in the sequence) on the interior vertices p_0,...,p_k as Integer points of a 
+    // polytope.
+    // For each such valence distribution we compute the number of ways to realize it:
+    // p_0 has to fill the first position to create an ordered Prüfer sequence and then 
+    // we have (# of remaining space CHOOSE valence of p_0) other possibilities. Multiplying over all 
+    // p_i gives all realizations of the valence distribution and summing over all valence distributions
+    // gives all possibilities.
     
     Matrix<Rational> eq(0,vertex_count+1);
       Vector<Rational> eqvec = ones_vector<Rational>(vertex_count); 
