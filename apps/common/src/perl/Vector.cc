@@ -18,11 +18,11 @@
 #include "polymake/client.h"
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
+#include "polymake/Matrix.h"
+#include "polymake/IncidenceMatrix.h"
 #include "polymake/linalg.h"
 #include "polymake/Set.h"
 #include "polymake/Integer.h"
-#include "polymake/Matrix.h"
-#include "polymake/IncidenceMatrix.h"
 #include "polymake/SparseVector.h"
 #include "polymake/Array.h"
 
@@ -47,5 +47,9 @@ namespace polymake { namespace common { namespace {
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational>&>, pm::Series<int, false>, void> >);
    Class4perl("Polymake::common::Vector__IncidenceMatrix__NonSymmetric", Vector< IncidenceMatrix< NonSymmetric > >);
    OperatorInstance4perl(convert, Vector< Set< int > >, perl::Canned< const IncidenceMatrix< NonSymmetric > >);
+   OperatorInstance4perl(Binary__ora, perl::Canned< const Vector< Rational > >, perl::Canned< const pm::SameElementVector<pm::Rational const&> >);
+   OperatorInstance4perl(Binary__ora, perl::Canned< const Vector< Rational > >, perl::Canned< const Matrix< Rational > >);
+   OperatorInstance4perl(Binary_add, perl::Canned< const Wary< pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, false>, void> > >, perl::Canned< const Vector< Rational > >);
+   OperatorInstance4perl(Binary_add, perl::Canned< const Wary< Vector< Rational > > >, perl::Canned< const Vector< Rational > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

@@ -15,5 +15,11 @@
 
 namespace polymake { namespace atint { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   FunctionWrapper4perl( pm::Matrix<pm::Rational> (perl::Object) ) {
+      perl::Value arg0(stack[0]);
+      IndirectWrapperReturn( arg0 );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Rational> (perl::Object) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

@@ -364,19 +364,22 @@ namespace polymake { namespace atint {
 	  
 	  //Check if this choice of fixed vertices induces some valid Hurwitz type
 	  //(in the generic case)
+	  //dbgtrace << "Checking validity..." << endl;
  	  if(is_valid_choice(converted_maps)) {
 	      //dbgtrace << "Is valid" << endl;
 	      evmap_list |= converted_maps;
  	  }
 	  
-	  
+	  //dbgtrace << "Computing halfspace intersections"  << endl;
 	  //Now refine along each evaluation map
 	  for(int evmap = 0; evmap < converted_maps.rows(); evmap++) {
 	    //Compute half-space fan induced by the equation ev_i >= / = / <= p_i
 	    //Then refine the model cone along this halfspace
-	    perl::Object evi_halfspace = halfspace_complex(points[evmap],converted_maps.row(evmap));
-	      evi_halfspace = evi_halfspace.CallPolymakeMethod("homogenize");
-	    model_complex = refinement(model_complex, evi_halfspace, false,false,false,true,false).complex;
+	    if(converted_maps.row(evmap) != zero_vector<Rational>(converted_maps.cols())) {
+	      perl::Object evi_halfspace = halfspace_complex(points[evmap],converted_maps.row(evmap));
+		evi_halfspace = evi_halfspace.CallPolymakeMethod("homogenize");
+	      model_complex = refinement(model_complex, evi_halfspace, false,false,false,true,false).complex;
+	    }
 	  }//END iterate evaluation maps
 	  
 	}//END iterate choices of fixed nodes
@@ -385,6 +388,7 @@ namespace polymake { namespace atint {
 	//corresponding to each choice of vertex placement. We then compute the k-cones
 	//in the subdivision on which this map is (p_1,..,p_r) and add the gcd of the maximal minors of the
 	//matrix as tropical weight to these cones
+	//dbgtrace << "Computing weights " << endl;
 	IncidenceMatrix<> model_hurwitz_cones;
 	Vector<Integer> model_hurwitz_weights;
 	Matrix<Rational> model_hurwitz_rays;
@@ -395,8 +399,8 @@ namespace polymake { namespace atint {
 	  Matrix<Rational> k_rays = skeleton.give("RAYS");
 	  Vector<Set<int > > k_cones = skeleton.give("MAXIMAL_CONES");
 	    model_hurwitz_weights = zero_vector<Integer>(k_cones.dim());
-// 	    dbgtrace << "Rays: " << k_rays << endl;
-// 	    dbgtrace << "Cones: " << k_cones << endl;
+ 	    //dbgtrace << "Rays: " << k_rays << endl;
+ 	    //dbgtrace << "Cones: " << k_cones << endl;
 	  Set<int> non_zero_cones;
 	  for(int m = 0; m < evmap_list.dim(); m++) {
 	    //Compute gcd of max-minors
@@ -447,10 +451,10 @@ namespace polymake { namespace atint {
 	  Vector<Integer> weights_to_convert = (i == 0? model_subdiv_weights : model_hurwitz_weights);
 // 	  Vector<Set<int> > local_to_convert = (i == 0? model_subdiv_local : model_hurwitz_local);
 	  //First convert the rays back
-// 	  dbgtrace << "Final rays are: " << model_subdiv_rays << endl;
+ 	  //dbgtrace << "Final rays are: " << model_subdiv_rays << endl;
 	  Matrix<Rational> model_conv_rays = 
 	    rays_to_convert.col(0) | (rays_to_convert.minor(All,~scalar2set(0)) * edge_rays(mc_type));
-// 	    dbgtrace << "Converted rays are: " << model_conv_rays << endl;
+ 	    //dbgtrace << "Converted rays are: " << model_conv_rays << endl;
 	  Vector<int> model_rays_perm  = insert_rays(i == 0? subdiv_rays : cycle_rays, model_conv_rays,false,true);
 	  Map<int,int> ray_index_map;
 	  for(int mrp = 0; mrp < model_rays_perm.dim(); mrp++) {

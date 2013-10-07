@@ -19,9 +19,10 @@
 #include "polymake/Matrix.h"
 #include "polymake/Rational.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/Set.h"
 #include "polymake/linalg.h"
 #include "polymake/Vector.h"
-#include "polymake/Set.h"
+
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
@@ -37,5 +38,6 @@ namespace polymake { namespace common { namespace {
    FunctionInstance4perl(cols_f1, perl::Canned< const pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::SameElementVector<pm::Rational const&> const&> > >);
    FunctionInstance4perl(cols_f1, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::all_selector const&, pm::Series<int, true> const&> >);
    FunctionInstance4perl(cols_f1, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> const&, pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> const&> >);
+   FunctionInstance4perl(cols_f1, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

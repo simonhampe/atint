@@ -17,9 +17,10 @@
 
 #include "polymake/client.h"
 #include "polymake/IncidenceMatrix.h"
-#include "polymake/Vector.h"
 #include "polymake/Set.h"
+#include "polymake/Vector.h"
 #include "polymake/Matrix.h"
+
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -41,5 +42,6 @@ namespace polymake { namespace common { namespace {
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::MatrixMinor<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::Set<int, pm::operations::cmp> const&, pm::all_selector const&> >);
    OperatorInstance4perl(Binary_div, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const Set< int > >);
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::MatrixMinor<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::all_selector const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&> >);
+   OperatorInstance4perl(Binary_diva, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

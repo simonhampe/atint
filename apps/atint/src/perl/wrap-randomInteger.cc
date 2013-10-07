@@ -1,6 +1,6 @@
-/* Copyright (c) 1997-2010
+/* Copyright (c) 1997-2013
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
-   http://www.polymake.de
+   http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
    under the terms of the GNU General Public License as published by the
@@ -13,13 +13,13 @@
    GNU General Public License for more details.
 */
 
-namespace polymake { namespace atint {
+namespace polymake { namespace atint { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( pm::perl::ListReturn (int, int) ) {
+   FunctionWrapper4perl( pm::Array<pm::Integer, void> (int const&, int const&) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturnVoid( arg0, arg1 );
+      IndirectWrapperReturn( arg0, arg1 );
    }
-   FunctionWrapperInstance4perl( pm::perl::ListReturn (int, int) );
+   FunctionWrapperInstance4perl( pm::Array<pm::Integer, void> (int const&, int const&) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
-} }
+} } }
