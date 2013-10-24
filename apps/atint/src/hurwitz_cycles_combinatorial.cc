@@ -270,7 +270,8 @@ namespace polymake { namespace atint {
       }
       else {
 	perl::Object lr_ray = local_restriction[0];
-	m0n = local_mn(local_restriction);
+	Array<perl::Object> lr_array(1); lr_array[0] = local_restriction[0];
+	m0n = local_m0n(lr_array);
 	lr_ray.CallPolymakeMethod("matroid_vector") >> compare_vector;
 	compare_vector = (Rational(0)) | compare_vector;
 	restrict = true;	

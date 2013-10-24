@@ -323,8 +323,8 @@ namespace polymake { namespace atint {
     //dbgtrace << "Computing divisors of diagonal functions " << endl;
     
     //Compute the product of X and Y
-    std::vector<perl::Object> XandY;
-	XandY.push_back(X); XandY.push_back(Y);
+    Array<perl::Object> XandY(2);
+	XandY[0] = X; XandY[1] = Y;
     perl::Object Z = compute_product_complex_lattice(XandY);
     
     //Concatentate function values

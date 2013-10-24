@@ -44,14 +44,14 @@ namespace polymake { namespace atint{
     @param std::vector<perl::Object> complexes A list of WeightedComplex objects
     @return The cartesian product of the complexes
   */
-  perl::Object compute_product_complex(std::vector<perl::Object> complexes) ;
+  perl::Object compute_product_complex(const Array<perl::Object> &complexes) ;
   
   /**
    @brief Does the same as compute_product_complex, except that it computes for each element in complexes the properties [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] before computing the product. This is more efficient than computing these properties for the product afterwards.
    @param std::vector<perl::Object> complexes A list of WeightedComplex objects
    @return The cartesian product of the complexes, with properties [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] already computed.
    */
-  perl::Object compute_product_complex_lattice(std::vector<perl::Object> complexes);
+  perl::Object compute_product_complex_lattice(const Array<perl::Object> &complexes);
   
   
   /**

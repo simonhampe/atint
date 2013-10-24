@@ -64,7 +64,7 @@ namespace polymake { namespace atint{
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
-  perl::Object compute_product_complex(std::vector<perl::Object> complexes) {
+  perl::Object compute_product_complex(const Array<perl::Object> &complexes) {
       //dbgtrace << "Generating container variables for result" << endl;
     
       //** EXTRACT FIRST COMPLEX ********************************************
@@ -406,7 +406,7 @@ namespace polymake { namespace atint{
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header
-  perl::Object compute_product_complex_lattice(std::vector<perl::Object> complexes) {
+  perl::Object compute_product_complex_lattice(const Array<perl::Object> &complexes) {
     for(unsigned int i = 0; i < complexes.size(); i++) {
       complexes[i].give("LATTICE_BASES");
     }
@@ -635,9 +635,9 @@ namespace polymake { namespace atint{
   
   Function4perl(&separateRayMatrix,"separateRayMatrix(Matrix<Rational>,$)");
   
-  Function4perl(&compute_product_complex,"compute_product_complex(;@)");
+  Function4perl(&compute_product_complex,"compute_product_complex(WeightedComplex+)");
   
-  Function4perl(&compute_product_complex_lattice, "compute_product_complex_lattice(;@)");
+  Function4perl(&compute_product_complex_lattice, "compute_product_complex_lattice(WeightedComplex+)");
   
   Function4perl(&facetRefinement,"facetRefinement(WeightedComplex,Matrix<Rational>)");
   

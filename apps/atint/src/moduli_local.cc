@@ -24,6 +24,7 @@
 #include "polymake/Matrix.h"
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
+#include "polymake/Array.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/moduli.h"
@@ -93,11 +94,11 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
-  perl::Object local_mn(std::vector<perl::Object> curves) {
+  perl::Object local_m0n(const Array<perl::Object> &curves) {
     
     //Compute the set of all vertex valences > 3
     Set<int> valences;
-    for(unsigned int c = 0; c < curves.size(); c++) {
+    for(int c = 0; c < curves.size(); c++) {
 	Vector<int> degrees = curves[c].give("NODE_DEGREES");
 	valences += (Set<int>(degrees) - 3);
     }
@@ -123,7 +124,7 @@ namespace polymake { namespace atint {
     Set<int> all_leaves = sequence(1,n_leaves);
     
     //First we add all the curve rays and construct the corresponding local cones
-    for(unsigned int cu = 0; cu < curves.size(); cu++) {
+    for(int cu = 0; cu < curves.size(); cu++) {
       IncidenceMatrix<> set_list = curves[cu].give("SETS");
       Set<int> l_cone;
       //For each ray, check if it exists already
@@ -149,7 +150,7 @@ namespace polymake { namespace atint {
 
     
     //Then we construct the actual cones
-    for(unsigned int cu = 0; cu < curves.size(); cu++) {
+    for(int cu = 0; cu < curves.size(); cu++) {
       //dbgtrace << "Computing on curve " << cu+1 << endl;
       //We iteratively compute the cartesian product of the M_0,ns at the different vertices
       Vector<Set<int> > cones_so_far; 
@@ -345,9 +346,9 @@ namespace polymake { namespace atint {
 		    "# number of curves)"
 		    "# The coordinates are the same that would be produced by the function "
 		    "# tropical_m0n"
-		    "# @param RationalCurve A list of rational curves (preferrably in the same M_0,n)"
+		    "# @param RationalCurve R ... A list of rational curves (preferrably in the same M_0,n)"
 		    "# @return WeightedComplex The local complex",
-		    &local_mn,"local_m0n(;@)");
+		    &local_m0n,"local_m0n(RationalCurve+)");  
   
   UserFunction4perl("# @category Abstract rational curves"
 		    "# This takes a matrix of rays of a given cone that is supposed to lie"

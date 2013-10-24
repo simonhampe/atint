@@ -181,7 +181,7 @@ namespace polymake { namespace atint {
 	
 	//Insert rays into ray list and create cone
 	Set<int> new_cone_set;
-	bool new_ray_added = false;
+// 	bool new_ray_added = false;
 	for(int r = 0; r < inter.first.rows(); r++) {
 	    int ray_index = -1;
 	    for(int oray = 0; oray < interrays.rows(); oray++) {
@@ -194,7 +194,7 @@ namespace polymake { namespace atint {
 	    if(ray_index == -1) {
 	      interrays /= inter.first.row(r);
 	      new_cone_set += (interrays.rows()-1);
-	      new_ray_added = true;
+// 	      new_ray_added = true;
 	    }
 	}
 	

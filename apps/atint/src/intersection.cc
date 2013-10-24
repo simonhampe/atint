@@ -99,8 +99,8 @@ namespace polymake { namespace atint {
       //dbgtrace << "Computing product complex" << endl;
             
       //Compute the product complex
-      std::vector<perl::Object> XandY;
-	XandY.push_back(X); XandY.push_back(Y);
+      Array<perl::Object> XandY(2);
+	XandY[0] = X; XandY[1] = Y;
       perl::Object Z = compute_product_complex(XandY);
       
       //Reduce to those cones that intersect the diagonal at least in the expectedDimension -----------------------

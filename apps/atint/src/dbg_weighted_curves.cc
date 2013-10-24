@@ -42,13 +42,13 @@ namespace polymake { namespace atint {
     
     //First create product of moduli spaces
     dbgtrace << "Creating moduli space" << endl;
-    std::vector<perl::Object> moduli;
+    Array<perl::Object> moduli(t+1);
     perl::Object mf = CallPolymakeFunction("tropical_m0n",f);
       int mf_amb = f*(f-3)/2;
     perl::Object mfp = CallPolymakeFunction("tropical_m0n",f+1);
       int mfp_amb = (f+1)*(f-2)/2;
-    moduli.push_back(mf);
-    for(int i = 1; i <= t; i++) { moduli.push_back(mfp);}
+    moduli[0] = mf;
+    for(int i = 1; i <= t; i++) { moduli[i] = mfp;}
     
     dbgtrace << "Computing product" << endl;
     

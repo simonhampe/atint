@@ -26,7 +26,7 @@
 namespace polymake { namespace atint {
 
 //Documentation see perl wrapper
-perl::Object local_mn(std::vector<perl::Object> curves);
+perl::Object local_m0n(const Array<perl::Object> &curves);
 
 
 }}
