@@ -280,7 +280,8 @@ namespace polymake { namespace atint {
 		//We have to check manually, whether tau is just the origin, since the give("RAYS") would
 		//break in this case (bug?)
 		Vector<Rational> additionalRay;
-		if(tau.give("CONE_DIM") == 0) {
+		int tau_dim = tau.give("CONE_DIM");
+		if(tau_dim == 0) {
 		  additionalRay = sigmarays.row(0);
 		}
 		else {
