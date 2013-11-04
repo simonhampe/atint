@@ -22,10 +22,10 @@
 ########################################################################
 
 package Visual::WeightedComplex;
-# use Polymake::Struct (
-#   [ '@ISA' => 'Container' ],
-#    '$PolyhedralComplex',
-# );
+use Polymake::Struct (
+  [ '@ISA' => 'Container' ],
+  [ '$WeightedComplex' => '#%'],
+);
 
 # A set of basic visualization options for CMPLX_VISUAL and BB_VISUAL
 options %Visual::WeightedComplex::decorations=(
@@ -273,9 +273,12 @@ object WeightedComplex {
       push @cells_visual, $weightCenters->VISUAL_POINTS(PointColor=>'black', PointThickness=>0.2);
   }
   
-  visualize(new Visual::PolyhedralFan( Name => $this->name,
-					  PolyhedralFan => $this,
-					  @cells_visual));
+#   visualize(new Visual::PolyhedralFan( Name => $this->name,
+# 					  PolyhedralFan => $this,
+# 					  @cells_visual));
+  visualize(new Visual::WeightedComplex(Name =>$this->name,
+					WeightedComplex=> $this,
+					@cells_visual));
   }
   
   # ---------------------------------------------------------------------------------------------------------

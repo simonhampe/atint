@@ -120,7 +120,12 @@ object MinMaxFunction {
 	for my $v (@vararray) {
 	  $v =~ s/\s+//g;
 	}
+	#If there are double variables, throw an error
+	if( (new Set<String>(@vararray))->size() < scalar(@vararray)) {
+	  die "Error: Variable names must be unique:";
+	}
       }
+      
             
       #First separate min/max from the list of the functions (without brackets)
       my @separator = ($string =~ /^(max|min)[\(\{](.+)[\)\}]$/i);
