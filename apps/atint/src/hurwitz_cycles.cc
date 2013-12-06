@@ -448,17 +448,16 @@ namespace polymake { namespace atint {
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
-//   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
-// 		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), except that it doesn't"
-// 		    "# compute the push-forward to M_0,n"
-// 		    "# @param int k The dimension of the Hurwitz cycle"
-// 		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
-// 		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
-// 		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
-// 		    "# determine the Hurwitz cycle (in addition to 0). Should have length n-3-k. If it is not given, all p_i"
-// 		    "# are by default equal to 0 (same for missing points)"
-// 		    "# @return perl::Object A WeightedComplex object representing the Hurwitz cycle H_k(degree) before push-forward",    
-// 		    &hurwitz_pre_cycle, "hurwitz_pre_cycle($, Vector<Int>; Vector<Rational> = new Vector<Rational>())");
+  UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
+		    "# Computes the marked k-dimensional tropical Hurwitz cycle H_k(degree)"
+		    "# @param int k The dimension of the Hurwitz cycle"
+		    "# @param Vector<Int> degree The degree of the covering. The sum over all entries should "
+		    "# be 0 and if n := degree.dim, then 0 <= k <= n-3"
+		    "# @param Vector<Rational> pullback_points The points p_i that should be pulled back to "
+		    "# determine the Hurwitz cycle (in addition to 0). Should have length n-3-k. If it is not given, all p_i"
+		    "# are by default equal to 0 (same for missing points)"
+		    "# @return perl::Object A WeightedComplex object representing the marked Hurwitz cycle H~_k(degree)",
+		    &hurwitz_pre_cycle, "hurwitz_marked_cycle($, Vector<Int>; Vector<Rational> = new Vector<Rational>())");
 // 
 // //   UserFunction4perl("# @category Tropical geometry / Hurwitz cycles"
 // // 		    "# Computes the k-dimensional tropical Hurwitz cycle H_k(degree), including"
@@ -494,6 +493,6 @@ namespace polymake { namespace atint {
 		    "# @return graph::Graph",
 		    hurwitz_graph,"hurwitz_graph(WeightedComplex)");
   
-  Function4perl(&hurwitz_push_cycle, "hpc($, Vector<Int>, Vector<Rational>)");
+//   Function4perl(&hurwitz_push_cycle, "hpc($, Vector<Int>, Vector<Rational>)");
   
 }}
