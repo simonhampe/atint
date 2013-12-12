@@ -357,6 +357,10 @@ object WeightedComplex {
 	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES,  CODIM_1_IN_MAXIMAL_CONES, LINEALITY_SPACE, FAN_AMBIENT_DIM, USES_HOMOGENEOUS_C, LATTICE_GENERATORS, LATTICE_BASES {
 	  computeProjectionLattice($this);
 	}
+	precondition : CMPLX_AMBIENT_DIM, CMPLX_DIM {
+	  ($this->CMPLX_AMBIENT_DIM > 10) ||
+	  ($this->CMPLX_AMBIENT_DIM >= 6 && $this->CMPLX_DIM <= $this->CMPLX_AMBIENT_DIM/2);
+	}
 	weight 3.5;
 	
 	#------------------------------------------------------------------------#
