@@ -28,6 +28,7 @@
 #include "polymake/PowerSet.h"
 #include "polymake/Array.h"
 #include "polymake/linalg.h"
+#include "polymake/Smith_normal_form.h"
 #include "polymake/atint/normalvector.h"
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/atint/cdd_helper_functions.h"
@@ -43,19 +44,40 @@ namespace polymake { namespace atint {
 //   using namespace atintlog::dotrace;
   
   ///////////////////////////////////////////////////////////////////////////////////////
-  
+/*  
   //Documentation see perl wrapper
   Integer lattice_index(const Matrix<Integer> &lattice_rays) {
     if(lattice_rays.rows() < lattice_rays.cols()) {
       throw std::runtime_error("Cannot compute lattice index - not a full-dimensional lattice!");
     }
+    
+    //dbgtrace << "Computing minors" << endl;
+    //dbgtrace << "Set is " << sequence(0, lattice_rays.rows()) << endl;
+    //dbgtrace << "Number of elements is " << lattice_rays.cols() << endl;
     Array<Set<int> > minors = all_subsets_of_k(sequence(0,lattice_rays.rows()),lattice_rays.cols());
     Integer g = 0;
+    //dbgtrace << "Computing gcd" << endl;
     for(int s = 0; s < minors.size(); s++) {
       g = gcd(g,abs(det(lattice_rays.minor(minors[s],All))));
     }
     
     return g;
+    
+  }*/
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+ 
+  //Documentation see perl wrapper
+  Integer lattice_index(const Matrix<Integer> &lattice_rays) {
+    //Compute the Smith Normal form 
+    SmithNormalForm<Integer> solution = smith_normal_form(lattice_rays);
+    
+    Integer result = 1;
+    for(int i = 0; i < solution.rank; i++) {
+      result *= solution.form(i,i);
+    }
+    
+    return abs(result);
     
   }
   
@@ -370,10 +392,9 @@ namespace polymake { namespace atint {
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   UserFunction4perl("# @category Integer and lattice arithmetic"
-		    "# This computes the index of a lattice of rank n in Z^n"
-		    "# @param Matrix<Integer> m A list of (row) generators of the lattice. The matrix must have"
-		    "# full column rank, otherwise an error is thrown"
-		    "# @return Integer The index of the lattice",
+		    "# This computes the index of a lattice in its saturation."
+		    "# @param Matrix<Integer> m A list of (row) generators of the lattice."
+		    "# @return Integer The index of the lattice in its saturation.",
 		    &lattice_index,"lattice_index(Matrix<Integer>)");
   
   UserFunction4perl("# @category Intersection products"
