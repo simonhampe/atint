@@ -11,9 +11,10 @@ URI https://bitbucket.org/hampe/atint
 # put your copyright notice, or just refer to your website
 # unless its address is already contained in the URI.
 
-# CREDIT
-#  short description
-#  copyright your name, address, etc.
+#CREDIT 
+ #a-tint is a polymake extension for tropical intersection theory by 
+ #Simon Hampe (simon.hampe@googlemail.com)
+ #You can find more information under 
 
 
 # If this extension relies on functionality of further extensions,

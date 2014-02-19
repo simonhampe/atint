@@ -138,7 +138,7 @@ namespace polymake { namespace atint {
     perl::Object p("polytope::Polytope");
       p.take("INEQUALITIES") << ineq;
       p.take("EQUATIONS") << eq;
-    Matrix<int> latt = p.give("LATTICE_POINTS");
+    Matrix<int> latt = p.CallPolymakeMethod("LATTICE_POINTS");
       latt = latt.minor(All,~scalar2set(0));
    
     return prueferSequenceFromValences(n,latt);
