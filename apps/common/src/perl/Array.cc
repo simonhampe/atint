@@ -19,6 +19,7 @@
 #include "polymake/Array.h"
 #include "polymake/Integer.h"
 #include "polymake/Vector.h"
+
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
@@ -29,6 +30,5 @@ namespace polymake { namespace common { namespace {
 
    OperatorInstance4perl(convert, Array< Integer >, perl::Canned< const Vector< Integer > >);
    FunctionInstance4perl(new_X, Array< std::string >, perl::Canned< const Vector< std::string > >);
-   Class4perl("Polymake::common::Array__Integer", Array< Integer >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

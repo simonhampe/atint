@@ -257,6 +257,7 @@ namespace polymake { namespace atint {
       
       perl::Object result("WeightedComplex");
 	result.take("RAYS") << bergmanRays;
+	if(bergmanCones.size() == 0) bergmanCones |= (Set<int>());
 	result.take("MAXIMAL_CONES") << bergmanCones;
 	result.take("USES_HOMOGENEOUS_C") << false;
 	result.take("TROPICAL_WEIGHTS") << bergmanWeights;

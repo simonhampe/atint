@@ -421,23 +421,33 @@ namespace polymake { namespace atint {
     Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
       
     //Next, we have to add appropriate zero columns for each coloop and a lineality space
-    for(Entire<Set<int> >::iterator c = entire(coloops); !c.at_end(); c++) {
-      Matrix<Rational> newrays(0,bergman_rays.cols());
-      Matrix<Rational> newlin(0,bergman_lineality.cols());
-      for(int i = 0; i < *c; i++) {
-	newrays |= bergman_rays.col(i);
-	newlin |= bergman_lineality.col(i);
-      }
-      newrays = newrays | zero_vector<Rational>(bergman_rays.rows());
-      newlin = newlin | ones_vector<Rational>(bergman_lineality.rows());
-      for(int i = *c; i < bergman_rays.cols(); i++) {
-	newrays |= bergman_rays.col(i);
-	newlin |= bergman_lineality.col(i);
-      }
-      bergman_rays = newrays;
-      bergman_lineality = newlin;
-      bergman_lineality /= unit_vector<Rational>(bergman_lineality.cols(),*c);
-    }
+    Matrix<Rational> new_bergman_rays(bergman_rays.rows(),bergman_rays.cols() + coloops.size());
+    Matrix<Rational> new_bergman_lin(bergman_lineality.rows() + coloops.size(), bergman_lineality.cols() + coloops.size());
+    new_bergman_rays.minor(All,~coloops) = bergman_rays;
+    Set<int> first_rows = sequence(0,bergman_lineality.rows());
+    new_bergman_lin.minor(first_rows,~coloops) = bergman_lineality;
+    new_bergman_lin.minor(~first_rows,coloops) = unit_matrix<Rational>(coloops.size());
+    bergman_rays = new_bergman_rays;
+    bergman_lineality = new_bergman_lin;
+    
+    
+//     for(Entire<Set<int> >::iterator c = entire(coloops); !c.at_end(); c++) {
+//       Matrix<Rational> newrays(0,bergman_rays.cols());
+//       Matrix<Rational> newlin(0,bergman_lineality.cols());
+//       for(int i = 0; i < *c; i++) {
+// 	newrays |= bergman_rays.col(i);
+// 	newlin |= bergman_lineality.col(i);
+//       }
+//       newrays = newrays | zero_vector<Rational>(bergman_rays.rows());
+//       newlin = newlin | ones_vector<Rational>(bergman_lineality.rows());
+//       for(int i = *c; i < bergman_rays.cols(); i++) {
+// 	newrays |= bergman_rays.col(i);
+// 	newlin |= bergman_lineality.col(i);
+//       }
+//       bergman_rays = newrays;
+//       bergman_lineality = newlin;
+//       bergman_lineality /= unit_vector<Rational>(bergman_lineality.cols(),*c);
+//     }
     
     //Finally, we mod out the lineality space (1..1) if necessary
     if(modOutLineality) {
@@ -558,6 +568,7 @@ namespace polymake { namespace atint {
   
   
   //Function4perl(&computeFkLinear,"computeFk(IncidenceMatrix, $,$,Matrix<Rational>)");
+//   Function4perl(&modify_fan,"modifyfan(WeightedComplex,Set<Int>,$,$)");
   Function4perl(&bergman_fan,"computeBergmanFan($,IncidenceMatrix,$,Matrix<Rational>)");
   Function4perl(&prepareBergmanMatrix,"prepareBergmanMatrix(Matrix<Rational>,$,$)");
   Function4perl(&prepareBergmanMatroid,"prepareBergmanMatroid($,IncidenceMatrix,$,$)");

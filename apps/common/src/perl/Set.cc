@@ -18,6 +18,7 @@
 #include "polymake/client.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Set.h"
+
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
@@ -30,5 +31,6 @@ namespace polymake { namespace common { namespace {
    Class4perl("Polymake::common::Set__String", Set< std::string >);
    FunctionInstance4perl(new, Set< std::string >);
    OperatorInstance4perl(Binary_sub, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, int);
+   OperatorInstance4perl(assign, pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)2>, false, (pm::sparse2d::restriction_kind)2> > >, perl::Canned< const pm::Series<int, true> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
