@@ -365,6 +365,14 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES, CODIM_1_IN_MAXIMAL_CONES, RAYS {
+	  computeUnimodularNormals($this);
+	}
+	precondition : IS_UNIMODULAR;
+	weight 1.0;
+	
+	#------------------------------------------------------------------------#
+	
 	rule IS_BALANCED : CODIM_1_FACES, LATTICE_NORMAL_SUM, FAN_AMBIENT_DIM{
 	  computeIfBalanced($this);
 	}

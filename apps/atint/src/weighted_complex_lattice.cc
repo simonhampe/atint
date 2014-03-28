@@ -237,6 +237,45 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   /**
+   * @brief Computes the lattice normals of a WeightedComplex in the case where the latter is a unimodular fan (as its trivial in that case and we shouldn't waste time computing)
+   */
+  void computeUnimodularNormals(perl::Object fan) {
+    //Extract basic properties
+    IncidenceMatrix<> maximalCones = fan.give("MAXIMAL_CONES");
+    IncidenceMatrix<> codimCones = fan.give("CODIM_1_FACES");
+    IncidenceMatrix<> codimInMaximal = fan.give("CODIM_1_IN_MAXIMAL_CONES");
+    
+    Matrix<Rational> rays = fan.give("RAYS");
+    
+    Map<int,Map<int,Vector<Integer> > > lattice_normals;
+    
+    //Degenerate case: Linear space
+    if(codimCones.rows() == 0) {
+	fan.take("LATTICE_NORMALS") << lattice_normals;
+	return;
+    }
+    
+    //Iterate codimension one cones and use additional rays of adjacent cones as lattice normal
+    for(int cc = 0; cc < codimCones.rows(); cc++) {
+      Map<int,Vector<Integer> > adjacentConeMap;
+      //Iterate adjacent maximal cones
+      Set<int> neighbours = codimInMaximal.row(cc);
+      for(Entire<Set<int> >::iterator nb = entire(neighbours); !nb.at_end(); nb++) {
+	//Find ray not in cc
+	int additionalRay = *( (maximalCones.row(*nb) - codimCones.row(cc)).begin());
+	adjacentConeMap[*nb] = makePrimitiveInteger(rays.row(additionalRay));
+      }//END iterate adjacent maximals
+      lattice_normals[cc] = adjacentConeMap;
+    }//END iterate codim1 cones
+    
+    fan.take("LATTICE_NORMALS") << lattice_normals;
+    
+    
+  }//END computeUnimodularNormals
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
    @brief Takes a WeightedComplex and computes its lattice normals via a projection along the individual lattice bases of the cones.
    */
   void computeProjectionLattice(perl::Object fan) {
@@ -471,12 +510,13 @@ namespace polymake { namespace atint {
     
   }
   
-  
-  
+    
   
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
   
   Function4perl(&computeLatticeNormals, "computeLatticeNormals(WeightedComplex)");
+  
+  Function4perl(&computeUnimodularNormals, "computeUnimodularNormals(WeightedComplex)");
   
   Function4perl(&computeProjectionLattice, "computeProjectionLattice(WeightedComplex)");
 
