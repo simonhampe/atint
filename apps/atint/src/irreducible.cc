@@ -334,6 +334,60 @@ namespace polymake { namespace atint {
     return rank(F) == 1;
   }
   
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  //Documentation see perl wrapper
+  perl::Object weight_cone(perl::Object fan, Set<int> negative_directions) {
+    //Extract weight system
+    Matrix<Rational> wsystem = fan.give("WEIGHT_SYSTEM");
+    
+    //Take facets of orthant and invert chosen rows
+    Matrix<Rational> orthant = unit_matrix<Rational>(wsystem.cols());
+    for(Entire<Set<int> >::iterator coord = entire(negative_directions); !coord.at_end(); coord++) {
+      orthant.row(*coord) *= -1;
+    }
+        
+    perl::Object cone("polytope::Cone");
+      cone.take("EQUATIONS") << wsystem;
+      cone.take("INEQUALITIES") << orthant;
+    return cone;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////
+  
+  /**
+   * @brief Computes the decomposition polytope of a tropical variety: It computes the irreducible varieties in the 
+   * weight cone (where the corresponding orthant is taken such that the weight vector of X lies in that orthant). It then
+   * computes the polytope of all positive linear combinations of those irreducible varieties that produce the original weight vector.
+   * @param WeightedComplex fan
+   * @return polytope::Polytope
+   */
+  perl::Object decomposition_polytope(perl::Object fan) {
+    //Extract values
+    Vector<Integer> weights = fan.give("TROPICAL_WEIGHTS");
+    Set<int> negative_entries;
+    for(int i = 0; i < weights.dim(); i++) { if(weights[i] < 0) negative_entries += i;}
+    
+    perl::Object cone = weight_cone(fan,negative_entries);
+    
+    //Compute equations: The linear combination of the rays of the cone must be the weight vector of the variety
+    Vector<Rational> rweights(weights);
+    Matrix<Rational> crays = cone.give("RAYS");
+      crays = Matrix<Rational>(makePrimitiveInteger(crays));
+    crays = (- rweights) | T(crays);
+    
+    //Facets = positive orthant
+    Matrix<Rational> facets = unit_matrix<Rational>(crays.cols()-1);
+    facets = zero_vector<Rational>() | facets;
+    
+    perl::Object p("polytope::Polytope");
+      p.take("INEQUALITIES") << facets;
+      p.take("EQUATIONS") << crays;
+    return p;
+    
+    
+  }
+  
   // ------------------------- PERL WRAPPERS ---------------------------------------------------
 
     Function4perl(&is_irreducible,"is_irreducible(WeightedComplex)");
@@ -341,5 +395,17 @@ namespace polymake { namespace atint {
 //     Function4perl(&cycle_weight_system,"cycle_weight_system(WeightedComplex)");
 //     Function4perl(&cycle_weight_cone,"cycle_weight_cone(WeightedComplex)");
     Function4perl(&cycle_weight_space,"cycle_weight_space(WeightedComplex)");
+    Function4perl(&decomposition_polytope,"decomposition_polytope(WeightedComplex)");
 
+    UserFunction4perl("# @category Tropical properties "
+		      "# Takes a polyhedral complex and computes a weight cone, i.e. "
+		      "# intersects the [[WEIGHT_SPACE]] with a chosen orthant (by default the positive orthant)"
+		      "# @param WeightedComplex X A polyhedral complex"
+		      "# @param Set<int> negative A subset of the coordinates {0,..,N-1}, where N is "
+		      "# the number of maximal cells of X. Determines the orthant to"
+		      "# intersect the weight space with: All coordinates in the set are negative, the others positive"
+		      "# If the set is not given, it is empty by default (i.e. we take the positive orthant)",
+		      &weight_cone,
+		      "weight_cone(WeightedComplex, Set<Int>)");
+    
 }}

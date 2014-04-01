@@ -225,8 +225,7 @@ object WeightedComplex {
 	
 	# @category Lattice properties
 	# This property is not computed anywhere but should be set to TRUE by the user upon 
-	# initialization, if all cones of the fan are unimodular in the sense that 
-	# ANY linearly independent subset of their rays generates 
+	# initialization, if each cone is simplicial and its rays generate
 	# the lattice of the cone. Note that this property is only considered if [[USES_HOMOGENEOUS_C]] is false.
 	# If [[USES_HOMOGENEOUS_C]] is true, this property is implicitly assumed to be false.
 	# If this property is TRUE, [[LATTICE_GENERATORS]] and [[LATTICE_BASES]] can be computed
@@ -365,7 +364,7 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES, CODIM_1_IN_MAXIMAL_CONES, RAYS {
+	rule LATTICE_NORMALS : CODIM_1_FACES, MAXIMAL_CONES, CODIM_1_IN_MAXIMAL_CONES, RAYS, IS_UNIMODULAR {
 	  computeUnimodularNormals($this);
 	}
 	precondition : IS_UNIMODULAR;
@@ -449,6 +448,17 @@ object WeightedComplex {
 	  $this->IS_UNIMODULAR = FALSE;
 	}
 	
+	rule initial :  IS_UNIMODULAR, USES_HOMOGENEOUS_C {
+	  if($this->IS_UNIMODULAR and $this->USES_HOMOGENEOUS_C) {
+	    die "Unimodularity is only supported for fans at the moment";
+	  }
+	}
+	
+	rule SIMPLICIAL : IS_UNIMODULAR {
+	  $this->SIMPLICIAL = TRUE;
+	}
+	precondition : IS_UNIMODULAR;
+	
 	#------------------------------------------------------------------------#
 	
 	rule LATTICE_BASES, LATTICE_GENERATORS : RAYS, MAXIMAL_CONES, DIRECTIONAL_RAYS, VERTICES, IS_UNIMODULAR, LINEALITY_SPACE {
@@ -468,7 +478,7 @@ object WeightedComplex {
 	  $this->WEIGHT_SPACE = cycle_weight_space($this);
 	}
 	
-	#------------------------------------------------------------------------#
+	#----------------------------------------, USES_HOMOGENEOUS_C, SIMPLICIAL--------------------------------#
 	
 	rule WEIGHT_CONE : WEIGHT_SYSTEM {
 	  my $sys = $this->WEIGHT_SYSTEM;
@@ -481,8 +491,8 @@ object WeightedComplex {
 	
 	#------------------------------------------------------------------------#
 	
-	rule IS_IRREDUCIBLE : WEIGHT_SYSTEM, TROPICAL_WEIGHTS {
-	  my $n = null_space($this->WEIGHT_SYSTEM);
+	rule IS_IRREDUCIBLE : WEIGHT_SPACE, TROPICAL_WEIGHTS {
+	  my $n = $this->WEIGHT_SPACE;
 	  if($n->rows() > 1) {
 	    $this->IS_IRREDUCIBLE = FALSE;
 	  }

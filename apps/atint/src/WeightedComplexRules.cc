@@ -82,7 +82,6 @@ namespace polymake { namespace atint {
     fan.take("CODIM_1_IN_MAXIMAL_CONES") << r.codimOneInMaximal;    
   }
   
-  
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see header

@@ -138,7 +138,7 @@ namespace polymake { namespace atint {
       P.take("RAYS") << (psi_rays.minor(used_rays,All));
       P.take("MAXIMAL_CONES") << (psi_cones.minor(kept_cones,used_rays));
       P.take("TROPICAL_WEIGHTS") << (psi_weights.slice(kept_cones));
-      P.take("IS_UNIMODULAR") << true;
+//       P.take("IS_UNIMODULAR") << true;
    
     //Now compute the divisor
     for(int i = 0; i < pb_functions.dim(); i++) {
