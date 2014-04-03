@@ -46,7 +46,11 @@ namespace polymake { namespace atint {
     Matrix<Rational> rays = complex.give("RAYS");
     Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
-    Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
+    bool weights_exist = complex.exists("TROPICAL_WEIGHTS");
+    Vector<Integer> weights;
+    if(weights_exist) {
+	complex.give("TROPICAL_WEIGHTS") >> weights;
+    }    
     IncidenceMatrix<> maximalCones = complex.give("MAXIMAL_CONES");
     IncidenceMatrix<> codimOneCones = complex.give("CODIM_1_FACES");
     IncidenceMatrix<> codimInMaximal = complex.give("CODIM_1_IN_MAXIMAL_CONES");
@@ -132,7 +136,7 @@ namespace polymake { namespace atint {
       
       newcones |= ray_set;
       used_rays += ray_set;
-      newweights |= weights[*(conesInClass.begin())];      
+      if(weights_exist) newweights |= weights[*(conesInClass.begin())];      
     }
     
     //Some rays might become equal (modulo lineality space) when coarsening, so we have to clean up
@@ -167,7 +171,9 @@ namespace polymake { namespace atint {
       result.take("RAYS") << final_rays;
       result.take("MAXIMAL_CONES") << newcones;
       result.take("LINEALITY_SPACE") << newlin;
-      result.take("TROPICAL_WEIGHTS") << newweights;
+      if(weights_exist) {
+	result.take("TROPICAL_WEIGHTS") << newweights;
+      }
       result.take("USES_HOMOGENEOUS_C") << uses_homog;
     
     return result;
