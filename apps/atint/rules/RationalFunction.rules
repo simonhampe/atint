@@ -158,11 +158,17 @@ object RationalFunction {
 # @category Basic polyhedral operations
 # This function takes a fan::PolyhedralFan and converts it into a WeightedComplex object.
 # @param fan::PolyhedralFan fan The fan to be converted
-# @param Bool homog Whether the fan is to be interpreted in homogeneous coordinates
+# @param Bool homog Whether the fan is to be interpreted in homogeneous coordinates. Optional and false by default.
+# @param Vector<Integer> weights. A vector of weights. Should have as many entries as the fan has [[MAXIMAL_CONES]]. Is optional. If not given the property [[TROPICAL_WEIGHTS]] remains undefined.
 # @return WeightedComplex A complex with no weights but with the same geometry as fan.
 user_function wfan {
-  my ($fan,$homog) = @_;
-  return new WeightedComplex(RAYS=>$fan->RAYS,MAXIMAL_CONES=>$fan->MAXIMAL_CONES,LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$homog);
+  my ($fan,$homog, $weights) = @_;
+  if(!defined($homog)) {
+    $homog = FALSE;
+  }
+  return defined($weights) ? 
+  new WeightedComplex(RAYS=>$fan->RAYS,MAXIMAL_CONES=>$fan->MAXIMAL_CONES,LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$homog, TROPICAL_WEIGHTS=>$weights)
+  : new WeightedComplex(RAYS=>$fan->RAYS,MAXIMAL_CONES=>$fan->MAXIMAL_CONES,LINEALITY_SPACE=>$fan->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$homog);
 }
 
 # @category Morphisms and functions
