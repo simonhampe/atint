@@ -35,9 +35,9 @@
 
 namespace polymake { namespace atint { 
     
-//   using namespace atintlog::donotlog;
+  using namespace atintlog::donotlog;
   //using namespace atintlog::dolog;
-  using namespace atintlog::dotrace;
+//   using namespace atintlog::dotrace;
   
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ namespace polymake { namespace atint {
       }
     }//END iterate sum fan rays
     
-    dbgtrace << "Ray values " << ray_values << endl;
+    //dbgtrace << "Ray values " << ray_values << endl;
     
     //Compute divisor of diagonal functions
     pm::cout << "Computing divisor" << endl;    

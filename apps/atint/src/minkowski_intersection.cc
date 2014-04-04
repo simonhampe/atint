@@ -164,16 +164,18 @@ namespace polymake { namespace atint {
     // create another interior point and try again.
     bool point_found;
     UniformlyRandom<Rational> random_gen;
-    Vector<Rational> interior_point(xrays.cols());
+    Vector<Rational> interior_point(xrays.cols()+1);
     //dbgtrace << "Generating generic point" << endl;
     do {
       weight = Integer(0);
       copy(random_gen.begin(), entire(interior_point));
+      interior_point[0] = 1;
       point_found = true;
       //dbgtrace << "Trying " << interior_point << endl;
       //Now go through all full-dimensional cones
       for(int fullcone = 0; fullcone < full_dimensional_cones.dim(); fullcone++) {
 	//dbgtrace << "Checking fulldimension cone " << fullcone << endl;
+	//dbgtrace << "Has facets " << full_dimensional_cones[fullcone] << endl;
 	Vector<Rational> eq_check = full_dimensional_cones[fullcone] * interior_point;
 	bool is_interior = true;
 	bool is_in_boundary = false;
@@ -207,58 +209,6 @@ namespace polymake { namespace atint {
       }//END iterate full-dimensional cones
     } while(!point_found);
     
-    
-    
-    
-//     for(int xc = 0; xc < xcones.dim(); xc++) {
-//       for(int yc = 0; yc < ycones.dim(); yc++) {
-// 	dbgtrace << "Having cones " << xrays.minor(xcones[xc],All) << ", \n" << yrays.minor(ycones[yc],All) << endl;
-// 	Matrix<Rational> x_sub_rays = xrays.minor(xcones[xc],All);
-// 	Matrix<Rational> y_sub_rays = (- yrays.minor(ycones[yc],All));
-// 	//Compute H-representation of xcone - ycone
-// 	std::pair<Matrix<Rational>, Matrix<Rational> > eqs = 
-// 	  sv.enumerate_facets(zero_vector<Rational>() | x_sub_rays / y_sub_rays, 
-// 			      zero_vector<Rational>() | (xlin / ylin),true,false);
-// 	  
-// 	//We're only interested in full-dimensional cones
-// 	if(eqs.second.rows() == 0) {
-// 	    dbgtrace << "Is fulldimensional" << endl;
-// 	    //Compute an interior point, if necessary
-// 	    if(!point_found) {
-// 	      if(eqs.first.rows() == 0) {
-// 		  interior_point = zero_vector<Rational>(xrays.cols() > xlin.cols()? xrays.cols() : xlin.cols());
-// 	      }
-// 	      else {
-// 		Matrix<Rational> r = sv.enumerate_vertices(eqs.first,eqs.second,true,true).first;
-// 		interior_point = accumulate(rows(r),operations::add());
-// 		dbgtrace << "Setting interior point to " << interior_point << endl;
-// 		point_found = true;
-// 	      }
-// 	    }
-// 	    //Otherwise check if this point is an interior point
-// 	    else {
-// 	      Vector<Rational> eq_check = eqs.first * interior_point;
-// 	      bool is_interior = true;
-// 	      for(int c = 0; c < eq_check.dim(); c++) {
-// 		if(eq_check[c] <= 0) {
-// 		  is_interior = false; break;
-// 		}
-// 	      }
-// 	      if(!is_interior) continue;
-// 	      dbgtrace << "Contains interior point" << endl;
-// 	    }//END check if is interior point
-// 	    
-// 	    //If we arrive here, compute weight
-// 	    dbgtrace << "xweight: " << xweights[xc] << endl;
-// 	    dbgtrace << "yweight: " << yweights[yc] << endl;
-// 	    Integer latticeIndex = lattice_index(latticeBasisFromRays(x_sub_rays,xlin) / 
-// 						  latticeBasisFromRays(y_sub_rays,ylin));
-// 	    dbgtrace << "lattice: " << latticeIndex<< endl;
-// 	    weight += (xweights[xc] * yweights[yc] * latticeIndex);
-// 	    
-// 	}//END check if diff is full-dimensional
-//       }//END iterate ycones
-//     }//END iterate xcones
     
     return weight;
   }
