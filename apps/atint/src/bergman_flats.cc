@@ -189,6 +189,12 @@ namespace polymake { namespace atint {
     int rank = matroid.give("RANK");
     int n = matroid.give("N_ELEMENTS");
     
+    //Sanity check: Has loops?
+    int noOfLoops = matroid.give("N_LOOPS");
+    if(noOfLoops > 0) {
+      return CallPolymakeFunction("zero_cycle");
+    }
+    
     //Compute flats and chains of flats
     Vector<Vector<Set<int> > > flats(rank-1); 
     Vector<Vector<int> > chains;

@@ -26,7 +26,7 @@ namespace polymake { namespace common { namespace {
    template <typename T0, typename T1, typename T2>
    FunctionInterface4perl( minor_X8_X8_f5, T0,T1,T2 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      WrapperReturnLvalueAnch( (3)(arg0)(arg1)(arg2), T0, arg0.get<T0>().minor(arg1.get<T1>(), arg2.get<T2>()) );
+      ObsoleteWrapperLvalueAnch( (3)(arg0)(arg1)(arg2), T0, arg0.get<T0>().minor(arg1.get<T1>(), arg2.get<T2>()) );
    };
 
    FunctionInstance4perl(minor_X8_X8_f5, perl::Canned< const Wary< Matrix< Rational > > >, perl::Canned< const pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> >, perl::Canned< const pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> >);
