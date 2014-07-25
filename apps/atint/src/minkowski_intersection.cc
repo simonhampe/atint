@@ -216,7 +216,7 @@ namespace polymake { namespace atint {
   ///////////////////////////////////////////////////////////////////////////////////////
   
   //Documentation see perl wrapper
-  perl::Object minkowski_intersection(perl::Object X, perl::Object Y) {
+  perl::ListReturn minkowski_intersection(perl::Object X, perl::Object Y, bool ensure_transversality = false) {
     //Extract values
     int Xcodim = X.give("CMPLX_CODIMENSION");
     int Ycodim = Y.give("CMPLX_CODIMENSION");
@@ -226,7 +226,10 @@ namespace polymake { namespace atint {
     
     //If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
     if(Xcodim + Ycodim > Xambi) {
-      return CallPolymakeFunction("zero_cycle");
+      perl::ListReturn zeroResult;
+	zeroResult << CallPolymakeFunction("zero_cycle");
+	zeroResult << false;
+      return zeroResult;
     }
     
     //dbgtrace << "Homogenizing where necessary" << endl;
@@ -270,10 +273,21 @@ namespace polymake { namespace atint {
     Vector<Set<int> > xcontainers;
     Vector<Set<int> > ycontainers;
     
+    bool is_transversal = true;
+    
     for(int ic = 0; ic < f.cones.rows(); ic++) {
       //Check that the cone dimension is at least the expected dimension
       int cone_dim = rank(interrays.minor(f.cones.row(ic),All)) + i_lineality_dim -1;
       if(cone_dim >= k) {
+	if(cone_dim > k) {
+	    is_transversal = false;
+	    if(ensure_transversality) {
+// 		perl::ListReturn emptyresult;
+// 		  emptyresult << CallPolymakeFunction("zero_cycle");
+// 		  emptyresult << false;
+// 		return emptyresult;
+	    }
+	}
 	//Now we compute the k-skeleton of the intersection cone
 	Vector<Set<int> > singlecone; singlecone |= f.cones.row(ic);
 	IncidenceMatrix<> k_skeleton_matrix(singlecone);
@@ -311,7 +325,10 @@ namespace polymake { namespace atint {
     
     //If no cones remain, return the zero cycle
     if(intercones.dim() == 0) {
-      return CallPolymakeFunction("zero_cycle");
+      perl::ListReturn zeroResult;
+	zeroResult << CallPolymakeFunction("zero_cycle");
+	zeroResult << is_transversal;
+      return zeroResult;
     }
      
     //dbgtrace << "Computing weights " << endl;
@@ -361,7 +378,10 @@ namespace polymake { namespace atint {
     
     //Check if any cones remain
     if(weight_zero_cones.size() == intercones.dim()) {
-      return CallPolymakeFunction("zero_cycle");
+      perl::ListReturn zeroResult;
+	zeroResult << CallPolymakeFunction("zero_cycle");
+	zeroResult << is_transversal;
+      return zeroResult;
     }
     
     //dbgtrace << "Done" << endl;
@@ -383,7 +403,11 @@ namespace polymake { namespace atint {
       result.take("LINEALITY_SPACE") << interlin;
       result.take("TROPICAL_WEIGHTS") << weights;
     
-    return result;
+//     return result;
+    perl::ListReturn positiveResult;
+      positiveResult << result;
+      positiveResult << is_transversal;
+    return positiveResult;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -428,11 +452,16 @@ namespace polymake { namespace atint {
 		    &lattice_index,"lattice_index(Matrix<Integer>)");
   
   UserFunction4perl("# @category Intersection products"
-		    "# Computes the intersection product of two tropical cycles in R^n"
+		    "# Computes the intersection product of two tropical cycles in R^n and tests whether the intersection is transversal."
 		    "# @param WeightedComplex X A tropical cycle"
 		    "# @param WeightedComplex Y A tropical cycle, living in the same space as X"
-		    "# @return WeightedComplex The intersection product, always in homogeneous coordinates",
-		    &minkowski_intersection,"intersect(WeightedComplex,WeightedComplex)");
+		    "# @param Bool ensure_transversality Whether non-transversal intersections should not be computed. Optional and false by default. If true,"
+		    "# returns the zero cycle if it detects a non-transversal intersection"
+		    "# @return A tuple containing:"
+		    "# A WeightedComplex: The intersection product, always in homogeneous coordinates. Zero cycle if ensure_transversality is true and the intersection is not transversal."
+		    "# A Bool: Whether the intersection is transversal. This is always false, if the codimensions of the varieties add up to more than the ambient dimension.",
+		    &minkowski_intersection,"intersect_check_transversality(WeightedComplex,WeightedComplex; $=0)");
+  
   
   UserFunction4perl("# @category Intersection products"
 		    "# Computes the minkowski multiplicity of two fans, i.e. it computes the unique weight of "
