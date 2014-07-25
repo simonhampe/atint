@@ -69,6 +69,7 @@ INCLUDE
   WeightedComplex_properties.rules
   RationalFunction.rules
   minmaxfunction.rules
+  minkowski_intersection.rules
   basic_operations.rules
   specialfans.rules
   cmplx_visual.rules
