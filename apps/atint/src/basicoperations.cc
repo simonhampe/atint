@@ -656,8 +656,8 @@ namespace polymake { namespace atint{
   
   Function4perl(&skeleton_complex,"calculate_skeleton_complex(WeightedComplex,$;$=1)");
   
-  UserFunction4perl("# @categoryBasic polyhedral operations"
-		    "# Take a polyhedral complex and returns a list of all the local vertex fans, "
+  UserFunction4perl("# @category Basic polyhedral operations"
+		    "# Takes a polyhedral complex and returns a list of all the local vertex fans, "
 		    "# i.e. for each affine ray r, the list contains the fan Star_complex(r) "
 		    "# (in non-homogeneous coordinates)"
 		    "# If the complex has a non-trivial [[LOCAL_RESTRICTION]], only the local fans"
