@@ -269,16 +269,16 @@ namespace polymake { namespace atint {
     }
     
     
-    //If necessary, test for fan-ness
-    if(testFan) {
-      //This function throws an error if the result is not a fan.
-      try {
-	CallPolymakeFunction("fan::check_fan",final_rays, newcones);
-      }
-      catch(...) {
-	throw std::runtime_error("The equivalence classes do not form a fan. There is no coarsest structure.");
-      }
-    }
+//     //If necessary, test for fan-ness
+//     if(testFan) {
+//       //This function throws an error if the result is not a fan.
+//       try {
+// 	CallPolymakeFunction("fan::check_fan",final_rays, newcones);
+//       }
+//       catch(...) {
+// 	throw std::runtime_error("The equivalence classes do not form a fan. There is no coarsest structure.");
+//       }
+//     }
     
     //Produce final result
     perl::Object result("WeightedComplex");
@@ -301,13 +301,15 @@ namespace polymake { namespace atint {
 		    "# and computes this structure."
 		    "# @param WeightedComplex complex A tropical variety which has a unique "
 		    "# coarsest polyhedral structre "
-		    "# @param Bool testFan Whether the algorithm should test if the result"
-		    "# is actually a polyhedral complex. This is false by default and should "
-		    "# only be set to true, if the user is not actually certain, whether the "
-		    "# complex in question has a coarsest structure. If the result is not a"
-		    "# fan, the algorithm throws an exception."
+		    "# @param Bool testFan Whether the algorithm should perform some consistency "
+		    "# checks on the result. If true, it will check the following: "
+		    "# - That equivalence classes of cones have convex support"
+		    "# - That all equivalence classes have the same lineality space"
+		    "# If any condition is violated, the algorithm throws an exception"
+		    "# Note that it does not check whether equivalence classes form a fan"
+		    "# This can be done via [[fan::check_fan]] afterwards, but it is potentially slow."
 		    "# @return WeightedComplex The corresponding coarse complex. Throws an "
-		    "# exception if testFan = True and the result is not a fan",
+		    "# exception if testFan = True and consistency checks fail.",
 		    &coarsen, "coarsen(WeightedComplex; $=0)");
   
 }}
