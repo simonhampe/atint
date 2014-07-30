@@ -4,4 +4,5 @@ This project is part of and financed by the DFG Priority Project SPP 1489 (see a
 You can find a user manual in the wiki pages, as well as installation instructions. 
 
 a-tint also contains code by:
+
 * Dennis Diefenbach
