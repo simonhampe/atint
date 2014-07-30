@@ -1,4 +1,4 @@
-/* Copyright (c) 1997-2010
+/* Copyright (c) 1997-2013
    Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
    http://www.polymake.org
 
@@ -15,29 +15,7 @@
 
 ///==== this line controls the automatic file splitting: max.instances=40
 
-#include "polymake/client.h"
-#include "polymake/Matrix.h"
-#include "polymake/Rational.h"
-#include "polymake/IncidenceMatrix.h"
-#include "polymake/Set.h"
-#include "polymake/linalg.h"
-#include "polymake/Vector.h"
-
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0>
-   FunctionInterface4perl( cols_f1, T0 ) {
-      perl::Value arg0(stack[0]);
-      WrapperReturn( arg0.get<T0>().cols() );
-   };
-
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::Transposed<pm::Matrix<pm::Rational> > >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::ColChain<pm::DiagMatrix<pm::SameElementVector<pm::Rational const&>, true> const&, pm::Matrix<pm::Rational> const&> >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::Matrix<pm::Rational> const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > const&, pm::SingleRow<pm::Vector<pm::Rational> const&> > >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::ColChain<pm::Matrix<pm::Rational> const&, pm::SingleCol<pm::SameElementVector<pm::Rational const&> const&> > >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::all_selector const&, pm::Series<int, true> const&> >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> const&, pm::Complement<pm::SingleElementSet<int const&>, int, pm::operations::cmp> const&> >);
-   FunctionInstance4perl(cols_f1, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
