@@ -69,7 +69,7 @@ user_function divisor {
 # Takes as input a tropical variety and an arbitrarily long list of RationalFunction objects f_1,...,f_k. It will 
 ## then compute f_k^a_k * ... * f_1^a_1 * X, where a_i = f_i->POWER
 # @param WeightedComplex X
-# @param RationalFunction A list f_1,...,f_k
+# @param RationalFunction A list f_1,...,f_k. 
 # @return WeightedComplex The divisor f_k * ... * f_1 * X. It is in homogeneous coordinates, if and only if: 
 # Either X is in homog. coordinates or one of the functions is defined on a homogeneous domain.
 user_function divisor_list {
@@ -90,7 +90,7 @@ user_function divisor_list {
 # Works exactly as divisor_list(WeightedComplex;RationalFunction,...). Should be called
 # ONLY,when every occuring function f is defined on a DOMAIN equal to X (in the sense that
 # all properties like RAYS, MAXIMAL_CONES, etc. agree. Being equal as varieties is not
-# sufficient). In this case this function will in general be faster.
+# sufficient). In this case this function will in general be faster. 
 user_function divisor_list_nr {
   my ($X,@functions) = @_;
   if(scalar(@functions) == 0) { return $X; }
@@ -109,6 +109,6 @@ user_function divisor_list_nr {
     }
   }
   
-  return divisorByValueMatrix($X,$fmatrix);
+  return divisorByValueMatrix($X,$fmatrix, $functions[0]->USES_MIN);
   
 }

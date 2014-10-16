@@ -42,17 +42,19 @@ perl::Object intersect_container(perl::Object fan, perl::Object completeFan, boo
   @brief Takes as input a tropical fan / variety and a matrix of rational values. Each row of the matrix is interpreted as a value vector on the (cmplx_)rays and lineality space generators. Hence the column count of the matrix should be exactly the number of CMPLX_RAYS of fan + the dimension of the lineality space. The row count is arbitrary in principle, but should be smaller than or equal to the dimension of fan. The fan will then compute the Weil divisor obtained by intersecting with all the functions described by the rows (starting from top). The result uses homogeneous coordinates, if and only if fan does.<br> Note that this still produces a meaningful result, if the WeightedComplex is not balanced: The "divisor" of a given function is computed by taking all codim-1-faces, at which f is balanced and computing weights there.
   @param WeightedComplex fan A tropical variety
   @param Matrix<Rational> values A matrix of rational values
+  @param bool uses_min Optional, false by default. If this is true, then the signs of the weights are inverted upon computation, i.e. the weight of a codim-1-face is now phi(sum of normal vectors) - sum( phi(normal vector)).
   @return The divisor r_k * ... * r_1 * fan, where r_i is the function described by the i-th row.
 */
-perl::Object divisorByValueMatrix(perl::Object fan, Matrix<Rational> values);
+perl::Object divisorByValueMatrix(perl::Object fan, Matrix<Rational> values, bool uses_min = false);
 
 /**
   @brief Takes  as input a tropical fan / tropical variety and an array of rational values. The array length should coincide with the number of [[CMPLX_RAYS]] of the fan plus the dimension of the lineality space and will be interpreted as a rational function, where each value has been assigned to the rays given by $fan->CMPLX_RAYS and to the generators given by $fan->LINEALITY_SPACE (in that order). Missing values will be filled up by 0's, superfluous ones will be ignored. The function will then compute the corresponding Weil divisor and return it as a tropical variety given as a fan. The fan uses homogeneous coordinates, if and only the input fan does. DEPRECATED use divisor(function_value(...))
   @param WeightedComplex A tropical variety on which the divisor is computed.
   @param Vector<Rational> values An array of rational values that define an integer affine map on the fan. 
+  @param bool uses_min Optional, false by default. If this is true, then the signs of the weights are inverted upon computation, i.e. the weight of a codim-1-face is now phi(sum of normal vectors) - sum( phi(normal vector)).
   @return The divisor of the function defined by values on the given fan, as a tropical variety.
 */
-perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values);
+perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values,bool uses_min = false);
 
 /**
   @brief Computes the divisor of a MinMaxFunction on a given tropical variety. The result will be in homogeneous coordinates, whether the tropical variety uses them or not. The function should be given on the affine coordinates of the variety, NOT the homogeneous ones. DEPRECATED, use divisor_minmax
@@ -91,7 +93,7 @@ perl::Object divisor_rational(perl::Object complex, perl::Object function, int k
 Rational functionValue(Matrix<Rational> functionMatrix, Vector<Rational> point, bool uses_min, bool uses_homog);
 
 /**
-  @brief Computes the sum of two rational functions (that should be defined on the same support)
+  @brief Computes the sum of two rational functions (that should be defined on the same support). If will assume that both functions have the same min-max-property (if not, the min-max property of f will prevail).
   @param perl::Object f a RationalFunction
   @param perl::Object g a RationalFunction
   @return perl::Object the sum f+g

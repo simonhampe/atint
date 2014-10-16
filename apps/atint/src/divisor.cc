@@ -62,7 +62,7 @@ namespace polymake { namespace atint {
     ///////////////////////////////////////////////////////////////////////////////////////
 
     //Documentation see header -------------------------------------------------------------
-    perl::Object divisorByValueMatrix(perl::Object complex, Matrix<Rational> values) {
+    perl::Object divisorByValueMatrix(perl::Object complex, Matrix<Rational> values, bool uses_min) {
       //This value carries all the intermediate results.
       perl::Object result = complex;      
       
@@ -215,6 +215,8 @@ namespace polymake { namespace atint {
  	    //dbgtrace << lsumFunctionVector.row(co) * currentValues << endl;
 	    coweight = coweight - lsumFunctionVector.row(co) * currentValues;
 	    if(coweight != 0) {
+	      //Invert weight sign for min people.
+	      if(uses_min) coweight = - coweight;
 	      newweights = newweights | Integer(coweight);	  
 	      usedCones += co;
 	      usedRays += codimOneCones.row(co);
@@ -321,11 +323,11 @@ namespace polymake { namespace atint {
 
     //Kept for backward compatibility
     //Documentation see header -------------------------------------------------------------
-    perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values) {
+    perl::Object divisorByValueVector(perl::Object fan, Vector<Rational> values,bool uses_min) {
       pm::cout << "divisorByValue is considered deprecated. Use \"divisor\" and \"function_value\" instead. For details please consult the documentation." << endl;
       Matrix<Rational> vmatrix(0,values.dim());
 	vmatrix /= values;
-      return divisorByValueMatrix(fan,vmatrix);
+      return divisorByValueMatrix(fan,vmatrix,uses_min);
     }
     
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +392,8 @@ namespace polymake { namespace atint {
 	vmatrix /= values;
       }
       
-      return divisorByValueMatrix(r.complex,vmatrix);
+      
+      return divisorByValueMatrix(r.complex,vmatrix,uses_min);
       
     }
     
@@ -410,6 +413,7 @@ namespace polymake { namespace atint {
       //Extract function
       Vector<Rational> rvalues = function.give("RAY_VALUES");
       Vector<Rational> lvalues = function.give("LIN_VALUES");
+      bool uses_min = function.give("USES_MIN");
       Vector<Rational> values = rvalues | lvalues;
       int power = function.give("POWER");
 
@@ -419,7 +423,7 @@ namespace polymake { namespace atint {
 	fmatrix /= values;
       }
       
-      return divisorByValueMatrix(complex,fmatrix);
+      return divisorByValueMatrix(complex,fmatrix,uses_min);
     }
  
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -431,6 +435,7 @@ namespace polymake { namespace atint {
       bool fct_uses_homog = domain.give("USES_HOMOGENEOUS_C");
       Vector<Rational> rvalues = function.give("RAY_VALUES");
       Vector<Rational> lvalues = function.give("LIN_VALUES");
+      bool uses_min = function.give("USES_MIN");
       int power = function.give("POWER");
       Vector<Rational> values = rvalues | lvalues;
       
@@ -467,7 +472,7 @@ namespace polymake { namespace atint {
 	fmatrix /= newvalues;
       }
       
-      return divisorByValueMatrix(r.complex, fmatrix);
+      return divisorByValueMatrix(r.complex, fmatrix,uses_min);
       
     }
     
@@ -539,6 +544,8 @@ namespace polymake { namespace atint {
 	}
       }
       
+      bool uses_min = f.give("USES_MIN");
+      
       //Then compute the common refinement of the domains
       RefinementResult r = refinement(fDomain,gDomain,true,true,false,true);
 	perl::Object nDomain = r.complex;
@@ -574,6 +581,7 @@ namespace polymake { namespace atint {
 	func.take("DOMAIN") << nDomain;
 	func.take("RAY_VALUES") << rValues;
 	func.take("LIN_VALUES") << lValues;
+	func.take("USES_MIN") << uses_min;
 	
       return func;
       
@@ -602,9 +610,9 @@ namespace polymake { namespace atint {
 		      "# the tropical weights of the refinement are also computed. If fan is zero-dimensional (i.e. a point), fan is returned." ,
 		      &intersect_container,"intersect_container(WeightedComplex, fan::PolyhedralFan;$=0)");
     
-    Function4perl(&divisorByValueVector,"divisorByValueVector(WeightedComplex, Vector<Rational>)");  
+    Function4perl(&divisorByValueVector,"divisorByValueVector(WeightedComplex, Vector<Rational>,$)");  
     
-    Function4perl(&divisorByValueMatrix, "divisorByValueMatrix(WeightedComplex, Matrix<Rational>)");
+    Function4perl(&divisorByValueMatrix, "divisorByValueMatrix(WeightedComplex, Matrix<Rational>, $)");
     
     Function4perl(&divisor_minmax,"divisor_minmax(WeightedComplex,MinMaxFunction;$=1)");
     

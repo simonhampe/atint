@@ -47,6 +47,11 @@ object RationalFunction {
   # divisor(X,f) actually computes f*f*X
   property POWER : Int;
   
+  # @category Basic properties
+  # This property describes how divisors of this function should be computed. It is false by default and weights
+  # will be computed as sum(phi(normalvector)) - phi(sum(normalvector)). If it is true, the sign of the weights will be negated.
+  property USES_MIN : Bool;
+  
   ############################### RULES #######################################
   
   label rfunction
@@ -63,6 +68,10 @@ object RationalFunction {
     $this->POWER = 1;
   }
   
+  rule USES_MIN : {
+    $this->USES_MIN = FALSE;
+  }
+  
   ############################## METHODS #######################################
   
   # @category Rational functions
@@ -71,7 +80,7 @@ object RationalFunction {
   # @return Returns the function f with a power set to k. Note that the original power of f is ignored.
   user_method pow {
     my ($this,$k) = @_;
-    return new RationalFunction(DOMAIN=>$this->DOMAIN,RAY_VALUES=>$this->RAY_VALUES,LIN_VALUES=>$this->LIN_VALUES,POWER=>$k);
+    return new RationalFunction(DOMAIN=>$this->DOMAIN,RAY_VALUES=>$this->RAY_VALUES,LIN_VALUES=>$this->LIN_VALUES,POWER=>$k,USES_MIN=>$this->USES_MIN);
   }
   
   # @category Rational functions
@@ -94,7 +103,7 @@ object RationalFunction {
     #Insert the 0-value at the right position
     @v = (@v[0..($index-1)],0,@v[$index..(scalar(@v)-1)]);
     
-    return new RationalFunction(DOMAIN=>$ndomain, RAY_VALUES=>\@v, LIN_VALUES=>$this->LIN_VALUES,POWER=>$this->POWER);
+    return new RationalFunction(DOMAIN=>$ndomain, RAY_VALUES=>\@v, LIN_VALUES=>$this->LIN_VALUES,POWER=>$this->POWER,USES_MIN=>$this->USES_MIN);
     
   }
   
@@ -124,7 +133,7 @@ object RationalFunction {
 
   sub mult {
       my ($f,$r ) = @_;
-      return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>$r * ($f->RAY_VALUES), LIN_VALUES=>$r * ($f->LIN_VALUES), POWER=>$f->POWER);
+      return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>$r * ($f->RAY_VALUES), LIN_VALUES=>$r * ($f->LIN_VALUES), POWER=>$f->POWER, USES_MIN=>$this->USES_MIN);
   }
   
   sub to_string {
@@ -175,12 +184,13 @@ user_function wfan {
 # This creates a RationalFunction by directly defining it on the rays of a given domain. It is simply shorter then
 # using the constructor.
 # @param WeightedComplex X The DOMAIN of the function
+# @param Bool uses_min Whether weights of divisors should be computed in min fashion.
 # @param Rational An arbitrarily long list of function values. It should be as long as 
 # X->CMPXL_RAYS->rows + X->LINEALITY_DIM. Function values will be assigned in this order 
 # (first rays, then linspace). Superfluous values are ignored, missing ones replaced by zero
 # @return RationalFunction
 user_function function_value {
-  my ($X,@values) = @_;
+  my ($X,$uses_min,@values) = @_;
   
   my $nrays = $X->CMPLX_RAYS->rows;
   my $nlin = $X->LINEALITY_DIM;
@@ -208,7 +218,7 @@ user_function function_value {
 # @return RationalFunction
 user_function function_mult {
   my ($f,$r) = @_;
-  return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>($r * $f->RAY_VALUES), LIN_VALUES=>($r* $f->LIN_VALUES));
+  return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>($r * $f->RAY_VALUES), LIN_VALUES=>($r* $f->LIN_VALUES),USES_MIN=>$f->USES_MIN);
 }
 
 

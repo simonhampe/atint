@@ -75,7 +75,7 @@ object MinMaxFunction {
   # @category Basic properties
   # Indicates whether this function uses min (TRUE) or max (FALSE). The default (if you directly give a coefficient matrix,
   # but not this value) is FALSE
-  property USES_MIN : Bool;
+  #property USES_MIN : Bool;
   
   # @category Basic properties
   # The dimension n of the domain R<sup>n</sup> of the function. Is equal to the columns of [[LINEAR_COEFFICIENTS]]
