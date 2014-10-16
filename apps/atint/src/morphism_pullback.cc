@@ -168,6 +168,7 @@ namespace polymake { namespace atint {
     perl::Object fdomain = function.give("DOMAIN");
     Vector<Rational> frayvalues = function.give("RAY_VALUES");
     Vector<Rational> flinvalues = function.give("LIN_VALUES");
+    bool uses_min = function.give("USES_MIN");
     
     Matrix<Rational> frayconv(frayvalues.dim(), 0);
       frayconv |= frayvalues;
@@ -193,6 +194,7 @@ namespace polymake { namespace atint {
       result.take("DOMAIN") << cdomain;
       if(crayval.cols() > 0) result.take("RAY_VALUES") << crayval.col(0);
       if(clinval.cols() > 0) result.take("LIN_VALUES") << clinval.col(0);
+      result.take("USES_MIN") << uses_min;
     
     return result;
     
