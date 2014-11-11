@@ -1,5 +1,5 @@
-/* Copyright (c) 1997-2010
-   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
+/* Copyright (c) 1997-2014
+   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Berlin, Germany)
    http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
@@ -11,20 +11,16 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+--------------------------------------------------------------------------------
 */
 
 ///==== this line controls the automatic file splitting: max.instances=40
 
-#include "polymake/client.h"
 #include "polymake/IncidenceMatrix.h"
-#include "polymake/Set.h"
+#include "polymake/client.h"
 
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    OperatorInstance4perl(Binary_add, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, int);
-   OperatorInstance4perl(Binary_add, perl::Canned< const Set< int > >, int);
-   Class4perl("Polymake::common::Set__String", Set< std::string >);
-   OperatorInstance4perl(Binary_sub, perl::Canned< const pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)0>, false, (pm::sparse2d::restriction_kind)0> > const&> >, int);
-   OperatorInstance4perl(assign, pm::incidence_line<pm::AVL::tree<pm::sparse2d::traits<pm::sparse2d::traits_base<pm::nothing, true, false, (pm::sparse2d::restriction_kind)2>, false, (pm::sparse2d::restriction_kind)2> > >, perl::Canned< const pm::Series<int, true> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

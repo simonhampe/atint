@@ -347,7 +347,7 @@ namespace polymake { namespace atint {
       //Extract values
       Matrix<Rational> rays = r.complex.give("CMPLX_RAYS");	
       Matrix<Rational> linspace = r.complex.give("LINEALITY_SPACE");
-      Array<Set<int> > maximal = r.complex.give("CMPLX_MAXIMAL_CONES");
+//       Array<Set<int> > maximal = r.complex.give("CMPLX_MAXIMAL_CONES");
       Vector<int> assocRep = r.associatedRep;
       
       Matrix<Rational> fmatrix = function.give("FUNCTION_MATRIX");

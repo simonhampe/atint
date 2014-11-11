@@ -30,6 +30,7 @@
 #include "polymake/atint/WeightedComplexRules.h"
 #include "polymake/atint/refine.h"
 #include "polymake/atint/specialvarieties.h"
+#include "polymake/atint/converters.h"
 
 namespace polymake { namespace atint { 
     
@@ -42,7 +43,8 @@ namespace polymake { namespace atint {
   //Documentation see perl wrapper
   perl::Object local_restrict(perl::Object complex, IncidenceMatrix<> cones) {
     //Extract values
-    Vector<Set<int> > maximalCones = complex.give("MAXIMAL_CONES");
+    IncidenceMatrix<> maximalConesInc = complex.give("MAXIMAL_CONES");
+    Vector<Set<int> > maximalCones = incmatrixToVector(maximalConesInc);
     Matrix<Rational> rays = complex.give("RAYS");
     Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");

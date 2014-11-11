@@ -16,19 +16,22 @@
 
 ///==== this line controls the automatic file splitting: max.instances=40
 
-#include "polymake/Integer.h"
-#include "polymake/Map.h"
+#include "polymake/IncidenceMatrix.h"
 #include "polymake/Rational.h"
-#include "polymake/Set.h"
+#include "polymake/SparseMatrix.h"
 #include "polymake/Vector.h"
 #include "polymake/client.h"
 
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   Class4perl("Polymake::common::Map_A_Int_I_Vector__Rational_Z", Map< int, Vector< Rational > >);
-   Class4perl("Polymake::common::Map_A_Set__Int_I_Set__Int_Z", Map< Set< int >, Set< int > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Vector__Integer_Z", Map< int, Vector< Integer > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Integer_Z_Z", Map< int, Map< int, Vector< Integer > > >);
-   Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Rational_Z_Z", Map< int, Map< int, Vector< Rational > > >);
+   template <typename T0, typename T1>
+   FunctionInterface4perl( new_X, T0,T1 ) {
+      perl::Value arg0(stack[1]);
+      WrapperReturnNew(T0, (arg0.get<T1>()) );
+   };
+
+   FunctionInstance4perl(new_X, SparseMatrix< Rational, NonSymmetric >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::SparseMatrix<pm::Rational, pm::NonSymmetric> const&> const&> >);
+   OperatorInstance4perl(Binary__ora, perl::Canned< const Wary< SparseMatrix< Rational, NonSymmetric > > >, perl::Canned< const Vector< Rational > >);
+   FunctionInstance4perl(new_X, SparseMatrix< Rational, NonSymmetric >, perl::Canned< const pm::ColChain<pm::SparseMatrix<pm::Rational, pm::NonSymmetric> const&, pm::SingleCol<pm::Vector<pm::Rational> const&> > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

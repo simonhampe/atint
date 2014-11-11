@@ -246,7 +246,7 @@ object WeightedComplex {
 	die "Bounding box has invalid dimension\n";
       }
     }
-    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, new Rational($boundingDistance),(new Matrix<Rational>($boundingBox)),$clabels);
+    my @result = computeBoundedVisual($this->homogenize,$isRelative,$showWeights, (new Rational($boundingDistance)),(new Matrix<Rational>($boundingBox)),$clabels);
     my @cells_visual;
     my $weightCenters = pop(@result);
     

@@ -32,6 +32,7 @@
 #include "polymake/Integer.h"
 #include "polymake/linalg.h"
 #include "polymake/atint/WeightedComplexRules.h"
+#include "polymake/atint/converters.h"
 
 namespace polymake { namespace atint { 
     
@@ -208,7 +209,8 @@ namespace polymake { namespace atint {
 //       weights = w;
       weightsExist = true;	
     }
-    Vector<Set<int> > local_restriction = X.give("LOCAL_RESTRICTION");
+    IncidenceMatrix<> local_restrictionInc = X.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = incmatrixToVector(local_restrictionInc);
     bool lattice_exists = false;
     Matrix<Integer> lattice_generators;
     IncidenceMatrix<> lattice_bases;

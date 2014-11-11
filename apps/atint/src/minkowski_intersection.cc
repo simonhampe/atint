@@ -34,6 +34,7 @@
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/atint/cdd_helper_functions.h"
 #include "polymake/atint/WeightedComplexRules.h"
+#include "polymake/atint/converters.h"
 #include "polymake/atint/LoggingPrinter.h"
 
 namespace polymake { namespace atint { 
@@ -424,13 +425,15 @@ namespace polymake { namespace atint {
     
     Matrix<Rational> xrays = X.give("RAYS");
     Matrix<Rational> xlin = X.give("LINEALITY_SPACE");
-    Vector<Set<int> > xcones = X.give("MAXIMAL_CONES");
+    IncidenceMatrix<> xconesInc = X.give("MAXIMAL_CONES");
+    Vector<Set<int> > xcones = incmatrixToVector(xconesInc);
     Vector<Integer> xweights = X.give("TROPICAL_WEIGHTS");
     int xambdim = X.give("CMPLX_AMBIENT_DIM");
     
     Matrix<Rational> yrays = Y.give("RAYS");
     Matrix<Rational> ylin = Y.give("LINEALITY_SPACE");
-    Vector<Set<int> > ycones = Y.give("MAXIMAL_CONES");
+    IncidenceMatrix<> yconesInc = Y.give("MAXIMAL_CONES");
+    Vector<Set<int> > ycones = incmatrixToVector(yconesInc);    
     Vector<Integer> yweights = Y.give("TROPICAL_WEIGHTS");
     int yambdim = Y.give("CMPLX_AMBIENT_DIM");
     

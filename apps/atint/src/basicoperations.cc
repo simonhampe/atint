@@ -26,6 +26,7 @@ This file provides c++ realizations of basic operations on polyhedral complexes
 #include "polymake/Vector.h"
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/atint/converters.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/specialvarieties.h"
 #include "polymake/atint/divisor.h"
@@ -71,7 +72,8 @@ namespace polymake { namespace atint{
       
       perl::Object firstComplex = complexes[0];
       //This will contain the sets describing the maximal cones
-      Vector<Set<int> > maximalCones = firstComplex.give("MAXIMAL_CONES");
+      IncidenceMatrix<> maximalConesInc = firstComplex.give("MAXIMAL_CONES");
+      Vector<Set<int> > maximalCones = incmatrixToVector(maximalConesInc);
       //Will contain the rays
       Matrix<Rational> rayMatrix = firstComplex.give("RAYS");
       //Will contain the lineality space
@@ -83,8 +85,8 @@ namespace polymake { namespace atint{
 	product_has_weights = true;
       }
       bool product_uses_homog = firstComplex.give("USES_HOMOGENEOUS_C");
-      Vector<Set<int> > local_restriction = firstComplex.give("LOCAL_RESTRICTION");
-      
+      IncidenceMatrix<> local_restrictionInc = firstComplex.give("LOCAL_RESTRICTION");
+      Vector<Set<int> > local_restriction = incmatrixToVector(local_restrictionInc);
       bool product_unimodular = firstComplex.give("IS_UNIMODULAR");
       bool product_has_lattice = firstComplex.exists("LATTICE_BASES");
       Matrix<Integer> product_l_generators;
@@ -93,8 +95,8 @@ namespace polymake { namespace atint{
 	//dbgtrace << "Extracting first lattice " << endl;
 	Matrix<Integer> lg = firstComplex.give("LATTICE_GENERATORS");
 	  product_l_generators = lg;
-	Vector<Set<int> > lb = firstComplex.give("LATTICE_BASES");
-	  product_l_bases = lb;
+	IncidenceMatrix<> lb = firstComplex.give("LATTICE_BASES");
+	  product_l_bases = incmatrixToVector( lb);
       }
       
       //int product_dim = rayMatrix.cols() > linMatrix.cols() ? rayMatrix.cols() : linMatrix.cols();
@@ -120,7 +122,8 @@ namespace polymake { namespace atint{
 	Matrix<Rational> prerays = complexes[i].give("RAYS");
 	Matrix<Rational> prelin = complexes[i].give("LINEALITY_SPACE");
 	IncidenceMatrix<> premax = complexes[i].give("MAXIMAL_CONES");
-	Vector<Set<int> > pre_local_restriction = complexes[i].give("LOCAL_RESTRICTION");
+	IncidenceMatrix<> pre_local_restrictionInc = complexes[i].give("LOCAL_RESTRICTION");
+	Vector<Set<int> > pre_local_restriction = incmatrixToVector(pre_local_restrictionInc); 
 	
 	Array<Integer> preweights;
 	if(complexes[i].exists("TROPICAL_WEIGHTS")) {
@@ -461,7 +464,8 @@ namespace polymake { namespace atint{
     Set<int> affine = complex.give("VERTICES");
     Set<int> directional = complex.give("DIRECTIONAL_RAYS");
     int ambient_dim = complex.give("CMPLX_AMBIENT_DIM");
-    Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    IncidenceMatrix<> local_restrictionInc = complex.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = incmatrixToVector(local_restrictionInc);
     
     //Take only compatible vertices
     if(local_restriction.dim() > 0) {
@@ -543,7 +547,8 @@ namespace polymake { namespace atint{
     Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
     IncidenceMatrix<> cones = complex.give("MAXIMAL_CONES");
     Vector<Integer> weights = complex.give("TROPICAL_WEIGHTS");
-    Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    IncidenceMatrix<> local_restrictionInc = complex.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = incmatrixToVector(local_restrictionInc);
     
     //Transform rays and lin space
     linspace = linspace * matrix;
@@ -574,7 +579,8 @@ namespace polymake { namespace atint{
     bool uses_homog = complex.give("USES_HOMOGENEOUS_C");
     Matrix<Rational> lineality = complex.give("LINEALITY_SPACE");
     int lineality_dim = complex.give("LINEALITY_DIM");
-    Vector<Set<int> > local_restriction = complex.give("LOCAL_RESTRICTION");
+    IncidenceMatrix<> local_restrictionInc = complex.give("LOCAL_RESTRICTION");
+    Vector<Set<int> > local_restriction = incmatrixToVector(local_restrictionInc);
     
     //If the skeleton dimension is too small, return the 0-cycle
     if(k < (uses_homog? 0 : 1) || k < lineality_dim) {

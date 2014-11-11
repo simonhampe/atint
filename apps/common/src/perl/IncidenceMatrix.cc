@@ -1,5 +1,5 @@
-/* Copyright (c) 1997-2010
-   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
+/* Copyright (c) 1997-2014
+   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Berlin, Germany)
    http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
@@ -11,15 +11,16 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+--------------------------------------------------------------------------------
 */
 
 ///==== this line controls the automatic file splitting: max.instances=40
 
-#include "polymake/client.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/Matrix.h"
 #include "polymake/Set.h"
 #include "polymake/Vector.h"
-#include "polymake/Matrix.h"
+#include "polymake/client.h"
 
 namespace polymake { namespace common { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
@@ -30,18 +31,6 @@ namespace polymake { namespace common { namespace {
    };
 
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const Vector< Set< int > > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
-   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > >);
-   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > >);
-   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::RowChain<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > const&, pm::SingleIncidenceRow<pm::Set_with_dim<pm::Set<int, pm::operations::cmp> const&> > > > >, perl::Canned< const Set< int > >);
    FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::MatrixMinor<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::Set<int, pm::operations::cmp> const&, pm::all_selector const&> >);
-   OperatorInstance4perl(Binary_div, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const Set< int > >);
-   FunctionInstance4perl(new_X, IncidenceMatrix< NonSymmetric >, perl::Canned< const pm::MatrixMinor<pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::all_selector const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&> >);
-   OperatorInstance4perl(Binary_diva, perl::Canned< const Wary< IncidenceMatrix< NonSymmetric > > >, perl::Canned< const Set< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

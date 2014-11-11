@@ -31,6 +31,7 @@
 #include "polymake/Vector.h"
 #include "polymake/PowerSet.h"
 #include "polymake/atint/lll.h"
+#include "polymake/atint/converters.h"
 
 namespace polymake {
     namespace atint {
@@ -319,8 +320,9 @@ namespace polymake {
 
             New_Rays=T(New_Rays);
 
-            Vector<Set<int> >  Maximal_Cones=f.give("MAXIMAL_CONES");
-            perl::Object g("fan::PolyhedralFan");
+            IncidenceMatrix<> Maximal_ConesInc =f.give("MAXIMAL_CONES");
+            Vector<Set<int> > Maximal_Cones = incmatrixToVector(Maximal_ConesInc);
+	    perl::Object g("fan::PolyhedralFan");
             g.take("RAYS") << New_Rays;
             g.take("MAXIMAL_CONES") << Maximal_Cones;
             g.take("FAN_AMBIENT_DIM") << (Fan_Ambient_Dimension-Lineality_Dim);
@@ -416,7 +418,8 @@ namespace polymake {
                 }
             }
             New_Rays=T(New_Rays);
-            Vector<Set<int> >  Maximal_Cones=f.give("MAXIMAL_CONES");
+            IncidenceMatrix<> Maximal_ConesInc =f.give("MAXIMAL_CONES");
+            Vector<Set<int> > Maximal_Cones = incmatrixToVector(Maximal_ConesInc);
             perl::Object g("fan::PolyhedralFan");
             g.take("RAYS") << New_Rays;
             g.take("MAXIMAL_CONES") << Maximal_Cones;

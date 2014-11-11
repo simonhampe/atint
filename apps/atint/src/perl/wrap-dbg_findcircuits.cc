@@ -1,5 +1,5 @@
-/* Copyright (c) 1997-2010
-   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
+/* Copyright (c) 1997-2014
+   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Berlin, Germany)
    http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
@@ -11,16 +11,16 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+--------------------------------------------------------------------------------
 */
 
-///==== this line controls the automatic file splitting: max.instances=40
-
-#include "polymake/client.h"
-#include "polymake/Matrix.h"
-#include "polymake/Rational.h"
-#include "polymake/IncidenceMatrix.h"
-namespace polymake { namespace common { namespace {
+namespace polymake { namespace atint { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   Class4perl("Polymake::common::Pair_A_Matrix_A_Rational_I_NonSymmetric_Z_I_Matrix_A_Rational_I_NonSymmetric_Z_Z", std::pair< Matrix< Rational >, Matrix< Rational > >);
+   FunctionWrapper4perl( bool (pm::Vector<pm::Set<int, pm::operations::cmp> >) ) {
+      perl::Value arg0(stack[0]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Vector< Set< int > > > >() );
+   }
+   FunctionWrapperInstance4perl( bool (pm::Vector<pm::Set<int, pm::operations::cmp> >) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

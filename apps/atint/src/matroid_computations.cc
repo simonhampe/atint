@@ -100,15 +100,15 @@ namespace polymake { namespace atint {
     int n2 = m2.give("N_ELEMENTS");
     int N = n1 + n2;
     
-    Vector<Set<int> > base1 = m1.give("BASES");
-    Vector<Set<int> > base2 = m2.give("BASES");
+    Array<Set<int> > base1 = m1.give("BASES");
+    Array<Set<int> > base2 = m2.give("BASES");
     
     Map<int,int> base_shift;
       for(int i = 0; i < n2; i++) { base_shift[i] = n1+i;}
 
     Vector<Set<int> > result_bases;
-    for(int b1 = 0; b1 < base1.dim(); b1++) {
-      for(int b2 = 0; b2 < base2.dim(); b2++) {
+    for(int b1 = 0; b1 < base1.size(); b1++) {
+      for(int b2 = 0; b2 < base2.size(); b2++) {
 	result_bases |= Set<int>(base1[b1] + 
 			Set<int>(attach_operation(base2[b2],
 			pm::operations::associative_access<Map<int,int>,int>(&base_shift))));

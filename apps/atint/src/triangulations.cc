@@ -29,6 +29,7 @@
 #include "polymake/polytope/beneath_beyond.h"
 #include "polymake/atint/LoggingPrinter.h"
 #include "polymake/atint/WeightedComplexRules.h"
+#include "polymake/atint/converters.h"
 
 namespace polymake { namespace atint { 
   
@@ -110,7 +111,8 @@ namespace polymake { namespace atint {
     
     //Extract values
     Matrix<Rational> rays = fan.give("RAYS");
-    Vector<Set<int> > cones = fan.give("MAXIMAL_CONES");
+    IncidenceMatrix<> conesInc = fan.give("MAXIMAL_CONES");
+    Vector<Set<int> > cones = incmatrixToVector(conesInc);
     bool weights_exist = fan.exists("TROPICAL_WEIGHTS");
     Vector<Integer> weights;
     if(weights_exist) {

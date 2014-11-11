@@ -34,6 +34,7 @@
 #include "polymake/atint/cdd_helper_functions.h"
 #include "polymake/atint/moduli_local.h"
 #include "polymake/polytope/cdd_interface.h"
+#include "polymake/atint/converters.h"
 #include "polymake/atint/LoggingPrinter.h"
 
 namespace polymake { namespace atint { 
@@ -59,10 +60,12 @@ namespace polymake { namespace atint {
   perl::Object insert_leaves(perl::Object curve, Vector<int> nodes) {
     //Extract values
     int max_leaf = curve.give("N_LEAVES");
-    Vector<Set<int> > sets = curve.give("SETS");
+    IncidenceMatrix<> setsInc = curve.give("SETS");
+    Vector<Set<int> > sets = incmatrixToVector(setsInc);
     Vector<Rational> coeffs = curve.give("COEFFS");
     IncidenceMatrix<> nodes_by_sets = curve.give("NODES_BY_SETS");
-    Vector<Set<int> > nodes_by_leaves = curve.give("NODES_BY_LEAVES");
+    IncidenceMatrix<> nodes_by_leavesInc = curve.give("NODES_BY_LEAVES");
+    Vector<Set<int> > nodes_by_leaves = incmatrixToVector(nodes_by_leavesInc);
     
     for(int n_el = 0; n_el < nodes.dim(); n_el++) {
       int n = nodes[n_el];
