@@ -7,10 +7,10 @@ This project is part of and financed by the [DFG Priority Project SPP 1489](http
 
 You can find a user manual in the [wiki pages](https://bitbucket.org/hampe/atint/wiki/Home), as well as installation instructions and a list of features.
 
+**Important note: ** You will need a recent version of polymake (perpetual beta, preferably) to run a-tint. Version 2.12 will NOT work!
+
 ## More credit 
 
 a-tint also contains code by:
 
 * Dennis Diefenbach
-
-
