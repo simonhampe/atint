@@ -133,7 +133,10 @@ object RationalFunction {
 
   sub mult {
       my ($f,$r ) = @_;
-      return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>$r * ($f->RAY_VALUES), LIN_VALUES=>$r * ($f->LIN_VALUES), POWER=>$f->POWER, USES_MIN=>$this->USES_MIN);
+      if($f->isa("MinMaxFunction")) {
+	return new MinMaxFunction(FUNCTION_MATRIX=>$r * $f->FUNCTION_MATRIX,USES_MIN=>$f->USES_MIN);
+      }
+      return new RationalFunction(DOMAIN=>$f->DOMAIN, RAY_VALUES=>$r * ($f->RAY_VALUES), LIN_VALUES=>$r * ($f->LIN_VALUES), POWER=>$f->POWER, USES_MIN=>$f->USES_MIN);
   }
   
   sub to_string {

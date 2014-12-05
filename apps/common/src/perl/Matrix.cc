@@ -17,6 +17,7 @@
 ///==== this line controls the automatic file splitting: max.instances=40
 
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/Integer.h"
 #include "polymake/Matrix.h"
 #include "polymake/Rational.h"
 #include "polymake/Set.h"
@@ -44,5 +45,6 @@ namespace polymake { namespace common { namespace {
    FunctionInstance4perl(new_X, Matrix< Rational >, perl::Canned< const pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::all_selector const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&> >);
    OperatorInstance4perl(Unary_neg, perl::Canned< const Wary< pm::ColChain<pm::SingleCol<pm::Vector<pm::Rational> const&>, pm::Matrix<pm::Rational> const&> > >);
    OperatorInstance4perl(Unary_neg, perl::Canned< const Wary< pm::MatrixMinor<pm::Matrix<pm::Rational> const&, pm::all_selector const&, pm::Complement<pm::SingleElementSet<int>, int, pm::operations::cmp> const&> > >);
+   FunctionInstance4perl(new_X, Matrix< Integer >, perl::Canned< const pm::ColChain<pm::SingleCol<pm::SameElementVector<pm::Integer const&> const&>, pm::Matrix<pm::Integer> const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

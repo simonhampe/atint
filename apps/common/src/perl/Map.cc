@@ -30,5 +30,6 @@ namespace polymake { namespace common { namespace {
    Class4perl("Polymake::common::Map_A_Int_I_Vector__Integer_Z", Map< int, Vector< Integer > >);
    Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Integer_Z_Z", Map< int, Map< int, Vector< Integer > > >);
    Class4perl("Polymake::common::Map_A_Int_I_Map_A_Int_I_Vector__Rational_Z_Z", Map< int, Map< int, Vector< Rational > > >);
+   OperatorInstance4perl(Binary_brk, perl::Canned< const Map< int, Map< int, Vector< Integer > > > >, int);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

@@ -84,9 +84,9 @@ namespace polymake { namespace atint {
     
     //First we test all 4-element subsets
     Set<int> complete = sequence(1,n);
-    Array<Set<int> > fours =  all_subsets_of_k(complete,4);
+    Vector<Set<int> > fours(all_subsets_of_k(complete,4));
       //pm::Subsets_of_k<Set<int> > ( complete,4 );
-    for(int f = 0; f < fours.size(); f++) {
+    for(int f = 0; f < fours.dim(); f++) {
       Vector<int> l(fours[f]);
       Rational a = d(l[0],l[1]) + d(l[2],l[3]);
       Rational b = d(l[0],l[2]) + d(l[1],l[3]);
@@ -102,9 +102,9 @@ namespace polymake { namespace atint {
       }
     }
     //Now we check all 3-element subsets
-    Array<Set<int> > threes = all_subsets_of_k(complete,3);
+    Vector<Set<int> > threes(all_subsets_of_k(complete,3));
     //pm::Subsets_of_k<Set<int> >(complete, 3);
-    for(int f = 0; f < threes.size(); f++) {
+    for(int f = 0; f < threes.dim(); f++) {
       Vector<int> l(threes[f]);
       //Now check the three possibilities, where the fourth element is equal to any of the three
       for(int t = 0; t < l.size(); t++) {
@@ -123,9 +123,9 @@ namespace polymake { namespace atint {
       }
     }
     //Now we check all 2-element subsets
-    Array<Set<int> > twos = all_subsets_of_k(complete,2);
+    Vector<Set<int> > twos(all_subsets_of_k(complete,2));
     //pm::Subsets_of_k<Set<int> >(complete, 2);
-    for(int f = 0; f < twos.size(); f++) {
+    for(int f = 0; f < twos.dim(); f++) {
       Vector<int> l(twos[f]);
       //We have three possibilites for the other two z,t: t=x,z=y or t=z=x or t=z=y
       for(int p = 1; p <= 3; p++) {
@@ -207,7 +207,7 @@ namespace polymake { namespace atint {
     }
     
 //     //Now check for nonpositive entries
-//     dbgtrace << "Distance metric before making positive" << d <<  endl;
+     //dbgtrace << "Distance metric before making positive" << d <<  endl;
 //     for(int i = 1; i < n; i++) {
 //       for(int j = i+1; j <= n; j++) {
 // 	if(d(i,j) <= 0) {
@@ -218,7 +218,7 @@ namespace polymake { namespace atint {
 // 	}
 //       }
 //     }
-//     dbgtrace << "Positive distance metric: " << d << endl;
+     //dbgtrace << "Positive distance metric: " << d << endl;
     
     
     
@@ -525,7 +525,8 @@ namespace polymake { namespace atint {
     //The edges in G might now have a different order than the one in which we put it in
     //Hence we have to make sure, the order of SETS and COEFFS is compatible with the EDGES order
     //For this we have kept edge_order as a record of the original order of edges.
-    Vector<Set<int> > edge_list = graph.CallPolymakeMethod("EDGES");
+    Array<Set<int> > edge_list_array = graph.CallPolymakeMethod("EDGES");
+      Vector<Set<int> > edge_list(edge_list_array);
     //First we throw out all the edges in the original ordering that are actually leaves
     Set<int> leaf_edges;
     for(int oe = 0; oe < edge_order.dim(); oe++) {

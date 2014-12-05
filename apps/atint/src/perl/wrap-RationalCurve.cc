@@ -1,5 +1,5 @@
-/* Copyright (c) 1997-2013
-   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Darmstadt, Germany)
+/* Copyright (c) 1997-2014
+   Ewgenij Gawrilow, Michael Joswig (Technische Universitaet Berlin, Germany)
    http://www.polymake.org
 
    This program is free software; you can redistribute it and/or modify it
@@ -11,6 +11,7 @@
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+--------------------------------------------------------------------------------
 */
 
 namespace polymake { namespace atint { namespace {
@@ -20,6 +21,12 @@ namespace polymake { namespace atint { namespace {
       IndirectWrapperReturn( arg0.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg1.get< perl::TryCanned< const Vector< Rational > > >(), arg2 );
    }
    FunctionWrapperInstance4perl( pm::Vector<pm::Rational> (pm::IncidenceMatrix<pm::NonSymmetric>, pm::Vector<pm::Rational>, int) );
+
+   FunctionWrapper4perl( int (int) ) {
+      perl::Value arg0(stack[0]);
+      IndirectWrapperReturn( arg0 );
+   }
+   FunctionWrapperInstance4perl( int (int) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

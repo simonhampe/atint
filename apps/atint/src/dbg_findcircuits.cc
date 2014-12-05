@@ -233,12 +233,12 @@ namespace polymake { namespace atint {
    
    bool is_already_in_there(const Vector<Array<Set<int> > > &matroids, const Vector<Set<int> >&bases) {
       Set<Set<int> > bases_set(bases);
-      dbgtrace << "Comparing " << matroids << " to " << bases << endl;
+      //dbgtrace << "Comparing " << matroids << " to " << bases << endl;
       for(int i = 0; i < matroids.dim(); i++) {
 	  Set<Set<int> > mbaseset(matroids[i]);
 	  if(mbaseset.size() == bases_set.size()) {
 	    if( (bases_set * mbaseset).size() == bases_set.size()) {
-		dbgtrace << "Is equal to number " << i << endl;
+		//dbgtrace << "Is equal to number " << i << endl;
 		return true;
 	    }
 	  }
@@ -287,12 +287,12 @@ namespace polymake { namespace atint {
       //First of all test, if the currently used list gives a valid matroid, if so: add it
   //     if( listToFill.dim() == 8) return;
       Vector<Set<int> > current_matroid = list_of_bases.slice(currently_used);
-      dbgtrace << "Iteration " << current_matroid << endl;
+      //dbgtrace << "Iteration " << current_matroid << endl;
       std::pair<int,int> minimal_pair;
       int minimal_element;
       Set<int> elements_to_add; 
       if(check_basis_axioms(current_matroid, n, force_loopfree,minimal_pair, minimal_element)) {
-	dbgtrace << "Is a matroid!" << endl;
+	//dbgtrace << "Is a matroid!" << endl;
 	  if(!is_already_in_there(listToFill, current_matroid)) {
 // 	    perl::Object matroid("matroid::Matroid");
 // 	    matroid.take("N_ELEMENTS") << n;
@@ -310,21 +310,21 @@ namespace polymake { namespace atint {
 	if(minimal_element == -1) {
 	  //If we have no basis yet, just add anything
 	  if(currently_used.size() == 0) {
-	      dbgtrace << "No bases yet" << endl;
+	      //dbgtrace << "No bases yet" << endl;
 	      elements_to_add = allowed_sets;
 	  }
 	  else {
 	    //Otherwise find a loop and all sets containing it
 	    Set<int> total_set = accumulate(current_matroid,operations::add());
 	    int loop = *( (sequence(0,n) -  total_set).begin());
-	    dbgtrace << "Have loop " << loop << endl;
+	    //dbgtrace << "Have loop " << loop << endl;
 	    for(Entire<Set<int> >::iterator as = entire(allowed_sets); !as.at_end(); as++) {
 	      if(list_of_bases[*as].contains(loop)) elements_to_add += *as;
 	    }
 	  }
 	}
 	else {
-	  dbgtrace << "Fixing basis exchange problem " << minimal_pair.first << ", " << minimal_pair.second << ", " << minimal_element << endl;
+	  //dbgtrace << "Fixing basis exchange problem " << minimal_pair.first << ", " << minimal_pair.second << ", " << minimal_element << endl;
 	  //If the basis exchange axiom is violated, find all allowed sets that fix this for the
 	  // specific pair we got back.
   // 	dbgtrace << "Looking for fixing elements for " << current_matroid[minimal_pair.first] << ", " << 
@@ -343,7 +343,7 @@ namespace polymake { namespace atint {
 	}
       }
       
-      dbgtrace << "Elements to consider for next iteration: " << list_of_bases.slice(elements_to_add) << endl;
+      //dbgtrace << "Elements to consider for next iteration: " << list_of_bases.slice(elements_to_add) << endl;
       
       Set<int> not_to_add;
       for(Entire<Set<int> >::iterator ea = entire(elements_to_add); !ea.at_end(); ea++) {
@@ -387,7 +387,7 @@ namespace polymake { namespace atint {
      
      
      //Now fill a list of matroids
-     dbgtrace << "List of bases " << bases << endl;
+     //dbgtrace << "List of bases " << bases << endl;
      Vector<Array<Set<int> > > resultList;
      recursiveBasesListFiller(resultList, bases,
 			      definite_bases,sequence(0,bases.dim()) - definite_bases, n,force_loopfree);

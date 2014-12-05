@@ -44,5 +44,7 @@ namespace polymake { namespace common { namespace {
    FunctionInstance4perl(new_X, Vector< Integer >, perl::Canned< const pm::SameElementVector<pm::Integer const&> >);
    FunctionInstance4perl(new_X, Vector< Rational >, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, false>, void> >);
    OperatorInstance4perl(Binary__ora, perl::Canned< const pm::IndexedSlice<pm::masquerade<pm::ConcatRows, pm::Matrix_base<pm::Rational> const&>, pm::Series<int, false>, void> >, perl::Canned< const Matrix< Rational > >);
+   OperatorInstance4perl(Binary_mul, int, perl::Canned< const Wary< Vector< Rational > > >);
+   FunctionInstance4perl(new_X, Vector< int >, perl::Canned< const Vector< int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
