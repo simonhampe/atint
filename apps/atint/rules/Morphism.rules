@@ -241,3 +241,29 @@ user_function pull_back {
   return @result;
   
 }
+
+# @category Morphisms and functions
+# Computes the graph of a morphism.
+# @param Morphism f A morphism.
+# @param WeightedComplex X. Optional. A complex (contained in the [[DOMAIN]] of f)
+# on which the graph should be computed
+# @ return WeightedComplex The graph of f on X (or on its [[DOMAIN]], if no X is given). Weights
+# are copied from the original complex (if present). Note that this function also works
+# for f a RationalFunction, but it will not add any weights to make the graph balanced.
+user_function graph {
+  my ($f,$X) = @_;
+  if(defined($X)) {
+    $f = $f->restrict($X);
+  }
+  
+  my $grays = $f->DOMAIN->RAYS | $f->RAY_VALUES;
+  my $glin = $f->DOMAIN->LINEALITY_SPACE | $f->LIN_VALUES;
+  if(defined($f->DOMAIN->lookup("TROPICAL_WEIGHTS"))) {
+    return new WeightedComplex(RAYS=>$grays,LINEALITY_SPACE=>$glin, MAXIMAL_CONES=>$f->DOMAIN->MAXIMAL_CONES, TROPICAL_WEIGHTS=>$f->DOMAIN->TROPICAL_WEIGHTS,USES_HOMOGENEOUS_C=>$f->DOMAIN->USES_HOMOGENEOUS_C);
+  }
+  else {
+    return new WeightedComplex(RAYS=>$grays,LINEALITY_SPACE=>$glin, MAXIMAL_CONES=>$f->DOMAIN->MAXIMAL_CONES,USES_HOMOGENEOUS_C=>$f->DOMAIN->USES_HOMOGENEOUS_C);
+  }
+
+
+}
