@@ -21,8 +21,10 @@ URI https://bitbucket.org/hampe/atint
 # please list their URIs below, separated by blanks and/or newlines.
 # Each URI can be versioned if certain minimal version is required.
 
-# REQUIRE
+REQUIRE
+bundled:cdd
 #   URI URI#version ...
+
 
 
 # If this extension was formerly distributed under different URI
