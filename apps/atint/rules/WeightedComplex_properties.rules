@@ -41,6 +41,8 @@ object WeightedComplex {
 	# An incidence matrix of all codimension one faces. Each row is a face and column indices refer to [[RAYS]].
 	# If the fan uses homogeneous coordinates, only those faces that intersect {x0 = 1} are listed here.
 	# If there is a [[LOCAL_RESTRICTION]], only compatible codimension one faces are kept.
+	# TODO: Use HASSE_DIAGRAM: Can be computed partially using hasse_diagram(..) as in fan::
+	# 
 	property CODIM_1_FACES : IncidenceMatrix;
 	
 	# @category Polyhedral properties

@@ -431,11 +431,12 @@ object MinMaxFunction {
     my @r = @{$r};
     my @v = ();
     for my $x (@r) {
-      @v = (@v, (new Rational($x - 100) / 1000));
+      my $num = (new Rational($x - 100) )/ 1000;
+      @v = (@v, $num);
     }
     my $nfun = $this->FUNCTION_MATRIX->minor(All,sequence(0,$this->FUNCTION_MATRIX->cols()-1));
     my $nfun = new Matrix<Rational>($nfun | ( $this->FUNCTION_MATRIX->col($this->FUNCTION_MATRIX->cols()-1) + new Vector<Rational>(\@v)) );
-    return new MinMaxFunction(FUNCTION_MATRIX=>$nfun);
+    return new MinMaxFunction(FUNCTION_MATRIX=>$nfun, USES_MIN=>$this->USES_MIN);
   }
   
 }

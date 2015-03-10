@@ -153,7 +153,7 @@ namespace polymake { namespace atint {
 				f_on_lin, ftranslate, fmatrix);
 	}
 	
-// 	dbgtrace << "Local representation is " << ftranslate << " and " << fmatrix << endl;
+ 	//dbgtrace << "Local representation is " << ftranslate << " and " << fmatrix << endl;
 	
 	//Iterate all cones of the function
 	for(int gcone = 0; gcone < g_cones.rows(); gcone++) {
@@ -169,14 +169,19 @@ namespace polymake { namespace atint {
 	  }
 	  else {
 	    //Compute an irredundant H-rep of the intersection
-	    intersection_ineq = image_rep.first / g_hreps_ineq[gcone];
-	    intersection_eq = image_rep.second / g_hreps_eq[gcone];
+	    //dbgtrace << "Computing irredundant H-rep" << endl;
+	    //dbgtrace << image_rep.first << "\n" << g_hreps_ineq[gcone] << endl;
+	    
+	    intersection_ineq = (image_rep.first) / (g_hreps_ineq[gcone]);
+	    intersection_eq = (image_rep.second) / (g_hreps_eq[gcone]);
 	    Matrix<Rational> isMatrix = intersection_ineq / intersection_eq;
+	    
+	    //dbgtrace << "Canonicalizing..." << endl;
 	    
 	    std::pair<Bitset,Bitset> isection = 
 		  sv.canonicalize( intersection_ineq,intersection_eq,1);
 	    
-		  
+	    //dbgtrace << "Assigning canonical rays " << endl;
 	      
 	    intersection_ineq = isMatrix.minor(isection.first,All);
 	    intersection_eq = isMatrix.minor(isection.second,All);
@@ -201,7 +206,7 @@ namespace polymake { namespace atint {
 			      g_on_rays.minor(g_cones.row(gcone),All), g_on_lin, gtranslate, 
 			      gmatrix);
 
-// 	  dbgtrace << "g's representation on this cone " << gmatrix << " and " << gtranslate << endl;
+ 	  //dbgtrace << "g's representation on this cone " << gmatrix << " and " << gtranslate << endl;
 	  
 	  //Compute preimage of the intersection cone
 	  //If (b,-A) is the representation of (in)equalities of the cone
@@ -236,7 +241,7 @@ namespace polymake { namespace atint {
 	  std::pair<Matrix<Rational>, Matrix<Rational> > preimage_cone = sv.enumerate_vertices(
 			    preimage_ineq, preimage_eq, true,true);
 	  
-// 	  dbgtrace << "Preimage has rays " << preimage_cone.first << " and lin " << preimage_cone.second << endl;
+ 	  //dbgtrace << "Preimage has rays " << preimage_cone.first << " and lin " << preimage_cone.second << endl;
 
 	  //Dehomogenize
 	  Matrix<Rational> preimage_rays = preimage_cone.first.minor(All,~scalar2set(0));
