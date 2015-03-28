@@ -6,7 +6,7 @@
 # URI is a unique identifier assigned to this extension.
 # This is the only mandatory entry in this file.
 # FIXME: Git URI?
-URI http://github/atint
+URI https://github.com/simonhampe/atint 
 
 
 # Below you can put a short name for your extension.
@@ -17,9 +17,10 @@ NAME atint
 # put your copyright notice, or just refer to your website
 # unless its address is already contained in the URI.
 
-# CREDIT
-#  short description
-#  copyright your name, address, etc.
+CREDIT
+ a-tint is an extension for tropical intersection theory.
+ (C) 2015 Simon Hampe, simon.hampe@googlemail.com
+ Web: https://github.com/simonhampe/atint
 
 
 # If this extension relies on functionality of further extensions,

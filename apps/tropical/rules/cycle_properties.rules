@@ -21,7 +21,7 @@
 # This file extends the Cycle of application tropical.
 ########################################################################
 
-object tropical::Cycle {
+object Cycle {
 
 	property IS_BALANCED : Bool;
 
