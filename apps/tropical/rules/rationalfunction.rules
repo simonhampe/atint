@@ -1,0 +1,54 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
+#
+#
+#  Defines properties and rules for RationalFunction 
+########################################################################
+
+
+object RationalFunction {
+	
+	#FIXME: Uncomment, when the corresponding functions work	
+	#use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool', '+' => 'sum','-' => 'minus','neg'=>'neg');
+
+	# @category Defining morphisms and functions
+	# This property describes the affine linearity domains of the function. I.e. the function is
+	# affine integral linear on each maximal polytope of [[DOMAIN]]. 
+	property DOMAIN : fan::PolyhedralComplex<Rational>;
+
+	# @category Defining morphisms and functions
+	# The value at index i describes the function value at [[DOMAIN]]->SEPARATED_VERTICES->row(i). 
+	# More precisely, if the corresponding vertex is not a far ray, it describes its function value. 
+	# If it is a directional ray, it describes the slope on that ray.
+	property VERTEX_VALUES : Vector<Rational>;
+
+	# @category Defining morphisms and functions 
+	# The value at index i describes the function value of [[DOMAIN]]->LINEALITY_SPACE->row(i)
+	property LINEALITY_VALUES : Vector<Rational>; 
+
+	# @category Defining morphisms and functions
+	# When representing the function as a quotient of tropical polynomials, this
+	# is the numerator.
+	property NUMERATOR : Polynomial<TropicalNumber<Addition> >;
+
+	# @category Defining morphisms and functions
+	# When representing the function as a quotient of tropical polynomials, this
+	# is the denominator.
+	property DENOMINATOR : Polynomial<TropicalNumber<Addition> >;
+}

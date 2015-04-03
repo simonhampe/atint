@@ -1,0 +1,74 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
+#
+#
+#  Defines properties and rules for Morphism 
+########################################################################
+
+object Morphism {
+  
+	#FIXME: Uncomment when the functions work.
+	#use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool', '+' => 'sum','-' => 'minus','neg'=>'neg');
+  
+	# @category Defining morphisms and functions
+	# This property describes the domain of the morphism. I.e. the morphism is
+	# defined on this complex and is locally affine integral linear. 
+	property DOMAIN : fan::PolyhedralComplex;
+
+	# @category Defining morphisms and functions 
+	# The vector at row i describes the function value of vertex [[DOMAIN]]->SEPARATED_VERTICES->row(i). 
+	# More precisely, if the corresponding vertex is not a far ray, it describes its function value. 
+	# If it is a directional ray, it describes the slope on that ray.
+	property VERTEX_VALUES : Matrix<Rational>;
+
+	# @category Defining morphisms and functions
+	# The vector in row i describes the function value (slope) of [[DOMAIN]]->LINEALITY_SPACE->row(i)
+	property LINEALITY_VALUES : Matrix<Rational>; 
+
+	# @category Defining morphisms and functions
+	# If the morphism is a global affine linear map x |-> Ax+v, then this contains the matrix A.
+	# If [[TRANSLATE]] is set, but this property is not set, then it is the identity by default.
+	property MATRIX : Matrix<Rational>;
+
+	# @category Defining morphisms and functions
+	# If the morphism is a global affine linear map x |-> Ax+v, then this contains the translation vector 
+	# v. If [[MATRIX]] is set, but this property is not set, then it is the zero vector by default.
+	property TRANSLATE : Vector<Rational>;
+
+
+	### RULES ###################################
+
+	rule MATRIX : TRANSLATE {
+		$this->MATRIX = unit_matrix($this->TRANSLATE->dim());
+	}
+
+	rule TRANSLATE : MATRIX {
+		$this->TRANSLATE = zero_vector<Rational>($this->MATRIX->rows());
+	}
+
+	#rule DOMAIN, VERTEX_VALUES, LINEALITY_VALUES: MATRIX,TRANSLATE {
+#		my $lspace = linear_nspace($this->MATRIX->cols())->homogenize;
+#		$this->DOMAIN = new WeightedComplex(RAYS=>$lspace->RAYS,MAXIMAL_CONES=>$lspace->MAXIMAL_CONES,
+#			LINEALITY_SPACE=>$lspace->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$lspace->USES_HOMOGENEOUS_C);
+#		my $raymatrix = new Matrix<Rational>(0,$this->TRANSLATE->dim());
+#		$raymatrix = $raymatrix / $this->TRANSLATE;
+#		$this->RAY_VALUES = $raymatrix;
+#		$this->LIN_VALUES = transpose($this->MATRIX);
+#	}
+}

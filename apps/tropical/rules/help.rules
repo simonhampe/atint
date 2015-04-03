@@ -15,7 +15,7 @@
 #  Boston, MA  02110-1301, USA.
 #  
 #  ---
-#  Copyright (C) 2015, Simon Hampe <simon.hampe@googlemail.com>
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
 #
 #
 #  This file contains definitions of help categories.
@@ -24,7 +24,7 @@
 # @topic category any/Intersection theory
 # These are general +++ related to intersection theory.
 
-# @topic category any/Defining morphisms
+# @topic category any/Defining morphisms and functions
 # These +++ are used to define morphisms or rational functions on a Cycle.
 
 # @topic category any/Local computations

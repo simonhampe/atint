@@ -15,7 +15,7 @@
 #  Boston, MA  02110-1301, USA.
 #  
 #  ---
-#  Copyright (C) 2011, Simon Hampe <simon.hampe@googlemail.com>
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
 #
 # This is the main rule file for application a-tint.
 # a function that tests termination of all functions in a-tint.
@@ -29,7 +29,34 @@
 
 USE fan matroid graph 
 
+# A rational function on a polyhedral complex. It can be described by giving its [[DOMAIN]],
+# a Cycle, and values on this domain - which are encoded in the properties [[VERTEX_VALUES]] and 
+# [[LINEALITY_VALUES]].
+# Alternatively, it can be defined by a tropical quotient of tropical polynomials, i.e. by giving
+# [[NUMERATOR]] and [[DENOMINATOR]]. A [[DOMAIN]] can be defined additionally (though one should take
+# care that both functions are actually piecewise affine linear on the cells), otherwise it will be
+# computed as the common refinement of the domains of affine linearity of the two polynomials.
+declare object RationalFunction<Addition>;
 
+# A morphism is a function between cycles which is locally affine linear and respects the lattices.
+# It is defined by a [[DOMAIN]], which is a cycle, and values on this domain, [[VERTEX_VALUES]] and
+# [[LINEALITY_VALUES]], much like [[RationalFunction]].
+# Alternatively, it can be defined as a global affine linear function by giving a matrix and a 
+# translation vector.
+declare object Morphism<Addition>;
+
+# An n-marked rational curve, identified by its [[SETS]], i.e. its partitions of {1,...,n} and
+# its [[COEFFICIENTS]], i.e. the lengths of the corresponding edges.
+declare object RationalCurve;
+
+# This represents the result of the method [[lines_in_cubic]]. It contains:
+# The tropical polynomial representing the surface, the surface itself as a Cycle and 
+# lists of lines and families of different types, each starting with LIST_... 
+# 
+# The object also has methods, starting with array_... that return the corresponding LIST_... as a perl array.
+# The different (lists of) lines can be visualized nicely with [[visualize_in_surface]].
+# FIXME: I think this only works for Max at the moment?
+declare object LinesInCubic;
 
 INCLUDE
 	help.rules
