@@ -24,8 +24,8 @@
 # @topic category any/Intersection theory
 # These are general +++ related to intersection theory.
 
-# @topic category properties/Defining morphisms
-# These properties are used to define morphisms or rational functions on a Cycle.
+# @topic category any/Defining morphisms
+# These +++ are used to define morphisms or rational functions on a Cycle.
 
 # @topic category any/Local computations
 # These +++ are used for doing computations locally around a specified part of a Cycle.
