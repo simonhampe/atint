@@ -30,3 +30,6 @@
 # @topic category any/Local computations
 # These +++ are used for doing computations locally around a specified part of a Cycle.
 
+# @topic category any/Creation functions for specific cycles
+# These +++ are special +++ for creating special tropical cycles.
+
