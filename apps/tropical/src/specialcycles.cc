@@ -112,8 +112,14 @@ namespace polymake { namespace tropical {
 
 		}//END uniform_linear_space
 
-/*	template <typename Addition>
+	template <typename Addition>
 		perl::Object halfspace_subdivision(Rational a, Vector<Rational> g, Integer weight) {
+			//Sanity check
+			if(g == zero_vector<Rational>(g.dim())) 
+					throw std::runtime_error("Zero vector does not define a hyperplane.");
+			if(g*ones_vector<Rational>(g.dim()) != 0) 
+					throw std::runtime_error("Normal vector must be homogenous, i.e. sum of entries must be zero");
+
 			//Create vertices
 			Matrix<Rational> vertices(0,g.dim());
 			vertices /= g;
@@ -121,7 +127,7 @@ namespace polymake { namespace tropical {
 			vertices = zero_vector<Rational>(2) | vertices;
 
 			//Create lineality
-			Matrix<Rational> lineality = null_space(g);
+			Matrix<Rational> lineality = null_space(g).minor(~scalar2set(0),All);
 			lineality = zero_vector<Rational>(lineality.rows()) | lineality;
 
 			//Compute apex
@@ -137,14 +143,13 @@ namespace polymake { namespace tropical {
 			perl::Object cycle(perl::ObjectType::construct<Addition>("Cycle"));
 				cycle.take("VERTICES") << vertices;
 				cycle.take("MAXIMAL_POLYTOPES") << polytopes;
-				cycle.take("LINEALITY_SPACE") << lineality;
+				if(lineality.rows() > 0)
+					cycle.take("LINEALITY_SPACE") << lineality;
 				cycle.take("WEIGHTS") << weight * ones_vector<Integer>(2);
 
 			return cycle;
 		}//END halfspace_subdivision
-		Something doesnt work here: try $p = halfspace_subdivision<Max>(2,(new Vector<Rational>(1,2,3)),1);
-		then lattice normals
-*/
+
 	// PERL WRAPPER -------------------------------------------
 
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
@@ -173,16 +178,18 @@ namespace polymake { namespace tropical {
 			"# @return Cycle A tropical linear space.",
 			"uniform_linear_space<Addition>($,$)");       
 
-/*	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
+	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
 									"# Creates a subdivision of the tropical projective torus"
 									"# along an affine hyperplane into two halfspaces."
 									"# This hyperplane is defined by an equation gx = a"
 									"# @param Rational a The constant coefficient of the equation"
 									"# @param Vector<Rational> g The linear coefficients of the equation"
+									"# Note that the equation must be homogeneous in the sense that (1,..1)"
+									"# is in its kernel, i.e. all entries of g add up to 0."
 									"# @param Integer The (constant) weight this cycle should have"
 									"# @tparam Addition Max or Min"
 									"# @return Cycle The halfspace subdivision",
-									"halfspace_subdivision<Addition>($,Vector<Rational>,$)");*/
+									"halfspace_subdivision<Addition>($,Vector<Rational>,$)");
 
 }}
 
