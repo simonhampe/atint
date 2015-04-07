@@ -156,7 +156,7 @@ namespace polymake { namespace tropical {
 									"# Creates the empty cycle in a given ambient dimension"
 									"# (i.e. it will set the property [[PROJECTIVE_AMBIENT_DIM]]."
 									"# @param Int ambient_dim The ambient dimension"
-									"# @tparam Max or Min"
+									"# @tparam Addition Max or Min"
 									"# @return Cycle The empty cycle",
 									"empty_cycle<Addition>($)");
 	

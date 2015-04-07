@@ -159,6 +159,9 @@ object Cycle {
 
 	## RULES ################################################
 
+	rule SEPARATED_VERTICES, SEPARATED_MAXIMAL_POLYTOPES, SEPARATED_CODIMENSION_ONE_POLYTOPES, SEPARATED_CONVERSION_VECTOR : VERTICES, MAXIMAL_POLYTOPES, CODIMENSION_ONE_POLYTOPES, MAXIMAL_AT_CODIM_ONE {
+		computeSeparatedData($this);
+	}
 	
 
 	## METHODS ##############################################
