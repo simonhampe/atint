@@ -22,33 +22,43 @@
 	*/
 
 
-#ifndef POLYMAKE_TROPICAL_LINEAR_ALGEBRA_TOOLS_H
-#define POLYMAKE_TROPICAL_LINEAR_ALGEBRA_TOOLS_H
+#ifndef POLYMAKE_ATINT_LINEAR_ALGEBRA_TOOLS_H
+#define POLYMAKE_ATINT_LINEAR_ALGEBRA_TOOLS_H
 
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
 
 namespace polymake { namespace tropical {
 
+
+	/**
+	  @brief Takes a vector v and a matrix with column dimension equal to the dimension of v. 
+	  Assuming that v is in the row span of the matrix, it computes one(!) possible representation of v 
+	  in these generators. It does this by performing a standard (partial) gaussian reduction algorithm
+	  @param v The vector supposed to be contained in the row span of the generators
+	  @param generators  A set of row vectors whose linear span should contain v
+	  @return A vector (a1,..,an) such that v = (a1,...,an) * generators. It returns a vector of dimension 0, if
+	  v is not in the span of the generators. An error is thrown if the dimensions of v and the generators mismatch
+
+	*/
+	Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Rational> &generators);
+
 	/**
 	  @brief  This method takes a set of row indices for [[SEPARATED_VERTICES]] and a vector that is supposed 
-	  to be in the affine span of these row vectors and the lineality space (see description 
-	  of [[LATTICE_NORMAL_FCT_VECTOR]]). It then computes the corresponding representation in these vectors
+	  to be a ray (i.e. with leading entry 0) in the affine span of these row vectors and 
+	  the lineality space (see description of [[LATTICE_NORMAL_FCT_VECTOR]]). 
+	  It then computes the corresponding representation in these vectors
 	  @param s a set of row indices of [[SEPARATED_VERTICES]]
 	  @param v a vector supposed to lie in the affine span of [[SEPARATED_VERTICES]] + [[LINEALITY_SPACE]]
-	  @param ambient_dim The ambient dimension of the cycle
 	  @param rays The matrix of [[SEPARATED_VERTICES]]
-	  @param linealitySpace A matrix of generators of the lineality space
-	  @param lineality_dim The dimension of the lineality space
+	  @param linealitySpace A basis of the lineality space
 	  @return A vector of length [[SEPARATED_VERTICES]]->rows() + [[LINEALITY_DIM]] with linear coefficients 
 	  of a representation in the generators chosen via s. The last elements always refer to the lineality space.
 	  @throw std::runtime_error If the vector is not in the affine span of the given vectors
 	  */
 	Vector<Rational> functionRepresentationVector(const Set<int> &rayIndices, const Vector<Rational> &v,
-			int ambient_dim, bool uses_homog, 
 			const Matrix<Rational> &rays,
-			const Matrix<Rational> &linealitySpace,
-			int lineality_dim); 
+			const Matrix<Rational> &linealitySpace); 
 
 }}
 

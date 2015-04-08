@@ -19,9 +19,8 @@ NAME atint
 
 CREDIT
  a-tint is an extension for tropical intersection theory.
- (C) 2015 Simon Hampe, simon.hampe@googlemail.com
- Web: https://github.com/simonhampe/atint
-
+ (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+ See also: 
 
 # If this extension relies on functionality of further extensions,
 # please list their URIs below, separated by blanks and/or newlines.

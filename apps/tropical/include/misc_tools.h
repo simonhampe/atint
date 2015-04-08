@@ -16,25 +16,29 @@
 
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
-	*/
+
+	These functions wrap the basic convex hull functionality of ppl, taking into account
+	tropical homogeneous coordinates
+
+*/
 
 
-#ifndef POLYMAKE_ATINT_SEPARATED_DATA_H
-#define POLYMAKE_ATINT_SEPARATED_DATA_H
+#ifndef POLYMAKE_ATINT_MISC_TOOLS_H
+#define POLYMAKE_ATINT_MISC_TOOLS_H
 
-#include "polymake/client.h"
+#include "polymake/Rational.h"
+#include "polymake/Matrix.h"
 #include "polymake/Set.h"
-#include "polymake/IncidenceMatrix.h"
+
 
 namespace polymake { namespace tropical {
 
-	/**
-	  @brief Check whether a given cone set is compatible with a given set of local restrictions
-	  @param Set<int> cone A set of (ray) indices
-	  @param IncidenceMatrix<> local_restriction A list of sets of ray indices
-	  @return true, if and only if cone contains one of the sets of local_restriction 
-	  */
-	bool is_coneset_compatible(const Set<int> &cone, const IncidenceMatrix<> &local_restriction);
+  /**
+    @brief Takes a matrix and returns the row indices where the first coordinate is nonzero and where the first coordinate is zero in  two different sets
+    @param Matrix<Rational> m The matrix whose rows we consider
+    @return std::pair<Set<int>, Set<int> > The first set contains the row indices of rows that start with a zero entry, the second set is the complement
+  */
+  std::pair<Set<int>, Set<int> > far_and_nonfar_vertices(const Matrix<Rational> &m);
 
 }}
 

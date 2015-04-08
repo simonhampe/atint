@@ -113,7 +113,6 @@ namespace polymake { namespace tropical {
 		IncidenceMatrix<> y_cones = Y.give("MAXIMAL_POLYTOPES");
 		Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
 		y_lineality  = tdehomog(y_lineality);
-		int y_lineality_dim = Y.give("LINEALITY_DIM");
 
 		//dbgtrace << "Extracted Y-values" << endl;
 
@@ -322,37 +321,37 @@ namespace polymake { namespace tropical {
 				// lies in the local cone. If the cone spanned by these has the right dimension
 				// add it as a local cone
 				// FIXME minimal_interior does not work yet. Re-add, when done.
-			/*	if(local_restriction.dim() > 0 && refine) {
-					//dbgtrace << "Recomputing local restriction " << endl;
-					for(int t = 0; t < xc_local_cones.dim(); t++) {
-						//Will contain the subdivision cones of the local cone we currently study
-						Vector<Set<int> > local_subdivision_cones;
-						Set<Set<int> > set_local_subdivision_cones;
-						Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
-						int local_cone_dim = rank(lrays) + x_lineality_dim;
-						for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
-							//Check which rays of refinement cone lie in local cone
-							Set<int> cone_subset;
-							for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
-								if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs))) {
-									cone_subset += *cs;				      
-								}
-							}
-							//If the dimension is correct, add the new local cone
-							if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
-								if(!set_local_subdivision_cones.contains(cone_subset)) {
-									local_subdivision_cones |= cone_subset;
-									set_local_subdivision_cones += cone_subset;
-								}
-							}
-							local_subdivided[xc_local_cones[t]] = true;
-						}//END iterate all refinement cones of xc
-						//Finally we add the minimal interior faces of the subdivision as new local cones
-						//dbgtrace << "Computing minimal interior cones" << endl;
-						new_local_restriction |= minimal_interior(c_rays, local_subdivision_cones, x_uses_homog);
-					}//END iterate all remaining local cones in xc
+				/*	if(local_restriction.dim() > 0 && refine) {
+				//dbgtrace << "Recomputing local restriction " << endl;
+				for(int t = 0; t < xc_local_cones.dim(); t++) {
+				//Will contain the subdivision cones of the local cone we currently study
+				Vector<Set<int> > local_subdivision_cones;
+				Set<Set<int> > set_local_subdivision_cones;
+				Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
+				int local_cone_dim = rank(lrays) + x_lineality_dim;
+				for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
+				//Check which rays of refinement cone lie in local cone
+				Set<int> cone_subset;
+				for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
+				if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs))) {
+				cone_subset += *cs;				      
+				}
+				}
+				//If the dimension is correct, add the new local cone
+				if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
+				if(!set_local_subdivision_cones.contains(cone_subset)) {
+				local_subdivision_cones |= cone_subset;
+				set_local_subdivision_cones += cone_subset;
+				}
+				}
+				local_subdivided[xc_local_cones[t]] = true;
+				}//END iterate all refinement cones of xc
+				//Finally we add the minimal interior faces of the subdivision as new local cones
+				//dbgtrace << "Computing minimal interior cones" << endl;
+				new_local_restriction |= minimal_interior(c_rays, local_subdivision_cones, x_uses_homog);
+				}//END iterate all remaining local cones in xc
 				}//END refine local cones and remove non compatible maximal cones
-*/
+				*/
 			}//END iterate x-cones
 		} //END if intersection is necessary?
 
@@ -418,7 +417,6 @@ namespace polymake { namespace tropical {
 					Vector<bool> repComputed(c_cmplx_rays.rows());
 					Matrix<Rational> raysForComputation = (mode == 0? x_cmplx_rays : y_cmplx_rays);
 					Matrix<Rational> linForComputation = (mode == 0? x_lineality : y_lineality);
-					int dimForComputation = (mode == 0? x_lineality_dim : y_lineality_dim);
 					//Go through all complex cones
 					for(int cone = 0; cone < c_cmplx_cones.rows(); cone++) {
 						//dbgtrace << "Computing rep in cone " << cone << endl;
@@ -435,14 +433,11 @@ namespace polymake { namespace tropical {
 								if(mode == 1 && !y_onlylineality)
 									rfc = y_cmplx_cones.row(ycontainers[cone]);
 								//Compute representation vector
-								(mode == 0? rayRepFromX : rayRepFromY).row(*r) =
-									functionRepresentationVector(
-											rfc,
-											c_cmplx_rays.row(*r),
-											ambient_dim,
-											false,
-											raysForComputation,
-											linForComputation, dimForComputation); 				   
+								Vector<Rational> repv = linearRepresentation(c_cmplx_rays.row(*r), 
+										raysForComputation.minor(rfc,All)/ linForComputation);
+								if(repv.dim() == 0)
+									throw std::runtime_error("Error computing representations during refinement. Rays is not in span of refined cone.");
+								(mode == 0? rayRepFromX : rayRepFromY).row(*r) = repv;
 							}
 						}
 					}//END iterate all cones
@@ -485,5 +480,31 @@ namespace polymake { namespace tropical {
 
 	}//END refinement
 
+
+	perl::Object intersect_container(perl::Object cycle, perl::Object container, 
+			bool forceLatticeComputation) {
+		RefinementResult r = refinement(cycle,container,false,false,false,true,forceLatticeComputation);
+		return r.complex;
+	}//END intersect_container
+
+	// PERL WRAPPER ///////////////////////////////////////////
+
+
+	UserFunction4perl("# @category Basic polyhedral operations"
+			"# Takes two Cycles and computes the intersection of both. The function"
+			"# relies on the fact that the second cycle contains the first cycle to "
+			"# compute the refinement correctly"
+			"# The function copies [[WEIGHTS]], [[LATTICE_BASES]] and [[LATTICE_GENERATORS]]"
+			"# in the obvious manner if they exist."
+			"# @param Cycle cycle An arbitrary Cycle"
+			"# @param Cycle container A cycle containing the first one (as a set)"
+			"# Doesn't need to have any weights and its tropical addition is irrelevant."
+			"# @param Bool forceLatticeComputation Whether the properties"
+			"# [[LATTICE_BASES]] and [[LATTICE_GENERATORS]] of cycle should be computed"
+			"# before refining. False by default."
+			"# @return Cycle The intersection of both complexes" 
+			"# (whose support is equal to the support of cycle)."
+			"# It uses the same tropical addition as cycle.", 
+			&intersect_container,"intersect_container(Cycle,Cycle;$=0)");
 
 }}

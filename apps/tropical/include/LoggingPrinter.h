@@ -20,8 +20,8 @@
  Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
  */
 
-#ifndef ATINT_LOGGING_PRINTER_H
-#define ATINT_LOGGING_PRINTER_H
+#ifndef POLYMAKE_ATINT_LOGGING_PRINTER_H
+#define POLYMAKE_ATINT_LOGGING_PRINTER_H
 
 /**
  @brief This class defines a logger that can be turned on or off in the following way: Put "using namespace xxx;" in your code and replace xxx with atintlog::donotlog, atintlog::dolog, atintlog::dotrace, depending on what you want. Under donotlog, all  calls to dbglog or dbgtrace have no effect. Unter dolog, only dbglog produces output and under dbgtrace, both commands produce output (to pm::cout). The commands are used as cout, i.e. dbglog << ... and dbgtrace << ...

@@ -44,11 +44,27 @@ object RationalFunction {
 
 	# @category Defining morphisms and functions
 	# When representing the function as a quotient of tropical polynomials, this
-	# is the numerator.
+	# is the numerator. Should be a homogeneous polynomial.
 	property NUMERATOR : Polynomial<TropicalNumber<Addition> >;
 
 	# @category Defining morphisms and functions
 	# When representing the function as a quotient of tropical polynomials, this
-	# is the denominator.
+	# is the denominator. Should be a homogeneous polynomial. 
 	property DENOMINATOR : Polynomial<TropicalNumber<Addition> >;
+
+
+	## RULES ###################
+
+	rule NUMERATOR : DENOMINATOR {
+		$this->NUMERATOR = new Polynomial<TropicalNumber<Addition> >( (new TropicalNumber<Addition>(0)),$this->DENOMINATOR->get_ring);
+	}
+
+	rule DENOMINATOR : NUMERATOR {
+		$this->DENOMINATOR = new Polynomial<TropicalNumber<Addition> >( (new TropicalNumber<Addition>(0)),$this->NUMERATOR->get_ring);
+	}
+
+	rule DOMAIN, VERTEX_VALUES, LINEALITY_VALUES : NUMERATOR, DENOMINATOR {
+		computeGeometricFunctionData($this);
+	}
+
 }

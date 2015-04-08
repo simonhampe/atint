@@ -36,6 +36,9 @@ USE fan matroid graph
 # [[NUMERATOR]] and [[DENOMINATOR]]. A [[DOMAIN]] can be defined additionally (though one should take
 # care that both functions are actually piecewise affine linear on the cells), otherwise it will be
 # computed as the common refinement of the domains of affine linearity of the two polynomials.
+# Note: This has nothing to do with common's RationalFunction (which is univariate). If you want to 
+# access that type or use this type from another application, be sure to prepend the appropriate 
+# namespace identifier.
 declare object RationalFunction<Addition>;
 
 # A morphism is a function between cycles which is locally affine linear and respects the lattices.
@@ -61,3 +64,5 @@ declare object LinesInCubic;
 INCLUDE
 	help.rules
 	cycle.rules
+	rationalfunction.rules
+#	morphism.rules

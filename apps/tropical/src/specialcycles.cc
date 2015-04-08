@@ -31,6 +31,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Graph.h"
 #include "polymake/linalg.h"
+#include "polymake/tropical/specialcycles.h"
 
 namespace polymake { namespace tropical {
 
@@ -150,6 +151,28 @@ namespace polymake { namespace tropical {
 			return cycle;
 		}//END halfspace_subdivision
 
+	template <typename Addition>
+		perl::Object projective_torus(int n, Integer weight) {
+			//Sanity check
+			if(n < 0) throw std::runtime_error("Negative ambient dimension is not allowed.");
+
+			Matrix<Rational> vertex(0,n+2);
+				vertex /= unit_vector<Rational>(n+2,0);
+			Matrix<Rational> lineality = unit_matrix<Rational>(n);
+				lineality = Matrix<Rational>(n,2) | lineality;
+
+			Array<Set<int> > polytopes(1);
+				polytopes[0] = scalar2set(0);
+
+			perl::Object cycle(perl::ObjectType::construct<Addition>("Cycle"));
+				cycle.take("VERTICES") << vertex;
+				cycle.take("MAXIMAL_POLYTOPES") << polytopes;
+				cycle.take("LINEALITY_SPACE") << lineality;
+				cycle.take("WEIGHTS") << (weight* ones_vector<Integer>(1));
+			return cycle;
+
+		}//END projective_torus
+
 	// PERL WRAPPER -------------------------------------------
 
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
@@ -191,5 +214,14 @@ namespace polymake { namespace tropical {
 									"# @return Cycle The halfspace subdivision",
 									"halfspace_subdivision<Addition>($,Vector<Rational>,$)");
 
+	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
+									"# Creates the tropical projective torus of a given dimension."
+									"# In less fancy words, the cycle is the complete complex"
+									"# of given (tropical projective) dimension n, i.e. R<sup>n</sup>"
+									"# @param Int n The tropical projective dimension."
+									"# @param Integer w The weight of the cycle. Optional and 1 by default."
+									"# @tparam Addition Max or Min."
+									"# @return Cycle The tropical projective torus.",
+									"projective_torus<Addition>($;$=1)");
 }}
 

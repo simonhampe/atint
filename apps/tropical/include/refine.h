@@ -25,8 +25,8 @@
 #include "polymake/Rational.h"
 #include "polymake/Vector.h"
 
-#ifndef ATINT_REFINE_h_
-#define ATINT_REFINE_h_
+#ifndef POLYMAKE_ATINT_REFINE_h_
+#define POLYMAKE_ATINT_REFINE_h_
 
 namespace polymake { namespace tropical{ 
 

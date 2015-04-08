@@ -16,26 +16,28 @@
 
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
+
+	Implementations of miscelleaneous tools
 	*/
-
-
-#ifndef POLYMAKE_ATINT_SEPARATED_DATA_H
-#define POLYMAKE_ATINT_SEPARATED_DATA_H
 
 #include "polymake/client.h"
 #include "polymake/Set.h"
-#include "polymake/IncidenceMatrix.h"
+#include "polymake/Matrix.h"
+#include "polymake/Vector.h"
+#include "polymake/Rational.h"
+#include "polymake/tropical/LoggingPrinter.h"
+#include "polymake/tropical/misc_tools.h"
 
-namespace polymake { namespace tropical {
 
-	/**
-	  @brief Check whether a given cone set is compatible with a given set of local restrictions
-	  @param Set<int> cone A set of (ray) indices
-	  @param IncidenceMatrix<> local_restriction A list of sets of ray indices
-	  @return true, if and only if cone contains one of the sets of local_restriction 
-	  */
-	bool is_coneset_compatible(const Set<int> &cone, const IncidenceMatrix<> &local_restriction);
+namespace polymake { namespace tropical { 
+
+	std::pair<Set<int>, Set<int> > far_and_nonfar_vertices(const Matrix<Rational> &m) {
+		Set<int> nonfar;
+		Set<int> far;
+		for(int r = 0; r < m.rows(); r++) {
+			(m(r,0) == 0 ? far : nonfar) += r;
+		}
+		return std::pair<Set<int>,Set<int> >(far,nonfar);
+	}
 
 }}
-
-#endif
