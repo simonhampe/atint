@@ -28,7 +28,7 @@
 #include "polymake/Array.h"
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/linalg.h"
-#include "polymake/polytope/ppl_interface.h"
+#include "polymake/tropical/solver_def.h"
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/separated_data.h"
@@ -38,8 +38,6 @@
 
 
 namespace polymake { namespace tropical {
-
-	using polymake::polytope::ppl_interface::solver;
 
 	typedef std::pair<Matrix<Rational>, Matrix<Rational> > matrix_pair;
 

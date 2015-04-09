@@ -30,7 +30,7 @@ object RationalFunction {
 	# @category Defining morphisms and functions
 	# This property describes the affine linearity domains of the function. I.e. the function is
 	# affine integral linear on each maximal polytope of [[DOMAIN]]. 
-	property DOMAIN : fan::PolyhedralComplex<Rational>;
+	property DOMAIN : Cycle<Addition>; 
 
 	# @category Defining morphisms and functions
 	# The value at index i describes the function value at [[DOMAIN]]->SEPARATED_VERTICES->row(i). 
@@ -44,27 +44,27 @@ object RationalFunction {
 
 	# @category Defining morphisms and functions
 	# When representing the function as a quotient of tropical polynomials, this
-	# is the numerator. Should be a homogeneous polynomial.
+	# is the numerator. Should be a homogeneous polynomial of the same degree as [[DENOMINATOR]].
 	property NUMERATOR : Polynomial<TropicalNumber<Addition> >;
 
 	# @category Defining morphisms and functions
 	# When representing the function as a quotient of tropical polynomials, this
-	# is the denominator. Should be a homogeneous polynomial. 
+	# is the denominator. Should be a homogeneous polynomial of the same degree as [[NUMERATOR]]. 
 	property DENOMINATOR : Polynomial<TropicalNumber<Addition> >;
 
 
 	## RULES ###################
 
-	rule NUMERATOR : DENOMINATOR {
-		$this->NUMERATOR = new Polynomial<TropicalNumber<Addition> >( (new TropicalNumber<Addition>(0)),$this->DENOMINATOR->get_ring);
-	}
-
-	rule DENOMINATOR : NUMERATOR {
-		$this->DENOMINATOR = new Polynomial<TropicalNumber<Addition> >( (new TropicalNumber<Addition>(0)),$this->NUMERATOR->get_ring);
-	}
-
 	rule DOMAIN, VERTEX_VALUES, LINEALITY_VALUES : NUMERATOR, DENOMINATOR {
 		computeGeometricFunctionData($this);
+	}
+	precondition : NUMERATOR, DENOMINATOR {
+		$this->NUMERATOR != (new Polynomial<TropicalNumber<Addition> >($this->NUMERATOR->get_ring)) 
+			or die "Numerator cannot be the zero polynomial.";
+		polynomial_degree($this->NUMERATOR) == polynomial_degree($this->DENOMINATOR) 
+			or die "Both numerator and denominator must have the same degree";
+		is_homogeneous($this->NUMERATOR) or die "Numerator must be homogeneous";
+		is_homogeneous($this->DENOMINATOR)  or die "Denominator must be homogeneous";
 	}
 
 }

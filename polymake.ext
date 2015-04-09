@@ -29,7 +29,7 @@ CREDIT
 # REQUIRE
 #   URI URI#version ...
 REQUIRE 
-bundled:ppl
+bundled:cdd
 
 # If this extension was formerly distributed under different URI
 # or was merged with other extensions,

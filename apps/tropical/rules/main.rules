@@ -32,8 +32,9 @@ USE fan matroid graph
 # A rational function on a polyhedral complex. It can be described by giving its [[DOMAIN]],
 # a Cycle, and values on this domain - which are encoded in the properties [[VERTEX_VALUES]] and 
 # [[LINEALITY_VALUES]].
-# Alternatively, it can be defined by a tropical quotient of tropical polynomials, i.e. by giving
-# [[NUMERATOR]] and [[DENOMINATOR]]. A [[DOMAIN]] can be defined additionally (though one should take
+# Alternatively, it can be defined by a tropical quotient of homogeneous tropical polynomials of the 
+# same degree i.e. by giving [[NUMERATOR]] and [[DENOMINATOR]]. 
+# A [[DOMAIN]] can be defined additionally (though one should take
 # care that both functions are actually piecewise affine linear on the cells), otherwise it will be
 # computed as the common refinement of the domains of affine linearity of the two polynomials.
 # Note: This has nothing to do with common's RationalFunction (which is univariate). If you want to 

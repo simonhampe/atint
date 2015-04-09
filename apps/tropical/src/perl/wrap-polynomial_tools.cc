@@ -14,17 +14,27 @@
 --------------------------------------------------------------------------------
 */
 
+#include "polymake/Polynomial.h"
+#include "polymake/Rational.h"
 #include "polymake/TropicalNumber.h"
 
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0>
-   FunctionInterface4perl( computeGeometricFunctionData_T_x_f16, T0 ) {
+   template <typename T0, typename T1>
+   FunctionInterface4perl( polynomial_degree_T_X, T0,T1 ) {
       perl::Value arg0(stack[0]);
-      WrapperReturnVoid( (computeGeometricFunctionData<T0>(arg0)) );
+      WrapperReturn( (polynomial_degree<T0>(arg0.get<T1>())) );
    };
 
-   FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Min);
-   FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Max);
+   template <typename T0, typename T1>
+   FunctionInterface4perl( is_homogeneous_T_X, T0,T1 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (is_homogeneous<T0>(arg0.get<T1>())) );
+   };
+
+   FunctionInstance4perl(is_homogeneous_T_X, TropicalNumber< Min, Rational >, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >);
+   FunctionInstance4perl(polynomial_degree_T_X, TropicalNumber< Min, Rational >, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >);
+   FunctionInstance4perl(polynomial_degree_T_X, TropicalNumber< Max, Rational >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
+   FunctionInstance4perl(is_homogeneous_T_X, TropicalNumber< Max, Rational >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

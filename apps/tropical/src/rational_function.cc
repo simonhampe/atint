@@ -30,10 +30,11 @@
 #include "polymake/Rational.h"
 #include "polymake/Polynomial.h"
 #include "polymake/TropicalNumber.h"
-#include "polymake/tropical/refine.h"
 #include "polymake/tropical/specialcycles.h"
+#include "polymake/tropical/refine.h"
 #include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/linear_algebra_tools.h"
+#include "polymake/tropical/polynomial_tools.h"
 #include "polymake/tropical/LoggingPrinter.h"
 
 
@@ -83,19 +84,6 @@ namespace polymake { namespace tropical {
 			return domain;
 		}//END computePolynomialDomain
 
-	// FIXME Eventually this shouldnt be needed when polynomials can evaluate
-	template <typename Addition>
-		Rational evaluate_polynomial(const Polynomial<TropicalNumber<Addition> > &p, const Vector<Rational> &v){
-			Matrix<Rational> monoms(p.monomials_as_matrix());
-			Vector<TropicalNumber<Addition> > coefs(p.coefficients_as_vector());
-			
-			TropicalNumber<Addition> result = TropicalNumber<Addition>::zero();
-			for(int m = 0; m < monoms.rows(); m++) {
-				result += (coefs[m] * TropicalNumber<Addition>(monoms.row(m)*v));
-			}
-
-			return Rational(result);
-		}//END evaluate_polynomial
 
 	/**
 	 * @brief Computes properties [[DOMAIN]], [[VERTEX_VALUES]] and [[LINEALITY_VALUES]]
@@ -116,14 +104,15 @@ namespace polymake { namespace tropical {
 			function.take("DOMAIN") << r.complex;
 
 			Matrix<Rational> separated_vertices = r.complex.give("SEPARATED_VERTICES");
+				std::pair<Set<int>,Set<int> > vertex_list = far_and_nonfar_vertices(separated_vertices);
 				separated_vertices = separated_vertices.minor(All,~scalar2set(0));
 			Matrix<Rational> lineality = r.complex.give("LINEALITY_SPACE");
+				lineality = lineality.minor(All,~scalar2set(0));
 			Vector<int> assocRep = r.associatedRep;
 
 			Vector<Rational> vertexValues(separated_vertices.rows());
 			Vector<Rational> linealityValues(lineality.rows());
 
-			std::pair<Set<int>,Set<int> > vertex_list = far_and_nonfar_vertices(separated_vertices);
 
 			//Compute values for all nonfar vertices
 			for(Entire<Set<int> >::iterator v = entire(vertex_list.second); !v.at_end(); v++) {
@@ -158,7 +147,6 @@ namespace polymake { namespace tropical {
 
 	// PERL WRAPPER //////////////////////////
 
-	FunctionTemplate4perl("evaluate_polynomial<Addition>(Polynomial<TropicalNumber<Addition> >,Vector)");
 	FunctionTemplate4perl("computePolynomialDomain<Addition>(Polynomial<TropicalNumber<Addition> >)");
 	FunctionTemplate4perl("computeGeometricFunctionData<Addition>(RationalFunction<Addition>) : void");
 

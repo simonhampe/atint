@@ -14,17 +14,13 @@
 --------------------------------------------------------------------------------
 */
 
-#include "polymake/TropicalNumber.h"
-
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0>
-   FunctionInterface4perl( computeGeometricFunctionData_T_x_f16, T0 ) {
-      perl::Value arg0(stack[0]);
-      WrapperReturnVoid( (computeGeometricFunctionData<T0>(arg0)) );
-   };
+   FunctionWrapper4perl( perl::Object (perl::Object, perl::Object, bool) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      IndirectWrapperReturn( arg0, arg1, arg2 );
+   }
+   FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, bool) );
 
-   FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Min);
-   FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
