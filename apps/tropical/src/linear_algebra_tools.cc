@@ -17,7 +17,7 @@
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
 
-	The functions here deal with all the [[SEPARATED..]] properties	
+	Implements some basic linear algebra functionality.
 	*/
 
 #include "polymake/client.h"
