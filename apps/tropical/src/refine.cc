@@ -34,6 +34,7 @@
 #include "polymake/tropical/separated_data.h"
 #include "polymake/tropical/homogeneous_convex_hull.h"
 #include "polymake/tropical/linear_algebra_tools.h"
+#include "polymake/tropical/minimal_interior.h"
 #include "polymake/tropical/refine.h"
 
 
@@ -319,37 +320,40 @@ namespace polymake { namespace tropical {
 				// lies in the local cone. If the cone spanned by these has the right dimension
 				// add it as a local cone
 				// FIXME minimal_interior does not work yet. Re-add, when done.
-				/*	if(local_restriction.dim() > 0 && refine) {
-				//dbgtrace << "Recomputing local restriction " << endl;
-				for(int t = 0; t < xc_local_cones.dim(); t++) {
-				//Will contain the subdivision cones of the local cone we currently study
-				Vector<Set<int> > local_subdivision_cones;
-				Set<Set<int> > set_local_subdivision_cones;
-				Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
-				int local_cone_dim = rank(lrays) + x_lineality_dim;
-				for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
-				//Check which rays of refinement cone lie in local cone
-				Set<int> cone_subset;
-				for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
-				if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs))) {
-				cone_subset += *cs;				      
-				}
-				}
-				//If the dimension is correct, add the new local cone
-				if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
-				if(!set_local_subdivision_cones.contains(cone_subset)) {
-				local_subdivision_cones |= cone_subset;
-				set_local_subdivision_cones += cone_subset;
-				}
-				}
-				local_subdivided[xc_local_cones[t]] = true;
-				}//END iterate all refinement cones of xc
-				//Finally we add the minimal interior faces of the subdivision as new local cones
-				//dbgtrace << "Computing minimal interior cones" << endl;
-				new_local_restriction |= minimal_interior(c_rays, local_subdivision_cones, x_uses_homog);
-				}//END iterate all remaining local cones in xc
+				if(local_restriction.rows() > 0 && refine) {
+					//dbgtrace << "Recomputing local restriction " << endl;
+					for(int t = 0; t < xc_local_cones.dim(); t++) {
+						//Will contain the subdivision cones of the local cone we currently study
+						Vector<Set<int> > local_subdivision_cones;
+						Set<Set<int> > set_local_subdivision_cones;
+						Matrix<Rational> lrays = x_rays.minor(local_restriction[xc_local_cones[t]],All);
+						int local_cone_dim = rank(lrays) + x_lineality_dim;
+						for(Entire<Set<Set<int> > >::iterator s = entire(xrefinements[xc]); !s.at_end(); s++) {
+							//Check which rays of refinement cone lie in local cone
+							Set<int> cone_subset;
+							for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
+								if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs),sv)) {
+									cone_subset += *cs;				      
+								}
+							}
+							//If the dimension is correct, add the new local cone
+							if(rank(c_rays.minor(cone_subset,All)) + c_lineality_dim == local_cone_dim) {
+								if(!set_local_subdivision_cones.contains(cone_subset)) {
+									local_subdivision_cones |= cone_subset;
+									set_local_subdivision_cones += cone_subset;
+								}
+							}
+							local_subdivided[xc_local_cones[t]] = true;
+						}//END iterate all refinement cones of xc
+						//Finally we add the minimal interior faces of the subdivision as new local cones
+						//dbgtrace << "Computing minimal interior cones" << endl;
+						IncidenceMatrix<> minint = minimal_interior(c_rays, local_subdivision_cones,sv );
+						for(int minint_row = 0; minint_row < minint.rows(); minint_row++) {
+							new_local_restriction |= minint.row(minint_row);
+						}
+					}//END iterate all remaining local cones in xc
 				}//END refine local cones and remove non compatible maximal cones
-				*/
+
 			}//END iterate x-cones
 		} //END if intersection is necessary?
 
