@@ -236,8 +236,15 @@ namespace polymake { namespace tropical {
 				//Iterate all cones of Y
 				for(int yc = 0; yc < (y_onlylineality? 1 : y_cones.rows()); yc++) {
 					//Compute a V-representation of the intersection
-					Matrix<Rational> interrays = sv.enumerate_vertices(x_equations.first / y_equations[yc].first,
+					Matrix<Rational> interrays;
+					try {
+						interrays = sv.enumerate_vertices(x_equations.first / y_equations[yc].first,
 							x_equations.second / y_equations[yc].second,false,true).first;
+					}
+					catch(...) {
+						//This just means the polyhedron is empty
+						interrays = Matrix<Rational>(0,ambient_dim);
+					}
 
 					//dbgtrace << interrays << endl;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55269838"?>
+<?pm chk="552b850c"?>
 
 <object name="3" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
@@ -32,10 +32,6 @@
   </property>
   <property name="DOMAIN">
     <object>
-      <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
-  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
-  See also: 
-  https://github.com/simonhampe/atint]]></credit>
       <property name="VERTICES">
         <m>
           <v>1 0 0 0</v>
@@ -58,6 +54,20 @@
       <property name="LOCAL_RESTRICTION">
         <m />
       </property>
+      <property name="LINEALITY_DIM" value="2" />
+      <property name="INTERSECTION_COMPLEX">
+        <object>
+          <property name="PURE" value="true" />
+          <property name="DIM" value="0" />
+        </object>
+      </property>
+      <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
+        <v>0</v>
+      </property>
+      <property name="COMBINATORIAL_DIM" value="0" />
+      <property name="PURE" value="true" />
+      <property name="FAN_DIM" value="3" />
+      <property name="PROJECTIVE_DIM" value="2" />
       <property name="FAR_VERTICES">
         <v />
       </property>

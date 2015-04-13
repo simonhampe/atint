@@ -53,9 +53,26 @@ object RationalFunction {
 	property DENOMINATOR : Polynomial<TropicalNumber<Addition> >;
 
 
+	# @category Defining morphisms and functions
+	# This is an internally used property that should not actually be set by the user. When creating a
+	# rational function with the ^-operator, this property is set to the exponent. 
+	# The semantics is that when computing a divisor, this function should be applied so many times
+	# The usual application of this is a call to divisor($X, $f^4) or something similar.
+	# Warning: This property is not stored if the RationalFunction object is saved. Nor should be assumed
+	# to be preserved during any kind of arithmetic or restricting operation.
+	property POWER : Int : non_storable;
+
 	## RULES ###################
 
-	rule DOMAIN, VERTEX_VALUES, LINEALITY_VALUES : NUMERATOR, DENOMINATOR {
+	rule POWER : {
+		$this->POWER = 1;
+	}
+
+	rule DOMAIN : NUMERATOR, DENOMINATOR {
+		computeDomain($this);
+	}
+
+	rule VERTEX_VALUES, LINEALITY_VALUES : DOMAIN, NUMERATOR, DENOMINATOR {
 		computeGeometricFunctionData($this);
 	}
 	precondition : NUMERATOR, DENOMINATOR {

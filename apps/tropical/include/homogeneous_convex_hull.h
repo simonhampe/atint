@@ -53,7 +53,15 @@ namespace polymake { namespace tropical {
 	 */
 	template <typename ch_solver>
 		std::pair<Matrix<Rational>, Matrix<Rational> > enumerate_homogeneous_vertices(const Matrix<Rational> &facets,const Matrix<Rational> &affine, ch_solver& sv) {
-			std::pair<Matrix<Rational>, Matrix<Rational> > p = sv.enumerate_vertices(facets,affine,false,true);
+			std::pair<Matrix<Rational>, Matrix<Rational> > p;
+			try {
+				p = sv.enumerate_vertices(facets,affine,false,true);
+			}
+			catch(...) {
+				int ambient_dim = std::max(facets.cols(), affine.cols());
+				p.first = Matrix<Rational>(0,	ambient_dim);
+				p.second = Matrix<Rational>(0,ambient_dim);
+			}
 			if(p.second.rows() > 0){
 				int n = p.second.cols();
 				Vector<Rational> one_lin = ones_vector<Rational>(n) - unit_vector<Rational>(n,0);

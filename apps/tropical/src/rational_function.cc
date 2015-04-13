@@ -40,6 +40,8 @@
 
 namespace polymake { namespace tropical {
 
+	typedef std::pair<Vector<Rational>, Vector<Rational> > ValuePair;
+
 	template <typename Addition>
 		perl::Object computePolynomialDomain(const Polynomial<TropicalNumber<Addition> > &p) {
 			Matrix<Rational> monoms(p.monomials_as_matrix());
@@ -84,29 +86,39 @@ namespace polymake { namespace tropical {
 			return domain;
 		}//END computePolynomialDomain
 
-
 	/**
-	 * @brief Computes properties [[DOMAIN]], [[VERTEX_VALUES]] and [[LINEALITY_VALUES]]
-	 * from [[NUMERATOR]] and [[DENOMINATOR]].
+	 * @brief Computes the property [[DOMAIN]] from [[NUMERATOR]] and [[DENOMINATOR]].
 	 */
 	template <typename Addition>
-		void computeGeometricFunctionData(perl::Object function) {
-			//STEP 1: Compute the domain as the common refinement of the
-			// domains of numerator and denominator
-			// While doing so, also compute associated rays
+		void computeDomain(perl::Object function) {
 			Polynomial<TropicalNumber<Addition> > num = function.give("NUMERATOR");
 			Polynomial<TropicalNumber<Addition> > den = function.give("DENOMINATOR");
 			
 			perl::Object domain_num = computePolynomialDomain(num);
 			perl::Object domain_den = computePolynomialDomain(den);
 
-			RefinementResult r = refinement(domain_num, domain_den, false,false,true,true,false);
+			RefinementResult r = refinement(domain_num, domain_den, false,false,false,true,false);
 			function.take("DOMAIN") << r.complex;
+		}//END computeDomain
 
-			Matrix<Rational> separated_vertices = r.complex.give("SEPARATED_VERTICES");
+
+	/**
+	 * @brief Computes properties [[VERTEX_VALUES]] and [[LINEALITY_VALUES]]
+	 * from [[[DOMAIN]], [NUMERATOR]] and [[DENOMINATOR]].
+	 */
+	template <typename Addition>
+		void computeGeometricFunctionData(perl::Object function) {
+			Polynomial<TropicalNumber<Addition> > num = function.give("NUMERATOR");
+			Polynomial<TropicalNumber<Addition> > den = function.give("DENOMINATOR");
+			perl::Object domain = function.give("DOMAIN");
+		
+			//This just computes the associated vertices
+			RefinementResult r = refinement(domain, domain, false,false,true,false,false);
+
+			Matrix<Rational> separated_vertices = domain.give("SEPARATED_VERTICES");
 				std::pair<Set<int>,Set<int> > vertex_list = far_and_nonfar_vertices(separated_vertices);
 				separated_vertices = separated_vertices.minor(All,~scalar2set(0));
-			Matrix<Rational> lineality = r.complex.give("LINEALITY_SPACE");
+			Matrix<Rational> lineality = domain.give("LINEALITY_SPACE");
 				lineality = lineality.minor(All,~scalar2set(0));
 			Vector<int> assocRep = r.associatedRep;
 
@@ -140,14 +152,54 @@ namespace polymake { namespace tropical {
 			}
 
 			function.take("LINEALITY_VALUES") << linealityValues;
-
-
-
 		}//END computeGeometricFunctionData
+
+	/*
+	 * @brief Computes the restriction of a RationalFunction to a cycle contained in its [[DOMAIN]].
+	 */
+	template <typename Addition>
+		perl::Object restrict(perl::Object function, perl::Object cycle, bool compute_lattice) {
+			//First check if the function is given by a polynomial quotient
+			if(function.exists("NUMERATOR") && function.exists("DENOMINATOR")) {
+				Polynomial<TropicalNumber<Addition> > num = function.give("NUMERATOR");
+				Polynomial<TropicalNumber<Addition> > den = function.give("DENOMINATOR");
+				perl::Object domain = function.give("DOMAIN");
+				RefinementResult ref_cycle = refinement(cycle,domain, false,false,false,true,compute_lattice);
+				perl::Object result(perl::ObjectType::construct<Addition>("RationalFunction"));
+					result.take("DOMAIN") << ref_cycle.complex;
+					result.take("NUMERATOR") << num;
+					result.take("DENOMINATOR") << den;
+				return result;
+			}
+
+			//Otherwise, refine the cycle along the domain and compute representations in terms
+			//of the domain
+			perl::Object domain = function.give("DOMAIN");
+			Vector<Rational> vertex_values = function.give("VERTEX_VALUES");
+			Vector<Rational> lineality_values = function.give("LINEALITY_VALUES");
+			Vector<Rational> full_values = vertex_values | lineality_values;
+			RefinementResult ref_cycle = refinement(cycle, domain, false,true,false,true,compute_lattice);
+
+			Matrix<Rational> vertexRep = ref_cycle.rayRepFromY;
+			Matrix<Rational> linealityRep = ref_cycle.linRepFromY;
+
+			Vector<Rational> new_vertex_rep = vertexRep * full_values;
+			Vector<Rational> new_lineality_rep = linealityRep * full_values;
+
+			perl::Object result(perl::ObjectType::construct<Addition>("RationalFunction"));
+				result.take("DOMAIN") << ref_cycle.complex;
+				result.take("VERTEX_VALUES") << new_vertex_rep;
+				result.take("LINEALITY_VALUES") << new_lineality_rep;
+
+			return result;
+		}
 
 	// PERL WRAPPER //////////////////////////
 
 	FunctionTemplate4perl("computePolynomialDomain<Addition>(Polynomial<TropicalNumber<Addition> >)");
+	FunctionTemplate4perl("computeDomain<Addition>(RationalFunction<Addition>) : void");
 	FunctionTemplate4perl("computeGeometricFunctionData<Addition>(RationalFunction<Addition>) : void");
+	FunctionTemplate4perl("restrict<Addition>(RationalFunction<Addition>, Cycle<Addition>;$=0)");
+
 
 }}

@@ -26,6 +26,12 @@
 
 namespace polymake { namespace tropical {
 
+	bool is_empty_cycle(perl::Object cycle) {
+		int proj_ambient_dim = cycle.give("PROJECTIVE_AMBIENT_DIM");
+		IncidenceMatrix<> mpol = cycle.give("MAXIMAL_POLYTOPES");
+		return proj_ambient_dim < 0 || mpol.rows() == 0;
+	}//END is_empty
+
 	// PERL WRAPPER -------------------------------------------
 
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
@@ -35,7 +41,11 @@ namespace polymake { namespace tropical {
 									"# @tparam Addition Max or Min"
 									"# @return Cycle The empty cycle",
 									"empty_cycle<Addition>($)");
-	
+
+	UserFunction4perl("# @category Degeneracy tests"
+							"# This tests wheter a cycle is the empty cycle.",
+							&is_empty_cycle,"is_empty(Cycle)");
+
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
 							"# Creates a cycle consisting of a collection of points"
 							"# with given weights"

@@ -19,6 +19,12 @@
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
+   FunctionInterface4perl( computeDomain_T_x_f16, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturnVoid( (computeDomain<T0>(arg0)) );
+   };
+
+   template <typename T0>
    FunctionInterface4perl( computeGeometricFunctionData_T_x_f16, T0 ) {
       perl::Value arg0(stack[0]);
       WrapperReturnVoid( (computeGeometricFunctionData<T0>(arg0)) );
@@ -26,5 +32,7 @@ namespace polymake { namespace tropical { namespace {
 
    FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Min);
    FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Max);
+   FunctionInstance4perl(computeDomain_T_x_f16, Min);
+   FunctionInstance4perl(computeDomain_T_x_f16, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

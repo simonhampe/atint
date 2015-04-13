@@ -37,3 +37,9 @@
 # These +++ provide basic functionality related to polyhedral geometry, but not
 # necessarily to tropical geometry
 
+# @topic category any/Divisor computation
+# These +++ deal with the computation of divisors
+
+# @topic category any/Degeneracy tests
+# These +++ test cycles for degeneracy, i.e. whether a cycle is the empty cycle
+

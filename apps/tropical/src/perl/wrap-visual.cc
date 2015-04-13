@@ -16,11 +16,17 @@
 
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( perl::Object (perl::Object, perl::Object, bool) ) {
+   FunctionWrapper4perl( pm::Matrix<pm::Rational> (pm::Matrix<pm::Rational>, pm::Rational, bool) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      IndirectWrapperReturn( arg0, arg1, arg2 );
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1.get< perl::TryCanned< const Rational > >(), arg2 );
    }
-   FunctionWrapperInstance4perl( perl::Object (perl::Object, perl::Object, bool) );
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Rational> (pm::Matrix<pm::Rational>, pm::Rational, bool) );
+
+   FunctionWrapper4perl( pm::perl::ListReturn (perl::Object, pm::Vector<pm::Integer>, pm::Matrix<pm::Rational>, pm::Array<std::string, void>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]), arg3(stack[3]);
+      IndirectWrapperReturnVoid( arg0, arg1.get< perl::TryCanned< const Vector< Integer > > >(), arg2.get< perl::TryCanned< const Matrix< Rational > > >(), arg3.get< perl::TryCanned< const Array< std::string > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (perl::Object, pm::Vector<pm::Integer>, pm::Matrix<pm::Rational>, pm::Array<std::string, void>) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

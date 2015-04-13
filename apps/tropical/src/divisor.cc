@@ -17,23 +17,15 @@
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
 
-	This file contains a simple using clause to select the convex hull
-	used in a-tint. This way, we can switch the algorithm we use by
-	changing only a single file (this one).
-
-*/
+	Contains functionality for computing divisors
+	*/
 
 
-#ifndef POLYMAKE_ATINT_SOLVER_DEF_H
-#define POLYMAKE_ATINT_SOLVER_DEF_H
-
-#include "polymake/polytope/cdd_interface.h"
+#include "polymake/tropical/divisor.h"
 
 namespace polymake { namespace tropical {
 
-	//Change this line! (And make sure you include the right headers)
-	using polymake::polytope::cdd_interface::solver;
-
+	FunctionTemplate4perl("divisorByValueMatrix<Addition>(Cycle<Addition>,Matrix)");
+	FunctionTemplate4perl("divisor_with_refinement<Addition>(Cycle<Addition>, RationalFunction<Addition>)");	
+	FunctionTemplate4perl("divisor_no_refinement<Addition>(Cycle<Addition>, RationalFunction<Addition>)");
 }}
-
-#endif
