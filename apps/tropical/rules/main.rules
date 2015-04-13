@@ -67,5 +67,6 @@ INCLUDE
 	cycle.rules
 	rationalfunction.rules
 	divisor.rules
+	conversion.rules
 	visual.rules
 #	morphism.rules
