@@ -255,7 +255,7 @@ namespace polymake { namespace tropical{
 		//From each such Prüfer sequence we then construct a maximal cone
 
 		//Will contain the rays of the moduli space in matroid coordinates
-		int raydim = (n*(n-1))/2 - n;
+		int raydim = (n*(n-3))/2 + 1;
 		int raycount = count_mn_rays_int(n);
 		//dbgtrace << "Expecting " << raycount << " rays" << endl;
 		Matrix<Rational> rays(raycount,raydim);
@@ -270,7 +270,6 @@ namespace polymake { namespace tropical{
 
 		//Things we will need:
 		Set<int> allLeafs = sequence(0,n); //The complete sequence of leaves (for taking complements)
-		Vector<int> onlyones = ones_vector<int>(raydim); //A ones vector(for projecting the lineality space)
 		Vector<int> rayIndices(n-2); //Entry k contains the sum from i = 1 to k of binomial(n-1,i)
 		rayIndices[0] = 0;
 		for(int i = 1; i < rayIndices.dim(); i++) {
@@ -405,14 +404,9 @@ namespace polymake { namespace tropical{
 					for(pm::Subsets_of_k_iterator<const pm::Set<int>& > raypair = entire(all_subsets_of_k(rayset,2)); !raypair.at_end(); raypair++) {
 						int newrayindex = E((*raypair).front(),(*raypair).back());
 						//If the newrayindex is one higher than the ray dimension, 
-						//this means it is first of all the last pair. Also, we don't
+						//this means it is the last pair. Also, we don't
 						//add -e_n but e_1 + ... + e_{n-1} (as we mod out lineality)
-						if(newrayindex < raydim) {
-							newray[newrayindex] = -1;
-						}
-						else {
-							newray = newray + onlyones;
-						}
+						newray[newrayindex] = Addition::orientation();
 					}
 					// 	      }
 					// 	  }
@@ -438,13 +432,10 @@ namespace polymake { namespace tropical{
 			std::ostringstream dsc;
 			dsc << "Moduli space M_0," << n;
 
-			//Add the vertex at the origin and homogenize
+			//Add the vertex at the origin 
 			rays = zero_vector<Rational>(rays.rows()) | rays;
-			//Currently the computation is rigged for max
-			rays = (- Addition::orientation()) * rays;
 			
 			rays /= unit_vector<Rational>(rays.cols(),0);
-			rays = thomog(rays);
 
 
 			//Add the vertex to all cones

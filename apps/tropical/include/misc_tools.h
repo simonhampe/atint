@@ -40,6 +40,13 @@ namespace polymake { namespace tropical {
   */
   std::pair<Set<int>, Set<int> > far_and_nonfar_vertices(const Matrix<Rational> &m);
 
+  /*
+	* @brief Takes a polyhedral complex and returns [[CONES]] summarized into one single incidence matrix.
+	* @param PolyhedralComplex
+	* @return IncidenceMatrix<>
+	*/
+  IncidenceMatrix<> all_cones_as_incidence(perl::Object complex);
+
 }}
 
 #endif

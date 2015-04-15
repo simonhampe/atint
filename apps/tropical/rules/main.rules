@@ -66,7 +66,10 @@ INCLUDE
 	help.rules
 	cycle.rules
 	rationalfunction.rules
+	rationalcurve.rules
+#	rationalcurve_visual.rules
 	divisor.rules
 	conversion.rules
+	matroidfanrincon.rules
 	visual.rules
 #	morphism.rules

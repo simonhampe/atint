@@ -43,3 +43,9 @@
 # @topic category any/Degeneracy tests
 # These +++ test cycles for degeneracy, i.e. whether a cycle is the empty cycle
 
+# @topic category any/Abstract rational curves
+# These +++ deal with abstract rational n-marked curves.
+
+# @topic category any/Moduli of rational curves
+# These +++ deal with moduli spaces of abstract or parametrized rational curves.
+

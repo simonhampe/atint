@@ -25,6 +25,7 @@
 #include "polymake/Matrix.h"
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
+#include "polymake/IncidenceMatrix.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/misc_tools.h"
 
@@ -38,6 +39,17 @@ namespace polymake { namespace tropical {
 			(m(r,0) == 0 ? far : nonfar) += r;
 		}
 		return std::pair<Set<int>,Set<int> >(far,nonfar);
+	}
+
+
+	IncidenceMatrix<> all_cones_as_incidence(perl::Object complex) {
+		Array<IncidenceMatrix<> > all_cones = complex.give("CONES");
+		if(all_cones.size() == 0) return IncidenceMatrix<>();
+		IncidenceMatrix<> result(0,all_cones[0].cols());
+		for(int i = 0; i < all_cones.size(); i++) {
+			result /= all_cones[i];
+		}
+		return result;
 	}
 
 }}
