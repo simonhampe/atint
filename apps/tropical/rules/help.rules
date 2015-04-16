@@ -49,3 +49,12 @@
 # @topic category any/Moduli of rational curves
 # These +++ deal with moduli spaces of abstract or parametrized rational curves.
 
+# @topic category any/Matroids
+# These +++ deal with matroids and matroidal fans.
+
+# @topic category any/Lattices
+# These +++ deal with lattices (meaning free abelian, finitely generated groups).
+
+# @topic category any/Morphisms
+# These are general +++ that deal with morphisms and their arithmetic.
+

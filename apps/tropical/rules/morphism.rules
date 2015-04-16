@@ -22,17 +22,18 @@
 ########################################################################
 
 object Morphism {
-  
+
 	#FIXME: Uncomment when the functions work.
 	#use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool', '+' => 'sum','-' => 'minus','neg'=>'neg');
-  
+
 	# @category Defining morphisms and functions
 	# This property describes the domain of the morphism. I.e. the morphism is
 	# defined on this complex and is locally affine integral linear. 
-	property DOMAIN : fan::PolyhedralComplex;
+	property DOMAIN : Cycle<Addition>;
 
 	# @category Defining morphisms and functions 
 	# The vector at row i describes the function value of vertex [[DOMAIN]]->SEPARATED_VERTICES->row(i). 
+	# (In tropical homogenous coordinates, but without leading coordinate).
 	# More precisely, if the corresponding vertex is not a far ray, it describes its function value. 
 	# If it is a directional ray, it describes the slope on that ray.
 	property VERTEX_VALUES : Matrix<Rational>;
@@ -43,6 +44,8 @@ object Morphism {
 
 	# @category Defining morphisms and functions
 	# If the morphism is a global affine linear map x |-> Ax+v, then this contains the matrix A.
+	# Note that this must be well-defined on tropical projective coordinates, so the sum of the columns of A
+	# must be a multiple of the (1,..,1)-vector.
 	# If [[TRANSLATE]] is set, but this property is not set, then it is the identity by default.
 	property MATRIX : Matrix<Rational>;
 
@@ -62,13 +65,21 @@ object Morphism {
 		$this->TRANSLATE = zero_vector<Rational>($this->MATRIX->rows());
 	}
 
-	#rule DOMAIN, VERTEX_VALUES, LINEALITY_VALUES: MATRIX,TRANSLATE {
-#		my $lspace = linear_nspace($this->MATRIX->cols())->homogenize;
-#		$this->DOMAIN = new WeightedComplex(RAYS=>$lspace->RAYS,MAXIMAL_CONES=>$lspace->MAXIMAL_CONES,
-#			LINEALITY_SPACE=>$lspace->LINEALITY_SPACE, USES_HOMOGENEOUS_C=>$lspace->USES_HOMOGENEOUS_C);
-#		my $raymatrix = new Matrix<Rational>(0,$this->TRANSLATE->dim());
-#		$raymatrix = $raymatrix / $this->TRANSLATE;
-#		$this->RAY_VALUES = $raymatrix;
-#		$this->LIN_VALUES = transpose($this->MATRIX);
-#	}
+	rule DOMAIN : MATRIX, TRANSLATE {
+		computeDomainFromMatrix($this);
+	}
+	precondition : MATRIX, TRANSLATE {
+		$this->MATRIX->rows() == $this->TRANSLATE->dim() or
+			die "Matrix and vector dimensions do not match.";
+	}
+
+	rule VERTEX_VALUES, LINEALITY_VALUES : MATRIX, TRANSLATE, DOMAIN {
+		computeValuesFromMatrix($this);
+	}
+	precondition : MATRIX, TRANSLATE, DOMAIN {
+		($this->DOMAIN->AMBIENT_DIM == $this->MATRIX->cols() and $this->MATRIX->rows() == $this->TRANSLATE->dim())
+			or die "Dimensions don't match.";
+	}
+
+	#FIXME Add convenience functions for affine description.
 }
