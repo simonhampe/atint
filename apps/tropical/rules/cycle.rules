@@ -185,6 +185,11 @@ object Cycle {
 	rule LATTICE_BASES, LATTICE_GENERATORS : VERTICES, LINEALITY_SPACE, MAXIMAL_POLYTOPES, FAR_VERTICES, PROJECTIVE_DIM {
 		computeLatticeBases($this);
 	}
+
+	rule CODIMENSION_ONE_POLYTOPES, MAXIMAL_AT_CODIM_ONE, FACET_NORMALS_BY_PAIRS : VERTICES, MAXIMAL_POLYTOPES, LINEALITY_SPACE, LOCAL_RESTRICTION {
+		codim_one_with_locality($this);
+	}
+	weight 2.5;
 	
 
 	## METHODS ##############################################

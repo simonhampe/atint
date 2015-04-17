@@ -70,7 +70,9 @@ object Morphism {
 	}
 	precondition : MATRIX, TRANSLATE {
 		$this->MATRIX->rows() == $this->TRANSLATE->dim() or
-			die "Matrix and vector dimensions do not match.";
+		die "Matrix and vector dimensions do not match.";
+		is_homogeneous_matrix($this->MATRIX) or
+		die "Matrix is not homogeneous. Columns must add up to (projective) zero";
 	}
 
 	rule VERTEX_VALUES, LINEALITY_VALUES : MATRIX, TRANSLATE, DOMAIN {
@@ -79,7 +81,40 @@ object Morphism {
 	precondition : MATRIX, TRANSLATE, DOMAIN {
 		($this->DOMAIN->AMBIENT_DIM == $this->MATRIX->cols() and $this->MATRIX->rows() == $this->TRANSLATE->dim())
 			or die "Dimensions don't match.";
+		is_homogeneous_matrix($this->MATRIX) or
+		die "Matrix is not homogeneous. Columns must add up to (projective) zero";
 	}
 
-	#FIXME Add convenience functions for affine description.
+	# @category Affine and projective coordinates
+	# Computes the representation of a morphism (given by [[MATRIX]] and [[TRANSLATE]])
+	# on tropical affine coordinates.
+	# @param Int domain_chart Which coordinate index of the homogenized domain is shifted to zero to identify
+	# it with the domain of the affine function. 0 by default.
+	# @param Int target_chart Which coordinate of the homogenized target space is shifted to zero to identify
+	# it with the target of the affine function. 0 by default.
+	# @return Pair<Matrix<Rational>, Vector<Rational> > A matrix and a translate in affine coordinates.
+	user_method affine_representation(;$=0,$=0) {
+		my ($morphism, $domain_chart, $target_chart) = @_;
+		if(!defined($morphism->lookup("MATRIX"))) {
+			die "Morphism is not defined by matrix and translate.";
+		}
+		return tdehomog_morphism($morphism->MATRIX,$morphism->TRANSLATE, $domain_chart, $target_chart);
+	}
+
+}
+
+# @category Affine and projective coordinates
+# Takes a representation of a morphism on affine coordinates and converts it to projective ones.
+# @param Matrix<Rational> A. The matrix of the morphism x |-> Ax + v in affine coordinates.
+# @param Vector<Rational> v. The translate of the morphism x |-> Ax + v in affine coordinates.
+# @param Int domain_chart Which coordinate index of the homogenized domain is shifted to zero to identify
+# it with the domain of the affine function. 0 by default.
+# @param Int target_chart Which coordinate of the homogenized target space is shifted to zero to identify
+# it with the target of the affine function. 0 by default.
+# @tparam Addition Min or Max
+# @return Morphism
+user_function morphism_from_affine<Addition>($, $;$=0,$=0) {
+	my ($matrix,$translate, $domain_chart, $target_chart) = @_;
+	my $homog_rep = thomog_morphism($matrix,$translate, $domain_chart, $target_chart);
+	return new Morphism<Addition>(MATRIX=>$homog_rep->first, TRANSLATE=>$homog_rep->second);
 }

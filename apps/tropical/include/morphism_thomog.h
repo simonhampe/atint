@@ -49,6 +49,12 @@ namespace polymake { namespace tropical {
 			int target_chart=0);
 
 
+	/*
+	 * @brief Test if the columns of a matrix add up to a multiple of the all-ones-vector.
+	 */
+	bool is_homogeneous_matrix(const Matrix<Rational> &m);
+
+
 }}
 
 #endif

@@ -74,6 +74,12 @@ namespace polymake { namespace tropical {
 
 	}
 
-	Function4perl(&thomog_morphism, "thomog_morphism(Matrix,Vector; $=0,$=0)");
-	Function4perl(&tdehomog_morphism, "tdehomog_morphism(Matrix,Vector; $=0,$=0)");
+	bool is_homogeneous_matrix(const Matrix<Rational> &m) {
+		Vector<Rational> sum_vec = m * ones_vector<Rational>(m.cols());
+		return sum_vec == sum_vec[0] * ones_vector<Rational>(sum_vec.dim());
+	}
+
+	Function4perl(&thomog_morphism, "thomog_morphism($,$; $=0,$=0)");
+	Function4perl(&tdehomog_morphism, "tdehomog_morphism($,$; $=0,$=0)");
+	Function4perl(&is_homogeneous_matrix, "is_homogeneous_matrix(Matrix)");
 }}

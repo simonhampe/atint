@@ -17,7 +17,7 @@
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
 
-	Implements cartesian_product.h
+	Implements codim_one_with_locality.h
 	*/
 
 #include "polymake/tropical/codim_one_with_locality.h"
@@ -107,6 +107,58 @@ namespace polymake { namespace tropical {
 		return r;    
 	}
 
+	/*
+	 * @brief Computes [[CODIMENSION_ONE_POLYTOPES]], [[MAXIMAL_AT_CODIM_ONE]] 
+	 * and [[FACET_NORMALS_BY_PAIRS]] for cycles with [[LOCAL_RESTRICTION]]
+	 */
+	template <typename Addition>
+	void codim_one_with_locality(perl::Object cycle) {
+		Matrix<Rational> rays = cycle.give("VERTICES");
+		IncidenceMatrix<> cones = cycle.give("MAXIMAL_POLYTOPES");
+		IncidenceMatrix<> local_restriction = cycle.give("LOCAL_RESTRICTION");
+		Matrix<Rational> lineality = cycle.give("LINEALITY_SPACE");
+
+		//Create a proxy object without the local restriction
+		perl::Object proxy(perl::ObjectType::construct<Addition>("Cycle"));
+			proxy.take("VERTICES") << rays;
+			proxy.take("MAXIMAL_POLYTOPES") << cones;
+			proxy.take("LINEALITY_SPACE") << lineality;
+
+		//Extract non-local data
+		IncidenceMatrix<> codim_one = proxy.give("CODIMENSION_ONE_POLYTOPES");
+		IncidenceMatrix<> maximal_at_codim = proxy.give("MAXIMAL_AT_CODIM_ONE");
+		Map<std::pair<int,int>, int> facets_by_pairs = proxy.give("FACET_NORMALS_BY_PAIRS");
+
+		//Find non-local codim one cones
+		Set<int> nonlocal;
+		Map<int,int> new_codim_index; //Maps old codim indices to new ones
+		int next_index = 0;
+		for(int cc = 0; cc < codim_one.rows(); cc++) {
+			if(!is_coneset_compatible(codim_one.row(cc),local_restriction)) {
+				nonlocal += cc;
+			}
+			else {
+				new_codim_index[cc] = next_index;
+				next_index++;
+			}
+		}
+
+		//Clean map
+		Map<std::pair<int,int>, int> local_map;
+		for(Entire<Map<std::pair<int,int>,int > >::iterator fct = entire(facets_by_pairs); !fct.at_end(); fct++) {
+			if(!nonlocal.contains( (*fct).first.first))
+					local_map[std::make_pair(new_codim_index[(*fct).first.first],(*fct).first.second )] = (*fct).second;
+		}
+
+		cycle.take("CODIMENSION_ONE_POLYTOPES") << codim_one.minor(~nonlocal,All);
+		cycle.take("MAXIMAL_AT_CODIM_ONE") << maximal_at_codim.minor(~nonlocal,All);
+		cycle.take("FACET_NORMALS_BY_PAIRS") << local_map;
+	
+	}
+
+	
+
+	FunctionTemplate4perl("codim_one_with_locality<Addition>(Cycle<Addition>) : void");
 
 }}
 

@@ -17,16 +17,13 @@
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
 
-	Implements the composition of two morphisms.
+	Implements morphism_composition.h
 	*/
 
-#include "polymake/client.h"
-#include "polymake/Matrix.h"
-#include "polymake/Rational.h"
-#include "polymake/Vector.h"
-#include "polymake/tropical/LoggingPrinter.h"
-#include "polymake/tropical/refine.h"
+#include "polymake/tropical/morphism_composition.h"
 
 namespace polymake { namespace tropical {
+
+	FunctionTemplate4perl("morphism_composition<Addition>(Morphism<Addition>, Morphism<Addition>)");
 
 }}
