@@ -63,4 +63,5 @@
       </property>
     </object>
   </property>
+  <property name="IS_GLOBALLY_DEFINED" value="true" />
 </object>

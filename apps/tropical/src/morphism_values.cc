@@ -86,6 +86,13 @@ namespace polymake { namespace tropical {
 		//Compute function matrix:
 		Matrix<Rational> values = converted_values.minor(ray_basis,All);
 		matrix = T(values) * trafo;
+		//Special case: If there is only one vertex and no lineality,
+		//the matrix will be empty, so we have to set it by hand 
+		if(matrix.rows() == 0) {
+			int target_dim = std::max(ray_values.cols(), lin_values.cols());
+			int domain_dim = std::max(rays.cols(), linspace.cols()) - 1;
+			matrix = Matrix<Rational>(target_dim,domain_dim);
+		}
 
 		//dbgtrace << "Matrix: " << matrix << endl;
 

@@ -160,7 +160,7 @@ namespace polymake { namespace tropical {
 	template <typename Addition>
 		perl::Object restrict(perl::Object function, perl::Object cycle, bool compute_lattice) {
 			//First check if the function is given by a polynomial quotient
-			if(function.exists("NUMERATOR") && function.exists("DENOMINATOR")) {
+			if(function.exists("NUMERATOR") || function.exists("DENOMINATOR")) {
 				Polynomial<TropicalNumber<Addition> > num = function.give("NUMERATOR");
 				Polynomial<TropicalNumber<Addition> > den = function.give("DENOMINATOR");
 				perl::Object domain = function.give("DOMAIN");

@@ -24,7 +24,9 @@
 
 object RationalFunction {
 	
-	use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'power_operator', '+' => 'sum','-' => 'minus','neg'=>'neg');
+	#Operator overload
+	#Fallback=> TRUE is needed to that perl can implement missing operators such as == in the usual manner.
+	use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool','^' => 'power_operator', '+' => 'sum','-' => 'minus','neg'=>'neg', "fallback" => TRUE);
 
 	# @category Defining morphisms and functions
 	# This property describes the affine linearity domains of the function. I.e. the function is
@@ -61,15 +63,25 @@ object RationalFunction {
 	# to be preserved during any kind of arithmetic or restricting operation.
 	property POWER : Int : non_storable;
 
+	# @category Defining morphisms and functions
+	# This is TRUE, if the function is defined on the full projective torus by a [[NUMERATOR]] and a 
+	# [[DENOMINATOR]].
+	# The rules do not actually check for completeness of the [[DOMAIN]]. This property will be set to true, 
+	# if the function is created only via [[NUMERATOR]] and [[DENOMINATOR]]. Otherwise
+	# it will be set to FALSE (or you can set it manually upon creation).
+	property IS_GLOBALLY_DEFINED : Bool;
+
 	## RULES ###################
 
 	rule POWER : {
 		$this->POWER = 1;
 	}
 
-	rule DOMAIN : NUMERATOR, DENOMINATOR {
+	rule DOMAIN, IS_GLOBALLY_DEFINED : NUMERATOR, DENOMINATOR {
 		computeDomain($this);
+		$this->IS_GLOBALLY_DEFINED = TRUE;
 	}
+	#FIXME: THis property should maybe be used in some arithmetic functions...
 
 	rule VERTEX_VALUES, LINEALITY_VALUES : DOMAIN, NUMERATOR, DENOMINATOR {
 		computeGeometricFunctionData($this);
