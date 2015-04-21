@@ -220,8 +220,9 @@ object RationalCurve {
 		}
 		my $vr = $va+$vb;
 		#We keep the old curves as INPUT_*
+		my @input_sets = (@{$a->SETS}, @{$b->SETS});
 		my $r = rational_curve_from_metric($vr);
-		my $c = new RationalCurve(SETS=>$r->SETS,COEFFS=>$r->COEFFS,INPUT_SETS=>($a->SETS / $b->SETS),INPUT_COEFFS=>($a->COEFFS | $b->COEFFS),N_LEAVES=>$r->N_LEAVES);
+		my $c = new RationalCurve(SETS=>$r->SETS,COEFFS=>$r->COEFFS,INPUT_SETS=>(new Vector<Set<Int> >(\@input_sets)),INPUT_COEFFS=>($a->COEFFS | $b->COEFFS),N_LEAVES=>$r->N_LEAVES);
 		return $c;
 	}
 

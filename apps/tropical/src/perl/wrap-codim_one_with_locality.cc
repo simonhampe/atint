@@ -25,5 +25,7 @@ namespace polymake { namespace tropical { namespace {
    };
 
    FunctionInstance4perl(codim_one_with_locality_T_x_f16, Min);
+   FunctionInstance4perl(codim_one_with_locality_T_x_f16, Max);
+   FunctionInstance4perl(codim_one_with_locality_T_x_f16, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

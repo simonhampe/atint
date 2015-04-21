@@ -838,7 +838,7 @@ namespace polymake { namespace tropical {
 			"# and computes the corresponding rational curve."
 			"# In the isomorphism of the metric curve space and the moduli coordinates"
 			"# the last leaf is considered as the special leaf"
-			"# @param Vector<Rational> v A vector in the moduli space"
+			"# @param Vector<Rational> v A vector in the moduli space (WITH leading coordinate)."
 			"# @tparam Addition Min or Max (i.e. what are the matroid coordinates using)"
 			"# @return RationalCurve",
 			"rational_curve_from_matroid_coordinates<Addition>(Vector<Rational>)");
@@ -847,7 +847,7 @@ namespace polymake { namespace tropical {
 			"# Takes a matrix whose rows are elements in the moduli space M_0,n in matroid "
 			"# coordinates. Returns a list, where the i-th element is the curve corr. to "
 			"# the i-th row in the matrix"
-			"# @param Matrix<Rational> m"
+			"# @param Matrix<Rational> m A list of vectors in the moduli space (with leading coordinate)."
 			"# @tparam Addition Mir or Max (i.e. what are the matroid coordinates using"
 			"# @return RationalCurve : An array of RationalCurves",
 			"rational_curve_list_from_matroid_coordinates<Addition>(Matrix<Rational>)");

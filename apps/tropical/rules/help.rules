@@ -33,6 +33,9 @@
 # @topic category any/Creation functions for specific cycles
 # These +++ are special +++ for creating special tropical cycles.
 
+# @topic category any/Creation function for specific morphisms and functions
+# These +++ create specific morphisms and functions.
+
 # @topic category any/Basic polyhedral operations
 # These +++ provide basic functionality related to polyhedral geometry, but not
 # necessarily to tropical geometry

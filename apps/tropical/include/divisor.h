@@ -32,6 +32,7 @@
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
 #include "polymake/tropical/thomog.h"
+#include "polymake/tropical/specialcycles.h"
 #include "polymake/tropical/LoggingPrinter.h"
 
 
@@ -120,7 +121,8 @@ namespace polymake { namespace tropical {
 				//First we recompute values that we can't/won't compute by hand
 
 				IncidenceMatrix<> codimOneCones = result.give("CODIMENSION_ONE_POLYTOPES");
-				if(codimOneCones.rows() == 0) return CallPolymakeFunction("zero_cycle");
+				if(codimOneCones.rows() == 0) 
+					return empty_cycle<Addition>(std::max(rays.cols(),lineality_space.cols())-2); 
 				IncidenceMatrix<> coneIncidences = result.give("MAXIMAL_AT_CODIM_ONE");
 
 				LatticeMap latticeNormals = result.give("LATTICE_NORMALS");

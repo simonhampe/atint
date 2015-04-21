@@ -25,5 +25,6 @@ namespace polymake { namespace tropical { namespace {
    };
 
    FunctionInstance4perl(divisor_with_refinement_T_x_x, Max);
+   FunctionInstance4perl(divisor_with_refinement_T_x_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

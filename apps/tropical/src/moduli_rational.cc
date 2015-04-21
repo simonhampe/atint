@@ -452,6 +452,16 @@ namespace polymake { namespace tropical{
 
 		}
 
+
+		template <typename Addition>
+			perl::Object space_of_stable_maps(int n, int d, int r) {
+				perl::Object moduli = m0n<Addition>(n+d);
+				perl::Object torus = projective_torus<Addition>(r,1);
+				perl::Object result = CallPolymakeFunction("cartesian_product",moduli,torus);
+					result.set_description() << "Moduli space of stable rational maps with " << n << " contracted ends, " << d << " non-contracted ends into the torus of dimension " << d;
+				return result;
+			}
+
 		// ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 		UserFunction4perl("# @category Moduli of rational curves"
@@ -477,6 +487,25 @@ namespace polymake { namespace tropical{
 				"# @param Int n The number of leaves. Should be at least 3" 
 				"# @return Cycle The tropical moduli space M_0,n",
 				"m0n<Addition>($)");
+
+		UserFunctionTemplate4perl("# @category Moduli of rational curves"
+				"# Creates the moduli space of stable maps of rational n-marked curves into a "
+				"# projective torus. It is given as the cartesian product of M_{0,n+d} and R^r,"
+				"# where n is the number of contracted leaves, d the number of non-contracted leaves"
+				"# and r is the dimension of the target torus. The R^r - coordinate is interpreted as "
+				"# the image of the last (n-th) contracted leaf."
+				"# Due to the implementation of [[cartesian_product]], the projective coordinates are"
+				"# non-canonical: Both M_{0,n+d} and R^r are dehomogenized after the first coordinate, then"
+				"# the product is taken and homogenized after the first coordinate again."
+				"# Note that functions in a-tint will usually treat this space in such a way that the"
+				"# first d leaves are the non-contracted ones and the remaining n leaves are the "
+				"# contracted ones."
+				"# @param Int n The number of contracted leaves"
+				"# @param Int d The number of non-contracted leaves"
+				"# @param Int r The dimension of the target space for the stable maps."
+				"# @tparam Addition Min or Max. Determines the coordinates."
+				"# @return Cycle The moduli space of rational stable maps.",
+				"space_of_stable_maps<Addition>($,$,$)");
 
 		Function4perl(&decodePrueferSequence,"dcp(Vector<Int>;$=-1)");
 		//   UserFunction4perl("",&adjacentRays,"adjacentRays(RationalCurve)");

@@ -73,3 +73,4 @@ INCLUDE
 	matroidfanrincon.rules
 	visual.rules
 	morphism.rules
+	intersection.rules

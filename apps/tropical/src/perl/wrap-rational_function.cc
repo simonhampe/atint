@@ -51,5 +51,6 @@ namespace polymake { namespace tropical { namespace {
    FunctionInstance4perl(restrict_T_x_x_x, Max);
    FunctionInstance4perl(homogenize_quotient_T_X_X_x, Min, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >);
    FunctionInstance4perl(homogenize_quotient_T_X_X_x, Max, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
+   FunctionInstance4perl(restrict_T_x_x_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
