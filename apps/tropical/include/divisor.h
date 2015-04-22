@@ -41,6 +41,10 @@ namespace polymake { namespace tropical {
 	typedef Map<std::pair<int,int>, Vector<Integer> > LatticeMap ;
 	typedef Map<std::pair<int,int>, Vector<Rational> > LatticeFunctionMap;
 
+	using namespace atintlog::donotlog;
+	//using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+
 	/**
 	  @brief Takes as input a tropical cycle and a matrix of rational values. 
 	  Each row of the matrix is interpreted as a value vector on the [[SEPARATED_VERTICES]] and 
@@ -75,8 +79,8 @@ namespace polymake { namespace tropical {
 			Matrix<Integer> lattice_generators = complex.give("LATTICE_GENERATORS");
 			IncidenceMatrix<> lattice_bases = complex.give("LATTICE_BASES");
 
-			//dbgtrace << "Rays: " << crays << endl;
-			//dbgtrace << "Values: " << values << endl;
+			dbgtrace << "Rays: " << crays << endl;
+			dbgtrace << "Values: " << values << endl;
 
 			//Do a compatibility check on the value matrix to avoid segfaults in the case of faulty input
 			if(values.cols() != crays.rows() + lineality_space.rows()) {
@@ -145,18 +149,6 @@ namespace polymake { namespace tropical {
 
 				if(r == 0) {
 					currentValues = values.row(r);
-					/*
-					//We treat the fan case specially, since there aren't any new rays, just rays disappearing
-					else {
-					//Add values for remaining rays
-					Set<int> value_set;
-					for(Entire<Set<int> >::iterator ry = entire(remainingFanRays); !ry.at_end(); ry++) {
-					value_set += cmplx_origins[*ry];
-					}
-					cmplx_origins = cmplx_origins.slice(remainingFanRays);
-					currentValues = values.row(r).slice(value_set);
-					currentValues |= lineality_values.row(r);
-					}*/
 				}
 				else {
 					currentValues = Vector<Rational>();
@@ -189,7 +181,7 @@ namespace polymake { namespace tropical {
 					//Finally append lineality values
 					currentValues |= lineality_values.row(r);
 				}
-				//dbgtrace << "Value vector is: " << currentValues << endl;
+				dbgtrace << "Value vector is: " << currentValues << endl;
 
 				//Then we compute the divisor
 				Vector<Integer> newweights; //Contains the new weights
@@ -277,23 +269,7 @@ namespace polymake { namespace tropical {
 
 					//Remove cones
 					local_restriction = local_restriction.minor(~removableCones, usedRays);
-
-					// 	  //Replace all local codim one cones
-					// 	  Vector<Set<int> > interior_cones;
-					// 	  for(Entire<Set<int> >::iterator rc = entire(codimToReplace); !rc.at_end(); rc++) {
-					// 	    //Compute all intersections with remaining local cones
-					// 	    for(int lr = 0; lr < local_restriction.rows(); lr++) {
-					// 	      Set<int> isection = codimOneCones.row(*rc) * local_restriction.row(lr);
-					// 	      if(isection.size() > 0) {
-					// 		//Check for doubles and sets that contain this set (or vice versa)
-					// 		bool iscontained = false;
-					// 		Set<int> containedInSet;
-					// 		
-					// 	      }
-					// 	    }
-					// 	    
-					// 	  }
-
+				
 					//dbgtrace << "Adapted local cones: " << local_restriction << endl;
 				}//END adapt local restriction	
 
@@ -302,7 +278,8 @@ namespace polymake { namespace tropical {
 				result.take("MAXIMAL_CONES") << newMaximal;
 				result.take("WEIGHTS") << weights;
 				result.take("LINEALITY_SPACE") << lineality_space;
-				result.take("LOCAL_RESTRICTION") << local_restriction;
+				if(local_restriction.rows() > 0)
+					result.take("LOCAL_RESTRICTION") << local_restriction;
 				result.take("LATTICE_GENERATORS") << lattice_generators;
 				lattice_bases = lattice_bases.minor(usedCones,All);
 				result.take("LATTICE_BASES") << lattice_bases;//(lattice_bases.minor(usedCones,All));
@@ -328,7 +305,7 @@ namespace polymake { namespace tropical {
 		perl::Object divisor_with_refinement(perl::Object complex, perl::Object function) {
 			//Restrict the function to the cycle
 			int power = function.give("POWER");
-			perl::Object restricted_function = CallPolymakeFunction("restrict",function,complex);
+			perl::Object restricted_function = function.CallPolymakeMethod("restrict",complex); 
 
 			perl::Object domain = restricted_function.give("DOMAIN");
 			Vector<Rational> vertex_values = restricted_function.give("VERTEX_VALUES");

@@ -29,6 +29,11 @@
 
 namespace polymake { namespace tropical {
 
+
+	//Documentation see perl wrapper
+	Integer count_mn_cones(int n,int k);
+
+
 	/**
 	  @brief Takes a Pruefer sequence encoding a combinatorial type of n-marked rational curve and 
 	  decodes it into the edge partitions of the corresponding graph
@@ -40,7 +45,7 @@ namespace polymake { namespace tropical {
 	  @return Vector<Set<int> > A list of the partitions each edge induces. 
 	  The leaves are given with indices (0,..,n-1) and each set is given such that it doesn't contain (n-1).
 	  */
-	Vector<Set<int> > decodePrueferSequence(const Vector<int> &pseq, int n);
+	Vector<Set<int> > decodePrueferSequence(const Vector<int> &pseq, int n=-1);
 
 }}
 

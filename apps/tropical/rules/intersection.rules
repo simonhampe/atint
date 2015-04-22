@@ -41,14 +41,7 @@ user_function degree<Addition>(Cycle<Addition>) {
 	my $ambient_dim = $X->PROJECTIVE_AMBIENT_DIM;
 	my $codim = $ambient_dim - $dim;
 
-	my $num = (hyperplane<Addition>(ones_vector<TropicalNumber<Addition> >($ambient_dim+1)))->POLYNOMIAL;
-	my $den_vec = new Vector<TropicalNumber<Addition> >($ambient_dim+1);
-		$den_vec->[0] = new TropicalNumber<Addition>(0);
-	my $den = (hyperplane<Addition>($den_vec))->POLYNOMIAL;
-	return ($num,$den);
-	my $uniform = new RationalFunction<Addition>(NUMERATOR=>$num, DENOMINATOR=>$den);
-
-	my $div = divisor($X,$uniform^$dim);
-
+	my $div = intersect($X, uniform_linear_space<Addition>($ambient_dim, $codim));
+	#FIXME: IS this actually faster than divisor(...)? See issue #827
 	return $div->WEIGHTS * ones_vector<Integer>($div->WEIGHTS->dim());
 }

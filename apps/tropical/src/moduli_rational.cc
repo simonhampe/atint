@@ -42,12 +42,28 @@ namespace polymake { namespace tropical{
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
+	//Counts maximal cones by a simple formula
+	Integer count_maximal_mn_cones(int n) {
+		if(n == 3) {
+			return 1;
+		}
+		Integer result = 1;
+		Integer nint(n);
+		for(int i = 0; i <= n-4; i++) {
+			result = result * (2*(nint-i) -5);
+		}
+		return result;
+	}
+
+
 	//Documentation see perl wrapper
 	Integer count_mn_cones(int n,int k) {
 		if(n == 3) {
 			return Integer(1);
 
 		}
+		if(k == n-3)
+			return count_maximal_mn_cones(n); 
 
 		int vertex_count = k+1;
 		int seq_length = n + k-1;
@@ -97,21 +113,6 @@ namespace polymake { namespace tropical{
 		// 	result = result * (2*(nint-i) -5);
 		//     }
 		//     return result;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
-
-	//Documentation see header
-	int count_mn_cones_int(int n) {
-		if(n == 3) {
-			return 1;
-		}
-		int result = 1;
-		int nint = n;
-		for(int i = 0; i <= n-4; i++) {
-			result = result * (2*(nint-i) -5);
-		}
-		return result;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +267,7 @@ namespace polymake { namespace tropical{
 		Vector<Set<int> > cones;
 
 		//Compute the number of sequences = number of maximal cones
-		int noOfMax = count_mn_cones_int(n);
+		int noOfMax = count_mn_cones(n,n-3).to_int();
 
 		//Things we will need:
 		Set<int> allLeafs = sequence(0,n); //The complete sequence of leaves (for taking complements)

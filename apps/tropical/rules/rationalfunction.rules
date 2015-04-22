@@ -81,7 +81,15 @@ object RationalFunction {
 		computeDomain($this);
 		$this->IS_GLOBALLY_DEFINED = TRUE;
 	}
+	weight 2.10;
 	#FIXME: THis property should maybe be used in some arithmetic functions...
+
+	rule IS_GLOBALLY_DEFINED : {
+		$this->IS_GLOBALLY_DEFINED = FALSE;
+	}
+	precondition : defined(DOMAIN);  
+	weight 0.10;
+	#If a domain has been defined and this property is not true, it is false.
 
 	rule VERTEX_VALUES, LINEALITY_VALUES : DOMAIN, NUMERATOR, DENOMINATOR {
 		computeGeometricFunctionData($this);
@@ -93,6 +101,27 @@ object RationalFunction {
 			or die "Both numerator and denominator must have the same degree";
 		is_homogeneous($this->NUMERATOR) or die "Numerator must be homogeneous";
 		is_homogeneous($this->DENOMINATOR)  or die "Denominator must be homogeneous";
+	}
+
+	# @category Defining morphisms and functions
+	# Computes the restriction of this RationalFunction on a given Cycle.
+	# The cycle need not be contained in the [[DOMAIN]] of the function, the restriction
+	# will be computed on the intersection of the cycle and the [[DOMAIN]].
+	# @param Cycle<Addition> C The new domain.
+	# @tparam Addition [[Min]] or [[Max]].
+	# @return RationalFunction<Addition>
+	user_method restrict(Cycle<Addition>) {
+		my ($f,$X) = @_;
+
+		#Define identity on X
+		my $vertexvalues = $X->SEPARATED_VERTICES->minor(All,~scalar2set(0));
+		my $linealityvalues = $X->LINEALITY_SPACE;
+		if($linealityvalues->rows() > 0) {
+			$linealityvalues = $linealityvalues->minor(All,~scalar2set(0));
+		}
+
+		my $emb = new Morphism<Addition>( DOMAIN=>$X, VERTEX_VALUES=>$vertexvalues,LINEALITY_VALUES=>$linealityvalues, MATRIX=>(unit_matrix<Rational>($f->DOMAIN->PROJECTIVE_AMBIENT_DIM+1)));
+		return pullback($emb,$f);
 	}
 
 	# Changes the power of the function

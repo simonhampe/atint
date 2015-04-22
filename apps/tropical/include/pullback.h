@@ -99,8 +99,8 @@ namespace polymake { namespace tropical {
 				fmorph_vvalues |= function_vvalues;
 				fmorph_lvalues |= function_lvalues;
 			fmorphism.take("DOMAIN") << function_domain;
-			fmorphism.take("VERTEX_VALUES") << fmorph_vvalues;
-			fmorphism.take("LINEALITY_VALUES") << fmorph_lvalues;
+			fmorphism.take("VERTEX_VALUES") << thomog(fmorph_vvalues,0,false);
+			fmorphism.take("LINEALITY_VALUES") << thomog(fmorph_lvalues,0,false);
 
 			//Compute the composition
 			perl::Object comp = morphism_composition<Addition>(morphism,fmorphism);
@@ -112,8 +112,8 @@ namespace polymake { namespace tropical {
 
 			perl::Object result(perl::ObjectType::construct<Addition>("RationalFunction"));
 				result.take("DOMAIN") << resultDomain;
-				result.take("VERTEX_VALUES") << result_vvalues;
-				result.take("LINEALITY_VALUES") << result_lvalues;
+				result.take("VERTEX_VALUES") << tdehomog(result_vvalues,0,false).col(0);
+				result.take("LINEALITY_VALUES") << (result_vvalues.rows() > 0? tdehomog(result_lvalues,0,false).col(0) : Vector<Rational>());
 			if( (function.exists("NUMERATOR") || function.exists("DENOMINATOR")) &&
 				 (morphism.exists("MATRIX") || morphism.exists("TRANSLATE")) ) {
 				Matrix<Rational> matrix = morphism.give("MATRIX");

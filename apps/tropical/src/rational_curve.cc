@@ -42,11 +42,10 @@ namespace polymake { namespace tropical {
 	//using namespace atintlog::dolog;
 	//   using namespace atintlog::dotrace;
 
+
+
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	/*
-	 * @brief Computes n from (n choose 2).
-	 */
 	int moduliDimensionFromLength(int length) {
 		int s = sqrt(1 + 8*length);
 		int r = ((1+s) / 2);
@@ -56,8 +55,6 @@ namespace polymake { namespace tropical {
 		}
 		return r;
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	  @brief Takes three rational values and checks whether two of them are equal and >= than the third
@@ -650,42 +647,6 @@ namespace polymake { namespace tropical {
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	//Documentation see perl wrapper
-	template <typename Addition>
-	perl::Object rational_curve_from_matroid_coordinates(Vector<Rational> matroidVector) {
-
-		matroidVector = matroidVector.slice(~scalar2set(0));
-
-		//Convert vector to a map
-		int n = moduliDimensionFromLength(matroidVector.dim())+1;
-		Matrix<Rational> d(n,n);
-		int index = 0;
-		for(int i = 1; i < n-1; i++) {
-			for(int j = i+1; j <= n-1; j++) {
-				//The isomorphism is rigged for max, so we need to insert a sign here
-				d(i,j) = (-Addition::orientation())*matroidVector[index];
-				index++;
-			}
-		}
-
-		//Now apply mapping
-		Vector<Rational> metric;
-		for(int i = 1; i < n; i++) {
-			for(int j = i+1; j <= n; j++) {
-				if(j == n) {
-					metric |= 0;
-				}
-				else {
-					metric |= (2* d(i,j));
-				}
-			}
-		}
-		//dbgtrace << metric << endl;
-
-		return curveFromMetric(metric); 
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	  @brief Takes a rational n-marked abstract curve and computes its representation in the matroid coordinates of the moduli space
@@ -729,20 +690,6 @@ namespace polymake { namespace tropical {
 		}
 
 		result = (Rational(0) | result);
-		return result;
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////////
-
-	//Documentation see perl wrapper
-	template <typename Addition>
-	perl::ListReturn rational_curve_list_from_matroid_coordinates(Matrix<Rational> m) {
-		perl::ListReturn result;
-
-		for(int i = 0; i < m.rows(); i++) {
-			result << rational_curve_from_matroid_coordinates<Addition>(m.row(i));
-		}
-
 		return result;
 	}
 

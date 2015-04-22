@@ -39,7 +39,7 @@ namespace polymake { namespace tropical {
 
 	using namespace atintlog::donotlog;
 	//using namespace atintlog::dolog;
-	 //  using namespace atintlog::dotrace;
+	//using namespace atintlog::dotrace;
 
 	/**
 	  @brief Computes the composition g(f) of two morphisms f and g (as in f:X->Y, g:Y->Z). 
@@ -48,7 +48,8 @@ namespace polymake { namespace tropical {
 	  be defined on the preimage of g's [[DOMAIN]] under f.
 	  @param perl::Object f A Morphism
 	  @param perl::Object g A Morphism 
-	  @return perl::Object A Morphism object, the composition "g after f"
+	  @return perl::Object A Morphism object, the composition "g after f" The weights of f's domain are
+	  copied onto the cones of the new domain, where they have full dimension.
 	  */
 	template <typename Addition>
 		perl::Object morphism_composition(perl::Object f, perl::Object g) {
@@ -59,6 +60,10 @@ namespace polymake { namespace tropical {
 			perl::Object f_domain = f.give("DOMAIN");
 			Matrix<Rational> f_rays = f_domain.give("SEPARATED_VERTICES");
 			Matrix<Rational> f_lin = f_domain.give("LINEALITY_SPACE");
+			bool f_has_weights = f_domain.exists("WEIGHTS");
+			Vector<Integer> f_domain_weights;
+			if(f_has_weights)
+				f_domain.give("WEIGHTS") >> f_domain_weights;
 			IncidenceMatrix<> f_cones = f_domain.give("SEPARATED_MAXIMAL_POLYTOPES");
 			bool f_has_matrix = f.exists("MATRIX") || f.exists("TRANSLATE");
 			Matrix<Rational> f_on_rays = f.give("VERTEX_VALUES");
@@ -120,6 +125,7 @@ namespace polymake { namespace tropical {
 			Set<Set<int> > pullback_cones_set; //Used to check for doubles
 			Matrix<Rational> pullback_ray_values(0,g_on_rays.cols());
 			Matrix<Rational> pullback_lin_values(0,g_on_lin.cols());
+			Vector<Integer> pullback_weights;
 			//The following two variables contain for each cone of the pullback domain the representation 
 			//as an affine linear function on this cone
 			Vector<Matrix<Rational> > pullback_matrices; 
@@ -219,6 +225,10 @@ namespace polymake { namespace tropical {
 						gtranslate = g_dehomog_translate;
 					}
 					else {
+						dbgtrace << g_cones.row(gcone) << endl;
+						dbgtrace << "Rays of g: " << g_rays.minor(g_cones.row(gcone),All) << "," << g_lin << endl;
+						dbgtrace << g_on_rays << endl;
+						dbgtrace << "Values " << g_on_rays.minor(g_cones.row(gcone),All) << "," << g_on_lin << endl;
 						computeConeFunction(g_rays.minor(g_cones.row(gcone),All), g_lin, 
 								g_on_rays.minor(g_cones.row(gcone),All), g_on_lin, gtranslate, 
 								gmatrix);
@@ -311,6 +321,12 @@ namespace polymake { namespace tropical {
 						pullback_cones_set += pcone;
 						dbgtrace << "Adding cone " << pcone << endl;
 
+						//If the pullback cone has full dimension (<=> the dimension of
+						//the intersection is the dimension of the image cone), we copy f's domain's weight.
+						if(f_has_weights){ 
+							pullback_weights |= (interdim == image_dim? f_domain_weights[fcone] :0);
+						}
+
 						//Now we compute the representation of h = g after f 
 						Matrix<Rational> hmatrix = gmatrix * fmatrix;
 						Vector<Rational> htranslate = gmatrix * ftranslate + gtranslate;
@@ -338,19 +354,27 @@ namespace polymake { namespace tropical {
 			pullback_domain.take("VERTICES") << thomog(pullback_rays);
 			pullback_domain.take("MAXIMAL_POLYTOPES") << pullback_cones;
 			pullback_domain.take("LINEALITY_SPACE") << thomog(pullback_lineality);
-
+			if(f_has_weights) { 
+				pullback_domain.take("WEIGHTS") << pullback_weights;
+			}
 			Matrix<Rational> pb_cmplx_rays = pullback_domain.give("SEPARATED_VERTICES");
 			Matrix<Rational> pb_crays_dehomog = (tdehomog(pb_cmplx_rays)).minor(All,~scalar2set(0));
 			IncidenceMatrix<> pb_cmplx_cones = pullback_domain.give("SEPARATED_MAXIMAL_POLYTOPES");
 			IncidenceMatrix<> pb_cones_by_rays = T(pb_cmplx_cones);
 
+			dbgtrace << "Pullback rays: " << pb_cmplx_rays << endl;
+			dbgtrace << "Pullback cones: " << pb_cmplx_cones << endl;
+			
+
 			//Go trough all rays
 			int basepoint = -1; //Save the first vertex
 			for(int cr = 0; cr < pb_cmplx_rays.rows(); cr++) {
+				dbgtrace << "Value on ray " << pb_cmplx_rays.row(cr) << endl;
 				//Take any cone containing this ray
 				int cone_index = *(pb_cones_by_rays.row(cr).begin());
 				Matrix<Rational> cone_matrix = pullback_matrices[cone_index];
 				Vector<Rational> cone_translate = pullback_translates[cone_index];
+				dbgtrace << "Matrix is " <<  cone_matrix << cone_translate << endl;
 				//If its a vertex, just compute the value
 				if(pb_cmplx_rays(cr,0) == 1) {
 					pullback_ray_values /= 

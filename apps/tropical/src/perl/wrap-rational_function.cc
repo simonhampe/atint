@@ -20,12 +20,6 @@
 
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0>
-   FunctionInterface4perl( restrict_T_x_x_x, T0 ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
-      WrapperReturn( (restrict<T0>(arg0, arg1, arg2)) );
-   };
-
    template <typename T0, typename T1, typename T2>
    FunctionInterface4perl( homogenize_quotient_T_X_X_x, T0,T1,T2 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
@@ -48,9 +42,7 @@ namespace polymake { namespace tropical { namespace {
    FunctionInstance4perl(computeGeometricFunctionData_T_x_f16, Max);
    FunctionInstance4perl(computeDomain_T_x_f16, Min);
    FunctionInstance4perl(computeDomain_T_x_f16, Max);
-   FunctionInstance4perl(restrict_T_x_x_x, Max);
    FunctionInstance4perl(homogenize_quotient_T_X_X_x, Min, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >);
    FunctionInstance4perl(homogenize_quotient_T_X_X_x, Max, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
-   FunctionInstance4perl(restrict_T_x_x_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

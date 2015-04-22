@@ -169,7 +169,7 @@ object RationalCurve {
 			$signindex++;
 		}
 
-		$this->INPUT_SETS = new IncidenceMatrix(@input_sets);
+		$this->INPUT_SETS = new IncidenceMatrix(\@input_sets);
 		$this->INPUT_COEFFS = new Vector<Rational>(\@input_coeffs);
 	}
 
