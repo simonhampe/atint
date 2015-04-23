@@ -149,6 +149,7 @@ namespace polymake { namespace tropical {
 			}//END compute gcone-H-rep
 
 
+			bool have_full_dimensional_pullback_cone = false;
 
 			// --------------------------- COMPUTE GEOMETRY ---------------------------------- //
 
@@ -321,6 +322,8 @@ namespace polymake { namespace tropical {
 						pullback_cones_set += pcone;
 						dbgtrace << "Adding cone " << pcone << endl;
 
+						if(interdim == image_dim)
+							have_full_dimensional_pullback_cone = true;
 						//If the pullback cone has full dimension (<=> the dimension of
 						//the intersection is the dimension of the image cone), we copy f's domain's weight.
 						if(f_has_weights){ 
@@ -354,7 +357,7 @@ namespace polymake { namespace tropical {
 			pullback_domain.take("VERTICES") << thomog(pullback_rays);
 			pullback_domain.take("MAXIMAL_POLYTOPES") << pullback_cones;
 			pullback_domain.take("LINEALITY_SPACE") << thomog(pullback_lineality);
-			if(f_has_weights) { 
+			if(f_has_weights && have_full_dimensional_pullback_cone) { 
 				pullback_domain.take("WEIGHTS") << pullback_weights;
 			}
 			Matrix<Rational> pb_cmplx_rays = pullback_domain.give("SEPARATED_VERTICES");

@@ -592,7 +592,7 @@ namespace polymake { namespace tropical {
 	 * metric modulo leaf lengths.
 	 * @return An array containing first the graph::Graph and then a Vector<Rational>, containing
 	 * the lengths of the bounded edges (in the order they appear in EDGES)
-	*/
+	 */
 	perl::ListReturn graphFromMetric(Vector<Rational> metric) {
 		//dbgtrace << "Recomputing curve with graph" << endl;
 		perl::Object curve = curveAndGraphFromMetric(metric);
@@ -647,51 +647,100 @@ namespace polymake { namespace tropical {
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
+	//Documentation see perl wrapper
+	template <typename Addition>
+		perl::Object rational_curve_from_matroid_coordinates(Vector<Rational> matroidVector) {
 
+			matroidVector = matroidVector.slice(~scalar2set(0));
+
+			//Convert vector to a map
+			int n = moduliDimensionFromLength(matroidVector.dim())+1;
+			Matrix<Rational> d(n,n);
+			int index = 0;
+			for(int i = 1; i < n-1; i++) {
+				for(int j = i+1; j <= n-1; j++) {
+					//The isomorphism is rigged for max, so we need to insert a sign here
+					d(i,j) = (-Addition::orientation())*matroidVector[index];
+					index++;
+				}
+			}
+
+			//Now apply mapping
+			Vector<Rational> metric;
+			for(int i = 1; i < n; i++) {
+				for(int j = i+1; j <= n; j++) {
+					if(j == n) {
+						metric |= 0;
+					}
+					else {
+						metric |= (2* d(i,j));
+					}
+				}
+			}
+			//dbgtrace << metric << endl;
+
+			return curveFromMetric(metric); 
+		}
+
+	///////////////////////////////////////////////////////////////////////////////////////
+
+	//Documentation see perl wrapper
+	template <typename Addition>
+		perl::ListReturn rational_curve_list_from_matroid_coordinates(Matrix<Rational> m) {
+			perl::ListReturn result;
+
+			for(int i = 0; i < m.rows(); i++) {
+				result << rational_curve_from_matroid_coordinates<Addition>(m.row(i));
+			}
+
+			return result;
+		}
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	/**
 	  @brief Takes a rational n-marked abstract curve and computes its representation in the matroid coordinates of the moduli space
 	  @param perl::Object The rational curve
 	  @return Vector<Rational>
 	  */
 	template <typename Addition>
-	Vector<Rational> matroid_coordinates_from_curve(perl::Object curve) {
-		//Extract values
-		IncidenceMatrix<> sets = curve.give("SETS");
-		Vector<Rational> coeffs = curve.give("COEFFS");
-		int n = curve.give("N_LEAVES");
+		Vector<Rational> matroid_coordinates_from_curve(perl::Object curve) {
+			//Extract values
+			IncidenceMatrix<> sets = curve.give("SETS");
+			Vector<Rational> coeffs = curve.give("COEFFS");
+			int n = curve.give("N_LEAVES");
 
-		//Create edge index map (i,j) -> vector index
-		Matrix<int> E(n,n); int index = 0;
-		for(int i = 1; i < n-1; i++) {
-			for(int j = i+1; j <= n-1; j++) {
-				E(i,j) = E(j,i) = index;
-				index++;
-			}
-		}
-
-		//Compute ambient dimension of moduli space
-		int raydim = (n*(n-3))/2 +1;
-		Set<int> completeSet = sequence(1,n);
-
-		Vector<Rational> result(raydim);
-
-		//Map each set to matroid coordinates with appropriate coefficient
-		for(int s = 0; s < sets.rows(); s++) {
-			Set<int> sset = sets.row(s);
-			//Make sure the set does not contain n
-			if(sset.contains(n)) sset = completeSet - sset;
-			//Now create the flat vector for the complete graph on vertices in sset
-			Vector<int> slist(sset);
-			for(int i = 0; i < slist.dim(); i++) {
-				for(int j = i+1; j < slist.dim(); j++) {
-					result[E(slist[i],slist[j])] += Addition::orientation() * coeffs[s];
+			//Create edge index map (i,j) -> vector index
+			Matrix<int> E(n,n); int index = 0;
+			for(int i = 1; i < n-1; i++) {
+				for(int j = i+1; j <= n-1; j++) {
+					E(i,j) = E(j,i) = index;
+					index++;
 				}
 			}
-		}
 
-		result = (Rational(0) | result);
-		return result;
-	}
+			//Compute ambient dimension of moduli space
+			int raydim = (n*(n-3))/2 +1;
+			Set<int> completeSet = sequence(1,n);
+
+			Vector<Rational> result(raydim);
+
+			//Map each set to matroid coordinates with appropriate coefficient
+			for(int s = 0; s < sets.rows(); s++) {
+				Set<int> sset = sets.row(s);
+				//Make sure the set does not contain n
+				if(sset.contains(n)) sset = completeSet - sset;
+				//Now create the flat vector for the complete graph on vertices in sset
+				Vector<int> slist(sset);
+				for(int i = 0; i < slist.dim(); i++) {
+					for(int j = i+1; j < slist.dim(); j++) {
+						result[E(slist[i],slist[j])] += Addition::orientation() * coeffs[s];
+					}
+				}
+			}
+
+			result = (Rational(0) | result);
+			return result;
+		}
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -726,21 +775,21 @@ namespace polymake { namespace tropical {
 
 		int n = newcurve.give("N_LEAVES");
 		Set<int> all_leaves = sequence(1,n);
-		Vector<Set<int> > newsets = newcurve.give("SETS");
-		for(int ns = 0; ns < newsets.dim(); ns++) {
-			if(*(newsets[ns].begin()) != 1) newsets[ns] = all_leaves - newsets[ns];
+		IncidenceMatrix<> newsets = newcurve.give("SETS");
+		for(int ns = 0; ns < newsets.rows(); ns++) {
+			if(*(newsets.row(ns).begin()) != 1) newsets.row(ns) = all_leaves - newsets.row(ns);
 		}
-		Vector<Set<int> > oldsets = curve.give("SETS");
-		for(int os = 0; os < oldsets.dim(); os++) {
-			if(*(oldsets[os].begin()) != 1) oldsets[os] = all_leaves - oldsets[os];
+		IncidenceMatrix<> oldsets = curve.give("SETS");
+		for(int os = 0; os < oldsets.rows(); os++) {
+			if(*(oldsets.row(os).begin()) != 1) oldsets.row(os) = all_leaves - oldsets.row(os);
 		}
 		//dbgtrace << "newsets: " << newsets << endl;
 		//dbgtrace << "oldsets: " << oldsets << endl;
-		Array<int> perm(newsets.dim());
+		Array<int> perm(newsets.rows());
 		for(int i = 0; i < perm.size(); i++) {
 			//Find equal set
 			for(int j = 0; j < perm.size(); j++) {
-				if(newsets[i] == oldsets[j]) {
+				if(newsets.row(i) == oldsets.row(j)) {
 					perm[i] = j; break;
 				}
 			}
@@ -753,14 +802,14 @@ namespace polymake { namespace tropical {
 		Vector<int> node_degrees = newcurve.give("NODE_DEGREES");
 
 		//Convert the node set matrix
-		Vector<Set<int> > old_node_sets;
+		IncidenceMatrix<> old_node_sets(new_node_sets.rows(), new_node_sets.cols());
 		for(int nns = 0; nns < new_node_sets.rows(); nns++) {
 			Set<int> new_edge = new_node_sets.row(nns);
 			Set<int> old_edge;
 			for(Entire<Set<int> >::iterator ne = entire(new_edge); !ne.at_end(); ne++) {
 				old_edge += perm[*ne];
 			}
-			old_node_sets |= old_edge;
+			old_node_sets.row(nns) = old_edge;
 		}
 
 		curve.take("NODES_BY_LEAVES") << node_leaves;

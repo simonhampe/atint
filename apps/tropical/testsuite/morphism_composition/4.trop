@@ -17,6 +17,9 @@
         <m cols="1">
           <v>0</v>
         </m>
+	  </property>
+ <property name="WEIGHTS">
+        <v>1</v>
       </property>
       <property name="LINEALITY_SPACE">
         <m>

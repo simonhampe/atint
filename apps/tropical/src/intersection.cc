@@ -176,9 +176,9 @@ namespace polymake { namespace tropical {
 					//dbgtrace << "yweight: " << yweights[full_dimensional_yindex[fullcone]] << endl;
 					Integer latticeIndex = lattice_index(
 							lattice_basis_of_cone(
-								xrays.minor(xcones[full_dimensional_xindex[fullcone]],All),xlin,xdim) / 
+								xrays.minor(xcones[full_dimensional_xindex[fullcone]],All),xlin,xdim,false) / 
 							lattice_basis_of_cone(
-								yrays.minor(ycones[full_dimensional_yindex[fullcone]],All),ylin,ydim));
+								yrays.minor(ycones[full_dimensional_yindex[fullcone]],All),ylin,ydim,false));
 					//dbgtrace << "lattice: " << latticeIndex<< endl;
 					weight += (xweights[full_dimensional_xindex[fullcone]] * yweights[full_dimensional_yindex[fullcone]] * latticeIndex);
 				}

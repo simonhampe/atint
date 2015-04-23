@@ -191,6 +191,23 @@ object Cycle {
 	}
 	weight 2.5;
 	
+	rule WEIGHT_SPACE : VERTICES, LINEALITY_SPACE, MAXIMAL_POLYTOPES, CODIMENSION_ONE_POLYTOPES, MAXIMAL_AT_CODIM_ONE, LATTICE_NORMALS, PROJECTIVE_DIM, PROJECTIVE_AMBIENT_DIM {
+		$this->WEIGHT_SPACE = cycle_weight_space($this);
+	}
+
+	rule WEIGHT_SYSTEM : WEIGHT_SPACE {
+		my $sp = $this->WEIGHT_SPACE;
+		$this->WEIGHT_SYSTEM = null_space($sp);
+	}
+
+	rule WEIGHT_CONE : WEIGHT_SYSTEM {
+		$this->WEIGHT_CONE = weight_cone($this, (new Set<Int>()) );
+	}
+
+	rule IS_IRREDUCIBLE : WEIGHT_SPACE, WEIGHTS {
+		$this->IS_IRREDUCIBLE = is_irreducible($this);
+	}
+	
 
 	## METHODS ##############################################
 

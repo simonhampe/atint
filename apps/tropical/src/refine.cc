@@ -47,9 +47,10 @@ namespace polymake { namespace tropical {
 	//Documentation see header
 	template <typename ch_solver>
 		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, 
-				Vector<Rational> ray, ch_solver& sv) {
+				Vector<Rational> ray, bool is_projective, ch_solver& sv) {
 			matrix_pair facets = 
-				enumerate_homogeneous_facets(rays, lineality, sv);
+				is_projective ? enumerate_homogeneous_facets(rays, lineality, sv) :
+									 sv.enumerate_facets(rays,lineality, false,false);
 			//Check equations
 			for(int l = 0; l < facets.second.rows(); l++) {
 				if(facets.second.row(l) * ray != 0) return false;
@@ -339,7 +340,7 @@ namespace polymake { namespace tropical {
 							//Check which rays of refinement cone lie in local cone
 							Set<int> cone_subset;
 							for(Entire<Set<int> >::const_iterator cs = entire(*s); !cs.at_end(); cs++) {
-								if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs),sv)) {
+								if(is_ray_in_cone(lrays,x_lineality,c_rays.row(*cs),false, sv)) {
 									cone_subset += *cs;				      
 								}
 							}
@@ -496,6 +497,29 @@ namespace polymake { namespace tropical {
 		return r.complex;
 	}//END intersect_container
 
+ 
+	//Documentation see perl wrapper
+	bool contains_point(perl::Object complex, Vector<Rational> point) {
+
+		//Extract values
+		Matrix<Rational> rays = complex.give("VERTICES");
+		Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
+		IncidenceMatrix<> cones = complex.give("MAXIMAL_POLYTOPES");
+
+		if(point.dim() != rays.cols() && point.dim() != linspace.cols()) {
+			throw std::runtime_error("Point does not have the same dimension as the complex.");
+		}
+
+		solver<Rational> sv;
+		for(int mc = 0; mc < cones.rows(); mc++) {
+			if(is_ray_in_cone(rays.minor(cones.row(mc),All),linspace,point,true,sv)) return true;
+		}
+
+		return false;
+
+	}
+
+
 	// PERL WRAPPER ///////////////////////////////////////////
 
 
@@ -515,5 +539,13 @@ namespace polymake { namespace tropical {
 			"# (whose support is equal to the support of cycle)."
 			"# It uses the same tropical addition as cycle.", 
 			&intersect_container,"intersect_container(Cycle,Cycle;$=0)");
-
+  
+  UserFunction4perl("# @category Basic polyhedral properties"
+		    "# Takes a weighted complex and a point and computed whether that point lies in "
+		    "# the complex"
+		    "# @param Cycle A weighted complex"
+		    "# @param Vector<Rational> point An arbitrary vector in the same ambient"
+		    "# dimension as complex. Given in tropical projective coordinates with leading coordinate."
+		    "# @return bool Whether the point lies in the support of complex",
+		    &contains_point,"contains_point(Cycle,$)");
 }}

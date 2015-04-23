@@ -14,17 +14,19 @@
 --------------------------------------------------------------------------------
 */
 
-#include "polymake/TropicalNumber.h"
-
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0>
-   FunctionInterface4perl( codim_one_with_locality_T_x_f16, T0 ) {
+   FunctionWrapper4perl( pm::Matrix<pm::Rational> (perl::Object) ) {
       perl::Value arg0(stack[0]);
-      WrapperReturnVoid( (codim_one_with_locality<T0>(arg0)) );
-   };
+      IndirectWrapperReturn( arg0 );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Rational> (perl::Object) );
 
-   FunctionInstance4perl(codim_one_with_locality_T_x_f16, Min);
-   FunctionInstance4perl(codim_one_with_locality_T_x_f16, Max);
+   FunctionWrapper4perl( perl::Object (perl::Object, pm::Set<int, pm::operations::cmp>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Set< int > > >() );
+   }
+   FunctionWrapperInstance4perl( perl::Object (perl::Object, pm::Set<int, pm::operations::cmp>) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

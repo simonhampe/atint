@@ -26,7 +26,10 @@
           <v>1 4</v>
         </m>
       </property>
-      <property name="LINEALITY_SPACE">
+    <property name="WEIGHTS">
+        <v>1 1 1 1 1</v>
+      </property>
+  <property name="LINEALITY_SPACE">
         <m />
       </property>
       <property name="FAR_VERTICES">

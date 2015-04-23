@@ -46,12 +46,14 @@ namespace polymake { namespace tropical{
    @param Matrix<Rational> rays The rays of the cell
    @param Matrix<Rational> lineality The lineality space of the cell
    @param Vector<Rational> ray The ray to be tested
+	@param bool is_projective Whether coordinates are given as tropical projective coordinates. 
+	(False means they're affine).
 	@param solver A convex hull solver
    @returns true, if and only if ray lies in the cone
    */
   template <typename ch_solver>
   bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, Vector<Rational> ray,
-		  ch_solver& sv);
+		  bool is_projective, ch_solver& sv);
   
   /**
   @brief This is a multi-purpose function used to refine polyhedral complexes and rational functions 

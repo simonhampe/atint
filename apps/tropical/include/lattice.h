@@ -30,17 +30,31 @@
 namespace polymake { namespace tropical {
 
 	/*
+	 * @brief Takes a rational matrix and makes each row primitive integer.
+	 */
+	Matrix<Integer> makePrimitiveInteger(const Matrix<Rational> &m);
+
+	/*
+	 * @brief Takes a rational vector and makes it primitive integer.
+	 */
+	Vector<Integer> makePrimitiveInteger(const Vector<Rational> &v);
+
+	/*
 	 * @brief Takes a rational matrix and makes each row integer by 
 	 * multiplying it with an appropriate integer
 	 */
 	Matrix<Integer> make_rowwise_integer(const Matrix<Rational> &m); 
 
 	/*
-	 * @brief Computes the lattice basis of a cone, given in not-tropically-homogeneous coordinates and whose 
-	 * dimension is known.
-	 * @return A lattice basis, given as row vectors of a matrix
+	 * @brief Computes the lattice basis of a cone (given in not-tropically-homogeneous coordinates 
+	 * without leading coordinate) and whose dimension is known.
+	 * @param Matrix<Rational> A list of rays
+	 * @param Matrix<Rational> generators for the lineality space
+	 * @param Int the dimension of the cone 
+	 * @param Bool whether the cone has a leading coordinate (and is, in fact, a polyhedron).
+	 * @return A lattice basis, given as row vectors of a matrix and without leading coordinate.
 	 */
-	Matrix<Integer> lattice_basis_of_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, int dim);
+	Matrix<Integer> lattice_basis_of_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, int dim, bool has_leading_coordinate);
 
 }}
 

@@ -333,3 +333,38 @@ user_function sum_curves {
 	}
 }
 
+user_function rational_curve_from_rays<Addition>($) {
+	my $rays = new Matrix<Rational>(shift);
+
+	#Construct interior point
+	my $interior = new Vector<Rational>($rays->cols());
+	my $vertices = new Set<Int>();
+	for(my $r = 0; $r < $rays->rows(); $r++) {
+		if($rays->($r,0) == 1) {
+			$vertices = $vertices + $r;
+		}
+	}
+	for my $index (@{$vertices}) {
+		$interior += $rays->row($index);
+	}
+	if($vertices->size() > 0) {
+		$interior /= $vertices->size();
+	}
+
+	for my $dir (@{ sequence(0,$rays->rows()) - $vertices}) {
+		$interior += $rays->row($dir);
+	}
+
+	return rational_curve_from_matroid_coordinates<Addition>($interior);
+}
+
+user_function rational_curve_from_cone<Addition>(Cycle<Addition>, $,$) {
+	my ($cycle, $n_leaves,$coneIndex) = @_;
+	#First we compute the dimension of the M_0,n part (+1 for leading coord)
+	my $mn_dim = ($n_leaves * ($n_leaves - 3))/2 + 2;
+	my $rays = $cycle->VERTICES;
+	my $maximal_cones = $cycle->MAXIMAL_POLYTOPES;
+	return rational_curve_from_rays<Addition>( $rays->minor($maximal_cones->row($coneIndex),
+																sequence(0,$mn_dim)));
+}
+

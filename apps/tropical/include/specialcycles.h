@@ -34,6 +34,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Graph.h"
 #include "polymake/linalg.h"
+#include "polymake/tropical/thomog.h"
 
 namespace polymake { namespace tropical {
 
@@ -174,6 +175,51 @@ namespace polymake { namespace tropical {
 			return cycle;
 
 		}//END projective_torus
+
+	template <typename Addition>
+		perl::Object orthant_subdivision(Vector<Rational> point, int chart = 0, Integer weight = 1) {
+			if(point.dim() <= 2) {
+				throw std::runtime_error("Cannot create orthant subdivision. Vector dimension too small");
+			}
+
+			//Dehomogenize
+			point = tdehomog_vec(point,chart);
+			int dim = point.dim() -1;
+			//Create ray matrix - first positive rays, then negative rays
+			Matrix<Rational> rays = unit_matrix<Rational>(dim);
+			rays /= (-unit_matrix<Rational>(dim));
+			//Prepend a zero and set the vertex as last ray
+			rays = zero_vector<Rational>() | rays; 
+			rays = rays / point;
+
+			//Create cones
+			Set<int> seq = sequence(0,dim);
+			Array<Set<int> > all_sets = pm::all_subsets(seq); //All possible sign choices
+			Vector<Set<int> > cones;
+			for(int s = 0; s < all_sets.size(); s++) {
+				Set<int> rayset;
+				Set<int> complement = seq - all_sets[s];
+				//Add all rays from the current set with positive sign and all the others with negative sign
+				rayset += all_sets[s];
+				for(Entire<Set<int> >::iterator c = entire(complement); !c.at_end(); c++) {
+					rayset += (*c + dim);
+				}
+				//Finally add the vertex
+				rayset += (rays.rows()-1);
+				cones |= rayset;
+			}//END create cones
+
+			Vector<Integer> weights = weight * ones_vector<Integer>(cones.dim());
+
+			//Create result
+			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
+			result.take("VERTICES") << thomog(rays,chart);
+			result.take("MAXIMAL_POLYTOPES") << cones;
+			result.take("WEIGHTS") << weights;
+
+			return result;
+
+		}//END orthant_subdivision
 }}
 
 #endif

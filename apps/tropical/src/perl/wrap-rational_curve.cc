@@ -14,8 +14,19 @@
 --------------------------------------------------------------------------------
 */
 
+#include "polymake/Matrix.h"
+#include "polymake/Rational.h"
+#include "polymake/TropicalNumber.h"
+#include "polymake/Vector.h"
+
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0, typename T1>
+   FunctionInterface4perl( rational_curve_from_matroid_coordinates_T_X, T0,T1 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (rational_curve_from_matroid_coordinates<T0>(arg0.get<T1>())) );
+   };
+
    FunctionWrapper4perl( pm::Vector<pm::Rational> (pm::IncidenceMatrix<pm::NonSymmetric>, pm::Vector<pm::Rational>, int) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
       IndirectWrapperReturn( arg0.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg1.get< perl::TryCanned< const Vector< Rational > > >(), arg2 );
@@ -28,5 +39,6 @@ namespace polymake { namespace tropical { namespace {
    }
    FunctionWrapperInstance4perl( pm::perl::ListReturn (pm::Vector<pm::Rational>) );
 
+   FunctionInstance4perl(rational_curve_from_matroid_coordinates_T_X, Max, perl::Canned< const Vector< Rational > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

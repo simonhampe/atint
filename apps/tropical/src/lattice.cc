@@ -35,22 +35,58 @@
 #include "polymake/tropical/lattice.h"
 #include "polymake/tropical/linear_algebra_tools.h"
 #include "polymake/tropical/LoggingPrinter.h"
+#include "polymake/tropical/misc_tools.h"
 
 
 namespace polymake { namespace tropical {
 
 	typedef Map< std::pair<int,int>, Vector<Integer> > LatticeMap;
 
+
+	Matrix<Integer> makePrimitiveInteger(const Matrix<Rational> &m) {
+		Matrix<Integer> result(m.rows(), m.cols());
+		for(int r = 0; r < m.rows(); r++) { 
+			Integer lc = 1;
+			for(int c = 0; c < m.cols(); c++) {
+				lc = lcm(lc,denominator(m(r,c)));
+			}
+			result.row(r) = lc* m.row(r);
+			Integer gc = result(r,0);
+			for(int c = 1; c < m.cols(); c++) {
+				gc = gcd(gc,result(r,c));
+			}
+			result.row(r) = (1/Rational(gc)) * result.row(r);
+		}
+		return result;
+	}
+
+	Vector<Integer> makePrimitiveInteger(const Vector<Rational> &v) {
+		Vector<Integer> result(v.dim());
+		Integer lc = 1;
+		for(int c = 0; c < v.dim(); c++) {
+			lc = lcm(lc,denominator(v[c]));
+		}
+		result = lc* v;
+		Integer gc = result[0];
+		for(int c = 1; c < result.dim(); c++) {
+			gc = gcd(gc,result[c]);
+		}
+		result = (1/Rational(gc)) * result;
+
+		return result;
+	}
+
+
 	Matrix<Integer> make_rowwise_integer(const Matrix<Rational> &m) {
-	  Matrix<Integer> result(m.rows(), m.cols());
-	  for(int r = 0; r < m.rows(); r++) { 
-		  Integer mult = 1;
-		  for(int c = 0; c < m.cols(); c++) {
-			  mult *= denominator(m(r,c));
-		  }
-		  result.row(r) = mult* m.row(r);
-	  }
-	  return result;
+		Matrix<Integer> result(m.rows(), m.cols());
+		for(int r = 0; r < m.rows(); r++) { 
+			Integer mult = 1;
+			for(int c = 0; c < m.cols(); c++) {
+				mult *= denominator(m(r,c));
+			}
+			result.row(r) = mult* m.row(r);
+		}
+		return result;
 	}//END make_rowwise_integer
 
 	/*
@@ -141,13 +177,28 @@ namespace polymake { namespace tropical {
 
 
 	Matrix<Integer> lattice_basis_of_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, 
-			int dim) {
+			int dim, bool has_leading_coordinate) {
 		//Special case: If the cone is full-dimensional, return the standard basis
-		int ambient_dim = std::max(rays.cols(), lineality.cols());
+		int ambient_dim = std::max(rays.cols(), lineality.cols()) - (has_leading_coordinate? 1 : 0);
 		if(dim == ambient_dim)
 			return unit_matrix<Integer>(ambient_dim);
+		//Compute span matrix if there is a leading coordinate 
+		Matrix<Rational> span_matrix(0, ambient_dim);
+		if(has_leading_coordinate) {
+			std::pair<Set<int>, Set<int> > sortedVertices = far_and_nonfar_vertices(rays);
+			span_matrix = rays.minor(sortedVertices.first,~scalar2set(0)); 
+			if(lineality.rows() > 0) span_matrix /= lineality.minor(All,~scalar2set(0));
+			int first = *(sortedVertices.second.begin());
+			sortedVertices.second -= first;
+			for(Entire<Set<int> >::iterator vtx = entire(sortedVertices.second); !vtx.at_end(); vtx++) {
+				span_matrix /= (rays.row(*vtx) - rays.row(first)).slice(~scalar2set(0));
+			}
+		}
+		else {
+			span_matrix = rays / lineality;
+		}
 		//Compute span of cone
-		Matrix<Rational> linspan = null_space(rays / lineality);
+		Matrix<Rational> linspan = null_space(span_matrix);
 		SparseMatrix<Integer> transformation =
 			polymake::common::hermite_normal_form( make_rowwise_integer(linspan),false).second;
 		//The last dim columns are a Z-basis for the cone
@@ -161,11 +212,11 @@ namespace polymake { namespace tropical {
 		//dbgtrace << "Computing lattice " << endl;
 		//Extract properties
 		Matrix<Rational> rays = cycle.give("VERTICES");
-			rays = tdehomog(rays);
-			rays = rays.minor(All,~scalar2set(0));
+		rays = tdehomog(rays);
+		rays = rays.minor(All,~scalar2set(0));
 		Matrix<Rational> linspace = cycle.give("LINEALITY_SPACE");
-			linspace = tdehomog(linspace);
-			linspace = linspace.minor(All,~scalar2set(0));
+		linspace = tdehomog(linspace);
+		linspace = linspace.minor(All,~scalar2set(0));
 		IncidenceMatrix<> cones = cycle.give("MAXIMAL_POLYTOPES");
 		//FIXME Use unimodularity?
 		Set<int> directional = cycle.give("FAR_VERTICES");
@@ -187,7 +238,7 @@ namespace polymake { namespace tropical {
 
 			Matrix<Integer> basis;
 			//FIXME Use unimodularity?
-			basis = lattice_basis_of_cone(mc_rays, linspace,dim);
+			basis = lattice_basis_of_cone(mc_rays, linspace,dim,false);
 			basis = zero_vector<Integer>(basis.rows()) | basis;
 
 			Set<int> basis_set;
@@ -225,5 +276,6 @@ namespace polymake { namespace tropical {
 	Function4perl(&computeLatticeNormalSum,"computeLatticeNormalSum(Cycle)");
 	Function4perl(&computeLatticeFunctionData,"computeLatticeFunctionData(Cycle)");
 	Function4perl(&computeLatticeBases, "computeLatticeBases(Cycle)");
-		
+	Function4perl(&lattice_basis_of_cone,"lattice_basis_of_cone(Matrix,Matrix,$,$)");
+
 }}

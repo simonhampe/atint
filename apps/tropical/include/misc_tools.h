@@ -29,6 +29,7 @@
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
 #include "polymake/Set.h"
+#include "polymake/IncidenceMatrix.h"
 
 
 namespace polymake { namespace tropical {

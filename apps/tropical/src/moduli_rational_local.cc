@@ -29,10 +29,12 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/moduli_rational.h"
-#include "polymake/tropical/rational_curve.h"
 
 namespace polymake { namespace tropical {
 
+	using namespace atintlog::donotlog;
+	//using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
 
 	/**
 	  @brief Computes all paired ordered Prüfer sequences of order n, i.e. all sequences of length 2n-4 where each element from n,...,2n-3 occurs twice and where removing every second occurence of an element yields an ascending sequence)
@@ -99,9 +101,9 @@ namespace polymake { namespace tropical {
 				Vector<int> degrees = curves[c].give("NODE_DEGREES");
 				valences += (Set<int>(degrees) - 3);
 			}
-			//dbgtrace << "Valences: " << valences << endl;
+			dbgtrace << "Valences: " << valences << endl;
 
-			//dbgtrace << "Computing Prüfer sequences" << endl;
+			dbgtrace << "Computing Prüfer sequences" << endl;
 			//Now we compute combinatorially all M_0,v for all possible valences v
 			Map<int, Vector<Vector<Set<int> > > > combinatorial_mns;
 			for(Entire<Set<int> >::iterator v = entire(valences); !v.at_end();v++) {
@@ -110,7 +112,7 @@ namespace polymake { namespace tropical {
 				for(int p = 0; p < pseq.dim(); p++) cmns |= decodePrueferSequence(pseq[p]);
 				combinatorial_mns[*v] = cmns;
 			}
-			//dbgtrace << "Done." << endl;
+			dbgtrace << "Done." << endl;
 			//Now iterate through all curves and compute their adjacent maximal cones
 
 			Vector<Set<int> > rays; //Ray list in terms of partitions
@@ -148,7 +150,7 @@ namespace polymake { namespace tropical {
 
 			//Then we construct the actual cones
 			for(int cu = 0; cu < curves.size(); cu++) {
-				//dbgtrace << "Computing on curve " << cu+1 << endl;
+				dbgtrace << "Computing on curve " << cu+1 << endl;
 				//We iteratively compute the cartesian product of the M_0,ns at the different vertices
 				Vector<Set<int> > cones_so_far; 
 				cones_so_far |= local_cones[cu];
@@ -157,7 +159,7 @@ namespace polymake { namespace tropical {
 				IncidenceMatrix<> set_list = curves[cu].give("SETS");
 				Vector<int> degrees = curves[cu].give("NODE_DEGREES");
 				for(int node = 0; node < nodes_by_sets.rows(); node++) {
-					//dbgtrace << "Computing on node " << node << endl;
+					dbgtrace << "Computing on node " << node << endl;
 					if(degrees[node] > 3) {
 						//We have to translate the cones of the M_0,val(node) first
 						Vector<Set<int> > translated_cones;
@@ -191,18 +193,18 @@ namespace polymake { namespace tropical {
 						//Now go through the cones and translate
 						Vector<Set<int> > new_cones;
 						for(int vc = 0; vc < valence_cones.dim(); vc++) {
-							//dbgtrace << "Computing on cone " << vc << endl;
+							dbgtrace << "Computing on cone " << vc << endl;
 							Set<int> ray_indices;
 							//Go through all rays of the cone
 							for(int r = 0; r < valence_cones[vc].dim(); r++) {
 								//Translate the ray
-								//dbgtrace << "Adjacent: " << adjacent_edges << endl;
-								//dbgtrace << "Cone: " << valence_cones[vc] << endl;
+								dbgtrace << "Adjacent: " << adjacent_edges << endl;
+								dbgtrace << "Cone: " << valence_cones[vc] << endl;
 								Set<int> ray_partition = accumulate(adjacent_edges.slice(valence_cones[vc][r]),operations::add());
 								//To avoid doubles via complements, we make sure that N_LEAVES is always in the
 								//complement
 								if( ray_partition.contains(n_leaves)) ray_partition = all_leaves - ray_partition;
-								//dbgtrace << "Ray is " << ray_partition << endl;
+								dbgtrace << "Ray is " << ray_partition << endl;
 								//Check if this ray already exists
 								int ray_index = -1;
 								for(int oray = 0; oray < rays.dim(); oray++) {
@@ -214,12 +216,12 @@ namespace polymake { namespace tropical {
 									rays |= ray_partition;
 									ray_index = rays.dim()-1;
 								}
-								//dbgtrace << "Index is: " << ray_index << endl;
+								dbgtrace << "Index is: " << ray_index << endl;
 								ray_indices += ray_index;
 							}//END iterate cone rays
 							new_cones |= ray_indices;
 						}//END iterate local mn cones
-						//dbgtrace << "New cones: " << new_cones << endl;
+						dbgtrace << "New cones: " << new_cones << endl;
 						//Finally take the cartesian products of the new cones with all the old ones
 						Vector<Set<int> > replace_cones_so_far;
 						for(int nc = 0; nc < new_cones.dim(); nc++) {
@@ -238,8 +240,8 @@ namespace polymake { namespace tropical {
 					}
 				}
 				cones |= cones_so_far.slice(~double_cones);
-				//       dbgtrace << "Cones: " << cones << endl;
-				//       dbgtrace << "Rays: " << rays << endl;
+				dbgtrace << "Cones: " << cones << endl;
+				dbgtrace << "Rays: " << rays << endl;
 			}//END iterate curves
 
 			//Finally we convert the rays to matroid coordinates
@@ -247,29 +249,29 @@ namespace polymake { namespace tropical {
 			Matrix<int> E(n_leaves-1,n_leaves-1);
 			for(int i = 0; i < n_leaves-2; i++) {
 				for(int j = i+1; j < n_leaves-1; j++) {
-					//dbgtrace << "Setting E(" << i << "," << j << ") = " << nextindex << endl;
+					dbgtrace << "Setting E(" << i << "," << j << ") = " << nextindex << endl;
 					E(i,j) = nextindex;
 					E(j,i) = nextindex;
 					nextindex++;
 				}
 			}
-			Matrix<Rational> bergman_rays(rays.dim(),(n_leaves*(n_leaves-1))/2 - n_leaves);
-			Vector<Rational> onlyones = ones_vector<Rational>(bergman_rays.cols());
+			Matrix<Rational> bergman_rays(rays.dim(),(n_leaves*(n_leaves-3))/2 + 1);
 			for(int r = 0; r < rays.dim(); r++) {
 				Vector<int> raylist(rays[r]);
-				//       dbgtrace << "Converting ray " << raylist << endl;
+				       dbgtrace << "Converting ray " << raylist << endl;
 				Vector<Rational> newray(bergman_rays.cols());
 				for(int k = 0; k < raylist.dim()-1; k++) {
 					for(int l = k+1; l < raylist.dim(); l++) {
 						int newrayindex = E(raylist[k]-1,raylist[l]-1);
-						// 	    dbgtrace << "nri: " << newrayindex << endl;
+						 	    dbgtrace << "nri: " << newrayindex << endl;
 						newray[newrayindex] = Addition::orientation();
 					}
 				}
-				//       dbgtrace << "Result: " << newray << endl;
+				       dbgtrace << "Result: " << newray << endl;
 				bergman_rays.row(r) = newray; 
 			}
 
+			dbgtrace << "Adding vertex" << endl;
 			//Add vertex 
 			bergman_rays = zero_vector<Rational>() | bergman_rays;
 			bergman_rays /= unit_vector<Rational>(bergman_rays.cols(),0);
@@ -282,7 +284,7 @@ namespace polymake { namespace tropical {
 
 			Vector<Integer> weights = ones_vector<Integer>(cones.dim());
 
-			//dbgtrace << "Rays " << rays << endl;
+			dbgtrace << "Rays " << rays << endl;
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
 			result.take("VERTICES") << bergman_rays;
@@ -293,45 +295,45 @@ namespace polymake { namespace tropical {
 		}
 
 	///////////////////////////////////////////////////////////////////////////////////////
-
+/*
 	//Documentation see perl wrapper
 	template <typename Addition>
-	perl::Object rational_curve_from_rays(Matrix<Rational> rays) {
-		//First we identify the vertices
-		Vector<Rational> interior(rays.cols());
-		Set<int> vertices;
-		for(int r = 0; r < rays.rows(); r++) {
-			if(rays(r,0) == 1) vertices += r;
-		}
-		if(vertices.size() > 0) {
-			//Add 1/noOfVertices * sum of vertices
-			interior = accumulate(rows(rays.minor(vertices,All)),operations::add());
-			interior /= vertices.size();
-		}
+		perl::Object rational_curve_from_rays(Matrix<Rational> rays) {
+			//First we identify the vertices
+			Vector<Rational> interior(rays.cols());
+			Set<int> vertices;
+			for(int r = 0; r < rays.rows(); r++) {
+				if(rays(r,0) == 1) vertices += r;
+			}
+			if(vertices.size() > 0) {
+				//Add 1/noOfVertices * sum of vertices
+				interior = accumulate(rows(rays.minor(vertices,All)),operations::add());
+				interior /= vertices.size();
+			}
 
-		//Add rays
-		if(vertices.size() < rays.rows()) 
-			interior += accumulate(rows(rays.minor(~vertices,All)),operations::add());
+			//Add rays
+			if(vertices.size() < rays.rows()) 
+				interior += accumulate(rows(rays.minor(~vertices,All)),operations::add());
 
-		perl::Object result = rational_curve_from_matroid_coordinates<Addition>(interior); 
-		return result;
-	}
+			perl::Object result = rational_curve_from_matroid_coordinates<Addition>(interior); 
+			return result;
+		}
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	//Documentation see perl wrapper
 	template <typename Addition>
-	perl::Object rational_curve_from_cone(perl::Object complex,int n_leaves, int coneIndex) {
-		//First we compute the dimension of the M_0,n-part
-		int mn_dim = (n_leaves * (n_leaves-3))/2 + 2; 
-		//Extract properties
-		Matrix<Rational> rays = complex.give("VERTICES");
-		IncidenceMatrix<> maximal_cones = complex.give("MAXIMAL_POLYTOPES");
+		perl::Object rational_curve_from_cone(perl::Object complex,int n_leaves, int coneIndex) {
+			//First we compute the dimension of the M_0,n-part
+			int mn_dim = (n_leaves * (n_leaves-3))/2 + 2; 
+			//Extract properties
+			Matrix<Rational> rays = complex.give("VERTICES");
+			IncidenceMatrix<> maximal_cones = complex.give("MAXIMAL_POLYTOPES");
 
-		return rational_curve_from_rays<Addition>(
-				rays.minor(maximal_cones.row(coneIndex),sequence(0,mn_dim)));
-	}
-
+			return rational_curve_from_rays<Addition>(
+					rays.minor(maximal_cones.row(coneIndex),sequence(0,mn_dim)));
+		}
+*/
 	// ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 	UserFunctionTemplate4perl("# @category Moduli of rational curves" 
@@ -350,7 +352,7 @@ namespace polymake { namespace tropical {
 			"# @tparam Addition Min or Max, determines the coordinates"
 			"# @return Cycle<Addition> The local complex",
 			"local_m0n<Addition>(RationalCurve+)");  
-
+/*
 	UserFunctionTemplate4perl("# @category Abstract rational curves"
 			"# This takes a matrix of rays of a given cone that is supposed to lie"
 			"# in a moduli space M_0,n and computes the rational curve corresponding"
@@ -377,6 +379,6 @@ namespace polymake { namespace tropical {
 			"# @tparam Addition Min or Max, i.e. what coordinate the M_0.n part uses"
 			"# @return RationalCurve c The curve corresponding to an interior point",
 			"rational_curve_from_cone<Addition>(Cycle<Addition>, $,$)");
-
+*/
 }}
 
