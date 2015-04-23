@@ -540,7 +540,7 @@ namespace polymake { namespace tropical {
 			"# It uses the same tropical addition as cycle.", 
 			&intersect_container,"intersect_container(Cycle,Cycle;$=0)");
   
-  UserFunction4perl("# @category Basic polyhedral properties"
+  UserFunction4perl("# @category Basic polyhedral operations"
 		    "# Takes a weighted complex and a point and computed whether that point lies in "
 		    "# the complex"
 		    "# @param Cycle A weighted complex"
