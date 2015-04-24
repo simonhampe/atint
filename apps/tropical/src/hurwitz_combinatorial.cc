@@ -302,7 +302,7 @@ namespace polymake { namespace tropical {
 			rat_degree |= degree;
 			Vector<Rational> zero_translate(2);
 			for(int i = n+2; i <= 2*n-2-k; i++) {
-				perl::Object evi = evaluation_map<Addition>(n-2-k, 1, rat_degree, i-n-1);
+				perl::Object evi = evaluation_map<Addition>(n-2-k, 1, thomog(rat_degree,0,false), i-n-1);
 				Matrix<Rational> evimatrix = evi.give("MATRIX");
 				//We take the representation of the evaluation map on charts 0 and 0.
 				evimatrix = tdehomog_morphism(evimatrix, zero_translate).first;
