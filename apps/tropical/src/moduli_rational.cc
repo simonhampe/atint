@@ -452,6 +452,11 @@ namespace polymake { namespace tropical{
 			return result;
 
 		}
+		
+		template <typename Addition>
+			perl::Object m0n_wrap(int n, Addition a) {
+				return m0n<Addition>(n);
+			}
 
 
 		template <typename Addition>
@@ -489,6 +494,8 @@ namespace polymake { namespace tropical{
 				"# @return Cycle The tropical moduli space M_0,n",
 				"m0n<Addition>($)");
 
+		FunctionTemplate4perl("m0n_wrap<Addition>($,Addition)");
+
 		UserFunctionTemplate4perl("# @category Moduli of rational curves"
 				"# Creates the moduli space of stable maps of rational n-marked curves into a "
 				"# projective torus. It is given as the cartesian product of M_{0,n+d} and R^r,"
@@ -508,7 +515,7 @@ namespace polymake { namespace tropical{
 				"# @return Cycle The moduli space of rational stable maps.",
 				"space_of_stable_maps<Addition>($,$,$)");
 
-		Function4perl(&decodePrueferSequence,"dcp(Vector<Int>;$=-1)");
+		//Function4perl(&decodePrueferSequence,"dcp(Vector<Int>;$=-1)");
 		//   UserFunction4perl("",&adjacentRays,"adjacentRays(RationalCurve)");
 
 	}}

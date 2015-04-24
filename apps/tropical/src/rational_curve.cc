@@ -35,6 +35,8 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Graph.h"
 #include "polymake/permutations.h"
+#include "polymake/TropicalNumber.h"
+#include "polymake/tropical/misc_tools.h"
 
 namespace polymake { namespace tropical { 
 
@@ -742,6 +744,14 @@ namespace polymake { namespace tropical {
 			return result;
 		}
 
+	// A wrapper with an additional unused templated argument, so we can call the function
+	// with CallPolymakeFunction. (We can't move this to the header).
+	template <typename Addition>
+		Vector<Rational> matroid_vector(perl::Object curve,Addition flag) {
+			return matroid_coordinates_from_curve<Addition>(curve);	
+		}
+
+
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	//Documentation see perl wrapper
@@ -775,21 +785,23 @@ namespace polymake { namespace tropical {
 
 		int n = newcurve.give("N_LEAVES");
 		Set<int> all_leaves = sequence(1,n);
-		IncidenceMatrix<> newsets = newcurve.give("SETS");
-		for(int ns = 0; ns < newsets.rows(); ns++) {
-			if(*(newsets.row(ns).begin()) != 1) newsets.row(ns) = all_leaves - newsets.row(ns);
+		IncidenceMatrix<> newsetsInc = newcurve.give("SETS");
+		Vector<Set<int> > newsets = incMatrixToVector(newsetsInc);
+		for(int ns = 0; ns < newsets.dim(); ns++) {
+			if(*(newsets[ns].begin()) != 1) newsets[ns] = all_leaves - newsets[ns];
 		}
-		IncidenceMatrix<> oldsets = curve.give("SETS");
-		for(int os = 0; os < oldsets.rows(); os++) {
-			if(*(oldsets.row(os).begin()) != 1) oldsets.row(os) = all_leaves - oldsets.row(os);
+		IncidenceMatrix<>	oldsetsInc = curve.give("SETS");
+		Vector<Set<int> > oldsets = incMatrixToVector(oldsetsInc); 
+		for(int os = 0; os < oldsets.dim(); os++) {
+			if(*(oldsets[os].begin()) != 1) oldsets[os] = all_leaves - oldsets[os];
 		}
 		//dbgtrace << "newsets: " << newsets << endl;
 		//dbgtrace << "oldsets: " << oldsets << endl;
-		Array<int> perm(newsets.rows());
+		Array<int> perm(newsets.dim());
 		for(int i = 0; i < perm.size(); i++) {
 			//Find equal set
 			for(int j = 0; j < perm.size(); j++) {
-				if(newsets.row(i) == oldsets.row(j)) {
+				if(newsets[i] == oldsets[j]) {
 					perm[i] = j; break;
 				}
 			}
@@ -802,14 +814,14 @@ namespace polymake { namespace tropical {
 		Vector<int> node_degrees = newcurve.give("NODE_DEGREES");
 
 		//Convert the node set matrix
-		IncidenceMatrix<> old_node_sets(new_node_sets.rows(), new_node_sets.cols());
+		Vector<Set<int> > old_node_sets;
 		for(int nns = 0; nns < new_node_sets.rows(); nns++) {
 			Set<int> new_edge = new_node_sets.row(nns);
 			Set<int> old_edge;
 			for(Entire<Set<int> >::iterator ne = entire(new_edge); !ne.at_end(); ne++) {
 				old_edge += perm[*ne];
 			}
-			old_node_sets.row(nns) = old_edge;
+			old_node_sets |= old_edge;
 		}
 
 		curve.take("NODES_BY_LEAVES") << node_leaves;
@@ -870,11 +882,13 @@ namespace polymake { namespace tropical {
 			"# in the moduli space of rational curves (including the leading 0 for a ray!)"
 			"# @param RationalCurve r A rational n-marked curve"
 			"# @tparam Addition Min or Max, i.e. which coordinates to use."
-			"# @return Vector<Rational>",
+			"# @return Vector<Rational> The matroid coordinates, tropically homogeneous and"
+			"# with leading coordinate",
 			"matroid_coordinates_from_curve<Addition>(RationalCurve)");
 
 	Function4perl(&graphFromMetric, "curve_graph_from_metric(Vector)");
 	Function4perl(&metricFromCurve, "metric_from_curve(IncidenceMatrix, Vector<Rational>, $)");
 	Function4perl(&computeNodeData, "compute_node_data(RationalCurve)");
+	FunctionTemplate4perl("matroid_vector<Addition>(RationalCurve,Addition)");
 
 }}

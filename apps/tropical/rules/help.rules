@@ -69,3 +69,6 @@
 # These +++ deal with the weight space of a cycle, i.e. the space of weights
 # that make it balanced and related properties.
 
+# @topic category any/Hurwitz cycles
+# These +++ deal with the creation and study of tropical Hurwitz cycles.
+

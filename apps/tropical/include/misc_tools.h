@@ -34,19 +34,24 @@
 
 namespace polymake { namespace tropical {
 
-  /**
-    @brief Takes a matrix and returns the row indices where the first coordinate is nonzero and where the first coordinate is zero in  two different sets
-    @param Matrix<Rational> m The matrix whose rows we consider
-    @return std::pair<Set<int>, Set<int> > The first set contains the row indices of rows that start with a zero entry, the second set is the complement
-  */
-  std::pair<Set<int>, Set<int> > far_and_nonfar_vertices(const Matrix<Rational> &m);
+	/**
+	  @brief Takes a matrix and returns the row indices where the first coordinate is nonzero and where the first coordinate is zero in  two different sets
+	  @param Matrix<Rational> m The matrix whose rows we consider
+	  @return std::pair<Set<int>, Set<int> > The first set contains the row indices of rows that start with a zero entry, the second set is the complement
+	  */
+	std::pair<Set<int>, Set<int> > far_and_nonfar_vertices(const Matrix<Rational> &m);
 
-  /*
-	* @brief Takes a polyhedral complex and returns [[CONES]] summarized into one single incidence matrix.
-	* @param PolyhedralComplex
-	* @return IncidenceMatrix<>
-	*/
-  IncidenceMatrix<> all_cones_as_incidence(perl::Object complex);
+	/*
+	 * @brief Takes a polyhedral complex and returns [[CONES]] summarized into one single incidence matrix.
+	 * @param PolyhedralComplex
+	 * @return IncidenceMatrix<>
+	 */
+	IncidenceMatrix<> all_cones_as_incidence(perl::Object complex);
+
+	/*
+	 * @brief Converts an incidence matrix to a Vector<Set<int> >
+	 */
+	Vector<Set<int> > incMatrixToVector(const IncidenceMatrix<> &i);
 
 }}
 

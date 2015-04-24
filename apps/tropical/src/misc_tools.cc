@@ -52,4 +52,13 @@ namespace polymake { namespace tropical {
 		return result;
 	}
 
+
+	Vector<Set<int> > incMatrixToVector(const IncidenceMatrix<> &i) {
+		Vector<Set<int> > result;
+		for(int r = 0; r < i.rows(); r++) {
+			result |= i.row(r);
+		}
+		return result;
+	}
+
 }}

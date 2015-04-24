@@ -333,6 +333,17 @@ user_function sum_curves {
 	}
 }
 
+
+# @category Abstract rational curves
+# This takes a matrix of rays of a given cone that is supposed to lie
+# in a moduli space M_0,n and computes the rational curve corresponding
+# to an interior point. More precisely, if there are k vertices in 
+# homogeneous coordinates, it computes 1/k * (sum of these vertices),
+# then it adds each directional ray. It then returns the curve corresponding
+# to this point
+# @param Matrix<Rational> rays The rays of the cone, in tropical homogeneous coordinates.
+# @tparam Addition Min or Max, where the coordinates live.
+# @return RationalCurve c The curve corresponding to an interior point
 user_function rational_curve_from_rays<Addition>($) {
 	my $rays = new Matrix<Rational>(shift);
 
@@ -358,6 +369,19 @@ user_function rational_curve_from_rays<Addition>($) {
 	return rational_curve_from_matroid_coordinates<Addition>($interior);
 }
 
+
+# @category Abstract rational curves
+# This takes a weighted complex X that is supposed to be of the form
+# M_0,n x Y for some Y (It assumes that M_0,n occupies the first 
+# coordinates) and an index of a maximal cone of that complex.
+# It then computes a rational curve corresponding to an interior point of
+# that cone (ignoring the second component Y)
+# @param Cycle<Addition> X A weighted complex of the form M_0,n x Y
+# @param Int n_leaves The n in M_0,n. Needed to determine the dimension of
+# the M_0,n component
+# @param Int coneIndex The index of the maximal cone
+# @tparam Addition Min or Max
+# @return RationalCurve c The curve corresponding to an interior point
 user_function rational_curve_from_cone<Addition>(Cycle<Addition>, $,$) {
 	my ($cycle, $n_leaves,$coneIndex) = @_;
 	#First we compute the dimension of the M_0,n part (+1 for leading coord)

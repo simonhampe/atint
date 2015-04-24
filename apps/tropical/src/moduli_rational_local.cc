@@ -294,46 +294,12 @@ namespace polymake { namespace tropical {
 			return result;
 		}
 
-	///////////////////////////////////////////////////////////////////////////////////////
-/*
-	//Documentation see perl wrapper
 	template <typename Addition>
-		perl::Object rational_curve_from_rays(Matrix<Rational> rays) {
-			//First we identify the vertices
-			Vector<Rational> interior(rays.cols());
-			Set<int> vertices;
-			for(int r = 0; r < rays.rows(); r++) {
-				if(rays(r,0) == 1) vertices += r;
-			}
-			if(vertices.size() > 0) {
-				//Add 1/noOfVertices * sum of vertices
-				interior = accumulate(rows(rays.minor(vertices,All)),operations::add());
-				interior /= vertices.size();
-			}
-
-			//Add rays
-			if(vertices.size() < rays.rows()) 
-				interior += accumulate(rows(rays.minor(~vertices,All)),operations::add());
-
-			perl::Object result = rational_curve_from_matroid_coordinates<Addition>(interior); 
-			return result;
+		perl::Object local_m0n_wrap(Addition a, const Array<perl::Object> &curves) {
+			return local_m0n<Addition>(curves);
 		}
 
-	///////////////////////////////////////////////////////////////////////////////////////
 
-	//Documentation see perl wrapper
-	template <typename Addition>
-		perl::Object rational_curve_from_cone(perl::Object complex,int n_leaves, int coneIndex) {
-			//First we compute the dimension of the M_0,n-part
-			int mn_dim = (n_leaves * (n_leaves-3))/2 + 2; 
-			//Extract properties
-			Matrix<Rational> rays = complex.give("VERTICES");
-			IncidenceMatrix<> maximal_cones = complex.give("MAXIMAL_POLYTOPES");
-
-			return rational_curve_from_rays<Addition>(
-					rays.minor(maximal_cones.row(coneIndex),sequence(0,mn_dim)));
-		}
-*/
 	// ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 	UserFunctionTemplate4perl("# @category Moduli of rational curves" 
@@ -352,33 +318,8 @@ namespace polymake { namespace tropical {
 			"# @tparam Addition Min or Max, determines the coordinates"
 			"# @return Cycle<Addition> The local complex",
 			"local_m0n<Addition>(RationalCurve+)");  
-/*
-	UserFunctionTemplate4perl("# @category Abstract rational curves"
-			"# This takes a matrix of rays of a given cone that is supposed to lie"
-			"# in a moduli space M_0,n and computes the rational curve corresponding"
-			"# to an interior point. More precisely, if there are k vertices in "
-			"# homogeneous coordinates, it computes 1/k * (sum of these vertices),"
-			"# then it adds each directional ray. It then returns the curve corresponding"
-			"# to this point"
-			"# @param Matrix<Rational> rays The rays of the cone in tropical proj. coordinates and"
-			"# with leading coordinate."
-			"# @tparam Addition Min or Max, i.e. what coordinates are used"
-			"# @return RationalCurve c The curve corresponding to an interior point",
-			"rational_curve_from_rays<Addition>(Matrix<Rational>)");
 
-	UserFunctionTemplate4perl("# @category Abstract rational curves"
-			"# This takes a weighted complex X that is supposed to be of the form"
-			"# M_0,n x Y for some Y (It assumes that M_0,n occupies the first "
-			"# coordinates) and an index of a maximal cone of that complex."
-			"# It then computes a rational curve corresponding to an interior point of"
-			"# that cone (ignoring the second component Y)"
-			"# @param Cycle<Addition> X A weighted complex of the form M_0,n x Y"
-			"# @param Int n_leaves The n in M_0,n. Needed to determine the dimension of"
-			"# the M_0,n component"
-			"# @param Int coneIndex The index of the maximal cone"
-			"# @tparam Addition Min or Max, i.e. what coordinate the M_0.n part uses"
-			"# @return RationalCurve c The curve corresponding to an interior point",
-			"rational_curve_from_cone<Addition>(Cycle<Addition>, $,$)");
-*/
+	FunctionTemplate4perl("local_m0n_wrap<Addition>(Addition, RationalCurve+)");
+
 }}
 
