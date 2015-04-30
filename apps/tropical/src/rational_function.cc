@@ -50,8 +50,22 @@ namespace polymake { namespace tropical {
 			if(monoms.rows() <= 1) {
 				return projective_torus<Addition>(monoms.cols()-1,0);
 			}
-
+			
 			//FIXME Same computation as in the beginning of the hypersurface client. Refactor?
+			
+			//We have to make all exponents positive, otherwise the below equations produce
+			//a wrong result. We multiply the polynomial with a single monomial, which 
+			//does not change the hypersurface.
+			Vector<Rational> min_degrees(monoms.cols());
+			for(int v = 0; v < monoms.cols(); v++) {
+				min_degrees[v] = accumulate(monoms.col(v),operations::min());
+				//If the minimal degree is positive, we're good
+				min_degrees[v] = std::min(min_degrees[v],Rational(0));
+			}
+			for(int m = 0; m < monoms.rows(); m++) {
+				monoms.row(m) -= min_degrees; 
+			}
+
 			ListMatrix< Vector<Rational> > ineq;
 			const TropicalNumber<Addition> zero=TropicalNumber<Addition>::zero();
 			for (int i=0; i< monoms.rows(); ++i) {

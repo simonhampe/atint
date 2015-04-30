@@ -40,5 +40,6 @@ namespace polymake { namespace tropical { namespace {
    FunctionWrapperInstance4perl( pm::perl::ListReturn (pm::Vector<pm::Rational>) );
 
    FunctionInstance4perl(rational_curve_from_matroid_coordinates_T_X, Max, perl::Canned< const Vector< Rational > >);
+   FunctionInstance4perl(rational_curve_from_matroid_coordinates_T_X, Min, perl::Canned< const Vector< Rational > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
