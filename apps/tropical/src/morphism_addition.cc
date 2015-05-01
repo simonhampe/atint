@@ -29,6 +29,10 @@
 
 namespace polymake { namespace tropical {
 
+	using namespace atintlog::donotlog;
+	//   using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 	/*
 	 * @brief Takes a morphism and a Cycle whose support is equal to f's [[DOMAIN]]
 	 * and returns f as a morphism on that cycle.

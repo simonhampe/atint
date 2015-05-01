@@ -211,6 +211,17 @@ object Cycle {
 
 	## METHODS ##############################################
 
+	# @category Visualization
+	# Takes a chart and a positive Rational as input and computes the relative bounding box of the cycle, i.e.
+	# it takes the coordinate-wise minimum and maximum over the coordinates of the nonfar vertices and 
+	# adds/subtracts the given number. This is returned as a 2xdim matrix.
+	# @param Rational dist. Optional, 1 by default.
+	# @param Int chart. The chart to be used fot he computation.
+	user_method bounding_box(;$=1,$=0) {
+		my ($X,$dist,$chart) = @_;
+		my $aff = $X->affine_chart($chart);
+		return boundingBox($aff->VERTICES->minor(~$aff->FAR_VERTICES, ~[0]), $dist,0);
+	}
 
 }# END Cycle
 

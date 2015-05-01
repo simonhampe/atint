@@ -72,3 +72,7 @@
 # @topic category any/Hurwitz cycles
 # These +++ deal with the creation and study of tropical Hurwitz cycles.
 
+# @topic category any/Lines in cubics
+# These +++ deal with the computation and representation of (families of) lines
+# in cubic surfaces in three dimensions.
+

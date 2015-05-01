@@ -141,7 +141,7 @@ object Cycle {
 		#Create bounding box
 		my $affine_version = $this->affine_chart($chart);
 		if($isCube || $isRelative) {
-			$boundingBox = boundingBox($affine_version->VERTICES->minor(All,~[0]), 
+			$boundingBox = boundingBox($affine_version->VERTICES->minor(~$affine_version->FAR_VERTICES,~[0]), 
 												$boundingDistance, $isCube);
 		}	
 		

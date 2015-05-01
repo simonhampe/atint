@@ -292,7 +292,7 @@ namespace polymake { namespace tropical {
 			int restrict_index = -1;
 			if(restrict) {
 				restrict_index = *(mn_restrict.row(0).begin());
-				dbgtrace << "Restricting at ray " << restrict_index << endl;
+				//dbgtrace << "Restricting at ray " << restrict_index << endl;
 			}
 
 
@@ -332,7 +332,7 @@ namespace polymake { namespace tropical {
 				//Extract the combinatorial type to compute evaluation maps
 				perl::Object mc_type = CallPolymakeFunction("rational_curve_from_cone",m0n,degree.dim(),mc);
 				std::string mcs = mc_type.CallPolymakeMethod("to_string");
-				dbgtrace << "Maximal cone " << mcs << endl;
+				//dbgtrace << "Maximal cone " << mcs << endl;
 
 				//This will be a model of the subdivided cone of M_0,n
 				Matrix<Rational> model_rays = unit_matrix<Rational>(degree.dim()-2);
@@ -359,7 +359,7 @@ namespace polymake { namespace tropical {
 
 				//Iterate over all possible ordered choices of (#vert-k)-subsets of nodes  
 				Matrix<int> fix_node_sets = ordered_k_choices(n-2, n-2-k);
-				dbgtrace << "Iterating all choices of fixed vertices " << fix_node_sets << endl;
+				//dbgtrace << "Iterating all choices of fixed vertices " << fix_node_sets << endl;
 
 				//We save the evaluation matrices for use in the computation
 				//of tropical weights in the Hurwitz cycle
@@ -369,20 +369,20 @@ namespace polymake { namespace tropical {
 					//Compute combinatorial type obtained by adding further ends to chosen nodes
 					perl::Object higher_type = insert_leaves(mc_type, fix_node_sets.row(nchoice));
 					std::string s = higher_type.CallPolymakeMethod("to_string");
-					dbgtrace << "Intersecting with type " << s << endl;
+					//dbgtrace << "Intersecting with type " << s << endl;
 					//Convert evaluation maps to local basis of rays
 					Matrix<Rational> local_basis = tdehomog(edge_rays<Addition>(higher_type)).minor(All,~scalar2set(0));
 					Matrix<Rational> converted_maps = ev_maps * T(local_basis);
 
 					//Check if this choice of fixed vertices induces some valid Hurwitz type
 					//(in the generic case)
-					dbgtrace << "Checking validity..." << endl;
+					//dbgtrace << "Checking validity..." << endl;
 					if(is_valid_choice(converted_maps, sv)) {
-						dbgtrace << "Is valid" << endl;
+						//dbgtrace << "Is valid" << endl;
 						evmap_list |= converted_maps;
 					}
 
-					dbgtrace << "Computing halfspace intersections"  << endl;
+					//dbgtrace << "Computing halfspace intersections"  << endl;
 					//Now refine along each evaluation map
 					for(int evmap = 0; evmap < converted_maps.rows(); evmap++) {
 						//Compute half-space fan induced by the equation ev_i >= / = / <= p_i
@@ -403,7 +403,7 @@ namespace polymake { namespace tropical {
 				//corresponding to each choice of vertex placement. We then compute the k-cones
 				//in the subdivision on which this map is (p_1,..,p_r) and add the gcd of the maximal minors of the
 				//matrix as tropical weight to these cones
-				dbgtrace << "Computing weights " << endl;
+				//dbgtrace << "Computing weights " << endl;
 				IncidenceMatrix<> model_hurwitz_cones;
 				Vector<Integer> model_hurwitz_weights;
 				Matrix<Rational> model_hurwitz_rays;
@@ -415,12 +415,12 @@ namespace polymake { namespace tropical {
 					k_rays = tdehomog(k_rays);
 					IncidenceMatrix<> k_cones = skeleton.give("MAXIMAL_POLYTOPES");
 					model_hurwitz_weights = zero_vector<Integer>(k_cones.rows());
-					dbgtrace << "Rays: " << k_rays << endl;
-					dbgtrace << "Cones: " << k_cones << endl;
+					//dbgtrace << "Rays: " << k_rays << endl;
+					//dbgtrace << "Cones: " << k_cones << endl;
 					Set<int> non_zero_cones;
 					for(int m = 0; m < evmap_list.dim(); m++) {
 						//Compute gcd of max-minors
-						dbgtrace << "Matrix is " << evmap_list[m] << endl;
+						//dbgtrace << "Matrix is " << evmap_list[m] << endl;
 						Integer g = gcd_maxminor(evmap_list[m]);
 						for(int c = 0; c < k_cones.rows(); c++) {
 							//Check if ev maps to the p_i on this cone (rays have to be mapped to 0!)
@@ -436,7 +436,7 @@ namespace polymake { namespace tropical {
 							if(maps_to_pi) {
 								model_hurwitz_weights[c] += g;
 								if(g != 0) non_zero_cones += c;
-								dbgtrace << "Adding weight to cone " << c << endl;
+								//dbgtrace << "Adding weight to cone " << c << endl;
 							}
 						}
 					}//END iterate evaluation maps
@@ -446,11 +446,11 @@ namespace polymake { namespace tropical {
 					model_hurwitz_cones = IncidenceMatrix<>(k_cones).minor(non_zero_cones,used_rays);
 					model_hurwitz_weights = model_hurwitz_weights.slice(non_zero_cones);
 
-					dbgtrace << "Model weight: " << model_hurwitz_weights << endl;
+					//dbgtrace << "Model weight: " << model_hurwitz_weights << endl;
 
 				}//END compute hurwitz weights
 
-				dbgtrace << "Re-converting refined cone " << endl;
+				//dbgtrace << "Re-converting refined cone " << endl;
 
 				//Finally convert the model cones back to M_0,n-coordinates
 
@@ -468,13 +468,13 @@ namespace polymake { namespace tropical {
 					Vector<Integer> weights_to_convert = (i == 0? model_subdiv_weights : model_hurwitz_weights);
 					// 	  Vector<Set<int> > local_to_convert = (i == 0? model_subdiv_local : model_hurwitz_local);
 					//First convert the rays back
-					dbgtrace << "Final rays are: " << model_subdiv_rays << endl;
+					//dbgtrace << "Final rays are: " << model_subdiv_rays << endl;
 
 					Matrix<Rational> model_conv_rays = 
 						rays_to_convert.col(0) | 
 						(rays_to_convert.minor(All,~scalar2set(0)) * 
 						 tdehomog(edge_rays<Addition>(mc_type)).minor(All,~scalar2set(0)));
-					dbgtrace << "Converted rays are: " << model_conv_rays << endl;
+					//dbgtrace << "Converted rays are: " << model_conv_rays << endl;
 					Vector<int> model_rays_perm  = insert_rays(i == 0? subdiv_rays : cycle_rays, model_conv_rays,false);
 					Map<int,int> ray_index_map;
 					for(int mrp = 0; mrp < model_rays_perm.dim(); mrp++) {

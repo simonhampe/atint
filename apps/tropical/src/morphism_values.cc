@@ -24,9 +24,15 @@
 #include "polymake/Rational.h"
 #include "polymake/Matrix.h"
 #include "polymake/tropical/specialcycles.h"
+#include "polymake/tropical/LoggingPrinter.h"
 
 namespace polymake { namespace tropical {
 
+
+	using namespace atintlog::donotlog;
+	//   using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 
 	//Documentation see header
 	void computeConeFunction(	const Matrix<Rational> &rays, 

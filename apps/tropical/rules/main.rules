@@ -59,8 +59,7 @@ declare object RationalCurve;
 # 
 # The object also has methods, starting with array_... that return the corresponding LIST_... as a perl array.
 # The different (lists of) lines can be visualized nicely with [[visualize_in_surface]].
-# FIXME: I think this only works for Max at the moment?
-declare object LinesInCubic;
+declare object LinesInCubic<Addition>;
 
 INCLUDE
 	help.rules
@@ -74,3 +73,4 @@ INCLUDE
 	visual.rules
 	morphism.rules
 	intersection.rules
+	lines_in_cubic.rules

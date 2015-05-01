@@ -30,7 +30,8 @@
 #include "polymake/Matrix.h"
 #include "polymake/Set.h"
 #include "polymake/IncidenceMatrix.h"
-
+#include "polymake/Array.h"
+#include "polymake/RandomGenerators.h"
 
 namespace polymake { namespace tropical {
 
@@ -52,6 +53,8 @@ namespace polymake { namespace tropical {
 	 * @brief Converts an incidence matrix to a Vector<Set<int> >
 	 */
 	Vector<Set<int> > incMatrixToVector(const IncidenceMatrix<> &i);
+
+	Array<Integer> randomInteger(const int& max_arg, const int &n);
 
 }}
 

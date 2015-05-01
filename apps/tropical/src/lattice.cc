@@ -40,6 +40,11 @@
 
 namespace polymake { namespace tropical {
 
+
+	using namespace atintlog::donotlog;
+	//   using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 	typedef Map< std::pair<int,int>, Vector<Integer> > LatticeMap;
 
 

@@ -40,6 +40,11 @@
 
 namespace polymake { namespace tropical {
 
+
+	using namespace atintlog::donotlog;
+	// using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 	typedef std::pair<Matrix<Rational>, Matrix<Rational> > matrix_pair;
 
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -412,6 +417,7 @@ namespace polymake { namespace tropical {
 
 		//To compute representations of SEPARATED_VERTICES, we naturally 
 		//have to compute the SEPARATED_VERTICES first
+		//dbgtrace << repFromX << "," << repFromY << "," << computeAssoc << endl;
 		if((repFromX && refine) || repFromY || computeAssoc) {
 			//dbgtrace << "Computing representations" << endl;
 			Matrix<Rational> c_cmplx_rays = complex.give("SEPARATED_VERTICES");
@@ -453,7 +459,7 @@ namespace polymake { namespace tropical {
 					}//END iterate all cones
 				}//END if mode
 			}//END go through X- and Y-mode
-
+			//dbgtrace << "Computing associated vertices " << endl;
 			if(computeAssoc) {
 				//For each cmplx_ray, in which cone does it lie?
 				IncidenceMatrix<> c_cmplx_cones_t = T(c_cmplx_cones);
@@ -479,6 +485,7 @@ namespace polymake { namespace tropical {
 
 		//Insert values
 
+		//dbgtrace << "Returning result " << endl;
 		RefinementResult result;
 		result.complex = complex;
 		result.rayRepFromX = rayRepFromX;

@@ -41,6 +41,10 @@
 
 namespace polymake { namespace tropical {
 
+	using namespace atintlog::donotlog;
+	// using namespace atintlog::dolog;
+	// using namespace atintlog::dotrace;
+	
 	/*
 	 * @brief Computes the set of indices such that the corresponding entries
 	 * in a given vector are either all zero or nonzero.
@@ -127,9 +131,6 @@ namespace polymake { namespace tropical {
 		Set<int> markedFaces;
 
 		for(int mc = 0; mc < polytopes.rows(); mc++) {
-			//dbgtrace << "Computing for cone " << mc << ": " << cones.row(mc) << endl;
-			//dbgtrace << "Faces of this cone: " << interior_in_max.row(mc) << endl;
-			//dbgtrace << "Marked faces: " << markedFaces << endl;
 			//Compute all non-marked codim-1-cells of mc. If there are none left, go to the next cone
 			Vector<int> nonmarked(interior_in_max.row(mc) - markedFaces);
 			if(nonmarked.dim() == 0) continue;

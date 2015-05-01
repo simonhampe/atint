@@ -36,69 +36,12 @@
 #include "polymake/tropical/linear_algebra_tools.h"
 #include "polymake/tropical/polynomial_tools.h"
 #include "polymake/tropical/LoggingPrinter.h"
-
+#include "polymake/tropical/rational_function.h"
 
 namespace polymake { namespace tropical {
 
 	typedef std::pair<Vector<Rational>, Vector<Rational> > ValuePair;
 
-	template <typename Addition>
-		perl::Object computePolynomialDomain(const Polynomial<TropicalNumber<Addition> > &p) {
-			Matrix<Rational> monoms(p.monomials_as_matrix());
-			Vector<TropicalNumber<Addition> > coefs = p.coefficients_as_vector();
-
-			if(monoms.rows() <= 1) {
-				return projective_torus<Addition>(monoms.cols()-1,0);
-			}
-			
-			//FIXME Same computation as in the beginning of the hypersurface client. Refactor?
-			
-			//We have to make all exponents positive, otherwise the below equations produce
-			//a wrong result. We multiply the polynomial with a single monomial, which 
-			//does not change the hypersurface.
-			Vector<Rational> min_degrees(monoms.cols());
-			for(int v = 0; v < monoms.cols(); v++) {
-				min_degrees[v] = accumulate(monoms.col(v),operations::min());
-				//If the minimal degree is positive, we're good
-				min_degrees[v] = std::min(min_degrees[v],Rational(0));
-			}
-			for(int m = 0; m < monoms.rows(); m++) {
-				monoms.row(m) -= min_degrees; 
-			}
-
-			ListMatrix< Vector<Rational> > ineq;
-			const TropicalNumber<Addition> zero=TropicalNumber<Addition>::zero();
-			for (int i=0; i< monoms.rows(); ++i) {
-				if (coefs[i]==zero)
-					ineq /= unit_vector<Rational>(monoms.cols()+1,0);
-				else
-					ineq /= Addition::orientation()*(Rational(coefs[i])|monoms[i]);
-			}
-
-			perl::Object dome(perl::ObjectType::construct<Rational>("polytope::Polytope"));
-			dome.take("INEQUALITIES") << ineq;
-			dome.take("FEASIBLE") << true;
-			dome.take("BOUNDED") << false;
-
-			Matrix<Rational> vertices = dome.give("VERTICES");
-			Matrix<Rational> lineality = dome.give("LINEALITY_SPACE");
-			IncidenceMatrix<> polytopes = dome.give("VERTICES_IN_FACETS");
-			Set<int> far_face = dome.give("FAR_FACE");
-
-			//Find and eliminate the far face - Start from the end since it seems to be always there.
-			for(int r = polytopes.rows()-1; r >=0; r++) {
-				if(polytopes.row(r) == far_face) {
-					polytopes = polytopes.minor(~scalar2set(r),All);
-					break;
-				}
-			}
-
-			perl::Object domain(perl::ObjectType::construct<Addition>("Cycle"));
-			domain.take("VERTICES") << vertices;
-			domain.take("MAXIMAL_POLYTOPES") << polytopes;
-			domain.take("LINEALITY_SPACE") << lineality;
-			return domain;
-		}//END computePolynomialDomain
 
 	/**
 	 * @brief Computes the property [[DOMAIN]] from [[NUMERATOR]] and [[DENOMINATOR]].

@@ -41,7 +41,7 @@ namespace polymake { namespace tropical {
 	typedef Map<std::pair<int,int>, Vector<Integer> > LatticeMap ;
 	typedef Map<std::pair<int,int>, Vector<Rational> > LatticeFunctionMap;
 
-	using namespace atintlog::donotlog;
+	//using namespace atintlog::donotlog;
 	//using namespace atintlog::dolog;
 	//using namespace atintlog::dotrace;
 
@@ -79,8 +79,8 @@ namespace polymake { namespace tropical {
 			Matrix<Integer> lattice_generators = complex.give("LATTICE_GENERATORS");
 			IncidenceMatrix<> lattice_bases = complex.give("LATTICE_BASES");
 
-			dbgtrace << "Rays: " << crays << endl;
-			dbgtrace << "Values: " << values << endl;
+			//dbgtrace << "Rays: " << crays << endl;
+			//dbgtrace << "Values: " << values << endl;
 
 			//Do a compatibility check on the value matrix to avoid segfaults in the case of faulty input
 			if(values.cols() != crays.rows() + lineality_space.rows()) {
@@ -181,7 +181,7 @@ namespace polymake { namespace tropical {
 					//Finally append lineality values
 					currentValues |= lineality_values.row(r);
 				}
-				dbgtrace << "Value vector is: " << currentValues << endl;
+				//dbgtrace << "Value vector is: " << currentValues << endl;
 
 				//Then we compute the divisor
 				Vector<Integer> newweights; //Contains the new weights

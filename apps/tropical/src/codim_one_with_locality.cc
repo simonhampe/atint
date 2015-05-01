@@ -23,9 +23,16 @@
 #include "polymake/tropical/codim_one_with_locality.h"
 #include "polymake/tropical/solver_def.h"
 #include "polymake/tropical/separated_data.h"
+#include "polymake/tropical/LoggingPrinter.h"
 
 namespace polymake { namespace tropical {
 
+	
+	using namespace atintlog::donotlog;
+	// using namespace atintlog::dolog;
+	// using namespace atintlog::dotrace;
+	
+		
 	CodimensionOneResult calculateCodimOneData(const Matrix<Rational> &rays, const IncidenceMatrix<> &maximalCones, const Matrix<Rational> &linspace, const IncidenceMatrix<>  &local_restriction) {
 
 		//dbgtrace << "Computing all facets..." << endl;

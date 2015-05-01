@@ -32,6 +32,11 @@
 
 namespace polymake { namespace tropical {
 
+
+	using namespace atintlog::donotlog;
+	//   using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 	/**
 	  @brief This takes a list of vertices (as row vectors, without leading ones) 
 	  and computes the corresponding bounding box, 

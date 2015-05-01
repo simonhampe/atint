@@ -33,6 +33,10 @@
 
 namespace polymake { namespace tropical {
 
+	using namespace atintlog::donotlog;
+	// using namespace atintlog::dolog;
+	// using namespace atintlog::dotrace;
+	
 	bool is_coneset_compatible(const Set<int> &cone, const IncidenceMatrix<> &local_restriction) {
 		for(int i = 0; i < local_restriction.rows(); i++) { 
 			Set<int> inter = cone * local_restriction[i];

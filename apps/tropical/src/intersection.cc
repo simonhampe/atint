@@ -116,14 +116,14 @@ namespace polymake { namespace tropical {
 		Vector<int> full_dimensional_yindex;
 		for(int xc = 0; xc < xcones.dim(); xc++) {
 			for(int yc = 0; yc < ycones.dim(); yc++) {
-				//dbgtrace << "Having cones " << xrays.minor(xcones[xc],All) << ", \n" << yrays.minor(ycones[yc],All) << endl;
+				dbgtrace << "Having cones " << xrays.minor(xcones[xc],All) << ", \n" << yrays.minor(ycones[yc],All) << endl;
 				Matrix<Rational> x_sub_rays = xrays.minor(xcones[xc],All);
 				Matrix<Rational> y_sub_rays = (- yrays.minor(ycones[yc],All));
 				std::pair<Matrix<Rational>, Matrix<Rational> > eqs = 
 					sv.enumerate_facets(zero_vector<Rational>() | x_sub_rays / y_sub_rays, 
 							zero_vector<Rational>() | (xlin / ylin),true,false);
 				if(eqs.second.rows() == 0){
-					//dbgtrace << "Is fulldimensional" << endl;
+					dbgtrace << "Is fulldimensional" << endl;
 					full_dimensional_cones |= eqs.first;
 					full_dimensional_xindex |= xc;
 					full_dimensional_yindex |= yc;
@@ -142,17 +142,17 @@ namespace polymake { namespace tropical {
 		bool point_found;
 		UniformlyRandom<Rational> random_gen;
 		Vector<Rational> interior_point(xrays.cols()+1);
-		//dbgtrace << "Generating generic point" << endl;
+		dbgtrace << "Generating generic point" << endl;
 		do {
 			weight = Integer(0);
 			copy(random_gen.begin(), entire(interior_point));
 			interior_point[0] = 1;
 			point_found = true;
-			//dbgtrace << "Trying " << interior_point << endl;
+			dbgtrace << "Trying " << interior_point << endl;
 			//Now go through all full-dimensional cones
 			for(int fullcone = 0; fullcone < full_dimensional_cones.dim(); fullcone++) {
-				//dbgtrace << "Checking fulldimension cone " << fullcone << endl;
-				//dbgtrace << "Has facets " << full_dimensional_cones[fullcone] << endl;
+				dbgtrace << "Checking fulldimension cone " << fullcone << endl;
+				dbgtrace << "Has facets " << full_dimensional_cones[fullcone] << endl;
 				Vector<Rational> eq_check = full_dimensional_cones[fullcone] * interior_point;
 				bool is_interior = true;
 				bool is_in_boundary = false;
@@ -166,20 +166,20 @@ namespace polymake { namespace tropical {
 				}//END check for interiorness
 				// If its in the boundary of something, try another point.
 				if(is_in_boundary) {
-					//dbgtrace << "It is a boundary point. Trying another one..." << endl;
+					dbgtrace << "It is a boundary point. Trying another one..." << endl;
 					point_found = false; break;
 				}
 				//If its interior, add the appropriate weight.
 				if(is_interior) {
-					//dbgtrace << "Is interior point of this cone, computing weight..." << endl;
-					//dbgtrace << "xweight: " << xweights[full_dimensional_xindex[fullcone]] << endl;
-					//dbgtrace << "yweight: " << yweights[full_dimensional_yindex[fullcone]] << endl;
+					dbgtrace << "Is interior point of this cone, computing weight..." << endl;
+					dbgtrace << "xweight: " << xweights[full_dimensional_xindex[fullcone]] << endl;
+					dbgtrace << "yweight: " << yweights[full_dimensional_yindex[fullcone]] << endl;
 					Integer latticeIndex = lattice_index(
 							lattice_basis_of_cone(
 								xrays.minor(xcones[full_dimensional_xindex[fullcone]],All),xlin,xdim,false) / 
 							lattice_basis_of_cone(
 								yrays.minor(ycones[full_dimensional_yindex[fullcone]],All),ylin,ydim,false));
-					//dbgtrace << "lattice: " << latticeIndex<< endl;
+					dbgtrace << "lattice: " << latticeIndex<< endl;
 					weight += (xweights[full_dimensional_xindex[fullcone]] * yweights[full_dimensional_yindex[fullcone]] * latticeIndex);
 				}
 
@@ -202,7 +202,7 @@ namespace polymake { namespace tropical {
 		int Ydim   = Y.give("PROJECTIVE_DIM");
 		int Xambi  = X.give("PROJECTIVE_AMBIENT_DIM");
 
-		//dbgtrace << "Checking codimension" << endl;
+		dbgtrace << "Checking codimension" << endl;
 
 		//If the codimensions of the varieties add up to something larger then CMPLX_AMBIENT_DIM, return the 0-cycle 
 		if(Xcodim + Ycodim > Xambi) {
@@ -212,7 +212,7 @@ namespace polymake { namespace tropical {
 				return zeroResult;
 		}
 
-		//dbgtrace << "Homogenizing where necessary" << endl;
+		dbgtrace << "Homogenizing where necessary" << endl;
 
 		//Extract values
 		Matrix<Rational> xrays = X.give("VERTICES");
@@ -308,7 +308,7 @@ namespace polymake { namespace tropical {
 			return zeroResult;
 		}
 
-		//dbgtrace << "Computing weights " << endl;
+		dbgtrace << "Computing weights " << endl;
 
 		//Now we compute weights
 		Vector<Integer> weights(intercones.dim());
@@ -318,35 +318,35 @@ namespace polymake { namespace tropical {
 		Matrix<Rational> ylin_dehom = ylin.minor(All,~scalar2set(0));
 
 		for(int c = 0; c < intercones.dim(); c++) {
-			//dbgtrace << "Computing on intersection cone " << c << endl;
+			dbgtrace << "Computing on intersection cone " << c << endl;
 			//Find interior point
 			Vector<Rational> interior_point = accumulate(rows(interrays.minor(intercones[c],All)),operations::add());
 			Rational count_vertices = accumulate(interrays.col(0).slice(intercones[c]),operations::add());
 			if(count_vertices != 0) interior_point /= count_vertices;
 
-			//dbgtrace << "Interior point is " << interior_point << endl;
+			dbgtrace << "Interior point is " << interior_point << endl;
 
 			//Compute stars
 			Matrix<Rational> xstar_rays, ystar_rays;
 			Vector<Set<int> > xstar_cones, ystar_cones;
 
-			//dbgtrace << "Computing stars " << endl;
+			dbgtrace << "Computing stars " << endl;
 
 			computeStar(interior_point, xrays, xcones.minor(xcontainers[c],All), xstar_rays, xstar_cones);
 			computeStar(interior_point, yrays, ycones.minor(ycontainers[c],All), ystar_rays, ystar_cones);
 
-			//dbgtrace << "X Star rays: " << xstar_rays << endl;
-			//dbgtrace << "X Star cones: " << xstar_cones << endl;
-			//dbgtrace << "Y Star rays: " << ystar_rays << endl;
-			//dbgtrace << "Y Star cones: " << ystar_cones << endl;
+			dbgtrace << "X Star rays: " << xstar_rays << endl;
+			dbgtrace << "X Star cones: " << xstar_cones << endl;
+			dbgtrace << "Y Star rays: " << ystar_rays << endl;
+			dbgtrace << "Y Star cones: " << ystar_cones << endl;
 
-			//dbgtrace << "Computing multiplicity " << endl;
+			dbgtrace << "Computing multiplicity " << endl;
 
 			Integer w = computeFanMultiplicity(
 					xstar_rays, xlin_dehom, xstar_cones, xweights.slice(xcontainers[c]), Xdim,
 					ystar_rays, ylin_dehom, ystar_cones, yweights.slice(ycontainers[c]), Ydim);
 
-			//dbgtrace << "Weight is " << w << endl;
+			dbgtrace << "Weight is " << w << endl;
 
 			weights[c] = w;
 			if(w == 0) weight_zero_cones += c;
@@ -361,7 +361,7 @@ namespace polymake { namespace tropical {
 			return zeroResult;
 		}
 
-		//dbgtrace << "Done" << endl;
+		dbgtrace << "Done" << endl;
 
 		//Clean up rays and cones
 

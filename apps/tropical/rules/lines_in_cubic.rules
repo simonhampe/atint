@@ -1,0 +1,244 @@
+########################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
+#
+#
+# This file contains methods treating cubic surfaces in R^3 and collections of
+# (families of) lines in this surface, including a data type to represent the result
+# of lines_in_cubic
+########################################################################
+
+object LinesInCubic {
+
+	# @category Defining properties
+	# The tropical polynomial defining the surface
+	property POLYNOMIAL : Polynomial<TropicalNumber<Addition> >;
+
+	# @category Defining properties
+	# The surface containing the lines
+	property DIVISOR : Cycle<Addition>;
+
+	# @category Lines in cubics
+	# A list of all isolated lines without a bounded edge
+	property LIST_ISOLATED_NO_EDGE : Cycle<Addition> : multiple;
+
+	# @category Lines in cubics
+	# A list of all isolated lines with bounded edge
+	property LIST_ISOLATED_EDGE : Cycle<Addition> : multiple;
+
+	# @category Lines in cubics
+	# A list of all families of lines without a bounded edge at a fixed vertex
+	property LIST_FAMILY_FIXED_VERTEX : Cycle<Addition> : multiple;
+
+	# @category Lines in cubics
+	# A list of all families of lines without a bounded  edge and a moving vertex.
+	property LIST_FAMILY_MOVING_VERTEX : Cycle<Addition> : multiple;
+
+	# @category Lines in cubics
+	# A list of all families of lines with (part of) the bounded edge fixed
+	property LIST_FAMILY_FIXED_EDGE : Cycle<Addition> : multiple;
+
+	# @category Lines in cubics
+	# A list of all families of lines with the bounded edge moving in transversal direction
+	property LIST_FAMILY_MOVING_EDGE : Cycle<Addition> : multiple;
+
+	# @category Counts
+	# The total number of elements in [[LIST_ISOLATED_EDGE]] and [[LIST_ISOLATED_NO_EDGE]]
+	property N_ISOLATED : Int;
+
+	# @category Counts
+	# The total number of families in [[LIST_FAMILY_FIXED_EDGE]], [[LIST_FAMILY_FIXED_VERTEX]], 
+	# [[LIST_FAMILY_MOVING_EDGE]] and [[LIST_FAMILY_MOVING_VERTEX]]
+	property N_FAMILIES : Int;
+
+
+	### RULES ################################################
+
+	rule N_ISOLATED : {
+		$this->N_ISOLATED = scalar($this->array_isolated_edge) + scalar($this->array_isolated_no_edge);
+	}
+
+	rule N_FAMILIES : {
+		$this->N_FAMILIES = scalar($this->array_family_fixed_edge) + scalar($this->array_family_fixed_vertex) +
+		scalar($this->array_family_moving_edge) + scalar($this->array_family_moving_vertex);
+	}
+
+	### METHODS ##############################################
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array version of [[LIST_ISOLATED_NO_EDGE]]
+	user_method array_isolated_no_edge {
+		my $this = shift;
+		if(defined($this->lookup("LIST_ISOLATED_NO_EDGE"))) {
+			return @{$this->LIST_ISOLATED_NO_EDGE};
+		}
+		else {
+			my @a = ();
+			return @a;
+		}
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array version of [[LIST_ISOLATED_EDGE]]
+	user_method array_isolated_edge {
+		my $this = shift;
+		if(defined($this->lookup("LIST_ISOLATED_EDGE"))) {
+			return @{$this->LIST_ISOLATED_EDGE};
+		}
+		else {
+			my @a = ();
+			return @a;
+		}
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_FIXED_VERTEX]]
+	user_method array_family_fixed_vertex {
+		my $this = shift;
+		if(defined($this->lookup("LIST_FAMILY_FIXED_VERTEX"))) {
+			return @{$this->LIST_FAMILY_FIXED_VERTEX};
+		}
+		else {
+			my @a = ();
+			return @a;
+		}
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_MOVING_VERTEX]]
+	user_method array_family_moving_vertex {
+		my $this = shift;
+		if(defined($this->lookup("LIST_FAMILY_MOVING_VERTEX"))) {
+			return @{$this->LIST_FAMILY_MOVING_VERTEX};
+		}
+		else {
+			my @a = ();
+			return @a;
+		}
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_FIXED_EDGE]]
+	user_method array_family_fixed_edge {
+		my $this = shift;
+		if(defined($this->lookup("LIST_FAMILY_FIXED_EDGE"))) {
+			return @{$this->LIST_FAMILY_FIXED_EDGE};
+		}
+		else {
+			my @a = ();
+			return @a;
+		}
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_MOVING_EDGE]]
+	user_method array_family_moving_edge {
+		my $this = shift;
+		if(defined($this->lookup("LIST_FAMILY_MOVING_EDGE"))) {
+			return @{$this->LIST_FAMILY_MOVING_EDGE};
+		}
+		else {
+			my @a = ();
+			return @a;
+		}
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array containing all isolated solutions
+	user_method all_isolated {
+		my $this = shift;
+		return ($this->array_isolated_edge, $this->array_isolated_no_edge);
+	}
+
+	# @category Lines in cubics
+	# @return Cycle<Addition> A perl array containing all families
+	user_method all_families {
+		my $this = shift;
+		return ($this->array_family_fixed_edge, $this->array_family_fixed_vertex,
+			$this->array_family_moving_edge, $this->array_family_moving_vertex);
+	}
+
+}
+
+
+
+# @category Visualization
+# This visualizes a surface in R^3 and an arbitrary list of (possibly non-pure)
+# Cycle objects. A common bounding box is computed for all objects and a 
+# random color is chosen for each object (except the surface)
+user_function visualize_in_surface<Addition>(Cycle<Addition>;@) {
+	my ($X,@p) = @_;
+
+
+
+	#First determine bounding box
+	my $bb = $X->bounding_box(1);
+	my $xmax = $bb->row(1)->[0];
+	for my $i (1 .. $bb->cols()-1) {
+		if($bb->row(1)->[$i] > $xmax) {$xmax = $bb->row(1)->[$i];}
+	}
+
+
+#   my @minv = @{$bb->row(0)};
+#   my @maxv = @{$bb->row(1)};
+	for my $p ( @p) {
+		my $pb = $p->bounding_box(1);
+		$bb = new Matrix<Rational>($bb / $pb);
+	}
+	$bb = boundingBox($bb,0);
+
+
+
+	my @vis = ();
+	@vis = (@vis, $X->BB_VISUAL(WeightLabels=>"hidden",VertexStyle=>"hidden",BoundingMode=>"absolute",BoundingBox=>$bb));
+
+
+	#Then produce visuals
+	for my $p (@p) {
+		my $r = randomInteger(255,3);
+		my @ra = @{$r};
+		my $color = new RGB(@ra);
+
+		#Subdivide p into pure parts
+		my $points = new Set<Int>();
+		my $edges = new Set<Int>();
+		my $cells = new Set<Int>();
+		for my $mc (0 .. $p->MAXIMAL_POLYTOPES->rows()-1) {
+			if($p->MAXIMAL_POLYTOPES->row($mc)->size() == 1) { $points = $points + $mc;}
+			if($p->MAXIMAL_POLYTOPES->row($mc)->size() == 2) { $edges = $edges + $mc;}
+			if($p->MAXIMAL_POLYTOPES->row($mc)->size() > 2) { $cells = $cells + $mc;}
+
+		}#END iterate cells of p
+		my $ppoints = new Cycle<Addition>(VERTICES=>$p->RAYS,MAXIMAL_POLYTOPES=>$p->MAXIMAL_POLYTOPES->minor($points,All));
+		my $pedges = new Cycle<Addition>(VERTICES=>$p->RAYS,MAXIMAL_POLYTOPES=>$p->MAXIMAL_POLYTOPES->minor($edges,All));
+		my $pcells  = new Cycle<Addition>(VERTICES=>$p->RAYS,MAXIMAL_POLYTOPES=>$p->MAXIMAL_POLYTOPES->minor($cells,All));
+		if($points->size() > 0) {
+			@vis = (@vis, $ppoints->BB_VISUAL(VertexThickness=>2,VertexColor=>$color, BoundingMode=>"absolute",BoundingBox=>$bb));
+		}
+		if($edges->size() > 0) {
+			@vis = (@vis,$pedges->BB_VISUAL(EdgeThickness=>2,EdgeColor=>$color,VertexStyle=>"hidden", BoundingMode=>"absolute",BoundingBox=>$bb));
+		}
+		if($cells->size() > 0) {
+			@vis = (@vis,$pcells->BB_VISUAL(EdgeColor=>$color,EdgeThickness=>2,FacetColor=>$color, BoundingMode=>"absolute",BoundingBox=>$bb));
+		}
+	}#END iterate p's
+
+	compose(@vis);
+
+}#END visualize_in_surface
+

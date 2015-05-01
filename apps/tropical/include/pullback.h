@@ -113,7 +113,7 @@ namespace polymake { namespace tropical {
 			perl::Object result(perl::ObjectType::construct<Addition>("RationalFunction"));
 				result.take("DOMAIN") << resultDomain;
 				result.take("VERTEX_VALUES") << tdehomog(result_vvalues,0,false).col(0);
-				result.take("LINEALITY_VALUES") << (result_vvalues.rows() > 0? tdehomog(result_lvalues,0,false).col(0) : Vector<Rational>());
+				result.take("LINEALITY_VALUES") << (result_lvalues.rows() > 0? tdehomog(result_lvalues,0,false).col(0) : Vector<Rational>());
 			if( (function.exists("NUMERATOR") || function.exists("DENOMINATOR")) &&
 				 (morphism.exists("MATRIX") || morphism.exists("TRANSLATE")) ) {
 				Matrix<Rational> matrix = morphism.give("MATRIX");

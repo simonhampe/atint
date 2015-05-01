@@ -32,6 +32,10 @@
 
 namespace polymake { namespace tropical {
 
+	using namespace atintlog::donotlog;
+	// using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 	Vector<Rational> linearRepresentation(const Vector<Rational> &v, const Matrix<Rational> &generators) {
 		Vector<Rational> solution(generators.rows());
 		//Copy arguments
