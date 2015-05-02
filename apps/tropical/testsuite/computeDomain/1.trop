@@ -58,9 +58,6 @@
       <property name="LINEALITY_SPACE">
         <m />
       </property>
-      <property name="LOCAL_RESTRICTION">
-        <m />
-      </property>
     </object>
   </property>
   <property name="IS_GLOBALLY_DEFINED" value="true" />

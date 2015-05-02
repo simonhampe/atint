@@ -72,7 +72,7 @@ namespace polymake { namespace tropical {
 			dbglog << "Computing reachable points from direction " << i << endl;
 			reachable_points |= reachablePoints(f,X,i);
 		}
-
+		
 		solver<Rational> sv;
 
 		//This maps pairs of leafs to increasing numbers and vice versa
@@ -598,8 +598,8 @@ namespace polymake { namespace tropical {
 
 		perl::Object result(perl::ObjectType::construct<Max>("LinesInCubic"));
 
-		result.take("DIVISOR") << X;
-
+		result.take("CUBIC") << X;
+		result.take("POLYNOMIAL") << ratfct.give("NUMERATOR"); 
 
 		//Create vertex_line objects:
 		// If two rays in such an object span a 2-dim-cell, this is computed as follows:

@@ -51,9 +51,6 @@
       <property name="WEIGHTS">
         <v>0</v>
       </property>
-      <property name="LOCAL_RESTRICTION">
-        <m />
-      </property>
     </object>
   </property>
   <property name="IS_GLOBALLY_DEFINED" value="true" />

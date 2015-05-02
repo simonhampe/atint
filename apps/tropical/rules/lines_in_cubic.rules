@@ -23,45 +23,60 @@
 # of lines_in_cubic
 ########################################################################
 
+
 object LinesInCubic {
 
-	# @category Defining properties
-	# The tropical polynomial defining the surface
+	# @topic category properties/Defining properties
+	# The polynomial and the corresponding cubic.
+
+	# @topic category any/Lists of lines
+	# These contain lists of certain (families of) lines.
+
+	# @topic category properties/Counts of lines
+	# These count lines or families of lines in the cubic.# @category Defining properties
+
+	# The homogeneous tropical polynomial defining the surface
 	property POLYNOMIAL : Polynomial<TropicalNumber<Addition> >;
 
 	# @category Defining properties
 	# The surface containing the lines
-	property DIVISOR : Cycle<Addition>;
+	property CUBIC : Cycle<Addition>;
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# A list of all isolated lines without a bounded edge
-	property LIST_ISOLATED_NO_EDGE : Cycle<Addition> : multiple;
+	property LIST_ISOLATED_NO_EDGE : Cycle<Addition> : multiple {
+	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# A list of all isolated lines with bounded edge
-	property LIST_ISOLATED_EDGE : Cycle<Addition> : multiple;
+	property LIST_ISOLATED_EDGE : Cycle<Addition> : multiple {
+	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# A list of all families of lines without a bounded edge at a fixed vertex
-	property LIST_FAMILY_FIXED_VERTEX : Cycle<Addition> : multiple;
+	property LIST_FAMILY_FIXED_VERTEX : Cycle<Addition> : multiple {
+	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# A list of all families of lines without a bounded  edge and a moving vertex.
-	property LIST_FAMILY_MOVING_VERTEX : Cycle<Addition> : multiple;
+	property LIST_FAMILY_MOVING_VERTEX : Cycle<Addition> : multiple {
+	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# A list of all families of lines with (part of) the bounded edge fixed
-	property LIST_FAMILY_FIXED_EDGE : Cycle<Addition> : multiple;
+	property LIST_FAMILY_FIXED_EDGE : Cycle<Addition> : multiple {
+	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# A list of all families of lines with the bounded edge moving in transversal direction
-	property LIST_FAMILY_MOVING_EDGE : Cycle<Addition> : multiple;
+	property LIST_FAMILY_MOVING_EDGE : Cycle<Addition> : multiple {
+	}
 
-	# @category Counts
+	# @category Counts of lines
 	# The total number of elements in [[LIST_ISOLATED_EDGE]] and [[LIST_ISOLATED_NO_EDGE]]
 	property N_ISOLATED : Int;
 
-	# @category Counts
+	# @category Counts of lines
 	# The total number of families in [[LIST_FAMILY_FIXED_EDGE]], [[LIST_FAMILY_FIXED_VERTEX]], 
 	# [[LIST_FAMILY_MOVING_EDGE]] and [[LIST_FAMILY_MOVING_VERTEX]]
 	property N_FAMILIES : Int;
@@ -80,7 +95,7 @@ object LinesInCubic {
 
 	### METHODS ##############################################
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array version of [[LIST_ISOLATED_NO_EDGE]]
 	user_method array_isolated_no_edge {
 		my $this = shift;
@@ -93,7 +108,7 @@ object LinesInCubic {
 		}
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array version of [[LIST_ISOLATED_EDGE]]
 	user_method array_isolated_edge {
 		my $this = shift;
@@ -106,7 +121,7 @@ object LinesInCubic {
 		}
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_FIXED_VERTEX]]
 	user_method array_family_fixed_vertex {
 		my $this = shift;
@@ -119,7 +134,7 @@ object LinesInCubic {
 		}
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_MOVING_VERTEX]]
 	user_method array_family_moving_vertex {
 		my $this = shift;
@@ -132,7 +147,7 @@ object LinesInCubic {
 		}
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_FIXED_EDGE]]
 	user_method array_family_fixed_edge {
 		my $this = shift;
@@ -145,7 +160,7 @@ object LinesInCubic {
 		}
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array version of [[LIST_FAMILY_MOVING_EDGE]]
 	user_method array_family_moving_edge {
 		my $this = shift;
@@ -158,14 +173,14 @@ object LinesInCubic {
 		}
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array containing all isolated solutions
 	user_method all_isolated {
 		my $this = shift;
 		return ($this->array_isolated_edge, $this->array_isolated_no_edge);
 	}
 
-	# @category Lines in cubics
+	# @category Lists of lines
 	# @return Cycle<Addition> A perl array containing all families
 	user_method all_families {
 		my $this = shift;
@@ -175,6 +190,75 @@ object LinesInCubic {
 
 }
 
+
+# @category Lines in surfaces
+# This takes either:
+# - A homogeneous polynomial of degree 3 in 4 variables or
+# - A polynomial of degree 3 in 3 variables
+# and computes the corresponding
+# cubic and finds all tropical lines and families thereof in the cubic.
+# The result is returned as a [[LinesInCubic]] object.
+# Note that the function has some heuristics for recognizing families, but might still return
+# a single family as split up into two.
+# @param Polynomial<TropicalNumber<Addition> > p A homogeneous tropical polynomial of degree 3
+# in four variables.
+# @tparam Addition Min or Max
+# @return LinesInCubic<Addition>
+user_function lines_in_cubic<Addition>(Polynomial<TropicalNumber<Addition> >) {
+	my $p = shift;
+
+	#Sanity checks
+	if($p->get_ring()->n_vars() != 4 && $p->get_ring()->n_vars() != 3) {
+		die "Lines in cubic: wrong number of variables.";
+	}
+	if(polynomial_degree($p) != 3) {
+		die "Lines in cubic: Polynomial is not of degree 3.";
+	}
+	if($p->get_ring()->n_vars() == 4 && !is_homogeneous($p)) {
+		die "Lines in cubic: Polynomial has 4 variables but is not homogeneous";
+	}
+
+	#Dehomogenize the polynomial if necessary
+	if($p->get_ring()->n_vars() == 4) {
+		$r = new Ring<TropicalNumber<Addition> >(3);
+		$m = $p->monomials_as_matrix()->minor(All,~[0]);
+		$p = new Polynomial<TropicalNumber<Addition> >($m,$p->coefficients_as_vector(), $r);
+	}
+
+	#If necessary, switch to max 
+	if(Addition->orientation() == 1) {
+		$p = toggle($p);
+	}
+	my $l = linesInCubic($p);
+	#The computation is rigged for max, we need to convert everything, if Min is used
+	if(Addition->orientation() == -1) {
+		return $l;
+	}
+	else {
+		my $minl = new LinesInCubic<Min>(
+			POLYNOMIAL=>toggle($l->POLYNOMIAL),
+			CUBIC=>toggle($l->CUBIC));
+		for my $x (toggle_list(1,$l->array_isolated_edge)) {
+			$minl->add("LIST_ISOLATED_EDGE",$x);
+		}
+		for my $x (toggle_list(1,$l->array_isolated_no_edge)) {
+			$minl->add("LIST_ISOLATED_NO_EDGE",$x);
+		}
+		for my $x (toggle_list(1,$l->array_family_fixed_edge)) {
+			$minl->add("LIST_FAMILY_FIXED_EDGE",$x);
+		}
+		for my $x (toggle_list(1,$l->array_family_moving_edge)) {
+			$minl->add("LIST_FAMILY_MOVING_EDGE",$x);
+		}
+		for my $x (toggle_list(1,$l->array_family_fixed_vertex)) {
+			$minl->add("LIST_FAMILY_FIXED_VERTEX",$x);
+		}
+		for my $x (toggle_list(1,$l->array_family_moving_vertex)) {
+			$minl->add("LIST_FAMILY_MOVING_VERTEX",$x);
+		}
+		return $minl;
+	}
+}
 
 
 # @category Visualization

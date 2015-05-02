@@ -409,7 +409,8 @@ namespace polymake { namespace tropical {
 				complex.take("LATTICE_BASES") << c_lattice_b;
 				complex.take("LATTICE_GENERATORS") << thomog(Matrix<Rational>(lattice_generators));
 			}
-			complex.take("LOCAL_RESTRICTION") << local_restriction_result;
+			if(local_restriction.rows() > 0)
+				complex.take("LOCAL_RESTRICTION") << local_restriction_result;
 		}
 		else {
 			complex = X;
