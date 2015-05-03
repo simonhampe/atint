@@ -220,6 +220,32 @@ namespace polymake { namespace tropical {
 			return result;
 
 		}//END orthant_subdivision
+
+	template <typename Addition>
+		perl::Object affine_linear_space(const Matrix<Rational> &generators, Vector<Rational> translate = Vector<Rational>(), Integer weight = 1) {
+			//Sanity check 
+			if(translate.dim() > 0 && translate.dim() != generators.cols()) {
+				throw std::runtime_error("affine_linear_space: Dimension mismatch.");
+			}
+			if(translate.dim() == 0) translate = Vector<Rational>(generators.cols());
+
+			Matrix<Rational> vertices(1,generators.cols()+1);
+				vertices(0,0) = 1;
+				vertices.row(0).slice(~scalar2set(0)) = translate;
+			Vector<Set<int> > polytopes;
+				polytopes |= scalar2set(0);
+			Vector<Integer> weights(1);
+				weights[0] = weight;
+
+			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
+				result.take("VERTICES") << vertices;
+				result.take("MAXIMAL_POLYTOPES") << polytopes;
+				result.take("LINEALITY_SPACE") << (zero_vector<Rational>() | generators);
+				result.take("WEIGHTS") << weights;
+				
+			return result;
+		}
+
 }}
 
 #endif

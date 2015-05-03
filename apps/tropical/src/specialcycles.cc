@@ -96,5 +96,17 @@ namespace polymake { namespace tropical {
 			"# @tparam Addition Min or Max",
 			"orthant_subdivision<Addition>($; $=0,$=1)");
 
+	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
+			"# This creates a true affine linear space."
+			"# @param Matrix<Rational> lineality (Row) generators of the lineality space, in tropical"
+			"# homogeneous coordinates, but without the leading zero"
+			"# @param Vector<Rational> translate Optional. The vertex of the space. By default this is"
+			"# the origin"
+			"# @param Integer weight Optional. The weight of the space. By default, this is 1."
+			"# @tparam Addition Min or Max"
+			"# @return Cycle<Addition>",
+			"affine_linear_space<Addition>($; $ = new Vector(), $=1)");
+
+
 }}
 

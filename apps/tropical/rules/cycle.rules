@@ -207,6 +207,10 @@ object Cycle {
 	rule IS_IRREDUCIBLE : WEIGHT_SPACE, WEIGHTS {
 		$this->IS_IRREDUCIBLE = is_irreducible($this);
 	}
+
+	rule DEGREE : SEPARATED_VERTICES, SEPARATED_MAXIMAL_POLYTOPES, WEIGHTS, LINEALITY_SPACE, PROJECTIVE_DIM, PROJECTIVE_AMBIENT_DIM, PROJECTIVE_CODIMENSION, LATTICE_GENERATORS {
+		$this->DEGREE = degree($this);
+	}
 	
 
 	## METHODS ##############################################
