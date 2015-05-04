@@ -167,9 +167,7 @@ object Cycle {
 				my @labels = ();
 				my $vtx = $cell->VERTICES;
 				for(my $row = 0; $row < $vtx->rows(); $row++) {
-					my $coords = $this->USES_HOMOGENEOUS_C? 
-					$vtx->row($row)->slice(1,$vtx->cols()-1) :
-					$vtx->row($row);
+					my $coords = $vtx->row($row)->slice(1,$vtx->cols()-1) ;
 					@labels = (@labels,"(".$coords.")");
 				}
 				$cell->VERTEX_LABELS = \@labels;

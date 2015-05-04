@@ -56,6 +56,20 @@ namespace polymake { namespace tropical {
 
 	Array<Integer> randomInteger(const int& max_arg, const int &n);
 
+	/**
+	  @brief Computes all vectors of dimension n with entries +1 and -1. 
+	  They are sorted such that each vector v has the row index determined by the sum: 
+	  sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1)
+	  @param int n The column dimension of the matrix
+	  @return Matrix<Rational> A 2^n by n matrix containing all +-1-vectors of dimension n
+	  */
+	Matrix<Rational> binaryMatrix(int n);
+
+	/**
+	  @brief Assumes v is a vector with entries +1 and -1 only. 
+	  Returns sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1
+	  */
+	int binaryIndex(Vector<Rational> v);
 }}
 
 #endif

@@ -29,6 +29,8 @@
 #include "polymake/Set.h"
 #include "polymake/PowerSet.h"
 #include "polymake/tropical/specialcycles.h"
+#include "polymake/tropical/misc_tools.h"
+#include "polymake/tropical/thomog.h"
 
 namespace polymake { namespace tropical {
 
@@ -44,6 +46,9 @@ namespace polymake { namespace tropical {
 			return CallPolymakeFunction("matroid::uniform_matroid",n,n);
 		}
 
+		//FIXME Testing this could be done in a more efficient way by
+		//finding all cones containing the origin and testing for
+		//complementarity with unit vectors.
 		//Take all r-sets and check if they are a basis
 		Array<Set<int> > rset = all_subsets_of_k( sequence(0,n),r);
 		Vector<Set<int> > bases;
@@ -51,7 +56,8 @@ namespace polymake { namespace tropical {
 		for(int b = 0; b < rset.size(); b++) {
 			perl::Object hp = affine_linear_space<Addition>(unitm.minor(~rset[b],All));
 			perl::Object inter = CallPolymakeFunction("intersect", cycle, hp);
-			if(CallPolymakeFunction("is_empty",inter)) bases |= rset[b];
+			bool empty = CallPolymakeFunction("is_empty",inter);
+			if(!empty) bases |= rset[b];
 		}
 		perl::Object result("matroid::Matroid");
 			result.take("N_ELEMENTS") << n;

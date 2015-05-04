@@ -76,3 +76,6 @@
 # These +++ deal with the computation and representation of (families of) lines
 # in surfaces.
 
+# @topic category any/Inverse problems
+# These +++ deal with finding rational functions to given divisors.
+

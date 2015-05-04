@@ -60,9 +60,10 @@ namespace polymake { namespace tropical {
 			"# Creates the linear space of the uniform matroid of rank k+1 on n+1 variables."
 			"# @param Int n The ambient (projective) dimension."
 			"# @param Int k The (projective dimension of the fan."
+			"# @param Integer weight The global weight of the cycle. 1 by default."
 			"# @tparam Addition A The tropical addition (min or max)"
 			"# @return Cycle A tropical linear space.",
-			"uniform_linear_space<Addition>($,$)");       
+			"uniform_linear_space<Addition>($,$;$=1)");       
 
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
 									"# Creates a subdivision of the tropical projective torus"
@@ -106,6 +107,18 @@ namespace polymake { namespace tropical {
 			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition>",
 			"affine_linear_space<Addition>($; $ = new Vector(), $=1)");
+
+	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
+			"# This creates the k-skeleton of the tropical variety dual to the cross polytope"
+			"# @param Int n The (projective) ambient dimension"
+			"# @param Int k The (projective) dimension of the variety."
+			"# @param Rational h Optional, 1 by default. It is a nonnegative number, describing the "
+			"# height of the one interior lattice point of the cross polytope. "
+			"# @param Integer weight Optional, 1 by default. The (global) weight of the variety"
+			"# @tparam Addition Min or Max"
+			"# @return Cycle<Addition> The k-skeleton of the tropical hypersurface dual to the cross"
+			"# polytope. It is a smooth (for weight 1), irreducible (for h > 0) variety, which is invariant under reflection.",
+			"cross_variety<Addition>($,$; $=1,$=1)");
 
 
 }}
