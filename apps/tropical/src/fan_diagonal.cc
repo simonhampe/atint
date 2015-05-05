@@ -153,7 +153,8 @@ namespace polymake { namespace tropical {
 			//Extract values
 			Matrix<Rational> old_rays = diag_fan.give("SEPARATED_VERTICES");
 			old_rays = tdehomog(old_rays);
-			IncidenceMatrix<> skeleton_cones = skeleton.give("MAXIMAL_POLYTOPES");
+			Set<int> nonfar = far_and_nonfar_vertices(old_rays).second;
+			IncidenceMatrix<> skeleton_cones = skeleton.give("SEPARATED_MAXIMAL_POLYTOPES");
 
 			//Prepare solution matrix
 			Matrix<Rational> result(skeleton_cones.rows(),0);
@@ -161,7 +162,7 @@ namespace polymake { namespace tropical {
 			//Iterate through all cones of the skeleton
 			for(int tc = 0; tc < skeleton_cones.rows(); tc++) {
 				//Create the function(s) Psi_tau
-				Vector<int> tc_rays(skeleton_cones.row(tc));
+				Vector<int> tc_rays(skeleton_cones.row(tc) - nonfar);
 				Matrix<Rational> psi_tau(0,old_rays.rows());
 				for(int r = 0; r < tc_rays.dim(); r++) {
 					psi_tau /= (unit_vector<Rational>(old_rays.rows(), tc_rays[r]));
@@ -194,7 +195,7 @@ namespace polymake { namespace tropical {
 						attach_operation(div_cones.row(rho), pm::operations::associative_access<Map<int,int>, int>(&div_ray_to_old));
 					//Find the original cone equal to that
 					for(int oc = 0; oc < skeleton_cones.rows(); oc++) {
-						if( (skeleton_cones.row(oc) * rho_old).size() == fan_dim) {
+						if( (skeleton_cones.row(oc) * rho_old).size() == fan_dim+1) {
 							tau_column[oc] = div_weights[rho]; break;
 						}
 					}
@@ -214,6 +215,7 @@ namespace polymake { namespace tropical {
 		Matrix<Rational> simplicial_diagonal_system(perl::Object fan) {
 			//Extract values
 			int fan_dim = fan.give("PROJECTIVE_DIM");
+			int fan_ambient_dim = fan.give("PROJECTIVE_AMBIENT_DIM");
 			Matrix<Rational> fan_rays = fan.give("VERTICES");
 
 			//Compute diagonal subdivision and skeleton
@@ -223,8 +225,17 @@ namespace polymake { namespace tropical {
 			Matrix<Rational> nspace = simplicial_piecewise_system<Addition>(fan);
 
 			//Identify diagonal cones
-			IncidenceMatrix<> sk_cones = skeleton.give("MAXIMAL_POLYTOPES");
-			Set<int> diag_rays = sequence(2*fan_rays.rows(), fan_rays.rows());
+			Matrix<Rational> sk_rays = skeleton.give("SEPARATED_VERTICES");
+				sk_rays = tdehomog(sk_rays);
+			IncidenceMatrix<> sk_cones = skeleton.give("SEPARATED_MAXIMAL_POLYTOPES");
+			Set<int> diag_rays; 
+			for(int r = 0; r < sk_rays.rows(); r++) {
+				if(sk_rays.row(r).slice(1,fan_ambient_dim) ==
+						sk_rays.row(r).slice(fan_ambient_dim+1, fan_ambient_dim) && sk_rays(r,0) == 0) 
+					diag_rays += r;
+				if(sk_rays.row(r).slice(~scalar2set(0)) == zero_vector<Rational>(sk_rays.cols()-1))
+					diag_rays += r; // Add the origin as well.
+			}
 			Set<int> diag_cones;
 			for(int c = 0; c < sk_cones.rows(); c++) {
 				if((diag_rays * sk_cones.row(c)).size() == sk_cones.row(c).size()) {
