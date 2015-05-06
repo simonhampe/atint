@@ -28,7 +28,6 @@
 # @param RationalFunction F An arbitrary list of rational functions (r_1,...r_n). The [[DOMAIN]]
 # of r_i should contain the support of r_{i-1} * ... * r_1 * C. Note that using the ^-operator
 # on these rational functions is allowed and will result in applying the corresponding function several times.
-# @tparam Addition Min or Max.
 # @return Cycle The divisor r_n * ... * r_1 * C
 user_function divisor<Addition>(Cycle<Addition>;@) {
 	my ($cycle, @functions) = @_;
@@ -52,7 +51,6 @@ user_function divisor<Addition>(Cycle<Addition>;@) {
 # of each function should be equal (in terms of [[VERTICES]] and [[MAXIMAL_POLYTOPES]]) to the cycle.
 # Note that using the ^-operator on these rational functions is allowed and will result in 
 # applying the corresponding function several times.
-# @tparam Addition Min or Max.
 # @return Cycle The divisor r_n * ... * r_1 * C
 user_function divisor_nr<Addition>(Cycle<Addition>;@) {
 	my ($cycle,@functions) = @_;

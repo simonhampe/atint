@@ -31,7 +31,6 @@ namespace polymake { namespace tropical {
 			"# The pullback will be defined in the preimage of the domain."
 			"# @param Morphism m A morphism."
 			"# @param RationalFunction r A rational function."
-			"# @tparam Addition Min or Max, both objects must use the same."
 			"# @return RationalFunction The pullback m*r.",
 			"pullback<Addition>(Morphism<Addition>, RationalFunction<Addition>)");
 

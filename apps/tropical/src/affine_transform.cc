@@ -28,6 +28,7 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/misc_tools.h"
+#include "polymake/tropical/thomog.h"
 
 namespace polymake { namespace tropical {
 
@@ -63,11 +64,15 @@ namespace polymake { namespace tropical {
 				vertices.row(*nf) += translate;
 			}
 			lineality = lineality * T(matrix);
-			
+		
+			//The seemingly unnecessary thomog(tdehomog - calls take care of the fact
+			//that the normalization polymake applies to vertices is not compatible with
+			//tropical projective equivalence relation. By dehomogenizing, the homogenizing,
+			//we pick a unique representative on an affine chart.
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-				result.take("VERTICES") << vertices;
+				result.take("VERTICES") << thomog(tdehomog(vertices));
 				result.take("MAXIMAL_POLYTOPES") << cycle.give("MAXIMAL_POLYTOPES");
-				result.take("LINEALITY_SPACE") << lineality;
+				result.take("LINEALITY_SPACE") << thomog(tdehomog(lineality));
 				if(weights_exist)
 					result.take("WEIGHTS") << cycle.give("WEIGHTS");
 				if(local_exists)

@@ -149,7 +149,6 @@ namespace polymake { namespace tropical {
 			"# locally restricted to the given cone set."
 			"# @param Cycle<Addition> complex An arbitrary weighted complex"
 			"# @param IncidenceMatrix cones A set of cones, indices refer to VERTICES"
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The same complex, locally restricted to the given"
 			"# cones",
 			"local_restrict<Addition>(Cycle<Addition>,$)");
@@ -161,7 +160,6 @@ namespace polymake { namespace tropical {
 			"# correspond to a far vertex in a complex, since this would not be a cone"
 			"# @param Cycle<Addition> complex An arbitrary weighted complex"
 			"# @param Int ray The index of a ray/vertex in RAYS"
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The complex locally restricted to the given vertex",
 			"local_vertex<Addition>(Cycle<Addition>,$)");
 
@@ -171,7 +169,6 @@ namespace polymake { namespace tropical {
 			"# to that face"
 			"# @param Cycle<Addition> complex An arbitrary weighted complex"
 			"# @param Int face An index of a face in CODIMENSION_ONE_POLYTOPES"
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The complex locally restricted to the given face",
 			"local_codim_one<Addition>(Cycle<Addition>,$)");
 
@@ -184,7 +181,6 @@ namespace polymake { namespace tropical {
 			"# @param Cycle<Addition> complex An arbitrary weighted complex"
 			"# @param Vector<Rational> v A vertex in homogeneous coordinates. It should lie"
 			"# in the support of the complex (otherwise an error is thrown)"
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The complex localized at the vertex",
 			"local_point<Addition>(Cycle<Addition>,$)");
 

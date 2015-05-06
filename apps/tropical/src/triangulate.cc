@@ -236,7 +236,6 @@ namespace polymake { namespace tropical {
 	UserFunctionTemplate4perl("# @category Basic polyhedral operations"
 			"# Takes a cycle and computes a triangulation"
 			"# @param Cycle<Addition> F A cycle (not necessarily weighted)"
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> A simplicial refinement of F",
 			"triangulateCycle<Addition>(Cycle<Addition>)");
 
@@ -245,7 +244,6 @@ namespace polymake { namespace tropical {
 			"# leading coordinate and triangulates the fan"
 			"# such that it contains these rays"
 			"# @param Cycle<Addition> F A cycle (not necessarily weighted)."
-			"# @tparam Addition Min or Max"
 			"# @param Matrix<Rational> R A list of normalized vertices or rays"
 			"# Note that the function will NOT subdivide the lineality space, i.e. rays that are "
 			"# equal to an existing ray modulo linealoty space will be ignored."

@@ -202,7 +202,6 @@ object LinesInCubic {
 # a single family as split up into two.
 # @param Polynomial<TropicalNumber<Addition> > p A homogeneous tropical polynomial of degree 3
 # in four variables.
-# @tparam Addition Min or Max
 # @return LinesInCubic<Addition>
 user_function lines_in_cubic<Addition>(Polynomial<TropicalNumber<Addition> >) {
 	my $p = shift;

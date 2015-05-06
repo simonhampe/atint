@@ -380,7 +380,6 @@ user_function rational_curve_from_rays<Addition>($) {
 # @param Int n_leaves The n in M_0,n. Needed to determine the dimension of
 # the M_0,n component
 # @param Int coneIndex The index of the maximal cone
-# @tparam Addition Min or Max
 # @return RationalCurve c The curve corresponding to an interior point
 user_function rational_curve_from_cone<Addition>(Cycle<Addition>, $,$) {
 	my ($cycle, $n_leaves,$coneIndex) = @_;

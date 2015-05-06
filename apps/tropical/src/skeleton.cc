@@ -32,7 +32,6 @@ namespace polymake { namespace tropical {
 			"# @param Bool preserveRays When true, the function assumes that all rays of the fan remain"
 			"# in the k-skeleton, so it just copies the VERTICES, instead of computing an irredundant list."
 			"# By default, this property is false."
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The k-skeleton (without any weights, except if k is the dimension of C",
 			"skeleton_complex<Addition>(Cycle<Addition>, $;$=0)");
 }}

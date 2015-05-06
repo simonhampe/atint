@@ -257,7 +257,6 @@ namespace polymake { namespace tropical {
 			"# lineality space) and computes the coarsest subdivision of F x F containing all "
 			"# diagonal rays (r,r)"
 			"# @param Cycle<Addition> F A simplicial fan without lineality space."
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The product complex FxF subdivided such that it contains "
 			"# all diagonal rays",
 			"simplicial_with_diagonal<Addition>(Cycle<Addition>)");
@@ -269,7 +268,6 @@ namespace polymake { namespace tropical {
 			"# are 1 one exactly one ray of t and 0 elsewhere. Now for which coefficients a_t"
 			"# is sum_t a_t psi_t * (FxF) = 0?"
 			"# @param Cycle<Addition> F  A simplicial fan without lineality space"
-			"# @tparam Addition Min or Max"
 			"# @return Matrix<Rational> The above mentioned linear system. The rows "
 			"# are equations, the columns correspond to d-dimensional cones of FxF in the order given "
 			"# by skeleton_complex(simplicial_with_diagonal(F), d,TRUE)",
@@ -283,7 +281,6 @@ namespace polymake { namespace tropical {
 			"# diagonal cones are 1, the rest is zero. This can be seen as asking for a "
 			"# solution to the system that cuts out the diagonal (all solutions whose last entry is 1)"
 			"# @param Cycle<Addition> fan. A simplicial fan without lineality space."
-			"# @tparam Addition Min or Max"
 			"# @return Matrix<Rational>",
 			"simplicial_diagonal_system<Addition>(Cycle<Addition>)");
 

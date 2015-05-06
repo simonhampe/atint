@@ -70,7 +70,6 @@ namespace polymake { namespace tropical {
 			"# The fan has to be given in its actual matroid coordinates, not as an isomorphic"
 			"# transform. The actual subdivision is not relevant."
 			"# @param Cycle<Addition> A tropical cycle, the Bergman fan of a matroid"
-			"# @tparam Addition Min or Max"
 			"# @return matroid::Matroid",
 			"matroid_from_fan<Addition>(Cycle<Addition>)");
 

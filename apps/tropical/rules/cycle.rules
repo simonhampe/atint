@@ -227,6 +227,23 @@ object Cycle {
 		return boundingBox($aff->VERTICES->minor(~$aff->FAR_VERTICES, ~[0]), $dist,0);
 	}
 
+	# @category Basic polyhedral operations
+	# Checks whether this polyhedral structure is a fan, i.e. has only a single vertex at the origin.
+	# @param Bool allow_translations. Optional and false by default. If true, a shifted fan is also accepted.
+	# @return Bool. 
+	user_method is_fan(;$=0) {
+		my ($this, $allow_translations) = @_;
+		my $far_face = $this->FAR_VERTICES;
+		if($far_face->size() < $this->VERTICES->rows()-1) {
+			return new Bool(0);
+		}
+		if($allow_translations) {
+			return new Bool(1);
+		}
+		my $vert = (new Matrix($this->VERTICES->minor(~$far_face,All)))->row(0);
+		return $vert == unit_vector<Rational>($vert->dim(), 0);
+	}
+
 
 }# END Cycle
 

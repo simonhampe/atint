@@ -108,7 +108,6 @@ object RationalFunction {
 	# The cycle need not be contained in the [[DOMAIN]] of the function, the restriction
 	# will be computed on the intersection of the cycle and the [[DOMAIN]].
 	# @param Cycle<Addition> C The new domain.
-	# @tparam Addition [[Min]] or [[Max]].
 	# @return RationalFunction<Addition>
 	user_method restrict(Cycle<Addition>) {
 		my ($f,$X) = @_;
@@ -233,7 +232,6 @@ object RationalFunction {
 # a rational function on tropical homogeneous coordinates
 # @param Polynomial<TropicalNumber<Addition> > p A polynomial on affine coordinates.
 # @param Int chart The index of the homogenizing coordinate. 0 by default.
-# @tparam Addition Min or Max
 # @return RationalFunction A rational function, which on the given chart is described by p.
 user_function rational_fct_from_affine_numerator<Addition>(Polynomial<TropicalNumber<Addition> >; $=0) {
 	my ($p,$chart) = @_;
@@ -247,7 +245,6 @@ user_function rational_fct_from_affine_numerator<Addition>(Polynomial<TropicalNu
 # a string which it converts to a tropical polynomial using [[toTropicalPolynomial]].
 # @param String p A string that will be converted to a tropical polynomial
 # @param Int chart The index of the homogenizing coordinate. 0 by default.
-# @tparam Addition Min or Max
 # @return RationalFunction 
 user_function rational_fct_from_affine_numerator(String; $=0) {
 	my ($s,$chart) = @_;
@@ -259,7 +256,6 @@ user_function rational_fct_from_affine_numerator(String; $=0) {
 # the rational function (1/p) on tropical homogeneous coordinates
 # @param Polynomial<TropicalNumber<Addition> > p A polynomial on affine coordinates.
 # @param Int chart The index of the homogenizing coordinate. 0 by default.
-# @tparam Addition Min or Max
 # @return RationalFunction A rational function, which on the given chart is described by (1/p).
 user_function rational_fct_from_affine_denominator<Addition>(Polynomial<TropicalNumber<Addition> >; $=0) {
 	my ($p,$chart) = @_;
@@ -274,7 +270,6 @@ user_function rational_fct_from_affine_denominator<Addition>(Polynomial<Tropical
 # a string which it converts to a tropical polynomial using [[toTropicalPolynomial]].
 # @param String p A string that will be converted to a tropical polynomial
 # @param Int chart The index of the homogenizing coordinate. 0 by default.
-# @tparam Addition Min or Max
 # @return RationalFunction 
 user_function rational_fct_from_affine_denominator(String; $=0) {
 	my ($s,$chart) = @_;

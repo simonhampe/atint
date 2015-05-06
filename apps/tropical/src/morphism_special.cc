@@ -38,7 +38,8 @@ namespace polymake { namespace tropical {
 			"# Note that the i-th marked point is realized as the |Delta|+i-th leaf in M_0,(n+|Delta|)"
 			"# and that the R^r - coordinate is interpreted as the position of the n-th leaf. "
 			"# In particular, ev_n is just the projection to the R^r-coordinates"
-			"# @return Morphism ev_i. Its domain is the ambient space of the moduli space "
+			"# @tparam Addition Min or Max"
+			"# @return Morphism<Addition> ev_i. Its domain is the ambient space of the moduli space "
 			"# as created by [[space_of_stable_maps]]. The target space is the tropical projective"
 			"# torus of dimension r",
 			"evaluation_map<Addition>($,$,Matrix<Rational>,$)");
@@ -58,7 +59,8 @@ namespace polymake { namespace tropical {
 			"# occuring d times."
 			"# @param Int i The index of the marked point that should be evaluated. i "
 			"# should lie in between 1 and n"
-			"# @return Morphism ev_i. Its domain is the ambient space of the moduli space "
+			"# @tparam Addition Min or Max"
+			"# @return Morphism<Addition> ev_i. Its domain is the ambient space of the moduli space "
 			"# as created by [[space_of_stable_maps]]. The target space is the tropical projective"
 			"# torus of dimension r\n"
 			"user_function evaluation_map<Addition>($,$,$,$) {\n"
@@ -72,7 +74,8 @@ namespace polymake { namespace tropical {
 			"# @param Int n The dimension of the projective torus which is the domain of the projection."
 			"# @param Set<Int> s The set of coordinaes to which the map should project. Should be"
 			"# a subset of (0,..,n)"
-			"# return Morphism The projection map.",
+			"# @tparam Addition Min or Max"
+			"# @return Morphism<Addition> The projection map.",
 			"projection_map<Addition>($,Set<Int>)");
 
 	FunctionTemplate4perl("projection_map_default<Addition>($,$)");

@@ -412,7 +412,6 @@ namespace polymake { namespace tropical {
 			"# Use [[intersection_check_transversality]] to check for transversal intersections"
 			"# @param Cycle X A tropical cycle"
 			"# @param Cycle Y A tropical cycle, living in the same ambient space as X"
-			"# @tparam Max or Min - both cycles have to use the same."
 			"# @return Cycle The intersection product\n"
 			"user_function intersect<Addition>(Cycle<Addition>,Cycle<Addition>) {\n"
 			"	my ($X,$Y) = @_;\n"

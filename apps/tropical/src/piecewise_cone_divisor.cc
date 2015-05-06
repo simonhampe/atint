@@ -146,7 +146,6 @@ namespace polymake { namespace tropical {
 			"# a different order"
 			"# @param Vector<Integer> coefficients A list of coefficients a_t corresponding to the "
 			"# cones. "
-			"# @tparam Addition Max or Min"
 			"# @return Cycle<Addition> The divisor sum_t a_t psi_t * F",
 			"piecewise_divisor<Addition>(Cycle<Addition>, $, $)");
 }}

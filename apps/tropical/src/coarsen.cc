@@ -309,7 +309,6 @@ namespace polymake { namespace tropical {
 			"# If any condition is violated, the algorithm throws an exception"
 			"# Note that it does not check whether equivalence classes form a fan"
 			"# This can be done via [[fan::check_fan]] afterwards, but it is potentially slow."
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The corresponding coarse complex. Throws an "
 			"# exception if testFan = True and consistency checks fail.",
 			"coarsen<Addition>(Cycle<Addition>; $=0)");

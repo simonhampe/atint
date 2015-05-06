@@ -27,7 +27,6 @@
 # 0-dimensional intersection product obtained by intersecting with the
 # complementary uniform linear space.
 # @param Cycle A tropical cycle
-# @tparam Addition Min or Max
 # @return Integer The degree 
 user_function degree<Addition>(Cycle<Addition>) {
 	my $X = shift;

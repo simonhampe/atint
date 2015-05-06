@@ -490,7 +490,8 @@ namespace polymake { namespace tropical{
 				"# n-1 nodes (but not computed as such)"
 				"# The isomorphism to the space of curve metrics is obtained by choosing"
 				"# the last leaf as special leaf"
-				"# @param Int n The number of leaves. Should be at least 3" 
+				"# @param Int n The number of leaves. Should be at least 3"
+				"# @tparam Addition Min or Max"
 				"# @return Cycle The tropical moduli space M_0,n",
 				"m0n<Addition>($)");
 

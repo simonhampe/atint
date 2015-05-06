@@ -30,6 +30,7 @@ namespace polymake { namespace tropical {
 			"# @param Int n The number of leaves in M_0,n"
 			"# @param Vector<Int> exponents The exponents of the psi classes k_1,..,k_n. If the "
 			"# vector does not have length n or if some entries are negative, an error is thrown"
+			"# @tparam Addition Min or Max"
 			"# @return Cycle The corresponding psi class divisor",
 			"psi_product<Addition>($, Vector<Int>)");
 
@@ -38,6 +39,7 @@ namespace polymake { namespace tropical {
 			"# M_0,n"
 			"# @param Int n The number of leaves in M_0,n"
 			"# @param Int i The leaf for which we want to compute the psi class ( in 1,..,n )"
+			"# @tparam Addition Min or Max"
 			"# @return Cycle The corresponding psi class",
 			"psi_class<Addition>($,$)");
 

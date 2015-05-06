@@ -77,7 +77,6 @@ namespace polymake { namespace tropical {
 	UserFunctionTemplate4perl("# @category Basic polyhedral operations"
 			"# This computes the local fans at all (nonfar) vertices of a tropical cycle"
 			"# @param Cycle<Addition> C A tropical cycle"
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> A list of local cycles",
 			"fan_decomposition<Addition>(Cycle<Addition>)");
 

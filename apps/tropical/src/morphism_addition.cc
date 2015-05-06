@@ -157,7 +157,6 @@ namespace polymake { namespace tropical {
 			"# The domain of the result will be the common refinement of the two domains."
 			"# @param Morphism f"
 			"# @param Morphism g"
-			"# @tparam Addition Min or Max, both morphisms should use the same one."
 			"# @return Morphism",
 			"add_morphisms<Addition>(Morphism<Addition>, Morphism<Addition>)");
 }}
