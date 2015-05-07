@@ -131,9 +131,9 @@ object Cycle {
 	
 		#Set some default values
 		my $dim = $this->PROJECTIVE_DIM;
-		if(!defined($$decor{"FacetTransparency"}) && $dim >= 2) {
-			$$decor{"FacetTransparency"} = 0.7;
-		}
+		#if(!defined($$decor{"FacetTransparency"}) && $dim >= 2) {
+		#		$$decor{"FacetTransparency"} = 0.7;
+		#}
 		if(!defined($$decor{"PointThickness"})) {
 			$$decor{"PointThickness"} = 0.1;
 		}
