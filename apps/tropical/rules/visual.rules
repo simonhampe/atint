@@ -22,10 +22,6 @@
 ########################################################################
 
 package Visual::Cycle;
-use Polymake::Struct (
-	[ '@ISA' => 'Container' ],
-	[ '$Cycle' => '#%'],
-);
 
 
 options %Visual::Cycle::BoundingDecorations=(
