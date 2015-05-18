@@ -244,6 +244,15 @@ object Cycle {
 		return $vert == unit_vector<Rational>($vert->dim(), 0);
 	}
 
+	# @category Local computations
+	# Returns the cycle without its [[LOCAL_RESTRICTION]]
+	# (Note that only the defining properties are kept. All derived information is lost).
+	# @return Cycle
+	user_method delocalize {
+		my $this = shift;
+		return new Cycle<Addition>(VERTICES=>$this->VERTICES,MAXIMAL_POLYTOPES=>$this->MAXIMAL_POLYTOPES, LINEALITY_SPACE=>$this->LINEALITY_SPACE, WEIGHTS=>$this->WEIGHTS);
+	}
+
 
 }# END Cycle
 

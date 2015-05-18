@@ -179,7 +179,7 @@ namespace polymake { namespace tropical {
 			"# It then refines the complex such that the vertex is a cell in the polyhedral "
 			"# structure and returns the complex localized at this vertex"
 			"# @param Cycle<Addition> complex An arbitrary weighted complex"
-			"# @param Vector<Rational> v A vertex in homogeneous coordinates. It should lie"
+			"# @param Vector<Rational> v A vertex in homogeneous coordinates and with leading coordinate. It should lie"
 			"# in the support of the complex (otherwise an error is thrown)"
 			"# @return Cycle<Addition> The complex localized at the vertex",
 			"local_point<Addition>(Cycle<Addition>,$)");

@@ -91,7 +91,7 @@ namespace polymake { namespace tropical {
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
 			"# Creates the orthant subdivision around a given point on a given chart,"
 			"# i.e. the corresponding affine chart of this cycle consists of all 2^n fulldimensional orthants"
-			"# @param Vector<Rational> point The vertex of the subdivision"
+			"# @param Vector<Rational> point The vertex of the subdivision. Should be given in tropical homogeneous coordinates with leading coordinate."
 			"# @param Int chart On which chart the cones should be orthants, 0 by default."
 			"# @param Integer weight The constant weight of the cycle, 1 by default."
 			"# @tparam Addition Min or Max",
