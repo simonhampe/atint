@@ -123,16 +123,33 @@ object Morphism {
 		return tdehomog_morphism($morphism->MATRIX,$morphism->TRANSLATE, $domain_chart, $target_chart);
 	}
 
+	# @category Morphisms
+	# Computes the composition of another morphism g and this morphism.
+	# This morphism comes after g.
+	# @param Morphism g
+	# @return this after g
 	user_method after(Morphism<Addition>) {
 		my ($this, $g) = @_;
 		return morphism_composition($g,$this);
 	}
 
+	# @category Morphisms
+	# Computes the composition of this morphism and another morphism g.
+	# This morphism comes before g.
+	# @param Morphism g
+	# @return g after f
 	user_method before(Morphism<Addition>) {
 		my ($this,$g) = @_;
 		return morphism_composition($this,$g);
 	}
 
+	# @category Morphisms
+	# Computes the restriction of the morphism to a cycle.
+	# The cycle need not be contained in the [[DOMAIN]] of the morphism,
+	# the restriction will be computed on the intersection.
+	# @param Cycle Some cycle living in the same ambient space as the [[DOMAIN]]
+	# @return Morphism The restriction of the morphism to the cycle (or its
+	# intersection with [[DOMAIN]].
 	user_method restrict(Cycle<Addition>) {
 		my ($f,$X) = @_;
 

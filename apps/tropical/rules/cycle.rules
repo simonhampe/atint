@@ -47,7 +47,7 @@ object Cycle {
 	property LATTICE_NORMAL_SUM : Matrix<Rational>;
 	
 	# @category Weights and lattices 
-	# Rows of this matrix correspond to [[SEPARATED_CODIM_1_FACES]] and each row contains a function vector 
+	# Rows of this matrix correspond to [[SEPARATED_CODIMENSION_ONE_POLYTOPES]] and each row contains a function vector 
 	# for the corresponding row of [[LATTICE_NORMAL_SUM]]. This function vector is computed 
 	# in the same way as described under [[LATTICE_NORMAL_FCT_VECTOR]].
 	# Note that for any codim-1-faces at which the complex is not balanced, the corresponding row is a zero row.

@@ -35,6 +35,7 @@ object LinesInCubic {
 	# @topic category properties/Counts of lines
 	# These count lines or families of lines in the cubic.# @category Defining properties
 
+	# @category Defining properties
 	# The homogeneous tropical polynomial defining the surface
 	property POLYNOMIAL : Polynomial<TropicalNumber<Addition> >;
 
