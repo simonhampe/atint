@@ -54,7 +54,7 @@ namespace polymake { namespace tropical {
 							"# @param Vector<Integer> weights The list of weights for the points"
 							"# @tparam Addition Max or Min"
 							"# @return Cycle The point collection.",
-							"point_collection<Addition>(Matrix<Rational>, Vector<Integer>)");
+							"point_collection<Addition>($,$)");
 
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
 			"# Creates the linear space of the uniform matroid of rank k+1 on n+1 variables."
@@ -76,7 +76,7 @@ namespace polymake { namespace tropical {
 									"# @param Integer The (constant) weight this cycle should have"
 									"# @tparam Addition Max or Min"
 									"# @return Cycle The halfspace subdivision",
-									"halfspace_subdivision<Addition>($,Vector<Rational>,$)");
+									"halfspace_subdivision<Addition>($,$,$)");
 
 	UserFunctionTemplate4perl("# @category Creation functions for specific cycles"
 									"# Creates the tropical projective torus of a given dimension."
