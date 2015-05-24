@@ -81,7 +81,7 @@ object Morphism {
 
 	rule DOMAIN, IS_GLOBALLY_AFFINE_LINEAR : MATRIX, TRANSLATE {
 		computeDomainFromMatrix($this);
-		$this->IS_GLOBALLY_AFFINE_LINEAR = TRUE;
+		$this->IS_GLOBALLY_AFFINE_LINEAR = !(defined($this->lookup(VERTEX_VALUES)) || defined($this->lookup(LINEALITY_VALUES)));
 	}
 	weight 0.10;
 	precondition : MATRIX, TRANSLATE {
@@ -190,7 +190,7 @@ object Morphism {
 	sub mult {
 		my ($f,$r ) = @_;
 		if($r->isa("RationalFunction") ) {
-			return pull_back($f,$r);
+			return pullback($f,$r);
 		}
 		if($r->isa("Morphism")) {
 			return morphism_composition($r,$f);

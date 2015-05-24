@@ -79,7 +79,7 @@ object RationalFunction {
 
 	rule DOMAIN, IS_GLOBALLY_DEFINED : NUMERATOR, DENOMINATOR {
 		computeDomain($this);
-		$this->IS_GLOBALLY_DEFINED = TRUE;
+		$this->IS_GLOBALLY_DEFINED = !(defined($this->lookup("VERTEX_VALUES")) || defined($this->lookup("LINEALITY_VALUES")));
 	}
 	weight 2.10;
 	#FIXME: THis property should maybe be used in some arithmetic functions...
@@ -171,8 +171,8 @@ object RationalFunction {
 			die "Rational functions use different tropical additions.";
 		}
 		if(defined($f->lookup("NUMERATOR")) && defined($g->lookup("NUMERATOR"))) {
-			return new RationalFunction<Addition>(NUMERATOR=>($f->NUMERATOR * $g->NUMERATOR),
-				DENOMINATOR=>($f->DENOMINATOR * $g->DENOMINATOR));
+			return new RationalFunction<Addition>(NUMERATOR=>(tolerant_multiplication($f->NUMERATOR ,$g->NUMERATOR)),
+				DENOMINATOR=>(tolerant_multiplication($f->DENOMINATOR, $g->DENOMINATOR)));
 		}
 		else {
 			return add_rational_functions($f,$g);
@@ -274,4 +274,23 @@ user_function rational_fct_from_affine_denominator<Addition>(Polynomial<Tropical
 user_function rational_fct_from_affine_denominator(String; $=0) {
 	my ($s,$chart) = @_;
 	return rational_fct_from_affine_denominator(toTropicalPolynomial($s),$chart);
+}
+
+# @category Intersection theory
+# Constructs a list of rational functions that cut out a single point in the projective torus
+# @param Vector<Rational> A point in the projective torus, given in tropical homogeneous coordinates, but without
+# leading coordinate.
+# @tparam Addition Min or Max. Determines the type of the rational functions.
+# @return RationalFunction. A perl array of rational functions of the form (v_i*x_0 + x_i)/(x_0), i = 1,..,n
+user_function point_functions<Addition>($) {
+	my $v = new Vector<Rational>(shift);
+	my @result = ();
+	my $r = new Ring<TropicalNumber<Addition> >($v->dim());
+	my @vars = $r->variables;
+	my $denom = $vars[0]; 
+	for my $i (1 .. $v->dim()-1) {
+		my $num = $vars[$i] + (new TropicalNumber<Addition>($v->[$i] - $v->[0]))*$vars[0];
+		@result = (@result,new RationalFunction<Addition>(NUMERATOR=>$num,DENOMINATOR=>$denom));
+	}
+	return @result;
 }

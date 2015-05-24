@@ -72,6 +72,27 @@ namespace polymake { namespace tropical {
 			
 		}*/
 
+	template <typename Coefficient>
+		Polynomial<Coefficient> tolerant_addition(const Polynomial<Coefficient> &p, 
+																const Polynomial<Coefficient> &q) {
+			Ring<Coefficient> rp = p.get_ring();
+			Matrix<int> monoms = q.monomials_as_matrix();
+			Vector<Coefficient> coeffs = q.coefficients_as_vector();
+			Polynomial<Coefficient> newq(monoms,coeffs,rp);
+			return p + newq;
+		}
+
+	template <typename Coefficient>
+		Polynomial<Coefficient> tolerant_multiplication(const Polynomial<Coefficient> &p, 
+																const Polynomial<Coefficient> &q) {
+			Ring<Coefficient> rp = p.get_ring();
+			Matrix<int> monoms = q.monomials_as_matrix();
+			Vector<Coefficient> coeffs = q.coefficients_as_vector();
+			Polynomial<Coefficient> newq(monoms,coeffs,rp);
+			return p * newq;
+		}
+
+
 
 }}
 
