@@ -200,7 +200,7 @@ object Cycle {
 		$this->WEIGHT_SYSTEM = null_space($sp);
 	}
 
-	rule WEIGHT_CONE : WEIGHT_SYSTEM {
+	rule WEIGHT_CONE : WEIGHT_SYSTEM, N_MAXIMAL_POLYTOPES {
 		$this->WEIGHT_CONE = weight_cone($this, (new Set<Int>()) );
 	}
 

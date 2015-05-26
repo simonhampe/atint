@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55649423"?>
+
+<object name="empty" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[Empty cycle in dimension 3]]></description>
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+  See also: 
+  https://github.com/simonhampe/atint]]></credit>
+  <credit product="cdd"><![CDATA[
+Copyright by Komei Fukuda.
+http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
+]]></credit>
+  <property name="VERTICES">
+    <m />
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m />
+  </property>
+  <property name="WEIGHTS">
+    <v />
+  </property>
+  <property name="PROJECTIVE_AMBIENT_DIM" value="3" />
+  <property name="INTERSECTION_COMPLEX">
+    <object>
+      <property name="PURE" value="true" />
+      <property name="DIM" value="-1" />
+    </object>
+  </property>
+  <property name="FAR_VERTICES">
+    <v />
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="LINEALITY_DIM" value="0" />
+  <property name="FAN_AMBIENT_DIM" value="0" />
+  <property name="FACET_NORMALS">
+    <m />
+  </property>
+  <property name="MAXIMAL_POLYTOPES_FACETS">
+    <m />
+  </property>
+  <property name="AFFINE_HULL">
+    <m />
+  </property>
+  <property name="MAXIMAL_POLYTOPES_AFFINE_HULL_NORMALS">
+    <m />
+  </property>
+  <property name="CODIMENSION_ONE_POLYTOPES">
+    <m />
+  </property>
+  <property name="MAXIMAL_AT_CODIM_ONE">
+    <m />
+  </property>
+  <property name="FACET_NORMALS_BY_PAIRS">
+    <m />
+  </property>
+  <property name="N_FACET_NORMALS" value="0" />
+  <property name="MAXIMAL_POLYTOPES_INCIDENCES">
+    <m />
+  </property>
+  <property name="N_MAXIMAL_POLYTOPES" value="0" />
+  <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
+    <v />
+  </property>
+  <property name="COMBINATORIAL_DIM" value="-2" />
+  <property name="PURE" value="true" />
+  <property name="FAN_DIM" value="-1" />
+  <property name="LATTICE_NORMALS">
+    <m />
+  </property>
+  <property name="PROJECTIVE_DIM" value="-2" />
+  <property name="WEIGHT_SPACE" ext="1=https://github.com/simonhampe/atint">
+    <m />
+  </property>
+  <property name="WEIGHT_SYSTEM" ext="1">
+    <m />
+  </property>
+  <property name="WEIGHT_CONE" ext="1">
+    <object>
+      <property name="INEQUALITIES">
+        <m />
+      </property>
+    </object>
+  </property>
+  <property name="IS_IRREDUCIBLE" ext="1" value="true" />
+</object>

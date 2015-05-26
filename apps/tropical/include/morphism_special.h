@@ -69,10 +69,10 @@ namespace polymake { namespace tropical {
 				//in the complete graph on N-1 nodes (in lexicographic order).
 				int nextindex = 0;
 				Matrix<int> E(N-1,N-1);
-				for(int i = 0; i < N-2; i++) {
-					for(int j = i+1; j < N-1; j++) {
-						E(i,j) = nextindex;
-						E(j,i) = nextindex;
+				for(int k = 0; k < N-2; k++) {
+					for(int j = k+1; j < N-1; j++) {
+						E(k,j) = nextindex;
+						E(j,k) = nextindex;
 						nextindex++;
 					}
 				}	
@@ -102,9 +102,9 @@ namespace polymake { namespace tropical {
 
 			//Create standard d-fold direction matrix
 			Matrix<Rational> delta(0,r+1);
-			for(int i = 0; i <= r; i++) {
+			for(int k = 0; k <= r; k++) {
 				for(int j = 1; j <= d; j++) {
-					delta /= unit_vector<Rational>(r+1,i);
+					delta /= unit_vector<Rational>(r+1,k);
 				}
 			}
 

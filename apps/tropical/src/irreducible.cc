@@ -51,6 +51,13 @@ namespace polymake { namespace tropical {
 		Matrix<Rational> linspace = C.give("LINEALITY_SPACE");
 			linspace = tdehomog(linspace);
 		IncidenceMatrix<> maximal_cones = C.give("MAXIMAL_POLYTOPES");
+
+		//If there is only one maximal polytope, this is (possibly locally) only a linear space
+		if(maximal_cones.rows() == 1) {
+			Matrix<Rational> linw(1,1); linw(0,0) = 1;
+			return linw;
+		}
+
 		IncidenceMatrix<> codim_1_faces = C.give("CODIMENSION_ONE_POLYTOPES");
 		IncidenceMatrix<> codim_in_maximal = C.give("MAXIMAL_AT_CODIM_ONE");
 		IncidenceMatrix<> maximal_to_codim = T(codim_in_maximal);
@@ -223,15 +230,17 @@ namespace polymake { namespace tropical {
 	perl::Object weight_cone(perl::Object fan, Set<int> negative_directions) {
 		//Extract weight system
 		Matrix<Rational> wsystem = fan.give("WEIGHT_SYSTEM");
+		int N = fan.give("N_MAXIMAL_POLYTOPES");
 
 		//Take facets of orthant and invert chosen rows
-		Matrix<Rational> orthant = unit_matrix<Rational>(wsystem.cols());
+		Matrix<Rational> orthant = unit_matrix<Rational>(N);
 		for(Entire<Set<int> >::iterator coord = entire(negative_directions); !coord.at_end(); coord++) {
 			orthant.row(*coord) *= -1;
 		}
 
 		perl::Object cone("polytope::Cone");
-		cone.take("EQUATIONS") << wsystem;
+		if(wsystem.rows() > 0)
+			cone.take("EQUATIONS") << wsystem;
 		cone.take("INEQUALITIES") << orthant;
 		return cone;
 	}
