@@ -357,7 +357,7 @@ namespace polymake { namespace tropical {
 			pullback_domain.take("VERTICES") << thomog(pullback_rays);
 			pullback_domain.take("MAXIMAL_POLYTOPES") << pullback_cones;
 			pullback_domain.take("LINEALITY_SPACE") << thomog(pullback_lineality);
-			if(f_has_weights && have_full_dimensional_pullback_cone) { 
+			if( (f_has_weights && have_full_dimensional_pullback_cone) || pullback_rays.rows() == 0) { 
 				pullback_domain.take("WEIGHTS") << pullback_weights;
 			}
 			Matrix<Rational> pb_cmplx_rays = pullback_domain.give("SEPARATED_VERTICES");

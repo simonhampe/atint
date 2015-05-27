@@ -50,6 +50,7 @@ namespace polymake { namespace tropical {
 				cycle.take("MAXIMAL_POLYTOPES") << Array<Set<int> >();
 				cycle.take("WEIGHTS") << Vector<Integer>();
 				cycle.take("PROJECTIVE_AMBIENT_DIM") << ambient_dim;
+				cycle.take("WEIGHTS") << Vector<Integer>();
 				cycle.set_description() << "Empty cycle in dimension " << ambient_dim;
 
 			return cycle;

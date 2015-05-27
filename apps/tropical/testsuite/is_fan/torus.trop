@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="5565768b"?>
+
+<object name="torus" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="VERTICES">
+    <m>
+      <v>1 0 0 0 0 0</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="1">
+      <v>0</v>
+    </m>
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m>
+      <v>0 0 1 0 0 0</v>
+      <v>0 0 0 1 0 0</v>
+      <v>0 0 0 0 1 0</v>
+      <v>0 0 0 0 0 1</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1</v>
+  </property>
+  <property name="FAR_VERTICES">
+    <v />
+  </property>
+</object>

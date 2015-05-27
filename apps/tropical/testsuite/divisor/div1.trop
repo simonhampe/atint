@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55658e1b"?>
+
+<object name="div1" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[Empty cycle in dimension -2]]></description>
+  <property name="VERTICES">
+    <m />
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m />
+  </property>
+  <property name="WEIGHTS">
+    <v />
+  </property>
+  <property name="PROJECTIVE_AMBIENT_DIM" value="-2" />
+</object>

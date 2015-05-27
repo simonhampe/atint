@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55657712"?>
+
+<object name="l32" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[Uniform linear space of dimension 2 in dimension 3]]></description>
+  <property name="VERTICES">
+    <m>
+      <v>1 0 0 0 0</v>
+      <v>0 -1 0 0 0</v>
+      <v>0 0 -1 0 0</v>
+      <v>0 0 0 -1 0</v>
+      <v>0 0 0 0 -1</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="5">
+      <v>0 1 2</v>
+      <v>0 1 3</v>
+      <v>0 1 4</v>
+      <v>0 2 3</v>
+      <v>0 2 4</v>
+      <v>0 3 4</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1 1 1 1 1 1</v>
+  </property>
+  <property name="FAR_VERTICES">
+    <v>1 2 3 4</v>
+  </property>
+</object>

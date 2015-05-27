@@ -190,6 +190,7 @@ object Cycle {
 		codim_one_with_locality($this);
 	}
 	weight 2.5;
+	precondition : exists(LOCAL_RESTRICTION);
 	
 	rule WEIGHT_SPACE : VERTICES, LINEALITY_SPACE, MAXIMAL_POLYTOPES, CODIMENSION_ONE_POLYTOPES, MAXIMAL_AT_CODIM_ONE, LATTICE_NORMALS, PROJECTIVE_DIM, PROJECTIVE_AMBIENT_DIM {
 		$this->WEIGHT_SPACE = cycle_weight_space($this);
@@ -234,6 +235,9 @@ object Cycle {
 	user_method is_fan(;$=0) {
 		my ($this, $allow_translations) = @_;
 		my $far_face = $this->FAR_VERTICES;
+		if($this->VERTICES->rows() == 0) {
+			return new Bool(1);
+		}
 		if($far_face->size() < $this->VERTICES->rows()-1) {
 			return new Bool(0);
 		}
