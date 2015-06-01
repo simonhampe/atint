@@ -32,9 +32,9 @@
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/separated_data.h"
-#include "polymake/tropical/homogeneous_convex_hull.h"
 #include "polymake/tropical/linear_algebra_tools.h"
 #include "polymake/tropical/minimal_interior.h"
+#include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/refine.h"
 
 
@@ -47,25 +47,7 @@ namespace polymake { namespace tropical {
 	
 	typedef std::pair<Matrix<Rational>, Matrix<Rational> > matrix_pair;
 
-	///////////////////////////////////////////////////////////////////////////////////////
-
-	//Documentation see header
-	template <typename ch_solver>
-		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, 
-				Vector<Rational> ray, bool is_projective, ch_solver& sv) {
-			matrix_pair facets = 
-				is_projective ? enumerate_homogeneous_facets(rays, lineality, sv) :
-									 sv.enumerate_facets(rays,lineality, false,false);
-			//Check equations
-			for(int l = 0; l < facets.second.rows(); l++) {
-				if(facets.second.row(l) * ray != 0) return false;
-			}
-			//Check facets
-			for(int f = 0; f < facets.first.rows(); f++) {
-				if(facets.first.row(f) * ray < 0) return false;
-			}
-			return true;
-		}//END is_ray_in_cone
+	
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -332,7 +314,6 @@ namespace polymake { namespace tropical {
 				// go through all local cones in xc. Check which ray of the subdivision cone
 				// lies in the local cone. If the cone spanned by these has the right dimension
 				// add it as a local cone
-				// FIXME minimal_interior does not work yet. Re-add, when done.
 				if(local_restriction.rows() > 0 && refine) {
 					//dbgtrace << "Recomputing local restriction " << endl;
 					for(int t = 0; t < xc_local_cones.dim(); t++) {
@@ -506,26 +487,7 @@ namespace polymake { namespace tropical {
 	}//END intersect_container
 
  
-	//Documentation see perl wrapper
-	bool contains_point(perl::Object complex, Vector<Rational> point) {
 
-		//Extract values
-		Matrix<Rational> rays = complex.give("VERTICES");
-		Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
-		IncidenceMatrix<> cones = complex.give("MAXIMAL_POLYTOPES");
-
-		if(point.dim() != rays.cols() && point.dim() != linspace.cols()) {
-			throw std::runtime_error("Point does not have the same dimension as the complex.");
-		}
-
-		solver<Rational> sv;
-		for(int mc = 0; mc < cones.rows(); mc++) {
-			if(is_ray_in_cone(rays.minor(cones.row(mc),All),linspace,point,true,sv)) return true;
-		}
-
-		return false;
-
-	}
 
 
 	// PERL WRAPPER ///////////////////////////////////////////
@@ -548,12 +510,5 @@ namespace polymake { namespace tropical {
 			"# It uses the same tropical addition as cycle.", 
 			&intersect_container,"intersect_container(Cycle,Cycle;$=0)");
   
-  UserFunction4perl("# @category Basic polyhedral operations"
-		    "# Takes a weighted complex and a point and computed whether that point lies in "
-		    "# the complex"
-		    "# @param Cycle A weighted complex"
-		    "# @param Vector<Rational> point An arbitrary vector in the same ambient"
-		    "# dimension as complex. Given in tropical projective coordinates with leading coordinate."
-		    "# @return bool Whether the point lies in the support of complex",
-		    &contains_point,"contains_point(Cycle,$)");
+
 }}

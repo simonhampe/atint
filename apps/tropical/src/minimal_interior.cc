@@ -33,6 +33,7 @@
 #include "polymake/linalg.h"
 #include "polymake/common/hermite_normal_form.h"
 #include "polymake/tropical/thomog.h"
+#include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/lattice.h"
 #include "polymake/tropical/solver_def.h"
 #include "polymake/tropical/linear_algebra_tools.h"
@@ -204,12 +205,51 @@ namespace polymake { namespace tropical {
 
 		return result;
 	}//END minimal_interior
-/*
-	IncidenceMatrix<> test(Matrix<Rational> m, IncidenceMatrix<> i) {
-		solver<Rational> sv;
-		return minimal_interior(m,i,sv);
-	}
 
-	Function4perl(&test, "minimal_interior(Matrix,IncidenceMatrix)");*/
+
+	IncidenceMatrix<> refined_local_cones(perl::Object localized_cycle, perl::Object refining_cycle) {
+		solver<Rational> sv;
+
+		IncidenceMatrix<> local_restriction = localized_cycle.give("LOCAL_RESTRICTION");
+		Matrix<Rational> local_vertices = localized_cycle.give("VERTICES");
+			local_vertices = tdehomog(local_vertices);
+		Matrix<Rational> local_lineality = localized_cycle.give("LINEALITY_SPACE");
+			local_lineality = tdehomog(local_lineality);
+		int local_lineality_dim = localized_cycle.give("LINEALITY_DIM");
+
+		Matrix<Rational> refining_vertices = refining_cycle.give("VERTICES");
+			refining_vertices = tdehomog(refining_vertices);
+		IncidenceMatrix<> refining_polytopes = refining_cycle.give("MAXIMAL_POLYTOPES");
+		int refining_lineality_dim = refining_cycle.give("LINEALITY_DIM");
+
+		Vector<Set<int> > result;
+
+		//Iterate all local cones of the localized cycle
+		for(int lc = 0; lc < local_restriction.rows(); lc++) {
+			//Go through maximal cones of refining complex and check which ones intersect in the right dimension
+			Matrix<Rational> lc_vertices = local_vertices.minor(local_restriction.row(lc),All);
+			int local_dim = rank(lc_vertices) + local_lineality_dim;
+			Vector<Set<int> > lc_refiners;
+			for(int mc = 0; mc < refining_polytopes.rows(); mc++) {
+				Set<int> contained_vertices;
+				Set<int> mcset = refining_polytopes.row(mc);
+				for(Entire<Set<int> >::iterator vert = entire(mcset); !vert.at_end(); vert++){
+					if(is_ray_in_cone(lc_vertices, local_lineality, refining_vertices.row(*vert), false,sv)) 
+						contained_vertices += (*vert);
+
+					if( rank( refining_vertices.minor(contained_vertices,All)) + refining_lineality_dim == local_dim)
+						lc_refiners |= contained_vertices;
+				}
+			}//END iterate maximal cones
+
+			//Now that we have the subdividing cones, compute the minimal interior ones
+			result |= incMatrixToVector( minimal_interior( refining_vertices,
+																			lc_refiners, sv));
+
+		}//END iterate local cones 
+		return IncidenceMatrix<>(result);
+
+	}//END refined_local_cones
+
 
 }}

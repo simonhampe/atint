@@ -31,6 +31,12 @@
 # @return Cycle The divisor r_n * ... * r_1 * C
 user_function divisor<Addition>(Cycle<Addition>;@) {
 	my ($cycle, @functions) = @_;
+	
+	if(scalar(@functions) == 0) { return $cycle;}
+
+	if(scalar(@functions) > $cycle->PROJECTIVE_DIM) {
+		return empty_cycle<Addition>($cycle->PROJECTIVE_AMBIENT_DIM);
+	}
 
 	for my $f (@functions) {
 		if(!is_compatible($cycle,$f)) {
@@ -55,6 +61,9 @@ user_function divisor<Addition>(Cycle<Addition>;@) {
 user_function divisor_nr<Addition>(Cycle<Addition>;@) {
 	my ($cycle,@functions) = @_;
 	if(scalar(@functions) == 0) { return $cycle;}
+	if(scalar(@functions) > $cycle->PROJECTIVE_DIM) {
+		return empty_cycle<Addition>($cycle->PROJECTIVE_AMBIENT_DIM);
+	}
 
 	my $value_matrix = new Matrix<Rational>(0,$cycle->SEPARATED_VERTICES->rows() + $cycle->LINEALITY_SPACE->rows());
 	for my $f (@functions) {
@@ -65,7 +74,7 @@ user_function divisor_nr<Addition>(Cycle<Addition>;@) {
 		my $lineality_values = $f->LINEALITY_VALUES;
 		my $full_values = $vertex_values | $lineality_values;
 		for my $i (1 .. $f->POWER) {
-			$fmatrx /= $full_values;
+			$value_matrix /= $full_values;
 		}
 	}
 

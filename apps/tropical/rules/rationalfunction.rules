@@ -91,6 +91,14 @@ object RationalFunction {
 	weight 0.10;
 	#If a domain has been defined and this property is not true, it is false.
 
+	rule LINEALITY_VALUES : {		
+		$this->LINEALITY_VALUES = new Vector<Rational>();
+	}
+	precondition : DOMAIN.LINEALITY_SPACE {
+		$this->DOMAIN->LINEALITY_SPACE->rows() == 0;
+	}
+	weight 0.10;
+
 	rule VERTEX_VALUES, LINEALITY_VALUES : DOMAIN, NUMERATOR, DENOMINATOR {
 		computeGeometricFunctionData($this);
 	}

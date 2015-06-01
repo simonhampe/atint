@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="556c4278"?>
+
+<object name="x6" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+  See also: 
+  https://github.com/simonhampe/atint]]></credit>
+  <property name="VERTICES">
+    <m>
+      <v>1 0 0 0</v>
+      <v>1 0 1 0</v>
+      <v>1 0 2 0</v>
+      <v>0 0 0 1</v>
+      <v>0 0 -1 -1</v>
+      <v>0 0 1 -1</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="6">
+      <v>0 1</v>
+      <v>1 2</v>
+      <v>0 3</v>
+      <v>0 4</v>
+      <v>2 3</v>
+      <v>2 5</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1 1 1 1 1 1</v>
+  </property>
+  <property name="LOCAL_RESTRICTION" ext="1=https://github.com/simonhampe/atint">
+    <m cols="3">
+      <v>0</v>
+      <v>2</v>
+    </m>
+  </property>
+  <property name="INTERSECTION_COMPLEX">
+    <object>
+      <property name="PURE" value="true" />
+      <property name="DIM" value="1" />
+    </object>
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
+    <v>1 1 1 1 1 1</v>
+  </property>
+  <property name="COMBINATORIAL_DIM" value="1" />
+  <property name="PURE" value="true" />
+  <property name="LINEALITY_DIM" value="0" />
+  <property name="FAN_DIM" value="2" />
+  <property name="PROJECTIVE_DIM" value="1" />
+  <property name="CODIMENSION_ONE_POLYTOPES">
+    <m cols="3">
+      <v>0</v>
+      <v>2</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_AT_CODIM_ONE">
+    <m cols="6">
+      <v>0 2 3</v>
+      <v>1 4 5</v>
+    </m>
+  </property>
+  <property name="FACET_NORMALS_BY_PAIRS">
+    <m>
+      <t>
+        <t>0 0</t>
+        <e>1</e>
+      </t>
+      <t>
+        <t>0 2</t>
+        <e>4</e>
+      </t>
+      <t>
+        <t>0 3</t>
+        <e>1</e>
+      </t>
+      <t>
+        <t>1 1</t>
+        <e>2</e>
+      </t>
+      <t>
+        <t>1 4</t>
+        <e>4</e>
+      </t>
+      <t>
+        <t>1 5</t>
+        <e>2</e>
+      </t>
+    </m>
+  </property>
+  <property name="SEPARATED_VERTICES" ext="1">
+    <m>
+      <v>1 0 0 0</v>
+      <v>1 0 1 0</v>
+      <v>1 0 2 0</v>
+      <v>0 0 0 1</v>
+      <v>0 0 0 1</v>
+      <v>0 0 -1 -1</v>
+      <v>0 0 1 -1</v>
+    </m>
+  </property>
+  <property name="SEPARATED_MAXIMAL_POLYTOPES" ext="1">
+    <m cols="7">
+      <v>0 1</v>
+      <v>1 2</v>
+      <v>0 3</v>
+      <v>0 5</v>
+      <v>2 4</v>
+      <v>2 6</v>
+    </m>
+  </property>
+  <property name="SEPARATED_CODIMENSION_ONE_POLYTOPES" ext="1">
+    <m cols="3">
+      <v>0</v>
+      <v>2</v>
+    </m>
+  </property>
+  <property name="SEPARATED_CONVERSION_VECTOR" ext="1">
+    <v>0 1 2 3 3 4 5</v>
+  </property>
+</object>

@@ -26,13 +26,19 @@
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
 #include "polymake/IncidenceMatrix.h"
+#include "polymake/linalg.h"
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/morphism_values.h"
+#include "polymake/tropical/homogeneous_convex_hull.h"
+#include "polymake/tropical/solver_def.h"
 #include "polymake/tropical/misc_tools.h"
 
 
 namespace polymake { namespace tropical { 
+
+	typedef std::pair<Matrix<Rational>, Matrix<Rational> > matrix_pair;
+
 
 	std::pair<Set<int>, Set<int> > far_and_nonfar_vertices(const Matrix<Rational> &m) {
 		Set<int> nonfar;
@@ -171,6 +177,45 @@ namespace polymake { namespace tropical {
 
 	}
 
+	//Documentation see header
+	template <typename ch_solver>
+		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, 
+				Vector<Rational> ray, bool is_projective, ch_solver& sv) {
+			matrix_pair facets = 
+				is_projective ? enumerate_homogeneous_facets(rays, lineality, sv) :
+				sv.enumerate_facets(rays,lineality, false,false);
+			//Check equations
+			for(int l = 0; l < facets.second.rows(); l++) {
+				if(facets.second.row(l) * ray != 0) return false;
+			}
+			//Check facets
+			for(int f = 0; f < facets.first.rows(); f++) {
+				if(facets.first.row(f) * ray < 0) return false;
+			}
+			return true;
+		}//END is_ray_in_cone
+
+
+	//Documentation see perl wrapper
+	bool contains_point(perl::Object complex, Vector<Rational> point) {
+
+		//Extract values
+		Matrix<Rational> rays = complex.give("VERTICES");
+		Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
+		IncidenceMatrix<> cones = complex.give("MAXIMAL_POLYTOPES");
+
+		if(point.dim() != rays.cols() && point.dim() != linspace.cols()) {
+			throw std::runtime_error("Point does not have the same dimension as the complex.");
+		}
+
+		solver<Rational> sv;
+		for(int mc = 0; mc < cones.rows(); mc++) {
+			if(is_ray_in_cone(rays.minor(cones.row(mc),All),linspace,point,true,sv)) return true;
+		}
+
+		return false;
+	}
+
 	UserFunction4perl("# @category Lattices"
 			"# Returns n random integers in the range 0.. (max_arg-1),inclusive"
 			"# Note that this algorithm is not optimal for real randomness:"
@@ -180,6 +225,15 @@ namespace polymake { namespace tropical {
 			"# @param int n The number of integers to be created"
 			"# @return Array<Integer>",
 			&randomInteger,"randomInteger($, $)");
+
+	UserFunction4perl("# @category Basic polyhedral operations"
+			"# Takes a weighted complex and a point and computed whether that point lies in "
+			"# the complex"
+			"# @param Cycle A weighted complex"
+			"# @param Vector<Rational> point An arbitrary vector in the same ambient"
+			"# dimension as complex. Given in tropical projective coordinates with leading coordinate."
+			"# @return bool Whether the point lies in the support of complex",
+			&contains_point,"contains_point(Cycle,$)");
 
 	Function4perl(&computeFunctionLabels, "computeFunctionLabels(Cycle, Matrix,Matrix,$)");
 }}

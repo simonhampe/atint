@@ -40,6 +40,16 @@ namespace polymake { namespace tropical{
 	IncidenceMatrix<> minimal_interior(const Matrix<Rational> &vertices, 
 			const IncidenceMatrix<> &polytopes, solver<Rational> &sv);
 
+
+	/*
+	 * @brief This takes a cycle with nontrivial [[LOCAL_RESTRICTION]] and another cycle refining the first one
+	 * and computes the correct [[LOCAL_RESTRICTION]] for the second cycle
+	 * @param Cycle<Addition> localized_cycle
+	 * @param Cycle<Addition> refining_cycle
+	 * @return IncidenceMatrix<>
+	 */
+	IncidenceMatrix<> refined_local_cones(perl::Object localized_cycle, perl::Object refining_cycle);
+
 }}
 
 #endif

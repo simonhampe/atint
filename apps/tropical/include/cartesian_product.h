@@ -343,7 +343,8 @@ namespace polymake { namespace tropical {
 			result.take("LINEALITY_SPACE") << thomog(linMatrix);
 			result.take("MAXIMAL_POLYTOPES") << maximalCones;
 			if(product_has_weights) result.take("WEIGHTS") << weights;
-			result.take("LOCAL_RESTRICTION") << local_restriction;
+			if(local_restriction.rows() > 0)
+				result.take("LOCAL_RESTRICTION") << local_restriction;
 			if(product_has_lattice) {
 				result.take("LATTICE_BASES") << product_l_bases;
 				result.take("LATTICE_GENERATORS") << thomog(product_l_generators);

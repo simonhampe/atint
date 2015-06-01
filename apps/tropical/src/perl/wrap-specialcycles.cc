@@ -54,5 +54,6 @@ namespace polymake { namespace tropical { namespace {
    FunctionInstance4perl(halfspace_subdivision_T_x_x_x, Min);
    FunctionInstance4perl(point_collection_T_x_x, Max);
    FunctionInstance4perl(point_collection_T_x_x, Min);
+   FunctionInstance4perl(empty_cycle_T_x, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

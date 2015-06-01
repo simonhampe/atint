@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5565b0e3"?>
+<?pm chk="556c364b"?>
 
 <object name="x3" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
-  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
-  See also: 
-  https://github.com/simonhampe/atint]]></credit>
   <credit product="cdd"><![CDATA[
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
 ]]></credit>
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+  See also: 
+  https://github.com/simonhampe/atint]]></credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0</v>
@@ -142,4 +142,44 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
   <property name="LINEALITY_SPACE">
     <m />
   </property>
+  <property name="INTERSECTION_COMPLEX">
+    <object>
+      <property name="PURE" value="true" />
+      <property name="DIM" value="1" />
+    </object>
+  </property>
+  <property name="LINEALITY_DIM" value="0" />
+  <property name="N_MAXIMAL_POLYTOPES" value="5" />
+  <property name="N_FACET_NORMALS" value="4" />
+  <property name="MAXIMAL_POLYTOPES_INCIDENCES">
+    <m>
+      <m cols="5">
+        <v>1</v>
+        <v>0</v>
+      </m>
+      <m cols="5">
+        <v>2</v>
+        <v>0</v>
+      </m>
+      <m cols="5">
+        <v>0</v>
+        <v>3</v>
+      </m>
+      <m cols="5">
+        <v>2</v>
+        <v>1</v>
+      </m>
+      <m cols="5">
+        <v>1</v>
+        <v>4</v>
+      </m>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
+    <v>1 1 1 1 1</v>
+  </property>
+  <property name="COMBINATORIAL_DIM" value="1" />
+  <property name="PURE" value="true" />
+  <property name="FAN_DIM" value="2" />
+  <property name="PROJECTIVE_DIM" value="1" />
 </object>

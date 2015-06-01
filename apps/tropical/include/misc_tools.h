@@ -17,8 +17,7 @@
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
 
-	These functions wrap the basic convex hull functionality of ppl, taking into account
-	tropical homogeneous coordinates
+	Contains some miscellaneous tools.
 
 */
 
@@ -70,6 +69,22 @@ namespace polymake { namespace tropical {
 	  Returns sum_{i: v_i = 1} 2^i (where i runs from 0 to n-1
 	  */
 	int binaryIndex(Vector<Rational> v);
+
+	/**
+   	@brief Helper function for the refinement function. 
+		Given a polyhedral cell in terms of rays and lineality space, it computes, whether a given ray 
+		is contained in this cell (possibly modulo (1,..,1)). 
+	   @param Matrix<Rational> rays The rays of the cell
+   	@param Matrix<Rational> lineality The lineality space of the cell
+   	@param Vector<Rational> ray The ray to be tested
+		@param bool is_projective Whether coordinates are given as tropical projective coordinates. 
+		(False means they're affine).
+		@param solver A convex hull solver
+   	@returns true, if and only if ray lies in the cone
+   */
+  	template <typename ch_solver>
+  		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, Vector<Rational> ray,
+		  							bool is_projective, ch_solver& sv);
 }}
 
 #endif

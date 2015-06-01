@@ -32,6 +32,7 @@
 #include "polymake/Vector.h"
 #include "polymake/Rational.h"
 #include "polymake/tropical/thomog.h"
+#include "polymake/tropical/minimal_interior.h"
 #include "polymake/tropical/specialcycles.h"
 #include "polymake/tropical/LoggingPrinter.h"
 
@@ -302,12 +303,18 @@ namespace polymake { namespace tropical {
 	 *	@return Cycle The divisor.
 	 */
 	template <typename Addition>
-		perl::Object divisor_with_refinement(perl::Object complex, perl::Object function) {
+		perl::Object divisor_with_refinement(perl::Object cycle, perl::Object function) {
 			//Restrict the function to the cycle
 			int power = function.give("POWER");
-			perl::Object restricted_function = function.CallPolymakeMethod("restrict",complex); 
+			perl::Object restricted_function = function.CallPolymakeMethod("restrict",cycle); 
 
 			perl::Object domain = restricted_function.give("DOMAIN");
+			//If the cycle had local restriction, we have to refine it as well
+			if(cycle.exists("LOCAL_RESTRICTION")) {
+				IncidenceMatrix<> ref_local = refined_local_cones(cycle, domain);
+				domain = CallPolymakeFunction("local_restrict",domain, ref_local);
+			}
+
 			Vector<Rational> vertex_values = restricted_function.give("VERTEX_VALUES");
 			Vector<Rational> lineality_values = restricted_function.give("LINEALITY_VALUES");
 			Vector<Rational> full_values = vertex_values | lineality_values;
