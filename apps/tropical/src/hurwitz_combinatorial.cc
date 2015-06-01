@@ -262,6 +262,9 @@ namespace polymake { namespace tropical {
 			if(points.dim() < degree.dim() - 3- k) {
 				points = points | zero_vector<Rational>( degree.dim()-3-k-points.dim());
 			}
+			if(points.dim() > degree.dim() - 3 - k) {
+				points = points.slice(sequence(0,degree.dim()-3-k));
+			}
 
 			int n = degree.dim();
 			int big_n = 2*n - k -2;
@@ -270,7 +273,7 @@ namespace polymake { namespace tropical {
 			//Compute M_0,n and extract cones
 			perl::Object m0n;
 			Vector<Rational> compare_vector;
-			bool restrict = false;
+			bool restrict_local = false;
 
 			if(local_restriction.size() == 0) {
 				m0n = CallPolymakeFunction("m0n_wrap",n,Addition());
@@ -281,7 +284,7 @@ namespace polymake { namespace tropical {
 				CallPolymakeFunction("matroid_vector",lr_ray,Addition()) >> compare_vector;
 				//We need to dehomogenize to make comparison possible.
 				compare_vector = tdehomog_vec(compare_vector);
-				restrict = true;	
+				restrict_local = true;	
 			}
 
 			IncidenceMatrix<> mn_cones = m0n.give("MAXIMAL_POLYTOPES");
@@ -290,7 +293,7 @@ namespace polymake { namespace tropical {
 				m0n.give("LOCAL_RESTRICTION") >> mn_restrict;
 			}
 			int restrict_index = -1;
-			if(restrict) {
+			if(restrict_local) {
 				restrict_index = *(mn_restrict.row(0).begin());
 				//dbgtrace << "Restricting at ray " << restrict_index << endl;
 			}
@@ -339,7 +342,7 @@ namespace polymake { namespace tropical {
 				Vector<Set<int> > model_cones; model_cones |= sequence(0, degree.dim()-2);
 				//Translate the local restriction if necessary
 				Vector<Set<int> > model_local_restrict;
-				if(restrict) {
+				if(restrict_local) {
 					Set<int> single_index_set;
 					Matrix<Rational> erays = edge_rays<Addition>(mc_type);
 					for(int er = 0; er < erays.rows(); er++) {
@@ -353,7 +356,7 @@ namespace polymake { namespace tropical {
 				perl::Object model_complex(perl::ObjectType::construct<Addition>("Cycle"));
 				model_complex.take("VERTICES") << thomog(model_rays);
 				model_complex.take("MAXIMAL_POLYTOPES") << model_cones;
-				if(restrict) {
+				if(restrict_local) {
 					model_complex.take("LOCAL_RESTRICTION") << model_local_restrict;
 				}
 
@@ -503,7 +506,7 @@ namespace polymake { namespace tropical {
 			//Finally find the localizing ray in both complexes
 			Set<int> subdiv_local;
 			Set<int> cycle_local;
-			if(restrict) {
+			if(restrict_local) {
 				for(int sr = 0; sr < subdiv_rays.rows(); sr++) {
 					if(subdiv_rays.row(sr) == compare_vector) {
 						subdiv_local += sr;break;
@@ -532,7 +535,7 @@ namespace polymake { namespace tropical {
 			result.take("VERTICES") << thomog(subdiv_rays);
 			result.take("MAXIMAL_POLYTOPES") << subdiv_cones;
 			result.take("WEIGHTS") << subdiv_weights;
-			if(restrict) {
+			if(restrict_local) {
 				Vector<Set<int> > subdiv_loc_inc; subdiv_loc_inc |= subdiv_local;
 				CallPolymakeFunction("local_restrict",result,IncidenceMatrix<>(subdiv_loc_inc)) >> result;
 			}
@@ -541,7 +544,7 @@ namespace polymake { namespace tropical {
 			cycle.take("VERTICES") << thomog(cycle_rays);
 			cycle.take("MAXIMAL_POLYTOPES") << cycle_cones;
 			cycle.take("WEIGHTS") << cycle_weights;
-			if(restrict) {
+			if(restrict_local) {
 				Vector<Set<int> > cycle_loc_inc; cycle_loc_inc |= cycle_local;
 				CallPolymakeFunction("local_restrict",cycle,IncidenceMatrix<>(cycle_loc_inc)) >> cycle;
 			}

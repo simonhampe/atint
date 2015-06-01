@@ -220,8 +220,8 @@ user_function lines_in_cubic<Addition>(Polynomial<TropicalNumber<Addition> >) {
 
 	#Dehomogenize the polynomial if necessary
 	if($p->get_ring()->n_vars() == 4) {
-		$r = new Ring<TropicalNumber<Addition> >(3);
-		$m = $p->monomials_as_matrix()->minor(All,~[0]);
+		my $r = new Ring<TropicalNumber<Addition> >(3);
+		my $m = $p->monomials_as_matrix()->minor(All,~[0]);
 		$p = new Polynomial<TropicalNumber<Addition> >($m,$p->coefficients_as_vector(), $r);
 	}
 
