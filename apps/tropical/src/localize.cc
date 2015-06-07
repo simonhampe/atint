@@ -66,7 +66,7 @@ namespace polymake { namespace tropical {
 			cones = cones.minor(All,usedRays);
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-			result.take("VERTICES") << rays;
+			result.take("PROJECTIVE_VERTICES") << rays;
 			result.take("MAXIMAL_POLYTOPES") << newMaximalCones;
 			result.take("LINEALITY_SPACE") << linspace;
 			result.take("WEIGHTS") << weights;

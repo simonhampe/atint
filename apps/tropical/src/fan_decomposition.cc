@@ -65,7 +65,7 @@ namespace polymake { namespace tropical {
 				fanRays = fanRays.minor(usedRays,All);
 
 				perl::Object fanCycle(perl::ObjectType::construct<Addition>("Cycle"));
-					fanCycle.take("VERTICES") << fanRays; 
+					fanCycle.take("PROJECTIVE_VERTICES") << fanRays; 
 					fanCycle.take("MAXIMAL_POLYTOPES") << cones.minor(conesAtVertex,usedRays);
 					fanCycle.take("WEIGHTS") << weights.slice(conesAtVertex);
 					fanCycle.take("LINEALITY_SPACE") << lineality;

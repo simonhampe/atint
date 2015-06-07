@@ -93,7 +93,7 @@ namespace polymake { namespace tropical {
 			}
 
 			perl::Object domain(perl::ObjectType::construct<Addition>("Cycle"));
-			domain.take("VERTICES") << vertices;
+			domain.take("PROJECTIVE_VERTICES") << vertices;
 			domain.take("MAXIMAL_POLYTOPES") << polytopes;
 			domain.take("LINEALITY_SPACE") << lineality;
 			return domain;

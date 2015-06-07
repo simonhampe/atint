@@ -133,7 +133,7 @@ namespace polymake { namespace tropical {
 			}
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-			result.take("VERTICES") << bergman_rays; 
+			result.take("PROJECTIVE_VERTICES") << bergman_rays; 
 			result.take("MAXIMAL_POLYTOPES") << cones;
 
 			return result;

@@ -67,7 +67,7 @@ namespace polymake { namespace tropical {
 				Vector<Set<int> > vertexcone; vertexcone |= scalar2set(0); 
 				Vector<Integer> singleweight; singleweight |= (Integer::fac(k_sum) / divisor);
 				perl::Object origin(perl::ObjectType::construct<Addition>("Cycle"));
-				origin.take("VERTICES") << norays;
+				origin.take("PROJECTIVE_VERTICES") << norays;
 				origin.take("MAXIMAL_POLYTOPES") << vertexcone;
 				origin.take("WEIGHTS") << singleweight;
 				return origin;
@@ -316,7 +316,7 @@ namespace polymake { namespace tropical {
 			}
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-			result.take("VERTICES") << rays;
+			result.take("PROJECTIVE_VERTICES") << rays;
 			result.take("MAXIMAL_POLYTOPES") << cones;
 			result.take("WEIGHTS") << tropical_weights;
 			return result;

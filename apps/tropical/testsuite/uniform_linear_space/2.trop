@@ -3,7 +3,7 @@
 
 <object name="2" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <description><![CDATA[Uniform linear space of dimension 1 in dimension 3]]></description>
-  <property name="VERTICES">
+  <property name="PROJECTIVE_VERTICES">
     <m>
       <v>1 0 0 0 0</v>
       <v>0 1 0 0 0</v>

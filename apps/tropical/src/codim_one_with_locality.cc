@@ -127,7 +127,7 @@ namespace polymake { namespace tropical {
 
 		//Create a proxy object without the local restriction
 		perl::Object proxy(perl::ObjectType::construct<Addition>("Cycle"));
-			proxy.take("VERTICES") << rays;
+			proxy.take("PROJECTIVE_VERTICES") << rays;
 			proxy.take("MAXIMAL_POLYTOPES") << cones;
 			proxy.take("LINEALITY_SPACE") << lineality;
 

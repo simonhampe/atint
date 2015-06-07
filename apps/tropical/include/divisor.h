@@ -275,7 +275,7 @@ namespace polymake { namespace tropical {
 				}//END adapt local restriction	
 
 				result = perl::Object(perl::ObjectType::construct<Addition>("Cycle"));
-				result.take("VERTICES") << rays;
+				result.take("PROJECTIVE_VERTICES") << rays;
 				result.take("MAXIMAL_CONES") << newMaximal;
 				result.take("WEIGHTS") << weights;
 				result.take("LINEALITY_SPACE") << lineality_space;

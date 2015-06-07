@@ -87,7 +87,7 @@ namespace polymake { namespace tropical {
 			}
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-				result.take("VERTICES") << rays;
+				result.take("PROJECTIVE_VERTICES") << rays;
 				result.take("MAXIMAL_POLYTOPES") << chains_as_sets;
 				result.take("WEIGHTS") << ones_vector<Integer>(chains_as_sets.dim());
 			return result;

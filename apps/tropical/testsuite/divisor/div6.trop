@@ -2,7 +2,7 @@
 <?pm chk="556c4c30"?>
 
 <object name="div6" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <property name="VERTICES">
+  <property name="PROJECTIVE_VERTICES">
     <m>
       <v>1 0 0 0</v>
       <v>1 0 2 0</v>

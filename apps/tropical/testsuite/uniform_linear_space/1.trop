@@ -3,7 +3,7 @@
 
 <object name="1" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <description><![CDATA[Uniform linear space of dimension 2 in dimension 4]]></description>
-  <property name="VERTICES">
+  <property name="PROJECTIVE_VERTICES">
     <m>
       <v>1 0 0 0 0 0</v>
       <v>0 -1 0 0 0 0</v>

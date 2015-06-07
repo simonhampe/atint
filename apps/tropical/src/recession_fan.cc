@@ -53,7 +53,7 @@ namespace polymake { namespace tropical {
 			int vertex = *(sorted_vertices.second.begin());
 			rays.row(vertex) = unit_vector<Rational>(rays.cols(),0);
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-					result.take("VERTICES") << rays;
+					result.take("PROJECTIVE_VERTICES") << rays;
 					result.take("MAXIMAL_POLYTOPES") << cones;
 					result.take("WEIGHTS") << weights;
 			return result;

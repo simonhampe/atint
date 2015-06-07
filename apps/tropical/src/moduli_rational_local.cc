@@ -287,7 +287,7 @@ namespace polymake { namespace tropical {
 			//dbgtrace << "Rays " << rays << endl;
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-			result.take("VERTICES") << bergman_rays;
+			result.take("PROJECTIVE_VERTICES") << bergman_rays;
 			result.take("MAXIMAL_POLYTOPES") << cones;
 			result.take("WEIGHTS") << weights;
 			result.take("LOCAL_RESTRICTION") << local_cones;

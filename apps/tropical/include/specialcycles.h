@@ -73,7 +73,7 @@ namespace polymake { namespace tropical {
 				polytopes[i] = scalar2set(i);
 
 			perl::Object cycle(perl::ObjectType::construct<Addition>("Cycle"));
-				cycle.take("VERTICES") << m;
+				cycle.take("PROJECTIVE_VERTICES") << m;
 				cycle.take("MAXIMAL_POLYTOPES") << polytopes;
 				cycle.take("WEIGHTS") << weights;
 		
@@ -110,7 +110,7 @@ namespace polymake { namespace tropical {
 
 			//Create final object
 			perl::Object fan(perl::ObjectType::construct<Addition>("Cycle"));
-			fan.take("VERTICES") << vertices;
+			fan.take("PROJECTIVE_VERTICES") << vertices;
 			fan.take("MAXIMAL_POLYTOPES") << polytopes;
 			fan.take("WEIGHTS") << weights;
 			fan.set_description() << "Uniform linear space of dimension " << k << " in dimension " << n;
@@ -147,7 +147,7 @@ namespace polymake { namespace tropical {
 				polytopes[1] = (sequence(0,3)-2);
 
 			perl::Object cycle(perl::ObjectType::construct<Addition>("Cycle"));
-				cycle.take("VERTICES") << vertices;
+				cycle.take("PROJECTIVE_VERTICES") << vertices;
 				cycle.take("MAXIMAL_POLYTOPES") << polytopes;
 				if(lineality.rows() > 0)
 					cycle.take("LINEALITY_SPACE") << lineality;
@@ -170,7 +170,7 @@ namespace polymake { namespace tropical {
 				polytopes[0] = scalar2set(0);
 
 			perl::Object cycle(perl::ObjectType::construct<Addition>("Cycle"));
-				cycle.take("VERTICES") << vertex;
+				cycle.take("PROJECTIVE_VERTICES") << vertex;
 				cycle.take("MAXIMAL_POLYTOPES") << polytopes;
 				cycle.take("LINEALITY_SPACE") << lineality;
 				cycle.take("WEIGHTS") << (weight* ones_vector<Integer>(1));
@@ -215,7 +215,7 @@ namespace polymake { namespace tropical {
 
 			//Create result
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-			result.take("VERTICES") << thomog(rays,chart);
+			result.take("PROJECTIVE_VERTICES") << thomog(rays,chart);
 			result.take("MAXIMAL_POLYTOPES") << cones;
 			result.take("WEIGHTS") << weights;
 
@@ -240,7 +240,7 @@ namespace polymake { namespace tropical {
 				weights[0] = weight;
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-				result.take("VERTICES") << vertices;
+				result.take("PROJECTIVE_VERTICES") << vertices;
 				result.take("MAXIMAL_POLYTOPES") << polytopes;
 				result.take("LINEALITY_SPACE") << (zero_vector<Rational>() | generators);
 				result.take("WEIGHTS") << weights;

@@ -445,7 +445,7 @@ namespace polymake { namespace tropical{
 			}
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-			result.take("VERTICES") << rays; 
+			result.take("PROJECTIVE_VERTICES") << rays; 
 			result.take("MAXIMAL_POLYTOPES") << cones;
 			result.take("WEIGHTS") << ones_vector<int>(cones.dim());
 			result.set_description() << dsc.str();
