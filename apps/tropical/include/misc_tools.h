@@ -31,6 +31,8 @@
 #include "polymake/IncidenceMatrix.h"
 #include "polymake/Array.h"
 #include "polymake/RandomGenerators.h"
+#include "polymake/linalg.h"
+#include "polymake/tropical/homogeneous_convex_hull.h"
 
 namespace polymake { namespace tropical {
 
@@ -82,9 +84,22 @@ namespace polymake { namespace tropical {
 		@param solver A convex hull solver
    	@returns true, if and only if ray lies in the cone
    */
-  	template <typename ch_solver>
-  		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, Vector<Rational> ray,
-		  							bool is_projective, ch_solver& sv);
+	template <typename ch_solver>
+		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, 
+				Vector<Rational> ray, bool is_projective, ch_solver& sv) {
+			std::pair<Matrix<Rational>, Matrix<Rational> > facets = 
+				is_projective ? enumerate_homogeneous_facets(rays, lineality, sv) :
+				sv.enumerate_facets(rays,lineality, false,false);
+			//Check equations
+			for(int l = 0; l < facets.second.rows(); l++) {
+				if(facets.second.row(l) * ray != 0) return false;
+			}
+			//Check facets
+			for(int f = 0; f < facets.first.rows(); f++) {
+				if(facets.first.row(f) * ray < 0) return false;
+			}
+			return true;
+		}//END is_ray_in_cone
 }}
 
 #endif

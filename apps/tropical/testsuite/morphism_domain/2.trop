@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55755162"?>
+
+<object name="2" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+  See also: 
+  https://github.com/simonhampe/atint]]></credit>
+  <property name="TRANSLATE">
+    <v>1 -10</v>
+  </property>
+  <property name="MATRIX" type="SparseMatrix&lt;Rational, NonSymmetric&gt;">
+    <m cols="2">
+      <v> <e i="0">1</e> </v>
+      <v> <e i="1">1</e> </v>
+    </m>
+  </property>
+  <property name="DOMAIN">
+    <object>
+      <property name="PROJECTIVE_VERTICES">
+        <m>
+          <v>1 0 0</v>
+        </m>
+      </property>
+      <property name="MAXIMAL_POLYTOPES">
+        <m cols="1">
+          <v>0</v>
+        </m>
+      </property>
+      <property name="LINEALITY_SPACE">
+        <m>
+          <v>0 0 1</v>
+        </m>
+      </property>
+      <property name="WEIGHTS">
+        <v>1</v>
+      </property>
+    </object>
+  </property>
+  <property name="IS_GLOBALLY_AFFINE_LINEAR" value="true" />
+</object>

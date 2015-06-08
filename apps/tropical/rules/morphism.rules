@@ -64,6 +64,9 @@ object Morphism {
 	### RULES ###################################
 
 	rule MATRIX : TRANSLATE {
+		if(defined($this->lookup("DOMAIN"))) {
+			die "Cannot infer matrix on nontrivial domain";
+		}
 		$this->MATRIX = unit_matrix($this->TRANSLATE->dim());
 	}
 

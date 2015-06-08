@@ -47,7 +47,7 @@ namespace polymake { namespace tropical {
 		perl::Object refine_domain(perl::Object f, perl::Object cycle, bool need_to_refine) {
 			perl::Object oldDomain = f.give("DOMAIN");
 			bool has_matrix = f.exists("MATRIX");
-			RefinementResult r = refinement(cycle, oldDomain, !has_matrix,false,false,need_to_refine,false);
+			RefinementResult r = refinement(cycle, oldDomain,  false, !has_matrix,false,need_to_refine,false);
 
 			perl::Object nDomain = r.complex;
 			if(has_matrix) {
@@ -60,8 +60,8 @@ namespace polymake { namespace tropical {
 				return result;
 			}
 
-			Matrix<Rational> rayRep = r.rayRepFromX;
-			Matrix<Rational> linRep = r.linRepFromX;
+			Matrix<Rational> rayRep = r.rayRepFromY;
+			Matrix<Rational> linRep = r.linRepFromY;
 		
 			Matrix<Rational> vertex_values = f.give("VERTEX_VALUES");
 			Matrix<Rational> lineality_values = f.give("LINEALITY_VALUES");
@@ -122,7 +122,7 @@ namespace polymake { namespace tropical {
 		//Then compute the common refinement of the domains
 		RefinementResult r = refinement(fDomain,gDomain,false,false,false,true,false);
 		perl::Object nDomain = r.complex;
-		
+	
 		//If the map is given by a matrix, we're done
 		if(f_global && g_global) {
 			perl::Object result(perl::ObjectType::construct<Addition>("Morphism"));

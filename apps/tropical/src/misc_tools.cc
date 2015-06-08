@@ -177,24 +177,6 @@ namespace polymake { namespace tropical {
 
 	}
 
-	//Documentation see header
-	template <typename ch_solver>
-		bool is_ray_in_cone(const Matrix<Rational> &rays, const Matrix<Rational> &lineality, 
-				Vector<Rational> ray, bool is_projective, ch_solver& sv) {
-			matrix_pair facets = 
-				is_projective ? enumerate_homogeneous_facets(rays, lineality, sv) :
-				sv.enumerate_facets(rays,lineality, false,false);
-			//Check equations
-			for(int l = 0; l < facets.second.rows(); l++) {
-				if(facets.second.row(l) * ray != 0) return false;
-			}
-			//Check facets
-			for(int f = 0; f < facets.first.rows(); f++) {
-				if(facets.first.row(f) * ray < 0) return false;
-			}
-			return true;
-		}//END is_ray_in_cone
-
 
 	//Documentation see perl wrapper
 	bool contains_point(perl::Object complex, Vector<Rational> point) {

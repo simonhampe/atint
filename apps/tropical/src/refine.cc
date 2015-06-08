@@ -125,8 +125,8 @@ namespace polymake { namespace tropical {
 			for(int xr = 0; xr < x_cones.rows(); xr++) c_cones |= x_cones.row(xr);
 			c_weights = weights;
 			//if(computeAssoc) associatedRep = Vector<int>(x_cones.rows());
-			if(repFromX) rayRepFromX = unit_matrix<Rational>(x_cmplx_cones.rows()) |
-				zero_matrix<Rational>(x_cmplx_cones.rows(),x_lineality.rows());
+			if(repFromX) rayRepFromX = unit_matrix<Rational>(x_cmplx_rays.rows()) |
+				zero_matrix<Rational>(x_cmplx_rays.rows(),x_lineality.rows());
 		}
 
 
@@ -244,6 +244,7 @@ namespace polymake { namespace tropical {
 						if(!refine) {
 							//Copy indices
 							interIndices = x_cones.row(xc);
+							ycontainers |= yc;
 						}
 						else {
 							//Now we canonicalize the rays and assign ray indices
@@ -403,6 +404,7 @@ namespace polymake { namespace tropical {
 		if((repFromX && refine) || repFromY || computeAssoc) {
 			//dbgtrace << "Computing representations" << endl;
 			Matrix<Rational> c_cmplx_rays = complex.give("SEPARATED_VERTICES");
+				c_cmplx_rays = tdehomog(c_cmplx_rays);
 			IncidenceMatrix<> c_cmplx_cones = complex.give("SEPARATED_MAXIMAL_POLYTOPES");
 			//Initialize rep matrices to proper size
 			rayRepFromX = Matrix<Rational>(c_cmplx_rays.rows(),x_cmplx_rays.rows() + x_lineality.rows());
@@ -435,7 +437,7 @@ namespace polymake { namespace tropical {
 										raysForComputation.minor(rfc,All)/ linForComputation);
 								if(repv.dim() == 0)
 									throw std::runtime_error("Error computing representations during refinement. Rays is not in span of refined cone.");
-								(mode == 0? rayRepFromX : rayRepFromY).row(*r) = repv;
+								(mode == 0? rayRepFromX : rayRepFromY).row(*r).slice(rfc) = repv;
 							}
 						}
 					}//END iterate all cones

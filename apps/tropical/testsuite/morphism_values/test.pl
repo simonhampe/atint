@@ -1,0 +1,4 @@
+check_rules <<'---';
+VERTEX_VALUES, LINEALITY_VALUES : MATRIX, TRANSLATE, DOMAIN
+*
+---
