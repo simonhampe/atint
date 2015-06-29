@@ -236,30 +236,34 @@ user_function lines_in_cubic<Addition>(Polynomial<TropicalNumber<Addition> >) {
 	}
 	else {
 		my $minl = new LinesInCubic<Min>(
-			POLYNOMIAL=>toggle($l->POLYNOMIAL),
-			CUBIC=>toggle($l->CUBIC));
-		for my $x (toggle_list(1,$l->array_isolated_edge)) {
+			POLYNOMIAL=>dual_addition_version($l->POLYNOMIAL),
+			CUBIC=>dual_addition_version($l->CUBIC));
+		for my $x (toggle_list($l->array_isolated_edge)) {
 			$minl->add("LIST_ISOLATED_EDGE",$x);
 		}
-		for my $x (toggle_list(1,$l->array_isolated_no_edge)) {
+		for my $x (toggle_list($l->array_isolated_no_edge)) {
 			$minl->add("LIST_ISOLATED_NO_EDGE",$x);
 		}
-		for my $x (toggle_list(1,$l->array_family_fixed_edge)) {
+		for my $x (toggle_list($l->array_family_fixed_edge)) {
 			$minl->add("LIST_FAMILY_FIXED_EDGE",$x);
 		}
-		for my $x (toggle_list(1,$l->array_family_moving_edge)) {
+		for my $x (toggle_list($l->array_family_moving_edge)) {
 			$minl->add("LIST_FAMILY_MOVING_EDGE",$x);
 		}
-		for my $x (toggle_list(1,$l->array_family_fixed_vertex)) {
+		for my $x (toggle_list($l->array_family_fixed_vertex)) {
 			$minl->add("LIST_FAMILY_FIXED_VERTEX",$x);
 		}
-		for my $x (toggle_list(1,$l->array_family_moving_vertex)) {
+		for my $x (toggle_list($l->array_family_moving_vertex)) {
 			$minl->add("LIST_FAMILY_MOVING_VERTEX",$x);
 		}
 		return $minl;
 	}
 }
 
+sub toggle_list {
+	my @list = @_;
+	return map { dual_addition_version($_);} @list;
+}
 
 # @category Visualization
 # This visualizes a surface in R^3 and an arbitrary list of (possibly non-pure)
