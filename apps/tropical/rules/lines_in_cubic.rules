@@ -227,7 +227,7 @@ user_function lines_in_cubic<Addition>(Polynomial<TropicalNumber<Addition> >) {
 
 	#If necessary, switch to max 
 	if(Addition->orientation() == 1) {
-		$p = toggle($p);
+		$p = dual_addition_version($p);
 	}
 	my $l = linesInCubic($p);
 	#The computation is rigged for max, we need to convert everything, if Min is used
