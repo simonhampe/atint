@@ -29,6 +29,7 @@
 #include "polymake/polytope/cdd_interface.h"
 #include "polymake/tropical/convex_hull_tools.h"
 #include "polymake/tropical/solver_def.h"
+#include "polymake/tropical/thomog.h"
 
 namespace polymake { namespace tropical {
 
@@ -252,11 +253,55 @@ namespace polymake { namespace tropical {
 
 	}
 
+	/*
+	 * @brief Computes the set-theoretic intersection of two Cycles and returns it as a 
+	 * PolyhedralComplex
+	 * @param Cycle A
+	 * @param Cycle B
+	 * @return PolyhedralComplex in non-tropical-homogeneous coordinates
+	 */
+	perl::Object set_theoretic_intersection(perl::Object A, perl::Object B) {
+		//Extract results
+		Matrix<Rational> arays = A.give("VERTICES");
+		IncidenceMatrix<> acones = A.give("MAXIMAL_POLYTOPES");
+		Matrix<Rational> alineality = A.give("LINEALITY_SPACE");
+
+		Matrix<Rational> brays = B.give("VERTICES");
+		IncidenceMatrix<> bcones = B.give("MAXIMAL_POLYTOPES");
+		Matrix<Rational> blineality = B.give("LINEALITY_SPACE");
+
+		fan_intersection_result result = cdd_fan_intersection(arays,alineality,acones, brays,blineality,bcones);
+
+		//Check for contained cones
+		Set<int> redundant_cones;
+		for(int i = 0; i < result.cones.rows(); i++) {
+			for(int j = i+1; j < result.cones.rows(); j++) {
+				Set<int> inter = result.cones.row(i) * result.cones.row(j);
+				if(inter.size() == result.cones.row(i).size()) redundant_cones += i;
+				if(inter.size() == result.cones.row(j).size()) redundant_cones += j;
+			}
+		}
+
+		perl::Object p("fan::PolyhedralComplex");
+			p.take("VERTICES") << tdehomog(result.rays);
+			p.take("MAXIMAL_POLYTOPES") << result.cones.minor(~redundant_cones,All);
+			p.take("LINEALITY_SPACE") << tdehomog(result.lineality_space);
+		return p;
+	}
+
+
 	// ------------------------- PERL WRAPPERS ---------------------------------------------------
 
 	Function4perl(&cdd_cone_intersection, "cdd_cone_intersection(Matrix<Rational>,Matrix<Rational>,Matrix<Rational>,Matrix<Rational>,$)");
 
 	Function4perl(&cdd_normalize_rays, "cdd_normalize_rays(Matrix<Rational>,$)");
 
+	UserFunction4perl("# @category Basic polyhedral operations"
+			"# Computes the set-theoretic intersection of two cycles and returns it as a polyhedral complex."
+			"# The cycles need not use the same tropical addition"
+			"# @param Cycle A"
+			"# @param Cycle B"
+			"# @return fan::PolyhedralComplex The set-theoretic intersection of the supports of A and B",
+			&set_theoretic_intersection, "set_theoretic_intersection(Cycle,Cycle)");
 
 }}

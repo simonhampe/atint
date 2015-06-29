@@ -289,7 +289,11 @@ user_function visualize_in_surface<Addition>(Cycle<Addition>;@) {
 
 
 	my @vis = ();
-	@vis = (@vis, $X->BB_VISUAL(WeightLabels=>"hidden",VertexStyle=>"hidden",BoundingMode=>"absolute",BoundingBox=>$bb,FacetTransparency=>0.7));
+	if($X->PROJECTIVE_DIM == 2) {
+		@vis = (@vis, $X->BB_VISUAL(WeightLabels=>"hidden",VertexStyle=>"hidden",BoundingMode=>"absolute",BoundingBox=>$bb,FacetTransparency=>0.7));}
+	if($X->PROJECTIVE_DIM == 1) {
+	@vis = (@vis, $X->BB_VISUAL(WeightLabels=>"hidden",VertexStyle=>"hidden",BoundingMode=>"absolute",BoundingBox=>$bb));
+	}
 
 
 	#Then produce visuals
