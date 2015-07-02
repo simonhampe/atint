@@ -38,6 +38,7 @@
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/morphism_thomog.h"
+#include "polymake/tropical/lattice.h"
 
 namespace polymake { namespace tropical {
 
@@ -371,39 +372,21 @@ namespace polymake { namespace tropical {
 			Matrix<Rational> Rays=f.give("VERTICES");
 			Vector<Rational> leading_coordinate = Rays.col(0);
 			Rays = tdehomog(Rays).minor(All,~scalar2set(0)); 
-			Set <int> Basis;
-			Basis= basis_rows(Rays);
+			Set <int> Basis = basis_rows(Rays);
 
 			//The basis is written to the matrix Basis_Subspace
-			Matrix<Rational> Basis_Subspace(Basis.size(),Rays.cols());
-			int k=0;
-			for (Entire< Set<int> >::iterator it=entire(Basis); !it.at_end(); it++) {
-				for (int i=0; i<Rays.cols(); i++) {
-					Basis_Subspace[k][i]=Rays[*it][i];
-				}
-				k++;
-			}
+			Matrix<Rational> Basis_Subspace = Rays.minor(Basis,All);
+			int k = Basis.size();
 
 			//A description of the subspace as the kernel of a map is searched
 			Matrix<Rational> Matrix_Description=null_space (Basis_Subspace);
 
 			//Make the entries of Matrix_Description integers without changing the kernel
-			Matrix<Integer> Matrix_Description_Integer(Matrix_Description.rows(), Matrix_Description.cols());
-			for (int i=0; i<Matrix_Description.rows(); i++) {
-				Integer LCM_Denominator=1;
-				for (int j=0; j<Matrix_Description.cols(); j++){
-					Integer Denominator=denominator(Matrix_Description[i][j]);
-					LCM_Denominator=lcm(LCM_Denominator,Denominator);
-				}
-				for (int j=0; j<Matrix_Description.cols(); j++){
-					Matrix_Description_Integer[i][j]=Matrix_Description[i][j]*LCM_Denominator;
-				}
-			}
-
+			Matrix<Integer> Matrix_Description_Integer = make_rowwise_integer(Matrix_Description);
 
 			//The hermit normal form of the transposed is computed
 			std::pair<Matrix<Integer>, SparseMatrix<Integer> > hnfresult = 
-				common::hermite_normal_form(T(Matrix_Description_Integer));
+				common::hermite_normal_form(Matrix_Description_Integer);
 			Matrix<Integer> tfmatrix(hnfresult.second);
 
 			//NOTE: the above matrix maps the vectors of the standard bases to the basis of the subspace extended to a bases of the hole space, the matrix is a Z-isomorphisem
