@@ -35,51 +35,38 @@
 namespace polymake { namespace tropical {
 
 	/*
-	 * @brief Takes the coarse rays of a surface GLnZ-isomorphic to a uniform surface and a list of rays in that surface.
-	 * It will then compute which rays span the minimal cone containing each vector and return the corresponding
-	 * coefficients.
-	 * @param Matrix<Rational> surface_rays, as PRIMITIVE INTEGER
+	 * @brief Takes a list of rays which add up to 0, whose span dimension is one less than their number and whose maximal minors are 1. Then it also
+	 * takes a list of vectors lying in that span. It will then compute for each vector the unique representation as a positive linear combination of the rays.
+	 * @param Matrix<Rational> rank_one_flats, as PRIMITIVE INTEGER
 	 * @param Matrix<Rational> curve_rays, as PRIMITIVE INTEGER
-	 * @return Array<Map<int,Rational>> Maps the indices of the (at most two) rays spanning the minimal cone containing
-	 * the vector to the respective coefficients.
-	 */
-	Array<Map<int, Integer> > positive_decomposition(const Matrix<Rational> &surface_rays, const Matrix<Rational> &curve_rays) {
-		Array<Map<int, Integer> > result(curve_rays.rows());
+	 * @return Matrix<Integer> Each row corresponds to the representation of the same row in curve_rays. Each column corresponds to a row of surface_rays and contains
+	 * the corresponding positive coefficient.
+	 * */
+	Matrix<Integer> positive_decomposition(const Matrix<Rational> &rank_one_flats, const Matrix<Rational> &curve_rays) {
+		Matrix<Integer> result(curve_rays.rows(), rank_one_flats.rows());
 		//Iterate curve rays 
 		for(int cr = 0; cr < curve_rays.rows(); cr++) {
-			bool found = false;
-			//Go through all pairs of rays of the surface
-			for(int i = 0; i < surface_rays.rows(); i++ && !found) {
-				for(int j = i+1; j < surface_rays.rows(); j++ && !found) {
-					//Compute a linear representation of the vector in these rays
-					Vector<Rational> linRep = linearRepresentation(curve_rays.row(cr), surface_rays.minor( scalar2set(i) + scalar2set(j), All));
-					//Check it it is in the span and all coefficients are positive.
-					if(linRep.dim() != 0) {
-						if(linRep[0] >= 0 && linRep[1] >= 0) {
-							if(linRep[0] > 0) result[cr][i] = Integer(linRep[0]);
-							if(linRep[1] > 0) result[cr][j] = Integer(linRep[1]);
-							found = true;
-						}
-					}
-				}//END iterate second ray
-			}//END iterate first ray
+			//Compute a linear representation of the vector in the rays
+			Vector<Rational> linRep = linearRepresentation(curve_rays.row(cr), rank_one_flats);
+			//Go through its entries. For each negative entry, add the absolute value to all other entries and set this one to 0.
+			for(int entry = 0; entry < linRep.dim(); entry++) {
+				if(linRep[entry] < 0) linRep = linRep - (linRep[entry] * ones_vector<Rational>(linRep.dim()));
+			}
+			result.row(cr) = Vector<Integer>(linRep);
 		}
 		return result;
 	}//END positive_decomposition
 
 	/*
-	 * @brief Takes a list of rays of a fan
-	 * curve in a uniform surface, given by their positive linear representations wrt to the rays and a list of weights of those rays. It then computes the degree of that curve.
-	 * @param Matrix<Rational> surface_rays
-	 * @param Array<Map<int,Rational> > curve_decompositions 
+	 * @brief Takes a list of rays of a curve given by their positive linear representations wrt to a rank-1-flat-vectors matrix and a list of weights of those rays. It then computes the degree of that curve.
+	 * @param Matrix<Rational> curve_decompositions 
 	 * @param Vector<Integer> curve_weights 
 	 * @return Integer
 	 */
-	Integer degree_in_uniform(const Array<Map<int,Integer> > &curve_decompositions, const Vector<Integer> &curve_weights) {
+	Integer degree_via_decomposition(const Matrix<Integer> &curve_decompositions, const Vector<Integer> &curve_weights) {
 		Integer deg = 0;
-		for(int i = 0; i < curve_decompositions.size(); i++) {
-			if(curve_decompositions[i].contains(0))
-				deg += curve_decompositions[i][0] * curve_weights[i];
+		for(int i = 0; i < curve_decompositions.rows(); i++) {
+			deg += curve_decompositions(i,0) * curve_weights[i];
 		}
 		return deg;
 	}//END degree_in_uniform
@@ -87,58 +74,58 @@ namespace polymake { namespace tropical {
 	/*
 	 * @brief Computes the intersection multiplicity of two fan curves in a surface that is GLnZ-isomorphic
 	 * to a uniform surface
-	 * @param Matrix<Rational> The coarse rays of the surface, not homogeneous and without leading coordinate.
+	 * @param Matrix<Integer> rank_one_flats An integer matrix, whose rows are rays in a surface corresponding to the rank one flats of a matroid realization of that surface.
 	 * @param Matrix<Rational> curve_a_rays The rays of the first curve (not homog, no leading coord)
 	 * @param Vector<Integer> curve_a_weights The weights of the rays of the first curve, in the same order as the rays
 	 * @param Matrix<Rational> curve_b_rays The rays of the second curve (not homog, no leading coord)
 	 * @param Vector<Integer> curve_b_weights The weights of the rays of the second curve, in the same order as the rays.
 	 */
-	Integer intersection_multiplicity_in_uniform( Matrix<Rational> &surface_rays,
+	Integer intersection_multiplicity_via_flats( Matrix<Rational> &rank_one_flats,
 																 Matrix<Rational> &curve_a_rays,
 																 const Vector<Integer> &curve_a_weights,
 																 Matrix<Rational> &curve_b_rays,
 																 const Vector<Integer> &curve_b_weights) {
-		//Make everything integer 
-		surface_rays = Matrix<Rational>(makePrimitiveInteger(surface_rays));
+		//Make everything integer
+		rank_one_flats = Matrix<Rational>(makePrimitiveInteger(rank_one_flats));
 		curve_a_rays = Matrix<Rational>(makePrimitiveInteger(curve_a_rays));
 		curve_b_rays = Matrix<Rational>(makePrimitiveInteger(curve_b_rays));
 
-		Array<Map<int,Integer> > curve_a_decompositions = positive_decomposition( surface_rays, curve_a_rays); 
-		Array<Map<int,Integer> > curve_b_decompositions = positive_decomposition( surface_rays, curve_b_rays);
+		Matrix<Integer> curve_a_decompositions = positive_decomposition( rank_one_flats, curve_a_rays); 
+		Matrix<Integer> curve_b_decompositions = positive_decomposition( rank_one_flats, curve_b_rays);
 
-		Integer result = degree_in_uniform( curve_a_decompositions, curve_a_weights) *
-								degree_in_uniform( curve_b_decompositions, curve_b_weights);
+		Integer result = degree_via_decomposition( curve_a_decompositions, curve_a_weights) *
+								degree_via_decomposition( curve_b_decompositions, curve_b_weights);
 
-		//Iterate maximal cones of the surface:
-		for(pm::Subsets_of_k_iterator<const pm::Series<int,true> &> face = entire(all_subsets_of_k( sequence(0, surface_rays.rows()),2)); !face.at_end(); face++) {
-			Vector<int> face_as_vector( *face);
-			//Iterate rays of curve A
-			for(int ray_a = 0; ray_a < curve_a_rays.rows(); ray_a++) {
-				Map<int,Integer> amap = curve_a_decompositions[ray_a];
-				if(amap.contains(face_as_vector[0]) && amap.contains(face_as_vector[1])) {
-					//Iterate rays of curve B
-					for(int ray_b = 0; ray_b < curve_b_rays.rows(); ray_b++) {
-						Map<int,Integer> bmap = curve_b_decompositions[ray_b];
-						if(bmap.contains(face_as_vector[0]) && bmap.contains(face_as_vector[1])) {
-							result -= curve_a_weights[ray_a] * curve_b_weights[ray_b] * 
-								std::min( 
-										amap[face_as_vector[0]] * bmap[face_as_vector[1]],
-										amap[face_as_vector[1]] * bmap[face_as_vector[0]]
-										);
-						}
-					}//END iterate B-rays
-				}
-			}//END iterate A-rays
-		}//END iterate faces
+
+		//We iterate pairs of rays of the two curves 
+		for(int aray = 0; aray < curve_a_rays.rows(); aray++) {
+			Vector<Integer> amap = curve_a_decompositions.row(aray);
+			for(int bray = 0; bray < curve_b_rays.rows(); bray++) {
+				Vector<Integer> bmap = curve_b_decompositions.row(bray);
+				Integer correction = 0;
+				//Iterate pairs of rank one flats 
+				for(pm::Subsets_of_k_iterator<const pm::Series<int,true> &> pair = entire(all_subsets_of_k( sequence(0,rank_one_flats.rows()),2)); !pair.at_end(); pair++) {
+					Vector<int> pair_as_vector(*pair);
+					correction = std::max( correction,
+							std::min(
+								amap[pair_as_vector[0]] * bmap[pair_as_vector[1]],
+								amap[pair_as_vector[1]] * bmap[pair_as_vector[0]]
+								)*curve_a_weights[aray]*curve_b_weights[bray]
+							);
+				}//END iterate pairs of rank one flats
+				result -= correction;
+			}//END iterate curve B rays
+		}//END iterate curve A rays
+
+		
+
 		return result;
 	}//END intersection_multiplicity_in_uniform
 
 
+
 	// --------------------- PERL WRAPPERS -----------------------------
-	
-	Function4perl( &positive_decomposition, "pd(Matrix, Matrix)");
-	Function4perl( &degree_in_uniform, "diu(Array<Map<Int,Integer> >, Vector<Integer>)");
-	
-	Function4perl( &intersection_multiplicity_in_uniform, "imu( Matrix,Matrix, Vector<Integer>, Matrix, Vector<Integer>)");
+
+
 
 }}

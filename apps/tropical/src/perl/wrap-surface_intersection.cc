@@ -22,5 +22,17 @@ namespace polymake { namespace tropical { namespace {
    }
    FunctionWrapperInstance4perl( pm::Integer (pm::Matrix<pm::Rational>&, pm::Matrix<pm::Rational>&, pm::Vector<pm::Integer> const&, pm::Matrix<pm::Rational>&, pm::Vector<pm::Integer> const&) );
 
+   FunctionWrapper4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Rational > > >(), arg1.get< perl::TryCanned< const Matrix< Rational > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Matrix<pm::Integer> (pm::Matrix<pm::Rational> const&, pm::Matrix<pm::Rational> const&) );
+
+   FunctionWrapper4perl( pm::Integer (pm::Matrix<pm::Integer> const&, pm::Vector<pm::Integer> const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Matrix< Integer > > >(), arg1.get< perl::TryCanned< const Vector< Integer > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Integer (pm::Matrix<pm::Integer> const&, pm::Vector<pm::Integer> const&) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

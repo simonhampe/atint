@@ -56,12 +56,13 @@ namespace polymake { namespace tropical {
 				Set<int> conesAtVertex = verticesInCones.row(*nf);
 				Set<int> usedRays = accumulate(rows( cones.minor(conesAtVertex,All)), operations::add());
 
-				Matrix<Rational> fanRays(rays); 
+				Matrix<Rational> fanRays(rays);
 				//Replace other nonfar vertices by difference
-				Set<int> othernonfar = nonfar * usedRays - *nf;
+				Set<int> othernonfar = (nonfar * usedRays) - *nf;
 				for(Entire<Set<int> >::iterator onf = entire(othernonfar); !onf.at_end(); onf++) {
 					fanRays.row(*onf) = fanRays.row(*onf) - fanRays.row(*nf);
 				}
+				fanRays.row(*nf) = unit_vector<Rational>(fanRays.cols(),0);
 				fanRays = fanRays.minor(usedRays,All);
 
 				perl::Object fanCycle(perl::ObjectType::construct<Addition>("Cycle"));
