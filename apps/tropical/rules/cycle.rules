@@ -23,6 +23,9 @@
 
 object Cycle {
 
+	#Operator overload 
+	use overload('*' => 'mult',"fallback" => TRUE);
+
 	## PROPERTIES ###########################################
 	
 	# @category Weights and lattices 
@@ -255,6 +258,20 @@ object Cycle {
 	user_method delocalize {
 		my $this = shift;
 		return new Cycle<Addition>(VERTICES=>$this->VERTICES,MAXIMAL_POLYTOPES=>$this->MAXIMAL_POLYTOPES, LINEALITY_SPACE=>$this->LINEALITY_SPACE, WEIGHTS=>$this->WEIGHTS);
+	}
+
+	# Operator overloading
+	
+	sub mult {
+		my ($this,$r) = @_;
+		return $this->multiply_weights($r);
+	}
+
+	method multiply_weights {
+		my ($this,$r) = @_;
+		return defined($this->lookup("LOCAL_RESTRICTION"))?
+			new Cycle<Addition>(VERTICES=>$this->VERTICES,MAXIMAL_POLYTOPES=>$this->MAXIMAL_POLYTOPES, LINEALITY_SPACE=>$this->LINEALITY_SPACE, WEIGHTS=> $r* $this->WEIGHTS, LOCAL_RESTRICTION=> $this->LOCAL_RESTRICTION) :
+			new Cycle<Addition>(VERTICES=>$this->VERTICES,MAXIMAL_POLYTOPES=>$this->MAXIMAL_POLYTOPES, LINEALITY_SPACE=>$this->LINEALITY_SPACE, WEIGHTS=> $r* $this->WEIGHTS);
 	}
 
 

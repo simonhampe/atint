@@ -31,6 +31,8 @@
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/linear_algebra_tools.h"
 #include "polymake/tropical/lattice.h"
+#include "polymake/tropical/specialcycles.h"
+#include "polymake/tropical/convex_hull_tools.h"
 
 namespace polymake { namespace tropical {
 
@@ -122,6 +124,57 @@ namespace polymake { namespace tropical {
 		return result;
 	}//END intersection_multiplicity_in_uniform
 
+
+	template <typename Addition>
+		perl::Object intersect_in_smooth_surface(perl::Object surface, perl::Object cycle_a, perl::Object cycle_b) {
+			//Extract data 
+			int dim_a = cycle_a.give("PROJECTIVE_DIM");
+			int dim_b = cycle_b.give("PROJECTIVE_DIM");
+			int ambient_dim = surface.give("PROJECTIVE_AMBIENT_DIM");
+
+			//Basic sanity checks 
+			if(dim_a + dim_b <= 1) return empty_cycle<Addition>(ambient_dim);
+			if(dim_a > 2 || dim_b > 2) throw std::runtime_error("intersect_in_smooth_surface: Cycles dimension too large.");
+
+			//If one is full-dimensional, return the other one with multiplied weights 
+			Vector<Integer> weights_a = cycle_a.give("WEIGHTS");
+			Vector<Integer> weights_b = cycle_b.give("WEIGHTS");
+			if(dim_a == 2) {
+				return cycle_b.CallPolymakeMethod("multiply_weights",weights_a[0]);
+			}
+			if(dim_b == 2) {
+				return cycle_a.CallPolymakeMethod("multiply_weights", weights_b[1]);
+			}
+			
+			//From here on we know we have two curves.
+			
+			//Refine both curves along the surface 
+			perl::Object refined_cycle_a = CallPolymakeFunction("intersect_container",cycle_a, surface);
+			perl::Object refined_cycle_b = CallPolymakeFunction("intersect_container",cycle_b, surface);
+
+			Matrix<Rational> rays_a = refined_cycle_a.give("VERTICES");
+				rays_a = tdehomog(rays_a);
+			Matrix<Rational> rays_b = refined_cycle_b.give("VERTICES");
+				rays_b = tdehomog(rays_b);
+			Matrix<Rational> lin_a = refined_cycle_a.give("LINEALITY_SPACE");
+				lin_a = tdehomog(lin_a);
+			Matrix<Rational> lin_b = refined_cycle_b.give("LINEALITY_SPACE");
+				lin_b = tdehomog(lin_b);
+			IncidenceMatrix<> cones_a = refined_cycle_a.give("MAXIMAL_POLYTOPES");
+			IncidenceMatrix<> cones_b = refined_cycle_b.give("MAXIMAL_POLYTOPES");
+
+			//Now intersect the refined versions.
+			fan_intersection_result ab_intersect = cdd_fan_intersection(
+					rays_a, lin_a, cones_a, rays_b, lin_b, cones_b);
+
+
+
+
+
+
+
+
+		}//END intersect_in_smooth_surface
 
 
 	// --------------------- PERL WRAPPERS -----------------------------
