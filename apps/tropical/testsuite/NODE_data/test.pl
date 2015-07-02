@@ -1,0 +1,4 @@
+check_rules <<'---';
+NODES_BY_LEAVES, NODES_BY_SETS, NODE_DEGREES : SETS, COEFFS, N_LEAVES
+*
+---

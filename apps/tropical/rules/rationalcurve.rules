@@ -23,7 +23,7 @@
 
 object RationalCurve {
 
-	use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'substract', '""' => 'to_string');
+	use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'subtract', '""' => 'to_string', "fallback" => TRUE);
 
 	# @category Combinatorics
 	# A list of partitions of [n] that define the tree of the curve: For each bounded edge we have 
@@ -184,7 +184,7 @@ object RationalCurve {
 		$this->N_LEAVES = $a[scalar(@a)-1];
 	}
 
-	rule GRAPH, GRAPH_EDGE_LENGTHS: SETS,COEFFS {
+	rule GRAPH, GRAPH_EDGE_LENGTHS: SETS,COEFFS, N_LEAVES {
 		my @a = curve_graph_from_metric($this->metric_vector());
 		$this->GRAPH = $a[0];
 		$this->GRAPH_EDGE_LENGTHS = $a[1];
@@ -235,7 +235,7 @@ object RationalCurve {
 		return $c;
 	}
 
-	sub substract {
+	sub subtract {
 		my ($a,$b) = @_;
 		my $va = $a->metric_vector();
 		my $vb = $b->metric_vector();

@@ -87,21 +87,23 @@ namespace polymake { namespace tropical {
 
 		//First we test all 4-element subsets
 		Set<int> complete = sequence(1,n);
-		Vector<Set<int> > fours(all_subsets_of_k(complete,4));
-		//pm::Subsets_of_k<Set<int> > ( complete,4 );
-		for(int f = 0; f < fours.dim(); f++) {
-			Vector<int> l(fours[f]);
-			Rational a = d(l[0],l[1]) + d(l[2],l[3]);
-			Rational b = d(l[0],l[2]) + d(l[1],l[3]);
-			Rational c = d(l[0],l[3]) + d(l[1],l[2]);
-			//Check that two of a,b,c are equal and not less than the third
-			if(!fpcCheck(a,b,c)) {
-				Vector<int> fault;
-				fault |= l[0];
-				fault |= l[1];
-				fault |= l[2];
-				fault |= l[3];
-				return fault;
+		if(n >= 4) {
+			Vector<Set<int> > fours(all_subsets_of_k(complete,4));
+			//pm::Subsets_of_k<Set<int> > ( complete,4 );
+			for(int f = 0; f < fours.dim(); f++) {
+				Vector<int> l(fours[f]);
+				Rational a = d(l[0],l[1]) + d(l[2],l[3]);
+				Rational b = d(l[0],l[2]) + d(l[1],l[3]);
+				Rational c = d(l[0],l[3]) + d(l[1],l[2]);
+				//Check that two of a,b,c are equal and not less than the third
+				if(!fpcCheck(a,b,c)) {
+					Vector<int> fault;
+					fault |= l[0];
+					fault |= l[1];
+					fault |= l[2];
+					fault |= l[3];
+					return fault;
+				}
 			}
 		}
 		//Now we check all 3-element subsets

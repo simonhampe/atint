@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="559166e5"?>
+
+<data type="common::Vector&lt;Rational&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <v>0 0 7 7 0 7 7 7 7 0</v>
+</data>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55916997"?>
+
+<object name="1" type="tropical::RationalCurve" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="SETS">
+    <m />
+  </property>
+  <property name="COEFFS">
+    <v />
+  </property>
+  <property name="INPUT_SETS">
+    <m />
+  </property>
+  <property name="INPUT_COEFFS">
+    <v />
+  </property>
+  <property name="N_LEAVES" value="3" />
+</object>
