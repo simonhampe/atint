@@ -33,6 +33,7 @@
 #include "polymake/tropical/lattice.h"
 #include "polymake/tropical/specialcycles.h"
 #include "polymake/tropical/convex_hull_tools.h"
+#include "polymake/tropical/refine.h"
 
 namespace polymake { namespace tropical {
 
@@ -124,6 +125,42 @@ namespace polymake { namespace tropical {
 		return result;
 	}//END intersection_multiplicity_in_uniform
 
+	/*
+	 *	@brief Takes a smooth surface fan and finds vectors corresponding to the rank one flats in some matroidal
+	 *	realization 
+	 * @param perl::Object surface A tropical surface fan.
+	 *	@return Matrix<Rational> The rank one rays in non-tropically homogeneous coordinates.
+	 */
+	template <typename Addition>
+		Matrix<Rational> find_rank_one_vectors(perl::Object surface) {
+			perl::ListResult result = ListCallPolymakeFunction("is_smooth",surface);
+			//Sanity check 
+			if(((int)result[0]) == 0) throw std::runtime_error("Finding rank one vectors: Surface is not smooth.");
+			
+			//Extract matroid and map 
+			perl::Object matroid = result[1];
+			perl::Object face_lattice = matroid.give("LATTICE_OF_FLATS");
+			perl::Object map = result[2];
+
+			//Extract rank one flats 
+			int N = matroid.give("N_ELEMENTS");
+			NodeMap<Directed,Set<int> > all_faces = face_lattice.give("FACES");
+			Array<int> dims = face_lattice.give("DIMS");
+			Matrix<Rational> map_matrix = map.give("MATRIX");
+				map_matrix = inv(map_matrix);
+
+			Matrix<Rational> converted_vectors(0, map_matrix.cols());
+
+			for(int j = dims[1]; j < dims[2]; j++) {
+				Vector<Rational> fvector(N);
+				Set<int> flat = all_faces[j];
+				fvector.slice(flat) = Addition::orientation() * ones_vector<Rational>(flat.size());
+				converted_vectors /= (map_matrix * fvector);
+			}
+
+			return tdehomog(converted_vectors,0,0);
+		}//END find_rank_one_vectors
+
 
 	template <typename Addition>
 		perl::Object intersect_in_smooth_surface(perl::Object surface, perl::Object cycle_a, perl::Object cycle_b) {
@@ -149,36 +186,57 @@ namespace polymake { namespace tropical {
 			//From here on we know we have two curves.
 			
 			//Refine both curves along the surface 
-			perl::Object refined_cycle_a = CallPolymakeFunction("intersect_container",cycle_a, surface);
-			perl::Object refined_cycle_b = CallPolymakeFunction("intersect_container",cycle_b, surface);
-
-			Matrix<Rational> rays_a = refined_cycle_a.give("VERTICES");
+			RefinementResult refined_cycle_a = refinement( cycle_a, surface, false, true, false, true, false);
+			RefinementResult refined_cycle_b = refinement( cycle_b, surface, false, true, false, true, false); 
+			Matrix<Rational> rays_a = refined_cycle_a.complex.give("VERTICES");
 				rays_a = tdehomog(rays_a);
-			Matrix<Rational> rays_b = refined_cycle_b.give("VERTICES");
+			Matrix<Rational> rays_b = refined_cycle_b.complex.give("VERTICES");
 				rays_b = tdehomog(rays_b);
-			Matrix<Rational> lin_a = refined_cycle_a.give("LINEALITY_SPACE");
+			Matrix<Rational> lin_a = refined_cycle_a.complex.give("LINEALITY_SPACE");
 				lin_a = tdehomog(lin_a);
-			Matrix<Rational> lin_b = refined_cycle_b.give("LINEALITY_SPACE");
+			Matrix<Rational> lin_b = refined_cycle_b.complex.give("LINEALITY_SPACE");
 				lin_b = tdehomog(lin_b);
-			IncidenceMatrix<> cones_a = refined_cycle_a.give("MAXIMAL_POLYTOPES");
-			IncidenceMatrix<> cones_b = refined_cycle_b.give("MAXIMAL_POLYTOPES");
+			IncidenceMatrix<> cones_a = refined_cycle_a.complex.give("MAXIMAL_POLYTOPES");
+			IncidenceMatrix<> cones_b = refined_cycle_b.complex.give("MAXIMAL_POLYTOPES");
 
 			//Now intersect the refined versions.
 			fan_intersection_result ab_intersect = cdd_fan_intersection(
 					rays_a, lin_a, cones_a, rays_b, lin_b, cones_b);
 
+			//The potential intersection points are the nonfar vertices of this 
+			Matrix<Rational> ab_vertices = ab_intersect.rays;
+			Vector<Set<int> > ab_cones;
+			Vector<Integer> ab_weights;
+			Set<int> nonfar_and_nonzero;
 
+			for(int point = 0; point < ab_vertices.rows(); point++) {
+				//If it's a ray, ignore it.
+				if(ab_vertices(point,0) == 0) {
+					continue;		
+				}
 
+				//If it's a vertex, we need to compute the star of X at that point.
+				
 
+			}//END iterate intersection rays
 
+			//If no points remain, return the empty_cycle 
+			if(nonfar_and_nonzero.size() == 0) return empty_cycle<Addition>(ambient_dim);
 
+			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
+				result.take("VERTICES") << ab_vertices.minor(nonfar_and_nonzero,All);
+				result.take("MAXIMAL_POLYTOPES") << ab_cones;
+				result.take("WEIGHTS") << ab_weights;
 
-
+			return result;
 		}//END intersect_in_smooth_surface
 
 
 	// --------------------- PERL WRAPPERS -----------------------------
 
+
+	UserFunctionTemplate4perl("",
+			"find_rank_one_vectors<Addition>(Cycle<Addition>)");
 
 
 }}
