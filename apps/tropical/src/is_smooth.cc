@@ -205,8 +205,8 @@ namespace polymake { namespace tropical {
 							//Compute the bases
 							for (int i=0; i<codim_linear_spann; i++) {
 								for (int j=0; j<Bases.size(); j++) {
-									if (Bases[j].contains(N_Elements-1)) {
-										Set<int> NewBase=Bases[j]-(N_Elements-1);
+									if (Bases[j].contains(0)) {
+										Set<int> NewBase=Bases[j]-0;
 										NewBase=NewBase+(N_Elements);
 										Bases.resize(Bases.size()+1,NewBase);
 									}
@@ -230,7 +230,7 @@ namespace polymake { namespace tropical {
 									}
 								}
 							}
-							R.map=map_full_dimensional*temp;
+							R.map=temp*map_full_dimensional;
 						}
 						if (Lineality_Dim>0) {
 							//Compute the matroid
@@ -424,6 +424,7 @@ namespace polymake { namespace tropical {
 				map_full_dimensional=tfmatrix_temp;
 			}
 			tfmatrix=inv(tfmatrix_temp);
+			map_full_dimensional = inv(map_full_dimensional);
 
 			//Computes the immage of the rays under the Z-isomorphism constructed above
 			Rays=T(Rays);
