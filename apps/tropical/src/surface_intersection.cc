@@ -149,6 +149,8 @@ namespace polymake { namespace tropical {
 			Matrix<Rational> map_matrix = map.give("MATRIX");
 				map_matrix = inv(map_matrix);
 
+			cout << "Map " << map_matrix << endl;
+
 			Matrix<Rational> converted_vectors(0, map_matrix.cols());
 
 			for(int j = dims[1]; j < dims[2]; j++) {
@@ -156,6 +158,7 @@ namespace polymake { namespace tropical {
 				Set<int> flat = all_faces[j];
 				fvector.slice(flat) = Addition::orientation() * ones_vector<Rational>(flat.size());
 				converted_vectors /= (map_matrix * fvector);
+				cout << "Flat " << flat << " goes to " << converted_vectors.row(converted_vectors.rows()-1) << endl;
 			}
 
 			return tdehomog(converted_vectors,0,0);
