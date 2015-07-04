@@ -145,24 +145,181 @@ namespace polymake { namespace tropical {
 			//Extract rank one flats 
 			int N = matroid.give("N_ELEMENTS");
 			NodeMap<Directed,Set<int> > all_faces = face_lattice.give("FACES");
-			Array<int> dims = face_lattice.give("DIMS");
+			Set<int> rank_one_flats = face_lattice.CallPolymakeMethod("nodes_of_dim",1);
 			Matrix<Rational> map_matrix = map.give("MATRIX");
 				map_matrix = inv(map_matrix);
 
-			cout << "Map " << map_matrix << endl;
 
 			Matrix<Rational> converted_vectors(0, map_matrix.cols());
 
-			for(int j = dims[1]; j < dims[2]; j++) {
+			for(Entire<Set<int> >::iterator j = entire(rank_one_flats); !j.at_end(); j++) {
 				Vector<Rational> fvector(N);
-				Set<int> flat = all_faces[j];
+				Set<int> flat = all_faces[*j];
 				fvector.slice(flat) = Addition::orientation() * ones_vector<Rational>(flat.size());
 				converted_vectors /= (map_matrix * fvector);
-				cout << "Flat " << flat << " goes to " << converted_vectors.row(converted_vectors.rows()-1) << endl;
 			}
 
 			return tdehomog(converted_vectors,0,0);
 		}//END find_rank_one_vectors
+
+	/*
+	 * @brief Finds all the maximal cones of a surface containing a given point 
+	 * @param Vector<Rational> point, in tropical homogeneous coordinates with leading coordinate. 
+	 * @param Matrix<Rational> facet_normals The [[FACET_NORMALS]]
+	 * @param Matrix<Rational> affine_normals The [[AFFINE_HULL_NORMALS]]
+	 * @param SparseMatrix<int> maximal_facets The [[MAXIMAL_POLYTOPES_FACETS]]
+	 * @param IncidenceMatrix maximal_affine The [[MAXIMAL_POLYTOPES_AFFINE_HULL_NORMALS]]
+	 * @param Matrix<Rational> vertices The [[VERTICES]]
+	 * @param IncidenceMatrix<> cones The [[MAXIMAL_POLYTOPES]]
+	 * @param Matrix<Rational> lineality The [[LINEALITY_SPACE]]
+	 * @return perl::Object The star of the surface as a Cycle
+	 */
+	template <typename Addition>
+		perl::Object compute_surface_star(const Vector<Rational> &point, 
+				const Matrix<Rational> &facet_normals, 
+				const Matrix<Rational> &affine_normals, 
+				const SparseMatrix<int> &maximal_facets, 
+				const IncidenceMatrix<> &maximal_affine,
+				const Matrix<Rational> &vertices,
+				const Matrix<Rational> &lineality,
+				const IncidenceMatrix<> &cones) {
+			
+			//First of all find the set of all maximal cones containing the point.
+			Set<int> containing_cones;
+			for(int mc = 0; mc < cones.rows(); mc++) {
+				if( affine_normals.minor( maximal_affine.row(mc), All) * point != 
+						zero_vector<Rational>(maximal_affine.row(mc).size())) {
+					continue;
+				}
+				bool found_non_facet = false;
+				for(int col = 0; col < maximal_facets.cols() && !found_non_facet; col++) {
+					if(maximal_facets(mc,col) != 0) {
+						if( facet_normals.row(col) * maximal_facets(mc,col) * point < 0) {
+							found_non_facet = true; continue;
+						}
+					}
+				}
+				if(found_non_facet) continue;
+				//Arriving here, it must contain the point 
+				containing_cones += mc;
+			}//END iterate maximal cones
+
+			//Now construct the star itself 
+			Matrix<Rational> star_rays = vertices;
+			Matrix<Rational> star_lineality = lineality; 
+			IncidenceMatrix<> star_cones = cones;
+
+			std::pair<Set<int>, Set<int> > f_and_nf = far_and_nonfar_vertices(vertices);
+			Set<int> cone_intersection = accumulate( rows( cones.minor(containing_cones,All)), operations::mul());
+			Set<int> unused_rays = sequence(0, vertices.rows()) - 
+				accumulate( rows(cones.minor(containing_cones,All)),operations::add());
+
+			//Start by constructing the lineality space
+			Vector<int> intersect_nonfar( cone_intersection * f_and_nf.second);
+			Set<int> intersect_far = cone_intersection * f_and_nf.first;
+			Set<int> rays_to_remove = intersect_far + unused_rays;
+
+			for(int inf = 1; inf < intersect_nonfar.dim(); inf++) {
+				star_lineality /= vertices.row(intersect_nonfar[inf]) - star_rays.row(0);
+				rays_to_remove += intersect_nonfar[inf];
+			}
+			star_lineality /= vertices.minor( intersect_far,All);
+
+			//Replace nonfar vertices in adjacent cones by differences
+			Set<int> nonfar_remaining = f_and_nf.second - rays_to_remove - intersect_nonfar[0];
+			for(Entire<Set<int> >::iterator nfr = entire(nonfar_remaining); !nfr.at_end(); nfr++) {
+				star_rays.row(*nfr) = star_rays.row(*nfr) - star_rays.row( intersect_nonfar[0]);
+			}
+		
+			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
+				result.take("VERTICES") << star_rays.minor(~rays_to_remove,All);
+				result.take("MAXIMAL_POLYTOPES") << star_cones.minor(containing_cones, ~rays_to_remove);
+				result.take("LINEALITY_SPACE") << star_lineality;
+				result.take("WEIGHTS") << ones_vector<Integer>(containing_cones.size());
+			return result;
+
+		}//END findSurfaceStarCones
+
+
+	/*
+	 * @brief Computes the rays of the star of a curve at a point
+	 * @param Matrix<Rational> curve_vertices The curve's vertices (non-homog. with leading coord) 
+	 * @param IncidenceMatrix<> curve_cones The cuve's cones 
+	 * @param IncidenceMatrix<> curve_containers The indices of all the maximal cones containing the point.
+	 * @return Matrix<Rational> The star rays, non-homog and without(!) leading coordinate.
+	 */
+	std::pair<Matrix<Rational>, Vector<Integer> > compute_curve_star_rays(
+			const Matrix<Rational> &curve_vertices, const IncidenceMatrix<> &curve_cones, 
+			const Vector<Integer> &curve_weights, const Set<int> &curve_containers) {
+		//Split up the rays in far and nonfar 
+		std::pair<Set<int>, Set<int> > f_and_nf = far_and_nonfar_vertices(curve_vertices);	
+
+		Matrix<Rational> result(0,curve_vertices.cols()-1);
+		Vector<Integer> star_weights;
+
+		//If there is only one maximal cone, we compute its direction vector 
+		if(curve_containers.size() == 1) {
+			Set<int> single_cone = curve_cones.row( *(curve_containers.begin()));
+			Set<int> far_in_container = f_and_nf.first * single_cone;
+			Vector<Rational> direction;
+			if(far_in_container.size() == 0) {
+				//Its a bounded edge 
+				Vector<int> both_rays(single_cone);
+				direction = 
+					curve_vertices.row( both_rays[0]) - curve_vertices.row(both_rays[1]);
+			}
+			else {
+				direction = curve_vertices.row( *(far_in_container.begin()));
+			}
+
+			direction = direction.slice(~scalar2set(0));
+			result /= direction;
+			result /= -direction;
+			star_weights = curve_weights[ *(curve_containers.begin())] * ones_vector<Integer>(2);
+			return std::make_pair(result, star_weights);
+		}
+		else {
+			//If its several, then every one of them must have point as a vertex 
+			int points_index = *( accumulate(rows(curve_cones.minor(curve_containers,All)), operations::mul()).begin());
+			for(Entire<Set<int> >::const_iterator adjRays = entire(curve_containers); !adjRays.at_end(); adjRays++) {
+				Vector<Rational> direction;
+				int ray_index = *( (curve_cones.row(*adjRays) - points_index).begin());
+				if(curve_vertices(ray_index,0) == 0) {
+					direction = curve_vertices.row(ray_index);
+				}
+				else {
+					direction = curve_vertices.row(ray_index) - curve_vertices.row(points_index);
+				}
+				direction = direction.slice(~scalar2set(0));
+				result /= direction;
+				star_weights |= curve_weights[*adjRays];
+			}
+		}
+		return std::make_pair(result, star_weights);
+	}//END compute_curve_star_rays
+
+	/*
+	 * @brief For a curve and a point, computes the indices of all maximal cones containing the point 
+	 * @param Vector<Rational> point the point, non-homog, with leading coord 
+	 * @param Matrix<Rational> curve_rays The curve vertices, non-homog, with leading coord 
+	 * @param IncidenceMatrix curve_cones The curve cones 
+	 * @param int some_container An index of one maximal cone containing the point 
+	 * @return Set<int> All indices of cones containing the point 
+	 */
+	Set<int> compute_containing_cones(const Vector<Rational> &point, const Matrix<Rational> &curve_rays,
+				const IncidenceMatrix<> &curve_cones, int some_container) {
+		//Go through the rays of the container - if point is equal to one of them, return all 
+		//maximal cones using the vertex 
+		Set<int> container_set = curve_cones.row(some_container);
+		for(Entire<Set<int> >::iterator cray = entire(container_set); !cray.at_end(); cray++) {
+			if(point == curve_rays.row(*cray)) {
+				return T(curve_cones).row(*cray);
+			}
+		}
+
+		//If it isn't, it's just the one cone 
+		return scalar2set(some_container);
+	}
 
 
 	template <typename Addition>
@@ -189,8 +346,8 @@ namespace polymake { namespace tropical {
 			//From here on we know we have two curves.
 			
 			//Refine both curves along the surface 
-			RefinementResult refined_cycle_a = refinement( cycle_a, surface, false, true, false, true, false);
-			RefinementResult refined_cycle_b = refinement( cycle_b, surface, false, true, false, true, false); 
+			RefinementResult refined_cycle_a = refinement( cycle_a, surface, false, false, false, true, false);
+			RefinementResult refined_cycle_b = refinement( cycle_b, surface, false, false, false, true, false); 
 			Matrix<Rational> rays_a = refined_cycle_a.complex.give("VERTICES");
 				rays_a = tdehomog(rays_a);
 			Matrix<Rational> rays_b = refined_cycle_b.complex.give("VERTICES");
@@ -201,16 +358,27 @@ namespace polymake { namespace tropical {
 				lin_b = tdehomog(lin_b);
 			IncidenceMatrix<> cones_a = refined_cycle_a.complex.give("MAXIMAL_POLYTOPES");
 			IncidenceMatrix<> cones_b = refined_cycle_b.complex.give("MAXIMAL_POLYTOPES");
+			Vector<Integer> refweights_a = refined_cycle_a.complex.give("WEIGHTS");
+			Vector<Integer> refweights_b = refined_cycle_b.complex.give("WEIGHTS");
 
 			//Now intersect the refined versions.
 			fan_intersection_result ab_intersect = cdd_fan_intersection(
 					rays_a, lin_a, cones_a, rays_b, lin_b, cones_b);
 
+
 			//The potential intersection points are the nonfar vertices of this 
 			Matrix<Rational> ab_vertices = ab_intersect.rays;
-			Vector<Set<int> > ab_cones;
+			IncidenceMatrix<> ab_vertices_by_cones = T(ab_intersect.cones);
 			Vector<Integer> ab_weights;
 			Set<int> nonfar_and_nonzero;
+
+			Matrix<Rational> surface_rays = surface.give("VERTICES");
+			IncidenceMatrix<> surface_cones = surface.give("MAXIMAL_POLYTOPES");
+			Matrix<Rational> surface_lineality = surface.give("LINEALITY_SPACE");
+			Matrix<Rational> facet_normals = surface.give("FACET_NORMALS");
+			Matrix<Rational> affine_hull = surface.give("AFFINE_HULL");
+			SparseMatrix<int> maximal_facets = surface.give("MAXIMAL_POLYTOPES_FACETS");
+			IncidenceMatrix<> maximal_affine = surface.give("MAXIMAL_POLYTOPES_AFFINE_HULL_NORMALS");
 
 			for(int point = 0; point < ab_vertices.rows(); point++) {
 				//If it's a ray, ignore it.
@@ -219,27 +387,57 @@ namespace polymake { namespace tropical {
 				}
 
 				//If it's a vertex, we need to compute the star of X at that point.
-				
+				perl::Object surface_star = compute_surface_star<Addition>(
+						thomog_vec(Vector<Rational>(ab_vertices.row(point))), 
+						facet_normals, 
+						affine_hull, 
+						maximal_facets, 
+						maximal_affine, 
+						surface_rays, 
+						surface_lineality,
+						surface_cones);
+				Matrix<Rational> rank_one_vectors = find_rank_one_vectors<Addition>(surface_star);
 
+				//Now compute the star at each curve
+				int cone_of_point = *(ab_vertices_by_cones.row(point).begin());
+				int cone_of_a = *(ab_intersect.xcontainers.row(cone_of_point).begin());
+				int cone_of_b = *(ab_intersect.ycontainers.row(cone_of_point).begin());
+				std::pair<Matrix<Rational>, Vector<Integer> > a_star =
+					compute_curve_star_rays(rays_a, cones_a, refweights_a, 
+						compute_containing_cones( ab_vertices.row(point), rays_a, cones_a, cone_of_a));
+				std::pair<Matrix<Rational>, Vector<Integer> > b_star =
+					compute_curve_star_rays(rays_b, cones_b, refweights_b,
+						compute_containing_cones( ab_vertices.row(point), rays_b, cones_b, cone_of_b));
+
+				//Finally, we can compute the multiplicity 
+				
+				Integer mult = intersection_multiplicity_via_flats(
+						rank_one_vectors, a_star.first, a_star.second, b_star.first, b_star.second);
+
+
+				if(mult != 0) {
+					nonfar_and_nonzero += point;
+					ab_weights |= mult;
+				}
 			}//END iterate intersection rays
 
 			//If no points remain, return the empty_cycle 
 			if(nonfar_and_nonzero.size() == 0) return empty_cycle<Addition>(ambient_dim);
+			ab_vertices = ab_vertices.minor(nonfar_and_nonzero,~scalar2set(0));
 
-			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
-				result.take("VERTICES") << ab_vertices.minor(nonfar_and_nonzero,All);
-				result.take("MAXIMAL_POLYTOPES") << ab_cones;
-				result.take("WEIGHTS") << ab_weights;
-
-			return result;
+			return point_collection<Addition>( thomog(ab_vertices,0,0), ab_weights);
 		}//END intersect_in_smooth_surface
 
 
 	// --------------------- PERL WRAPPERS -----------------------------
 
 
-	UserFunctionTemplate4perl("",
-			"find_rank_one_vectors<Addition>(Cycle<Addition>)");
-
+	UserFunctionTemplate4perl("# @category Intersection theory"
+			"# Computes the intersection product of two cycles in a smooth surface"
+			"# @param Cycle<Addition> surface A smooth surface" 
+			"# @param Cycle<Addition> A any cycle in the surface"
+			"# @param Cycle<Addition> B any cycle in the surface"
+			"# @return Cycle<Addition> The intersection product of A and B in the surface",
+			"intersect_in_smooth_surface<Addition>(Cycle<Addition>,Cycle<Addition>, Cycle<Addition>)");
 
 }}

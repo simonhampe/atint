@@ -234,39 +234,18 @@ namespace polymake { namespace tropical {
 						}
 						if (Lineality_Dim>0) {
 							//Compute the matroid
-							for (int i=0; i<Lineality_Dim; i++) {
-								for (int j=0; j<Bases.size(); j++) {
-									if (Bases[j].contains(N_Elements-1)){
-										Bases[j]=Bases[j]+(N_Elements);
-									}
-									else{
-										Bases[j]=Bases[j]+(N_Elements-1);
-									}
-								}
-								N_Elements=N_Elements+1;
+							for(int j = 0; j < Bases.size(); j++)  {
+								Bases[j] += sequence(N_Elements, Lineality_Dim);
 							}
 							//Compute the map
 							Matrix <int> temp((R.map).rows()+Lineality_Dim,(R.map).cols()+Lineality_Dim);
-							for (int i=0; i<(R.map).rows(); i++) {
-								for (int j=0; j<(R.map).rows(); j++) {
-									temp[i][j]=R.map[i][j];
-								}
-							}
-							for (int i=0; i<Lineality_Dim; i++) {
-								for (int j=0; j<Lineality_Dim; j++) {
-									if (i==j) {
-										temp[i+(R.map).rows()][j+(R.map).rows()]=1;
-									}
-									else{
-										temp[i+(R.map).rows()][j+(R.map).rows()]=0;
-									}
-								}
-							}
-							R.map=map_lineality_space*temp;
+								temp.minor( sequence(0, R.map.rows()), sequence(0,R.map.cols())) = R.map;
+								temp.minor( sequence(R.map.rows(), Lineality_Dim), sequence(R.map.rows(), Lineality_Dim)) = unit_matrix<Rational>(Lineality_Dim);
+							R.map= temp*map_lineality_space;
 						}
 
 						(R.matroid).take("BASES") << Bases;
-						(R.matroid).take("N_ELEMENTS") << N_Elements;
+						(R.matroid).take("N_ELEMENTS") << N_Elements + Lineality_Dim;
 					}
 				}
 			}
@@ -330,9 +309,9 @@ namespace polymake { namespace tropical {
 				common::hermite_normal_form(Matrix_Description_Integer);
 			Matrix<Integer> tfmatrix(hnfresult.second);	
 			//A linear map is computed that maps the lineality space with dimension k to the last k coordinates
-			map_lineality_space=tfmatrix;
 			tfmatrix=inv(tfmatrix);
-
+			map_lineality_space=tfmatrix;
+			
 			//Apply the map to the rays
 			Matrix<Rational> Rays=f.give("VERTICES");
 			Rays = tdehomog(Rays);
@@ -355,7 +334,6 @@ namespace polymake { namespace tropical {
 			New_Rays=T(New_Rays);
 			New_Rays = leading_coordinate | New_Rays;
 
-
 			IncidenceMatrix<> Maximal_Cones =f.give("MAXIMAL_POLYTOPES");
 			perl::Object g(perl::ObjectType::construct<Addition>("Cycle"));
 			g.take("VERTICES") << thomog(New_Rays);
@@ -373,6 +351,17 @@ namespace polymake { namespace tropical {
 			Vector<Rational> leading_coordinate = Rays.col(0);
 			Rays = tdehomog(Rays).minor(All,~scalar2set(0)); 
 			Set <int> Basis = basis_rows(Rays);
+
+			//Special case: If the space is only a point, we need a separate computation 
+			if(Basis.size() == 0) {
+				int proj_amb = f.give("PROJECTIVE_AMBIENT_DIM");
+				map_full_dimensional = unit_matrix<int>(proj_amb);
+				perl::Object point_result(perl::ObjectType::construct<Addition>("Cycle"));
+						point_result.take("VERTICES") << Matrix<Rational>(0, proj_amb+2);
+						point_result.take("MAXIMAL_POLYTOPES") << f.give("MAXIMAL_POLYTOPES");
+						point_result.take("PROJECTIVE_AMBIENT_DIM") << proj_amb;
+				return point_result;
+			}
 
 			//The basis is written to the matrix Basis_Subspace
 			Matrix<Rational> Basis_Subspace = Rays.minor(Basis,All);
