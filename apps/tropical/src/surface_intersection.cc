@@ -34,6 +34,7 @@
 #include "polymake/tropical/specialcycles.h"
 #include "polymake/tropical/convex_hull_tools.h"
 #include "polymake/tropical/refine.h"
+#include "polymake/tropical/morphism_thomog.h"
 
 namespace polymake { namespace tropical {
 
@@ -147,8 +148,8 @@ namespace polymake { namespace tropical {
 			NodeMap<Directed,Set<int> > all_faces = face_lattice.give("FACES");
 			Set<int> rank_one_flats = face_lattice.CallPolymakeMethod("nodes_of_dim",1);
 			Matrix<Rational> map_matrix = map.give("MATRIX");
-				map_matrix = inv(map_matrix);
-
+				map_matrix = inv(map_matrix.minor(~scalar2set(0), ~scalar2set(0)));
+				map_matrix = thomog_morphism(map_matrix, zero_vector<Rational>(map_matrix.cols())).first;
 
 			Matrix<Rational> converted_vectors(0, map_matrix.cols());
 
@@ -220,16 +221,20 @@ namespace polymake { namespace tropical {
 			Set<int> rays_to_remove = intersect_far + unused_rays;
 
 			for(int inf = 1; inf < intersect_nonfar.dim(); inf++) {
-				star_lineality /= vertices.row(intersect_nonfar[inf]) - star_rays.row(0);
+				star_lineality /= (vertices.row(intersect_nonfar[inf]) - star_rays.row(intersect_nonfar[0]));
 				rays_to_remove += intersect_nonfar[inf];
 			}
 			star_lineality /= vertices.minor( intersect_far,All);
+			star_lineality = star_lineality.minor( basis_rows(star_lineality),All);
 
 			//Replace nonfar vertices in adjacent cones by differences
 			Set<int> nonfar_remaining = f_and_nf.second - rays_to_remove - intersect_nonfar[0];
 			for(Entire<Set<int> >::iterator nfr = entire(nonfar_remaining); !nfr.at_end(); nfr++) {
 				star_rays.row(*nfr) = star_rays.row(*nfr) - star_rays.row( intersect_nonfar[0]);
 			}
+
+			//Make the reference vertex the origin 
+			star_rays.row( intersect_nonfar[0]) = unit_vector<Rational>( star_rays.cols(),0);
 		
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
 				result.take("VERTICES") << star_rays.minor(~rays_to_remove,All);

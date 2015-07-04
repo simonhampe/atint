@@ -638,8 +638,10 @@ namespace polymake { namespace tropical {
 			}
 			var.take("VERTICES") << thomog(var_rays);
 			var.take("MAXIMAL_POLYTOPES") << var_cones;
-			if(vertex_line[ivert].cells.size() == 0) 
+			if(vertex_line[ivert].cells.size() == 0) {
+				var.take("WEIGHTS") << ones_vector<Integer>(var_cones.dim());
 				result.add("LIST_ISOLATED_NO_EDGE",var);
+			}
 			else 
 				result.add("LIST_FAMILY_FIXED_VERTEX", var);
 		}
@@ -709,7 +711,10 @@ namespace polymake { namespace tropical {
 			var.take("MAXIMAL_POLYTOPES") << var_cones;
 			if(edge_line[el].spanAtZero || edge_line[el].spanAwayZero) 
 				result.add("LIST_FAMILY_FIXED_EDGE",var);
-			else result.add("LIST_ISOLATED_EDGE",var);
+			else {
+				var.take("WEIGHTS") << ones_vector<Integer>(var_cones.dim());
+				result.add("LIST_ISOLATED_EDGE",var);
+			}
 
 		}
 
