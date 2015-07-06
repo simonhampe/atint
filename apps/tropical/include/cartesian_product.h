@@ -68,7 +68,7 @@ namespace polymake { namespace tropical {
 			}
 			IncidenceMatrix<> local_restriction;
 			if(firstComplex.exists("LOCAL_RESTRICTION")) {
-				local_restriction = firstComplex.give("LOCAL_RESTRICTION");
+				firstComplex.give("LOCAL_RESTRICTION") >> local_restriction;
 			}
 			bool product_has_lattice = firstComplex.exists("LATTICE_BASES");
 			Matrix<Integer> product_l_generators;
@@ -107,7 +107,7 @@ namespace polymake { namespace tropical {
 				IncidenceMatrix<> premax = complexes[i].give("MAXIMAL_POLYTOPES");
 				IncidenceMatrix<> pre_local_restriction;
 				if(complexes[i].exists("LOCAL_RESTRICTION")) {
-						pre_local_restriction = complexes[i].give("LOCAL_RESTRICTION");
+						complexes[i].give("LOCAL_RESTRICTION") >> pre_local_restriction;
 				}
 
 				Array<Integer> preweights;

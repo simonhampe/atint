@@ -251,16 +251,26 @@ namespace polymake { namespace tropical {
 	 * @param Matrix<Rational> curve_vertices The curve's vertices (non-homog. with leading coord) 
 	 * @param IncidenceMatrix<> curve_cones The cuve's cones 
 	 * @param IncidenceMatrix<> curve_containers The indices of all the maximal cones containing the point.
+	 * @param Matrix<Rationa> lineality If the curve consists only of a lineality space, this is its generator.
 	 * @return Matrix<Rational> The star rays, non-homog and without(!) leading coordinate.
 	 */
 	std::pair<Matrix<Rational>, Vector<Integer> > compute_curve_star_rays(
 			const Matrix<Rational> &curve_vertices, const IncidenceMatrix<> &curve_cones, 
-			const Vector<Integer> &curve_weights, const Set<int> &curve_containers) {
+			const Vector<Integer> &curve_weights, const Set<int> &curve_containers, const Matrix<Rational> &lineality ) {
 		//Split up the rays in far and nonfar 
 		std::pair<Set<int>, Set<int> > f_and_nf = far_and_nonfar_vertices(curve_vertices);	
 
 		Matrix<Rational> result(0,curve_vertices.cols()-1);
 		Vector<Integer> star_weights;
+
+		//If the curve is only a lineality space:
+		if(lineality.rows() > 0) {
+			result /= lineality.minor(All,~scalar2set(0));
+			result /= -lineality.minor(All,~scalar2set(0));
+			star_weights |= curve_weights[0];
+			star_weights |= curve_weights[0];
+			return std::make_pair(result, star_weights);
+		}
 
 		//If there is only one maximal cone, we compute its direction vector 
 		if(curve_containers.size() == 1) {
@@ -409,10 +419,11 @@ namespace polymake { namespace tropical {
 				int cone_of_b = *(ab_intersect.ycontainers.row(cone_of_point).begin());
 				std::pair<Matrix<Rational>, Vector<Integer> > a_star =
 					compute_curve_star_rays(rays_a, cones_a, refweights_a, 
-						compute_containing_cones( ab_vertices.row(point), rays_a, cones_a, cone_of_a));
+						compute_containing_cones( ab_vertices.row(point), rays_a, cones_a, cone_of_a), lin_a);
 				std::pair<Matrix<Rational>, Vector<Integer> > b_star =
 					compute_curve_star_rays(rays_b, cones_b, refweights_b,
-						compute_containing_cones( ab_vertices.row(point), rays_b, cones_b, cone_of_b));
+						compute_containing_cones( ab_vertices.row(point), rays_b, cones_b, cone_of_b), lin_b);
+
 
 				//Finally, we can compute the multiplicity 
 				
@@ -444,5 +455,7 @@ namespace polymake { namespace tropical {
 			"# @param Cycle<Addition> B any cycle in the surface"
 			"# @return Cycle<Addition> The intersection product of A and B in the surface",
 			"intersect_in_smooth_surface<Addition>(Cycle<Addition>,Cycle<Addition>, Cycle<Addition>)");
+
+	FunctionTemplate4perl("compute_surface_star<Addition>(Vector, Matrix,Matrix,SparseMatrix<Int>, IncidenceMatrix, Matrix, Matrix,IncidenceMatrix)");
 
 }}
