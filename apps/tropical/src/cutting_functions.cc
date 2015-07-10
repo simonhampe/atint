@@ -40,39 +40,40 @@ namespace polymake { namespace tropical {
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	//Documentation see perl wrapper
-	Matrix<Rational> cutting_functions(perl::Object fan, Vector<Integer> weight_aim) {
+	template <typename Addition>
+		Matrix<Rational> cutting_functions(perl::Object fan, Vector<Integer> weight_aim) {
 
-		//Extract values
-		Map<std::pair<int,int>, Vector<Rational> > summap = fan.give("LATTICE_NORMAL_FCT_VECTOR");
-		Matrix<Rational> summatrix = fan.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
-		IncidenceMatrix<> codim_in_cones = fan.give("MAXIMAL_AT_CODIM_ONE");
-		Vector<Integer> weights = fan.give("WEIGHTS");
+			//Extract values
+			Map<std::pair<int,int>, Vector<Rational> > summap = fan.give("LATTICE_NORMAL_FCT_VECTOR");
+			Matrix<Rational> summatrix = fan.give("LATTICE_NORMAL_SUM_FCT_VECTOR");
+			IncidenceMatrix<> codim_in_cones = fan.give("MAXIMAL_AT_CODIM_ONE");
+			Vector<Integer> weights = fan.give("WEIGHTS");
 
-		//Compute equation matrix
-		Matrix<Rational> equations(0,summatrix.cols());
+			//Compute equation matrix
+			Matrix<Rational> equations(0,summatrix.cols());
 
-		//Compute equation for each codimension one cone
-		for(int c = 0; c < codim_in_cones.rows(); c++) {
-			//Coefficients are the sum of the lattice normal function vectors minus
-			//the sum function vector
-			Vector<Rational> ceq(summatrix.cols());
-			Set<int> adjacent_cones = codim_in_cones.row(c);
-			for(Entire<Set<int> >::iterator ac = entire(adjacent_cones); !ac.at_end(); ac++) {
-				ceq += weights[*ac] * (summap[std::make_pair(c,*ac)]);
-			}//END iterate adjacent maximal cells
-			ceq -= summatrix.row(c);
-			equations /= ceq;
-		}//END iterate codim 1 cells
+			//Compute equation for each codimension one cone
+			for(int c = 0; c < codim_in_cones.rows(); c++) {
+				//Coefficients are the sum of the lattice normal function vectors minus
+				//the sum function vector
+				Vector<Rational> ceq(summatrix.cols());
+				Set<int> adjacent_cones = codim_in_cones.row(c);
+				for(Entire<Set<int> >::iterator ac = entire(adjacent_cones); !ac.at_end(); ac++) {
+					ceq -= weights[*ac] * (summap[std::make_pair(c,*ac)]);
+				}//END iterate adjacent maximal cells
+				ceq += summatrix.row(c);
+				equations /= Addition::orientation() * ceq;
+			}//END iterate codim 1 cells
 
-		//Finally add desired weights as additional coefficients
-		equations |= weight_aim;
-		//dbgtrace << "Equations: " << equations << endl;
-		return null_space(equations);
-	}
+			//Finally add desired weights as additional coefficients
+			equations |= weight_aim;
+			//dbgtrace << "Equations: " << equations << endl;
+			return null_space(equations);
+		}
 
 	// ------------------------- PERL WRAPPERS ---------------------------------------------------
 
-	UserFunction4perl("# @category Inverse problems"
+	UserFunctionTemplate4perl("# @category Inverse problems"
 			"# Takes a weighted complex and a list of desired weights on its codimension one"
 			"# faces and computes all possible rational functions on (this subdivision of )"
 			"# the complex"
@@ -89,7 +90,7 @@ namespace polymake { namespace tropical {
 			"# on the codimension one skeleton"
 			"# Note that the function does not test if these generators actually define"
 			"# piecewise linear functions, as it assumes the cycle is simplicial",
-			&cutting_functions, "cutting_functions(Cycle, Vector<Integer>)");
+			"cutting_functions<Addition>(Cycle<Addition>, Vector<Integer>)");
 
 
 }}

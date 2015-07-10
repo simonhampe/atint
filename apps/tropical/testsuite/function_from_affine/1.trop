@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="559fbbf6"?>
+
+<object name="1" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="NUMERATOR">
+    <t>
+      <m>
+        <t>
+          <v dim="4"> <e i="0">1</e> </v>
+          <e>0</e>
+        </t>
+        <t>
+          <v dim="4"> <e i="1">1</e> </v>
+          <e>0</e>
+        </t>
+        <t>
+          <v dim="4"> <e i="2">1</e> </v>
+          <e>0</e>
+        </t>
+        <t>
+          <v dim="4"> <e i="3">1</e> </v>
+          <e>0</e>
+        </t>
+      </m>
+      <t id="1">
+        <v>x0 x1 x2 x3</v>
+      </t>
+    </t>
+  </property>
+  <property name="DENOMINATOR">
+    <t>
+      <m>
+        <t>
+          <v dim="4"> <e i="3">1</e> </v>
+          <e>0</e>
+        </t>
+      </m>
+      <r />
+    </t>
+  </property>
+</object>

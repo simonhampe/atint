@@ -19,11 +19,18 @@
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
+   FunctionInterface4perl( local_vertex_T_x_x, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( (local_vertex<T0>(arg0, arg1)) );
+   };
+
+   template <typename T0>
    FunctionInterface4perl( local_restrict_T_x_x, T0 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
       WrapperReturn( (local_restrict<T0>(arg0, arg1)) );
    };
 
    FunctionInstance4perl(local_restrict_T_x_x, Min);
+   FunctionInstance4perl(local_vertex_T_x_x, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

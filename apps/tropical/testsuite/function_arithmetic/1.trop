@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="559fb73d"?>
+
+<object name="1" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="NUMERATOR">
+    <t>
+      <m>
+        <t>
+          <v dim="3"> <e i="0">14</e> <e i="1">8</e> </v>
+          <e>0</e>
+        </t>
+      </m>
+      <t id="1">
+        <v>x0 x1 x2</v>
+      </t>
+    </t>
+  </property>
+  <property name="DENOMINATOR">
+    <t>
+      <m>
+        <t>
+          <v dim="3"> <e i="2">18</e> </v>
+          <e>0</e>
+        </t>
+      </m>
+      <r />
+    </t>
+  </property>
+</object>

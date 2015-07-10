@@ -29,6 +29,7 @@
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/thomog.h"
+#include "polymake/tropical/specialcycles.h"
 
 namespace polymake { namespace tropical {
 
@@ -49,6 +50,9 @@ namespace polymake { namespace tropical {
 				translate = zero_vector<Rational>(matrix.rows());
 
 			//Sanity checks
+			if(CallPolymakeFunction("is_empty",cycle)) {
+				return empty_cycle<Addition>(matrix.rows()-1);
+			}
 			if(matrix.rows() != translate.dim() || matrix.cols() != vertices.cols()-1)
 				throw std::runtime_error("affine_transform: Dimension mismatch.");
 
@@ -105,7 +109,6 @@ namespace polymake { namespace tropical {
 			"# @param Vector<Rational> T The translate. Optional and zero vector by default. Should be given in"
 			"# tropical projective coordinates (but without leading coordinate for vertices or rays)."
 			"# If you only want to shift a cycle, use [[shift_cycle]]."
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The transform M*C + T",
 			"affine_transform<Addition>(Cycle<Addition>, $; $ = new Vector())");
 
@@ -116,7 +119,6 @@ namespace polymake { namespace tropical {
 			"# @param Cycle<Addition> C a tropical cycle"
 			"# @param Morphism<Addition> M A morphism. Should be defined via [[MATRIX]] and [[TRANSLATE]],"
 			"# though its [[DOMAIN]] will be ignored."
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The transform M(C)",
 			"affine_transform<Addition>(Cycle<Addition>, Morphism<Addition>)");
 
@@ -125,7 +127,6 @@ namespace polymake { namespace tropical {
 			"# @param Cycle<Addition> C a tropical cycle"
 			"# @param Vector<Rational> T The translate. Optional and zero vector by default. Should be given in"
 			"# tropical projective coordinates (but without leading coordinate for vertices or rays)."
-			"# @tparam Addition Min or Max"
 			"# @return Cycle<Addition> The shifted cycle",
 			"shift_cycle<Addition>(Cycle<Addition>, $)");
 

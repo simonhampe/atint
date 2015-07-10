@@ -19,12 +19,12 @@
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
-   FunctionInterface4perl( cartesian_product_T_x, T0 ) {
+   FunctionInterface4perl( fan_decomposition_T_x, T0 ) {
       perl::Value arg0(stack[0]);
-      WrapperReturn( (cartesian_product<T0>(arg0)) );
+      WrapperReturn( (fan_decomposition<T0>(arg0)) );
    };
 
-   FunctionInstance4perl(cartesian_product_T_x, Min);
-   FunctionInstance4perl(cartesian_product_T_x, Max);
+   FunctionInstance4perl(fan_decomposition_T_x, Min);
+   FunctionInstance4perl(fan_decomposition_T_x, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

@@ -43,5 +43,6 @@ namespace polymake { namespace tropical { namespace {
    FunctionInstance4perl(polynomial_degree_T_X, TropicalNumber< Max, Rational >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
    FunctionInstance4perl(is_homogeneous_T_X, TropicalNumber< Max, Rational >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
    FunctionInstance4perl(tolerant_multiplication_T_X_X, TropicalNumber< Min, Rational >, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >, perl::Canned< const Polynomial< TropicalNumber< Min, Rational >, int > >);
+   FunctionInstance4perl(tolerant_multiplication_T_X_X, TropicalNumber< Max, Rational >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >, perl::Canned< const Polynomial< TropicalNumber< Max, Rational >, int > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="559fbc8d"?>
+
+<object name="3" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="VERTICES">
+    <m>
+      <v>1 0 0 0 0 0 0 0</v>
+      <v>0 0 -1 -1 0 0 0 0</v>
+      <v>0 0 1 0 0 0 0 0</v>
+      <v>0 0 0 1 0 0 0 0</v>
+      <v>0 0 0 0 0 0 -1 -1</v>
+      <v>0 0 0 0 0 0 1 0</v>
+      <v>0 0 0 0 0 0 0 1</v>
+    </m>
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m>
+      <v>0 0 0 0 1 0 0 0</v>
+      <v>0 0 0 0 0 1 0 0</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="7">
+      <v>0 1 4</v>
+      <v>0 1 5</v>
+      <v>0 1 6</v>
+      <v>0 2 4</v>
+      <v>0 2 5</v>
+      <v>0 2 6</v>
+      <v>0 3 4</v>
+      <v>0 3 5</v>
+      <v>0 3 6</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1 1 1 1 1 1 1 1 1</v>
+  </property>
+</object>

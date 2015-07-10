@@ -192,7 +192,7 @@ namespace polymake { namespace tropical {
 			Vector<Rational> fval = f_rayval | f_linval;
 			Vector<Rational> gval = g_rayval | g_linval;
 
-			Matrix<Rational> rays = nDomain.give("SEPARATED_RAYS");
+			Matrix<Rational> rays = nDomain.give("SEPARATED_VERTICES");
 			Matrix<Rational> linspace = nDomain.give("LINEALITY_SPACE");
 
 			//Now compute ray values
@@ -207,7 +207,7 @@ namespace polymake { namespace tropical {
 			}
 
 			//Return result
-			perl::Object func("RationalFunction");
+			perl::Object func(perl::ObjectType::construct<Addition>("RationalFunction"));
 			func.take("DOMAIN") << nDomain;
 			func.take("VERTEX_VALUES") << rValues;
 			func.take("LINEALITY_VALUES") << lValues;

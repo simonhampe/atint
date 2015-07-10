@@ -19,12 +19,26 @@
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
-   FunctionInterface4perl( cartesian_product_T_x, T0 ) {
-      perl::Value arg0(stack[0]);
-      WrapperReturn( (cartesian_product<T0>(arg0)) );
+   FunctionInterface4perl( affine_transform_T_x_x, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( (affine_transform<T0>(arg0, arg1)) );
    };
 
-   FunctionInstance4perl(cartesian_product_T_x, Min);
-   FunctionInstance4perl(cartesian_product_T_x, Max);
+   template <typename T0>
+   FunctionInterface4perl( affine_transform_T_x_x_x, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      WrapperReturn( (affine_transform<T0>(arg0, arg1, arg2)) );
+   };
+
+   template <typename T0>
+   FunctionInterface4perl( shift_cycle_T_x_x, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( (shift_cycle<T0>(arg0, arg1)) );
+   };
+
+   FunctionInstance4perl(affine_transform_T_x_x_x, Min);
+   FunctionInstance4perl(shift_cycle_T_x_x, Max);
+   FunctionInstance4perl(affine_transform_T_x_x, Min);
+   FunctionInstance4perl(affine_transform_T_x_x_x, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
