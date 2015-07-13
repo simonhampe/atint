@@ -22,6 +22,12 @@
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0, typename T1>
+   FunctionInterface4perl( matroid_vector_T_x_C, T0,T1 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( (matroid_vector<T0>(arg0, arg1.get<T1, T0>())) );
+   };
+
+   template <typename T0, typename T1>
    FunctionInterface4perl( rational_curve_from_matroid_coordinates_T_X, T0,T1 ) {
       perl::Value arg0(stack[0]);
       WrapperReturn( (rational_curve_from_matroid_coordinates<T0>(arg0.get<T1>())) );
@@ -41,5 +47,7 @@ namespace polymake { namespace tropical { namespace {
 
    FunctionInstance4perl(rational_curve_from_matroid_coordinates_T_X, Max, perl::Canned< const Vector< Rational > >);
    FunctionInstance4perl(rational_curve_from_matroid_coordinates_T_X, Min, perl::Canned< const Vector< Rational > >);
+   FunctionInstance4perl(matroid_vector_T_x_C, Max, perl::Canned< const Max >);
+   FunctionInstance4perl(matroid_vector_T_x_C, Min, perl::Canned< const Min >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

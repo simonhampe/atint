@@ -397,7 +397,7 @@ namespace polymake { namespace tropical {
 			&lattice_index,"lattice_index(Matrix<Integer>)");
 
 	UserFunctionTemplate4perl("# @category Intersection theory"
-			"# Computes the intersection product of two tropical cycles in R^n and tests whether the intersection is transversal."
+			"# Computes the intersection product of two tropical cycles in R^n and tests whether the intersection is transversal (in the sense that the cycles intersect set-theoretically in the right dimension)."
 			"# @param Cycle X A tropical cycle"
 			"# @param Cycle Y A tropical cycle, living in the same space as X"
 			"# @param Bool ensure_transversality Whether non-transversal intersections should not be computed. Optional and false by default. If true,"

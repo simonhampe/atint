@@ -48,14 +48,18 @@ namespace polymake { namespace tropical {
 			IncidenceMatrix<> edges = flats.CallPolymakeMethod("EDGES");
 			IncidenceMatrix<> nodes_in_edges = T(edges);
 
-			//Prepare variables for chains, start with one chain with element 0
+			//Prepare variables for chains, start with one chain with element indexof(emptyset)
 			//(that will correspond to the vertex later)
 			//Each chain is an ordered list of indices, referring to FACES
-			//Top element saves the index of the top rank flat of each chain. 
+			//Top element saves the index of the top rank flat of each chain.
+			
+			//Get the index of the empty set 
+			Set<int> empty_list = flats.CallPolymakeMethod("nodes_of_dim",0);
+			int empty_index = *(empty_list.begin());
 			Vector< Set<int> > chains_as_sets(1);
 			Vector<int> top_element(1);
-				chains_as_sets[0] = scalar2set(0); 
-				top_element[0] = 0;
+				chains_as_sets[0] = empty_list; 
+				top_element[0] = empty_index;
 
 			for(int rk = 1; rk < r; rk++) {
 				Set<int> flats_of_rank = flats.CallPolymakeMethod("nodes_of_dim",rk);
@@ -77,18 +81,23 @@ namespace polymake { namespace tropical {
 			}//END iterate ranks
 
 			//Create rays 
-			//The 0-th ray is the vertex
 			Matrix<Rational> unitm = unit_matrix<Rational>(n);
 				unitm = zero_vector<Rational>() | unitm;
-			Matrix<Rational> rays(faces.rows()-1, n+1);
-			rays(0,0) = 1;
+			Matrix<Rational> rays(faces.rows(), n+1);
+			rays(empty_index,0) = 1;
 			for(int f = 1; f < faces.rows()-1; f++) {
 				rays.row(f) = Addition::orientation() * accumulate(rows(unitm.minor(faces.row(f),All)), operations::add());	
 			}
+			//The full set is at the opposite end from the empty set
+			int full_index = empty_index == 0? faces.rows()-1 : 0;
+			IncidenceMatrix<> chains_indicence(chains_as_sets);
+				if(empty_index != 0)
+					chains_indicence = chains_indicence.minor(All, ~scalar2set(full_index));
+			rays = rays.minor(~scalar2set(full_index),All);
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
 				result.take("PROJECTIVE_VERTICES") << rays;
-				result.take("MAXIMAL_POLYTOPES") << chains_as_sets;
+				result.take("MAXIMAL_POLYTOPES") << chains_indicence;
 				result.take("WEIGHTS") << ones_vector<Integer>(chains_as_sets.dim());
 			return result;
 		}

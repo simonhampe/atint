@@ -254,7 +254,7 @@ namespace polymake { namespace tropical {
 	  @brief Computes a subdivision of M_0,n containing H_k(degree) and (possibly) the cycle itself. The function returns a struct containing the subdivision as subobject "subdivision" and the Hurwitz cycle as subobject "cycle", both as perl::Object. Optionally one can specify a RationalCurve object representing a ray around which the whole computation is performed locally (the vector is only for default initalization).
 	  */
 	template <typename Addition>
-		HurwitzResult hurwitz_computation(int k, Vector<int> degree, Vector<Rational> points, bool compute_cycle, std::vector<perl::Object> local_restriction = std::vector<perl::Object>()) {
+		HurwitzResult hurwitz_computation(int k, Vector<int> degree, Vector<Rational> points, bool compute_cycle, std::vector<perl::Object> local_restriction, bool output_progress) {
 
 			solver<Rational> sv;
 
@@ -280,7 +280,7 @@ namespace polymake { namespace tropical {
 			}
 			else {
 				perl::Object lr_ray = local_restriction[0];
-				m0n = CallPolymakeFunction("local_m0n", Addition(), lr_ray); 
+				m0n = CallPolymakeFunction("local_m0n_wrap", Addition(), lr_ray); 
 				CallPolymakeFunction("matroid_vector",lr_ray,Addition()) >> compare_vector;
 				//We need to dehomogenize to make comparison possible.
 				compare_vector = tdehomog_vec(compare_vector);
@@ -330,7 +330,8 @@ namespace polymake { namespace tropical {
 			//Iterate all cones of M_0,n and compute their refinement as well as the 
 			//Hurwitz cycle cones within
 			for(int mc = 0; mc < mn_cones.rows(); mc++) {
-				pm::cout << "Refining cone " << mc << " of " << mn_cones.rows() << endl;
+				if(output_progress)
+					pm::cout << "Refining cone " << mc << " of " << mn_cones.rows() << endl;
 
 				//Extract the combinatorial type to compute evaluation maps
 				perl::Object mc_type = CallPolymakeFunction("rational_curve_from_cone",m0n,degree.dim(),mc);
@@ -560,20 +561,20 @@ namespace polymake { namespace tropical {
 
 	//Documentation see perl wrapper
 	template <typename Addition>
-		perl::Object hurwitz_subdivision(int k, Vector<int> degree, Vector<Rational> points = Vector<Rational>()) {
-			return hurwitz_computation<Addition>(k,degree,points,false).subdivision;
+		perl::Object hurwitz_subdivision(int k, Vector<int> degree, Vector<Rational> points, perl::OptionSet options) {
+			return hurwitz_computation<Addition>(k,degree,points,false, std::vector<perl::Object>(), options["Verbose"]).subdivision;
 		}
 
 	//Documentation see perl wrapper
 	template <typename Addition>
-		perl::Object hurwitz_cycle(int k,  Vector<int> degree, Vector<Rational> points = Vector<Rational>()) {
-			return hurwitz_computation<Addition>(k,degree,points,true).cycle;
+		perl::Object hurwitz_cycle(int k,  Vector<int> degree, Vector<Rational> points, perl::OptionSet options) {
+			return hurwitz_computation<Addition>(k,degree,points,true, std::vector<perl::Object>(), options["Verbose"]).cycle;
 		}
 
 	//Documentation see perl wrapper
 	template <typename Addition>
-		perl::ListReturn hurwitz_pair(int k,  Vector<int> degree, Vector<Rational> points = Vector<Rational>()) {
-			HurwitzResult r = hurwitz_computation<Addition>(k,degree,points,true);
+		perl::ListReturn hurwitz_pair(int k,  Vector<int> degree, Vector<Rational> points, perl::OptionSet options) {
+			HurwitzResult r = hurwitz_computation<Addition>(k,degree,points,true, std::vector<perl::Object>(), options["Verbose"]);
 			perl::ListReturn l;
 			l << r.subdivision;
 			l << r.cycle;
@@ -582,10 +583,10 @@ namespace polymake { namespace tropical {
 
 	//Documentation see perl wrapper
 	template<typename Addition>
-		perl::ListReturn hurwitz_pair_local(int k, Vector<int> degree, perl::Object local_restriction) {
+		perl::ListReturn hurwitz_pair_local(int k, Vector<int> degree, perl::Object local_restriction, perl::OptionSet options) {
 			std::vector<perl::Object> ray_to_list;
 			ray_to_list.push_back(local_restriction);
-			HurwitzResult r = hurwitz_computation<Addition>(k,degree, Vector<Rational>(), true,ray_to_list);
+			HurwitzResult r = hurwitz_computation<Addition>(k,degree, Vector<Rational>(), true,ray_to_list, options["Verbose"]);
 			perl::ListReturn l;
 			l << r.subdivision;
 			l << r.cycle;
@@ -602,9 +603,10 @@ namespace polymake { namespace tropical {
 			"# the fixed vertices (besides the first one, which always goes to 0) as elements of R."
 			"# If not given, all fixed vertices are mapped to 0"
 			"# and the function computes the subdivision of M_0,n containing the recession fan of H_k(x)"
+			"# @option Bool Verbose If true, the function outputs some progress information. True by default."
 			"# @tparam Addition Min or Max, where the coordinates live."
 			"# @return Cycle A subdivision of M_0,n",
-			"hurwitz_subdivision<Addition>($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
+			"hurwitz_subdivision<Addition>($,Vector<Int>;Vector<Rational> = new Vector<Rational>(),{Verbose=>1})");
 
 	UserFunctionTemplate4perl("# @category Hurwitz cycles"
 			"# This function computes the Hurwitz cycle H_k(x), x = (x_1,...,x_n)"
@@ -613,9 +615,10 @@ namespace polymake { namespace tropical {
 			"# @param Vector<Rational> points Optional. Should have length n-3-k. Gives the images of "
 			"# the fixed vertices (besides 0). If not given all fixed vertices are mapped to 0"
 			"# and the function computes the recession fan of H_k(x)"
+			"# @option Bool Verbose If true, the function outputs some progress information. True by default."
 			"# @tparam Addition Min or Max, where the coordinates live."
 			"# @return Cycle<Addition> H_k(x), in homogeneous coordinates",
-			"hurwitz_cycle<Addition>($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
+			"hurwitz_cycle<Addition>($,Vector<Int>;Vector<Rational> = new Vector<Rational>(),{Verbose=>1})");
 
 	UserFunctionTemplate4perl("# @category Hurwitz cycles"
 			"# This function computes hurwitz_subdivision and hurwitz_cycle at the same time, "
@@ -625,9 +628,10 @@ namespace polymake { namespace tropical {
 			"# @param Vector<Rational> points Optional. Should have length n-3-k. Gives the images of "
 			"# the fixed vertices (besides 0). If not given all fixed vertices are mapped to 0"
 			"# and the function computes the subdivision of M_0,n containing the recession fan of H_k(x)"
+			"# @option Bool Verbose If true, the function outputs some progress information. True by default."
 			"# @tparam Addition Min or Max, where the coordinates live."
 			"# @return An array, containing first the subdivision of M_0,n, then the Hurwitz cycle",
-			"hurwitz_pair<Addition>($,Vector<Int>;Vector<Rational> = new Vector<Rational>())");
+			"hurwitz_pair<Addition>($,Vector<Int>;Vector<Rational> = new Vector<Rational>(),{Verbose=>1})");
 
 	UserFunctionTemplate4perl("# @category Hurwitz cycles"
 			"# Does the same as hurwitz_pair, except that no points are given and the user can give a "
@@ -635,9 +639,10 @@ namespace polymake { namespace tropical {
 			"# will be performed locally around the ray."
 			"# @param Int k"
 			"# @param Vector<Int> degree"
+			"# @option Bool Verbose If true, the function outputs some progress information. True by default."
 			"# @tparam Addition Min or Max, where the coordinates live."
 			"# @param RationalCurve local_curve",
-			"hurwitz_pair_local<Addition>($,Vector<Int>,RationalCurve)");
+			"hurwitz_pair_local<Addition>($,Vector<Int>,RationalCurve,{Verbose=>1})");
 
 	UserFunction4perl("# @category Abstract rational curves"
 			"# Takes a RationalCurve and a list of node indices. Then inserts additional "
@@ -645,7 +650,7 @@ namespace polymake { namespace tropical {
 			"# RationalCurve object"
 			"# @param RationalCurve curve A RationalCurve object"
 			"# @param Vector<Int> nodes A list of node indices of the curve",
-			&insert_leaves, "insert_leaves(RationalCurve;@)");
+			&insert_leaves, "insert_leaves(RationalCurve,$)");
 
 }}
 

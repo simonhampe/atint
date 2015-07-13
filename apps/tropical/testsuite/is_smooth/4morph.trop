@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a3eddf"?>
+
+<object name="4morph" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="MATRIX">
+    <m>
+      <v>4 0 0 0 0</v>
+      <v>0 -2 -1 7 0</v>
+      <v>6 1 1 -5 1</v>
+      <v>3 0 0 1 0</v>
+      <v>3 -1 0 2 0</v>
+    </m>
+  </property>
+</object>

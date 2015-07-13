@@ -19,12 +19,28 @@
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
    template <typename T0>
-   FunctionInterface4perl( matroid_fan_from_flats_T_x, T0 ) {
+   FunctionInterface4perl( simplicial_diagonal_system_T_x, T0 ) {
       perl::Value arg0(stack[0]);
-      WrapperReturn( (matroid_fan_from_flats<T0>(arg0)) );
+      WrapperReturn( (simplicial_diagonal_system<T0>(arg0)) );
    };
 
-   FunctionInstance4perl(matroid_fan_from_flats_T_x, Max);
-   FunctionInstance4perl(matroid_fan_from_flats_T_x, Min);
+   template <typename T0>
+   FunctionInterface4perl( simplicial_piecewise_system_T_x, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (simplicial_piecewise_system<T0>(arg0)) );
+   };
+
+   template <typename T0>
+   FunctionInterface4perl( simplicial_with_diagonal_T_x, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (simplicial_with_diagonal<T0>(arg0)) );
+   };
+
+   FunctionInstance4perl(simplicial_with_diagonal_T_x, Max);
+   FunctionInstance4perl(simplicial_with_diagonal_T_x, Min);
+   FunctionInstance4perl(simplicial_piecewise_system_T_x, Max);
+   FunctionInstance4perl(simplicial_piecewise_system_T_x, Min);
+   FunctionInstance4perl(simplicial_diagonal_system_T_x, Max);
+   FunctionInstance4perl(simplicial_diagonal_system_T_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

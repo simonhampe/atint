@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a3db46"?>
+
+<object name="1subdiv" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="PROJECTIVE_VERTICES">
+    <m>
+      <v>0 0 1 1 1 1 0</v>
+      <v>1 0 0 0 0 0 0</v>
+      <v>0 0 1 1 1 1 1</v>
+      <v>0 0 1 0 1 0 1</v>
+      <v>0 0 0 1 0 1 1</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="5">
+      <v>0 1 2</v>
+      <v>1 2 3</v>
+      <v>1 2 4</v>
+    </m>
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="WEIGHTS">
+    <v>1 1 1</v>
+  </property>
+  <property name="LOCAL_RESTRICTION" ext="1=https://github.com/simonhampe/atint">
+    <m cols="5">
+      <v>1 2</v>
+    </m>
+  </property>
+</object>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a3adb9"?>
+
+<object name="1" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="VERTICES">
+    <m>
+      <v>0 0 1 1 1 1 0</v>
+      <v>0 0 0 0 0 0 -1</v>
+      <v>1 0 0 0 0 0 0</v>
+      <v>0 0 1 1 1 1 1</v>
+      <v>0 0 1 0 1 0 1</v>
+      <v>0 0 0 1 0 1 1</v>
+      <v>0 0 -1 0 0 -1 0</v>
+      <v>0 0 0 0 0 -1 0</v>
+      <v>0 0 -1 0 0 0 0</v>
+      <v>0 0 -1 -1 0 0 -1</v>
+      <v>0 0 0 -1 -1 0 0</v>
+      <v>0 0 0 0 -1 0 0</v>
+      <v>0 0 0 -1 0 0 0</v>
+      <v>0 0 0 0 -1 -1 -1</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="14">
+      <v>0 1 2</v>
+      <v>0 2 3</v>
+      <v>2 3 4</v>
+      <v>2 3 5</v>
+      <v>2 6 7</v>
+      <v>2 6 8</v>
+      <v>2 8 9</v>
+      <v>2 5 8</v>
+      <v>2 10 11</v>
+      <v>2 10 12</v>
+      <v>2 9 12</v>
+      <v>2 4 12</v>
+      <v>2 11 13</v>
+      <v>2 7 13</v>
+      <v>1 2 13</v>
+      <v>2 5 11</v>
+      <v>2 4 7</v>
+      <v>1 2 9</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</v>
+  </property>
+</object>

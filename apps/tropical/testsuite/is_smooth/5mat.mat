@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a3ef1c"?>
+
+<object name="5mat" type="matroid::Matroid" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="BASES">
+    <m>
+      <v>0</v>
+      <v>1</v>
+      <v>2</v>
+      <v>3</v>
+    </m>
+  </property>
+  <property name="N_ELEMENTS" value="4" />
+</object>
