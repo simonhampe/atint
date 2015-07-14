@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a51173"?>
+
+<object name="1" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="PROJECTIVE_VERTICES">
+    <m>
+      <v>0 -1 -1 0 -1 0 0</v>
+      <v>0 -1 0 -1 0 -1 0</v>
+      <v>0 0 0 0 0 0 -1</v>
+      <v>0 0 -1 -1 0 0 -1</v>
+      <v>0 0 0 0 0 -1 0</v>
+      <v>0 0 0 0 -1 0 0</v>
+      <v>1 0 0 0 0 0 0</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="7">
+      <v>0 6</v>
+      <v>1 6</v>
+      <v>2 6</v>
+      <v>3 6</v>
+      <v>4 6</v>
+      <v>5 6</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1 1 1 1 1 1</v>
+  </property>
+</object>

@@ -35,10 +35,13 @@ namespace polymake { namespace tropical {
 
 	//Documentation see perl wrapper
 	template <typename Addition>
-		perl::Object evaluation_map(int n, int r, Matrix<Rational> delta, int i) {
-			if(n <= 0 || r <= 0 || delta.rows() <= 0 || i <= 0 || i > n) {
+		perl::Object evaluation_map(int n,  Matrix<Rational> delta, int i) {
+			if(n <= 0 || delta.rows() <= 0 || i <= 0 || i > n) {
 				throw std::runtime_error("Cannot create evaluation map: Invalid parameters");
 			}
+
+			//Dimension of the target space
+			int r = delta.cols()-1;
 
 			//We create the map on the 
 
@@ -110,7 +113,7 @@ namespace polymake { namespace tropical {
 
 			//dbgtrace << "Delta: " << delta << endl;
 
-			return evaluation_map<Addition>(n,r,delta,i);
+			return evaluation_map<Addition>(n,delta,i);
 		}
 
 
@@ -164,13 +167,13 @@ namespace polymake { namespace tropical {
 
 			//Check if we forget so many leaves that we get the zero map
 			if(small_n <= 3) {
-				perl::Object result("Morphism");
-				result.take("MATRIX") << Matrix<Rational>(n == 3? 1 : 0,domain_dim);
+				perl::Object result(perl::ObjectType::construct<Addition>("Morphism"));
+				result.take("MATRIX") << Matrix<Rational>(small_n == 3? 1 : 0,domain_dim);
 				return result;
 			}
 			//Check if we don't forget anything at all
 			if(leaves_to_forget.size() == 0) {
-				perl::Object result("Morphism");
+				perl::Object result(perl::ObjectType::construct<Addition>("Morphism"));
 				Matrix<Rational> um = unit_matrix<Rational>(domain_dim);
 				result.take("MATRIX") << um;
 				return result;

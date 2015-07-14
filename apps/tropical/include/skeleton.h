@@ -106,7 +106,8 @@ namespace polymake { namespace tropical {
 			result.take("VERTICES") << thomog(newrays);
 			result.take("MAXIMAL_POLYTOPES") << newMaximalCones;
 			result.take("LINEALITY_SPACE") << thomog(lineality);
-			result.take("LOCAL_RESTRICTION") << new_local_restriction;
+			if(local_restriction.rows() > 0)
+				result.take("LOCAL_RESTRICTION") << new_local_restriction;
 
 			return result;
 		}

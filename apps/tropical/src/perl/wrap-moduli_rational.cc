@@ -18,6 +18,18 @@
 
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0>
+   FunctionInterface4perl( space_of_stable_maps_T_x_x_x, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      WrapperReturn( (space_of_stable_maps<T0>(arg0, arg1, arg2)) );
+   };
+
+   template <typename T0>
+   FunctionInterface4perl( m0n_T_x, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (m0n<T0>(arg0)) );
+   };
+
    template <typename T0, typename T1>
    FunctionInterface4perl( m0n_wrap_T_x_C, T0,T1 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
@@ -32,5 +44,9 @@ namespace polymake { namespace tropical { namespace {
 
    FunctionInstance4perl(m0n_wrap_T_x_C, Max, perl::Canned< const Max >);
    FunctionInstance4perl(m0n_wrap_T_x_C, Min, perl::Canned< const Min >);
+   FunctionInstance4perl(m0n_T_x, Min);
+   FunctionInstance4perl(m0n_T_x, Max);
+   FunctionInstance4perl(space_of_stable_maps_T_x_x_x, Max);
+   FunctionInstance4perl(space_of_stable_maps_T_x_x_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

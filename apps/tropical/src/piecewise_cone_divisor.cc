@@ -31,6 +31,7 @@
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/misc_tools.h"
+#include "polymake/tropical/skeleton.h"
 
 namespace polymake { namespace tropical {
 
@@ -46,16 +47,18 @@ namespace polymake { namespace tropical {
 			//Compute fan dimension
 			int fan_dim = fan.give("PROJECTIVE_DIM");
 
+			Matrix<Rational> fan_rays = fan.give("SEPARATED_VERTICES");
+			Set<int> nonfar = far_and_nonfar_vertices(fan_rays).second;
+
 			//First we compute the appropriate skeleton of fan
 			if(cones.rows() == 0) return fan;
 			int result_dim = fan_dim - cones.row(0).size() + 1; //Cones have a vertex!
-			perl::Object skeleton = CallPolymakeFunction("skeleton_complex",fan,result_dim,true);
+			perl::Object skeleton = skeleton_complex<Addition>(fan,result_dim,true);
 
 			//Extract values of skeleton
-			Matrix<Rational> sk_rays = skeleton.give("SEPARATED_VERTICES");
+			Matrix<Rational> sk_rays = skeleton.give("VERTICES");
 			sk_rays = tdehomog(sk_rays);
-			Set<int> nonfar = far_and_nonfar_vertices(sk_rays).second;
-			IncidenceMatrix<> sk_cones = skeleton.give("SEPARATED_MAXIMAL_POLYTOPES");
+			IncidenceMatrix<> sk_cones = skeleton.give("MAXIMAL_POLYTOPES");
 
 			//This will contain the weights of the cones in the linear combination
 			Vector<Integer> result_weights = zero_vector<Integer>(sk_cones.rows());
@@ -64,14 +67,14 @@ namespace polymake { namespace tropical {
 			for(int tau = 0; tau < cones.rows(); tau++) {
 				if(coefficients[tau] != 0) {
 					//Create function matrix
-					Matrix<Rational> psi_tau(0,sk_rays.rows());
+					Matrix<Rational> psi_tau(0,fan_rays.rows());
 					Set<int> tau_set = cones.row(tau);
 					//Remove vertex
 					tau_set -= nonfar;
 					if(tau_set.size() != fan_dim - result_dim) 
 						throw std::runtime_error("Cannot compute divisor of piecewise polynomials: Cones have different dimension.");
 					for(Entire<Set<int> >::iterator ts = entire(tau_set); !ts.at_end(); ts++) {
-						psi_tau /= unit_vector<Rational>(sk_rays.rows(),*ts);
+						psi_tau /= unit_vector<Rational>(fan_rays.rows(),*ts);
 					}
 
 					//Compute divisor

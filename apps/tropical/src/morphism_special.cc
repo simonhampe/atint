@@ -27,12 +27,11 @@ namespace polymake { namespace tropical {
 
 	UserFunctionTemplate4perl("# @category Moduli of rational curves" 
 			"# This creates the i-th evaluation function on M_0,n^(lab)(R^r,Delta)"
-			"# (which is actually realized as M_0,(n+|Delta|) x R^r)"
-			"# and can be created via [[space_of_stable_maps]]."
+			"# (which is actually realized as M_0,(n+|Delta|) x R^r"
+			"# and can be created via [[space_of_stable_maps]])."
 			"# @param Int n The number of marked (contracted) points"
-			"# @param Int r The dimension of the embedding space"
 			"# @param Matrix<Rational> Delta The directions of the unbounded edges (given as row vectors "
-			"# in tropical projective coordinates without leading coordinate)"
+			"# in tropical projective coordinates without leading coordinate, i.e. have r+1 columns)"
 			"# @param Int i The index of the marked point that should be evaluated."
 			"# Should lie in between 1 and n"
 			"# Note that the i-th marked point is realized as the |Delta|+i-th leaf in M_0,(n+|Delta|)"
@@ -42,7 +41,7 @@ namespace polymake { namespace tropical {
 			"# @return Morphism<Addition> ev_i. Its domain is the ambient space of the moduli space "
 			"# as created by [[space_of_stable_maps]]. The target space is the tropical projective"
 			"# torus of dimension r",
-			"evaluation_map<Addition>($,$,Matrix<Rational>,$)");
+			"evaluation_map<Addition>($,Matrix<Rational>,$)");
 
 	FunctionTemplate4perl("evaluation_map_d<Addition>($,$,$,$)");
 
@@ -95,6 +94,7 @@ namespace polymake { namespace tropical {
 			"# This computes the forgetful map from the moduli space M_0,n to M_0,(n-|S|)"
 			"# @param Int n The number of leaves in the moduli space M_0,n"
 			"# @param Set<Int> S The set of leaves to be forgotten. Should be a subset of (1,..,n)"
+			"# @tparam Addition Min or Max"
 			"# @return Morphism The forgetful map. It will identify the remaining leaves "
 			"# i_1,..,i_(n-|S|) with the leaves of M_0,(n-|S|) in canonical order."
 			"# The domain of the morphism is the ambient space of the morphism in matroid coordinates,"

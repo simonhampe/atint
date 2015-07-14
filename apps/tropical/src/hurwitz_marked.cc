@@ -72,7 +72,7 @@ namespace polymake { namespace tropical {
 		rat_degree |= degree;
 		for(int i = n+2; i <= 2*n-2-k; i++) {
 			//dbgtrace << "Computing evaluation map pull back for i = " << i-n-1 << endl;
-			perl::Object evi = evaluation_map<Addition>(n-2-k, 1, thomog(rat_degree,0,false), i-n-1);
+			perl::Object evi = evaluation_map<Addition>(n-2-k, thomog(rat_degree,0,false), i-n-1);
 			Matrix<Rational> evi_matrix = evi.give("MATRIX");
 				evi_matrix = tdehomog_morphism(evi_matrix, zero_translate).first;
 			//Pulling back p_i = max(x,p_i) * R means we take the vector representing the morphism and 

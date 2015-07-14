@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a4f442"?>
+
+<object name="2" type="matroid::Matroid" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="N_ELEMENTS" value="3" />
+  <property name="BASES">
+    <m>
+      <v>0 1</v>
+      <v>0 2</v>
+    </m>
+  </property>
+</object>
