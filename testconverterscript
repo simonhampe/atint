@@ -1,0 +1,8 @@
+#!/bin/bash
+
+find ./apps/tropical/testsuite -type f | while read fname; do
+	if [[ ($fname != *.OK) && ($fname != *.pl) ]] 
+	then
+		xsltproc -o $fname testconverter.xsl $fname	
+	fi
+done

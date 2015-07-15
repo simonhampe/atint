@@ -1,0 +1,5 @@
+* Apply testconverterscript FROM atint directory to remove "ext" attribute from xml files in testcases
+* Copy apps/ folder to bundled/atint
+* Possibly change polymake.ext by hand
+
+* DONT commit changes made to testcases, to avoid merging hassles.
