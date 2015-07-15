@@ -181,13 +181,17 @@ namespace polymake { namespace tropical {
 	//Documentation see perl wrapper
 	bool contains_point(perl::Object complex, Vector<Rational> point) {
 
+		//Special case: Empty cycle
+		if(CallPolymakeFunction("is_empty",complex))
+			return false;
+
 		//Extract values
 		Matrix<Rational> rays = complex.give("VERTICES");
 		Matrix<Rational> linspace = complex.give("LINEALITY_SPACE");
 		IncidenceMatrix<> cones = complex.give("MAXIMAL_POLYTOPES");
 
 		if(point.dim() != rays.cols() && point.dim() != linspace.cols()) {
-			throw std::runtime_error("Point does not have the same dimension as the complex.");
+			throw std::runtime_error("Point does not have the same ambient dimension as the complex.");
 		}
 
 		solver<Rational> sv;

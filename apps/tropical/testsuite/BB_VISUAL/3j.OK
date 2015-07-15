@@ -1,0 +1,82 @@
+/*--------------------HEADER 3--------------------*/
+import de.jreality.shader.CommonAttributes;
+setAccessibility(true);
+
+synchronized(root) {
+
+geom = new SceneGraphComponent();
+geom.setName("3");
+root.addChild(geom);
+/*----------------------------------------*/
+appearance = new Appearance();
+appearance.setAttribute(CommonAttributes.VERTEX_DRAW, true);
+appearance.setAttribute(CommonAttributes.SPHERES_DRAW, true);
+appearance.setAttribute(CommonAttributes.DEPTH_FUDGE_FACTOR,0.999999);
+appearance.setAttribute(CommonAttributes.POINT_SHADER +"."+ CommonAttributes.DIFFUSE_COLOR,
+  new java.awt.Color((float)0.549,(float)0.549,(float)0.549));
+geom.setAppearance(appearance);
+appearance.setAttribute(CommonAttributes.TUBES_DRAW,true);
+appearance.setAttribute(CommonAttributes.EDGE_DRAW,true);
+appearance.setAttribute(CommonAttributes.LINE_SHADER +"."+ CommonAttributes.DIFFUSE_COLOR,
+  new java.awt.Color((float)0.2745,(float)0.2745,(float)0.2745));
+ilsf = new IndexedLineSetFactory();
+/*--------------------geometry--------------------*/
+ilsf.setVertexCount(2);
+pts = new double[][]{
+{1,1,1},
+  {-1,-1,-1}};//pts
+ilsf.setVertexCoordinates(pts);
+colors = new double[]{
+  1,0,0,
+  1,0,0};
+ilsf.setVertexColors(new DoubleArrayArray.Inlined(colors, 3) );
+pts_thicknesses = new double[] {
+0.1,0.1 };
+ilsf.setVertexRelativeRadii( pts_thicknesses );
+ilsf.setEdgeCount(1);
+lines = new int[][]{
+  { 0,1 }};
+ilsf.setEdgeIndices(lines);
+appearance.setAttribute(CommonAttributes.LINE_SHADER +"."+ CommonAttributes.DIFFUSE_COLOR,
+  new java.awt.Color((float)0.2745,(float)0.2745,(float)0.2745));
+lines_thicknesses = new double[] {
+0.5 };
+ilsf.setEdgeRelativeRadii( lines_thicknesses );
+ilsf.update();
+part1=new SceneGraphComponent();
+part1.setGeometry(ilsf.getGeometry());
+part1.setAppearance(appearance);
+part1.setName("geometry");
+geom.addChild(part1);
+/*----------------------------------------*/
+appearance = new Appearance();
+appearance.setAttribute(CommonAttributes.VERTEX_DRAW, true);
+appearance.setAttribute(CommonAttributes.SPHERES_DRAW, true);
+appearance.setAttribute(CommonAttributes.DEPTH_FUDGE_FACTOR,0.999999);
+appearance.setAttribute(CommonAttributes.POINT_SHADER +"."+ CommonAttributes.DIFFUSE_COLOR,
+  new java.awt.Color((float)0.549,(float)0.549,(float)0.549));
+geom.setAppearance(appearance);
+psf = new PointSetFactory();
+/*--------------------geometry--------------------*/
+psf.setVertexCount(1);
+pts = new double[][]{
+{0,0,0}};//pts
+psf.setVertexCoordinates(pts);
+colors = new double[]{
+  0,0,0};
+psf.setVertexColors(new DoubleArrayArray.Inlined(colors, 3) );
+pts_thicknesses = new double[] {
+0.2 };
+psf.setVertexRelativeRadii( pts_thicknesses );
+labels = new String[]{"# 0: 1"};
+psf.setVertexLabels(labels);
+psf.update();
+part1=new SceneGraphComponent();
+part1.setGeometry(psf.getGeometry());
+part1.setName("geometry");
+part1.setAppearance(appearance);
+geom.addChild(part1);
+/*----------------------------------------*/
+root.notify();
+} 
+return;

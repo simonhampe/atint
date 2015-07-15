@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55a3e408"?>
+<?pm chk="55a64c7e"?>
 
 <object name="2" type="polytope::Polytope&lt;Rational&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="cdd"><![CDATA[
@@ -18,12 +18,12 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
   </property>
   <property name="EQUATIONS">
     <m>
+      <v>-1 1 1 0 0 0</v>
       <v>-1 0 0 1 1 0</v>
-      <v>-1 1 0 0 0 1</v>
-      <v>-1 0 1 1 0 0</v>
-      <v>-1 0 0 0 1 1</v>
-      <v>-1 1 0 1 0 0</v>
       <v>-1 0 1 0 0 1</v>
+      <v>-1 1 0 1 0 0</v>
+      <v>-1 0 1 0 1 0</v>
+      <v>-1 0 0 1 0 1</v>
     </m>
   </property>
   <property name="FEASIBLE" value="true" />

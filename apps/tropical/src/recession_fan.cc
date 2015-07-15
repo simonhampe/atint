@@ -37,6 +37,10 @@ namespace polymake { namespace tropical {
 	template <typename Addition>
 	perl::Object recession_fan(perl::Object complex) {
 
+		//Special cases 
+		if(CallPolymakeFunction("is_empty", complex)) 
+			return complex;
+
 		//Extract values
 		Matrix<Rational> rays = complex.give("VERTICES");
 		IncidenceMatrix<> cones = complex.give("MAXIMAL_POLYTOPES");

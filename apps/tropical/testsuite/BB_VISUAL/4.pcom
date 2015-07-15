@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="55a641c8"?>
+
+<object name="4" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="PROJECTIVE_VERTICES">
+    <m>
+      <v>1 0 0 0</v>
+    </m>
+  </property>
+  <property name="MAXIMAL_POLYTOPES">
+    <m cols="1">
+      <v>0</v>
+    </m>
+  </property>
+  <property name="WEIGHTS">
+    <v>1</v>
+  </property>
+  <property name="FAN_AMBIENT_DIM" value="4" />
+  <property name="PROJECTIVE_AMBIENT_DIM" value="2" />
+  <property name="INTERSECTION_COMPLEX">
+    <object>
+      <property name="PURE" value="true" />
+      <property name="DIM" value="0" />
+    </object>
+  </property>
+  <property name="DUAL_GRAPH">
+    <object>
+      <property name="ADJACENCY">
+        <m>
+          <v />
+        </m>
+      </property>
+      <property name="CONNECTED" value="true" />
+    </object>
+  </property>
+  <property name="VERTICES">
+    <m>
+      <v>1 0 0 0</v>
+    </m>
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
+    <v>0</v>
+  </property>
+  <property name="COMBINATORIAL_DIM" value="0" />
+  <property name="PURE" value="true" />
+  <property name="LINEALITY_DIM" value="0" />
+  <property name="FAN_DIM" value="1" />
+  <property name="PROJECTIVE_DIM" value="0" />
+</object>

@@ -41,7 +41,7 @@ namespace polymake { namespace tropical {
 
 	//Documentation see perl wrapper
 	template <typename Addition>
-		perl::Object triangulateCycle(perl::Object fan) {
+		perl::Object triangulate_cycle(perl::Object fan) {
 			Matrix<Rational> rays = fan.give("VERTICES");
 			//Dehomogenize 
 			rays = tdehomog(rays);
@@ -113,7 +113,7 @@ namespace polymake { namespace tropical {
 			//dbgtrace << "Triangulating fan " << endl;
 
 			//Triangulate fan first
-			fan = triangulateCycle<Addition>(fan);
+			fan = triangulate_cycle<Addition>(fan);
 
 			//Extract values
 			Matrix<Rational> rays = fan.give("VERTICES");
@@ -237,7 +237,7 @@ namespace polymake { namespace tropical {
 			"# Takes a cycle and computes a triangulation"
 			"# @param Cycle<Addition> F A cycle (not necessarily weighted)"
 			"# @return Cycle<Addition> A simplicial refinement of F",
-			"triangulateCycle<Addition>(Cycle<Addition>)");
+			"triangulate_cycle<Addition>(Cycle<Addition>)");
 
 	UserFunctionTemplate4perl("# @category Basic polyhedral operations"
 			"# Takes a cycle and a list of rays/vertices in tropical projective coordinates with"
@@ -246,7 +246,7 @@ namespace polymake { namespace tropical {
 			"# @param Cycle<Addition> F A cycle (not necessarily weighted)."
 			"# @param Matrix<Rational> R A list of normalized vertices or rays"
 			"# Note that the function will NOT subdivide the lineality space, i.e. rays that are "
-			"# equal to an existing ray modulo linealoty space will be ignored."
+			"# equal to an existing ray modulo lineality space will be ignored."
 			"# @return Cycle<Addition> A triangulation of F that contains all the "
 			"# original rays of F plus the ones in R",
 			"insert_rays<Addition>(Cycle<Addition>,$)");

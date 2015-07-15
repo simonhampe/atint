@@ -14,13 +14,25 @@
 --------------------------------------------------------------------------------
 */
 
+#include "polymake/TropicalNumber.h"
+
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( bool (perl::Object, pm::Vector<pm::Rational>) ) {
+   template <typename T0>
+   FunctionInterface4perl( insert_rays_T_x_x, T0 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Vector< Rational > > >() );
-   }
-   FunctionWrapperInstance4perl( bool (perl::Object, pm::Vector<pm::Rational>) );
+      WrapperReturn( (insert_rays<T0>(arg0, arg1)) );
+   };
 
+   template <typename T0>
+   FunctionInterface4perl( triangulate_cycle_T_x, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (triangulate_cycle<T0>(arg0)) );
+   };
+
+   FunctionInstance4perl(triangulate_cycle_T_x, Max);
+   FunctionInstance4perl(triangulate_cycle_T_x, Min);
+   FunctionInstance4perl(insert_rays_T_x_x, Max);
+   FunctionInstance4perl(insert_rays_T_x_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
