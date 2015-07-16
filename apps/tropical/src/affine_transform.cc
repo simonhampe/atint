@@ -67,7 +67,8 @@ namespace polymake { namespace tropical {
 			for(Entire<Set<int> >::iterator nf = entire(nonfar); !nf.at_end(); nf++) {
 				vertices.row(*nf) += translate;
 			}
-			lineality = lineality * T(matrix);
+			if(lineality.rows() > 0)
+				lineality = lineality * T(matrix);
 		
 			//The seemingly unnecessary thomog(tdehomog - calls take care of the fact
 			//that the normalization polymake applies to vertices is not compatible with

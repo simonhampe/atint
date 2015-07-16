@@ -151,23 +151,26 @@ namespace polymake { namespace tropical {
 			dbgtrace << "Trying " << interior_point << endl;
 			//Now go through all full-dimensional cones
 			for(int fullcone = 0; fullcone < full_dimensional_cones.dim(); fullcone++) {
-				dbgtrace << "Checking fulldimension cone " << fullcone << endl;
-				dbgtrace << "Has facets " << full_dimensional_cones[fullcone] << endl;
-				Vector<Rational> eq_check = full_dimensional_cones[fullcone] * interior_point;
+				//If the cone is the full space, i.e. has no facets, we don't need to check containment
 				bool is_interior = true;
 				bool is_in_boundary = false;
-				for(int c = 0; c < eq_check.dim(); c++) {
-					if(eq_check[c] == 0) {
-						is_in_boundary = true; break;
+				if(full_dimensional_cones[fullcone].rows() > 0) {
+					dbgtrace << "Checking fulldimension cone " << fullcone << endl;
+					dbgtrace << "Has facets " << full_dimensional_cones[fullcone] << endl;
+					Vector<Rational> eq_check = full_dimensional_cones[fullcone] * interior_point;
+					for(int c = 0; c < eq_check.dim(); c++) {
+						if(eq_check[c] == 0) {
+							is_in_boundary = true; break;
+						}
+						if(eq_check[c] < 0) {
+							is_interior = false; break;
+						}
+					}//END check for interiorness
+					// If its in the boundary of something, try another point.
+					if(is_in_boundary) {
+						dbgtrace << "It is a boundary point. Trying another one..." << endl;
+						point_found = false; break;
 					}
-					if(eq_check[c] < 0) {
-						is_interior = false; break;
-					}
-				}//END check for interiorness
-				// If its in the boundary of something, try another point.
-				if(is_in_boundary) {
-					dbgtrace << "It is a boundary point. Trying another one..." << endl;
-					point_found = false; break;
 				}
 				//If its interior, add the appropriate weight.
 				if(is_interior) {

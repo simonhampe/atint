@@ -243,7 +243,6 @@ namespace polymake { namespace tropical {
 		//Prepare result variables
 		Matrix<Rational> rays(0,n);
 		Vector<Set<int> > cones;
-		Vector<Integer> weights;
 
 		//Now compute cones for each basis
 		Set<int> complete = sequence(0,n);
@@ -261,7 +260,7 @@ namespace polymake { namespace tropical {
 
 			//i-th element will contain all the k not in B mapped to i by p
 			Vector<Set<int> > Qb(n); 
-			for(int l = 0; l < Qb.dim(); l++) { Qb[l] = Set<int>();}
+//			for(int l = 0; l < Qb.dim(); l++) { Qb[l] = Set<int>();}
 
 			//Now we go through all the regressive compatible pairs (p,L)
 

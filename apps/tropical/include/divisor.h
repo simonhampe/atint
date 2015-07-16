@@ -180,7 +180,8 @@ namespace polymake { namespace tropical {
 					}
 					cmplx_origins = newcmplx_origins;
 					//Finally append lineality values
-					currentValues |= lineality_values.row(r);
+					if(lineality_values.rows() > 0)
+						currentValues |= lineality_values.row(r);
 				}
 				//dbgtrace << "Value vector is: " << currentValues << endl;
 

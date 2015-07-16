@@ -63,14 +63,19 @@ namespace polymake { namespace tropical {
 			rays = rays.minor(usedRays,All);
 			IncidenceMatrix<> newMaximalCones(maximalCones);
 			newMaximalCones = newMaximalCones.minor(All,usedRays);
-			cones = cones.minor(All,usedRays);
+
+			//We have to take care when adapting the local restriction:
+			// If cones is input by hand, it may have less columns then there are rays left.
+			IncidenceMatrix<> newlocalcones(cones.rows(), rays.rows());
+				newlocalcones.minor(All, sequence(0, cones.cols())) = cones;
+			newlocalcones = newlocalcones.minor(All,usedRays);
 
 			perl::Object result(perl::ObjectType::construct<Addition>("Cycle"));
 			result.take("PROJECTIVE_VERTICES") << rays;
 			result.take("MAXIMAL_POLYTOPES") << newMaximalCones;
 			result.take("LINEALITY_SPACE") << linspace;
 			result.take("WEIGHTS") << weights;
-			result.take("LOCAL_RESTRICTION") << cones;
+			result.take("LOCAL_RESTRICTION") << newlocalcones;
 
 			return result;
 		}
