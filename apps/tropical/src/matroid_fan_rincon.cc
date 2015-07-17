@@ -243,7 +243,6 @@ namespace polymake { namespace tropical {
 		//Prepare result variables
 		Matrix<Rational> rays(0,n);
 		Vector<Set<int> > cones;
-		Vector<Integer> weights;
 
 		//Now compute cones for each basis
 		Set<int> complete = sequence(0,n);
@@ -261,7 +260,6 @@ namespace polymake { namespace tropical {
 
 			//i-th element will contain all the k not in B mapped to i by p
 			Vector<Set<int> > Qb(n); 
-			for(int l = 0; l < Qb.dim(); l++) { Qb[l] = Set<int>();}
 
 			//Now we go through all the regressive compatible pairs (p,L)
 
@@ -270,10 +268,10 @@ namespace polymake { namespace tropical {
 			Vector<int> L; //the ordering on Im(p) (first element = smallest, etc)
 			int k = 0; //The k we currently define an image for (actually: index in complement)
 			//For given k, iterations[0]..iterations[k] describe the iterations for all k' <= k
-			// Semantics: (-1,-1): We just started with this k, check F_k cap L
-			// (0,-1): Start adding elements from F_k \ L
+			// Semantics: (-1,-1): We just started with this k, check F_k cap Im(p)
+			// (0,-1): Start adding elements from F_k \ Im(p)
 			// (b,x): In the last iteration we took the element at index b in F_k and inserted it
-			// before position x. Find the next valid position
+			// at position x in L. Find the next valid position
 			Vector<std::pair<int,int> > iterations(complement.dim());
 			for(int t = 0; t < iterations.dim(); t++) {
 				iterations[t] = std::make_pair(-1,-1);
@@ -337,6 +335,13 @@ namespace polymake { namespace tropical {
 					//If we arrive after the last valid position, take the next b
 					if(x > smallestx) {
 						x = 0; b++;
+					}
+					//Check that b is smaller than k (and the list size)
+					if(b >= Fklists[k].dim()) {
+						break;
+					}
+					if(Fklists[k][b] >= complement[k]) {
+						break;
 					}
 					//Check that b is not in L
 					bool binL = false;
@@ -411,18 +416,14 @@ namespace polymake { namespace tropical {
 	  */
 	template <typename Addition>
 	perl::Object modify_fan(int n, Matrix<Rational> bergman_rays, IncidenceMatrix<> pre_cones, Set<int> coloops) {
-		Matrix<Rational> bergman_lineality = Matrix<Rational>(0,n);
 		Vector<Integer> weights = ones_vector<Integer>(pre_cones.rows()); 
 
 		//Next, we have to add appropriate zero columns for each coloop and a lineality space
 		Matrix<Rational> new_bergman_rays(bergman_rays.rows(),n);
-		Matrix<Rational> new_bergman_lin(bergman_lineality.rows() + coloops.size(), n);
+		Matrix<Rational> bergman_lineality(coloops.size(), n);
 		new_bergman_rays.minor(All,~coloops) = bergman_rays;
-		Set<int> first_rows = sequence(0,bergman_lineality.rows());
-		new_bergman_lin.minor(first_rows,~coloops) = bergman_lineality;
-		new_bergman_lin.minor(~first_rows,coloops) = unit_matrix<Rational>(coloops.size());
+		bergman_lineality.minor(All,coloops) = unit_matrix<Rational>(coloops.size());
 		bergman_rays = new_bergman_rays;
-		bergman_lineality = new_bergman_lin;
 
 		//We have to reduce the lineality space mod (1,..,1) - since we only get
 		//lineality space from the coloops, we only have to do this, if everything is a coloop

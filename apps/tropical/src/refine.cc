@@ -353,7 +353,10 @@ namespace polymake { namespace tropical {
 		} //END if intersection is necessary?
 
 		IncidenceMatrix<> c_cones_result(c_cones); //Copy result cones for local restriction clean-up
-		IncidenceMatrix<> local_restriction_result(new_local_restriction);
+		IncidenceMatrix<> local_restriction_as_matrix(new_local_restriction);
+		IncidenceMatrix<> local_restriction_result(local_restriction_as_matrix.rows(), c_rays.rows());
+			local_restriction_result.minor(All, sequence(0, local_restriction_as_matrix.cols())) = local_restriction_as_matrix;
+					
 
 		//At the end we still have to check if all maximal cones are still compatible
 		//and remove those that aren't

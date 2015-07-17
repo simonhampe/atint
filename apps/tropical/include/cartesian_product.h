@@ -31,6 +31,7 @@
 #include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/misc_tools.h"
+#include "polymake/tropical/specialcycles.h"
 
 namespace polymake { namespace tropical {
 
@@ -98,6 +99,15 @@ namespace polymake { namespace tropical {
 			for(unsigned int i = 1; i < complexes.size(); i++) {
 				//dbgtrace << "Considering complex nr. " << i+1 << endl;
 				//Extract properties
+				
+				if(CallPolymakeFunction("is_empty",complexes[i])) {
+					int projective_amb = std::max(rayMatrix.cols(), linMatrix.cols()) -1;
+					for(int j = i; j < complexes.size(); j++) {
+						int jth_projective_amb = complexes[j].give("PROJECTIVE_AMBIENT_DIM");
+						projective_amb += jth_projective_amb;
+					}
+					return empty_cycle<Addition>(projective_amb);
+				}
 
 				bool uses_weights = false;
 				Matrix<Rational> prerays = complexes[i].give("VERTICES");
@@ -112,8 +122,8 @@ namespace polymake { namespace tropical {
 
 				Array<Integer> preweights;
 				if(complexes[i].exists("WEIGHTS")) {
-					uses_weights = true;
 					preweights = complexes[i].give("WEIGHTS");
+					uses_weights = true; 
 				}
 
 				// ** RECOMPUTE RAY DATA ***********************************************

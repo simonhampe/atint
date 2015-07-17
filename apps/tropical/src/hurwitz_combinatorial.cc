@@ -292,11 +292,11 @@ namespace polymake { namespace tropical {
 			if(m0n.exists("LOCAL_RESTRICTION")) {
 				m0n.give("LOCAL_RESTRICTION") >> mn_restrict;
 			}
-			int restrict_index = -1;
+			/*int restrict_index = -1;
 			if(restrict_local) {
 				restrict_index = *(mn_restrict.row(0).begin());
 				//dbgtrace << "Restricting at ray " << restrict_index << endl;
-			}
+			}*/
 
 
 			//Create evaluation maps
