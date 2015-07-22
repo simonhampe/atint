@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="552b9a4a"?>
+<?pm chk="55afac65"?>
 
 <object name="1" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
@@ -173,6 +173,7 @@
       <property name="SEPARATED_CONVERSION_VECTOR">
         <v>0 1 2 3</v>
       </property>
+      <property name="PROJECTIVE_AMBIENT_DIM" value="2" />
     </object>
   </property>
   <property name="VERTEX_VALUES">
