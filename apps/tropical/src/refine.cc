@@ -55,6 +55,19 @@ namespace polymake { namespace tropical {
 			bool repFromX, bool repFromY,bool computeAssoc,bool refine, bool forceLatticeComputation) {
 		solver<Rational> sv;
 
+
+		//Sanity check 
+		if(CallPolymakeFunction("is_empty", X)) {
+			RefinementResult r;
+				r.complex = X;
+				r.rayRepFromX = Matrix<Rational>();
+				r.linRepFromX = Matrix<Rational>();
+				r.rayRepFromY = Matrix<Rational>();
+				r.linRepFromY = Matrix<Rational>();
+				r.associatedRep = Vector<int>();
+			return r;
+		}
+
 		//All computations will be done on affine charts of X and Y, the result will then be lifted 
 		// at the end.
 		//This is to reduce the amount of work we have to do in convex hull computations

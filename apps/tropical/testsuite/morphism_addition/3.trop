@@ -30,6 +30,7 @@
         <v>1 1 1 1 1</v>
       </property>
       <property name="LINEALITY_DIM" value="0" />
+      <property name="PROJECTIVE_AMBIENT_DIM" value="3" />
       <property name="INTERSECTION_COMPLEX">
         <object>
           <property name="PURE" value="true" />
