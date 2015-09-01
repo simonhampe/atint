@@ -82,7 +82,17 @@ namespace polymake { namespace tropical {
 		return result;
 	}//END flat_as_coloop_matroids
 
+	Set<Set<int> > set_set_intersection(const Set<Set<int> > &s, const Set<Set<int> > &t) {
+		return s * t;
+	}
+
+	Set<Set<int> > set_set_difference(const Set<Set<int> >&s, const Set<Set<int> > &t) {
+		return s - t;
+	}
+
 	UserFunction4perl("",&corank_one_matroids, "corank_one_matroids($) : returns(@)");
 	UserFunction4perl("",&flat_as_coloop_matroids, "flat_as_coloop_matroids(matroid::Matroid) : returns(@)");
+	UserFunction4perl("",&set_set_intersection,"set_set_intersection($,$)");
+	UserFunction4perl("",&set_set_difference,"set_set_difference($,$)");
 
 }}

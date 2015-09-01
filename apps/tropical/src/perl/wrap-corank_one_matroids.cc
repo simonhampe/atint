@@ -22,5 +22,11 @@ namespace polymake { namespace tropical { namespace {
    }
    FunctionWrapperInstance4perl( pm::perl::ListReturn (int) );
 
+   FunctionWrapper4perl( pm::Set<pm::Set<int, pm::operations::cmp>, pm::operations::cmp> (pm::Set<pm::Set<int, pm::operations::cmp>, pm::operations::cmp> const&, pm::Set<pm::Set<int, pm::operations::cmp>, pm::operations::cmp> const&) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const Set< Set< int > > > >(), arg1.get< perl::TryCanned< const Set< Set< int > > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Set<pm::Set<int, pm::operations::cmp>, pm::operations::cmp> (pm::Set<pm::Set<int, pm::operations::cmp>, pm::operations::cmp> const&, pm::Set<pm::Set<int, pm::operations::cmp>, pm::operations::cmp> const&) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
