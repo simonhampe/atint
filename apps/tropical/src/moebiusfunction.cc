@@ -67,7 +67,16 @@ namespace polymake { namespace tropical {
 		return result;
 	}
 
+	/*
+	 * Computes the moebius value of the whole matroid
+	 */
+	int moebius_value(perl::Object matroid) {
+		Vector<int> mvalues = moebius(matroid,false);
+		return mvalues[0] == 1? mvalues[mvalues.dim()-1] : mvalues[0];
+	}
+
 
 	UserFunction4perl("",&moebius, "moebius(matroid::Matroid;$=0)");
+	UserFunction4perl("",&moebius_value,"moebius_value(matroid::Matroid)");
 
 }}
