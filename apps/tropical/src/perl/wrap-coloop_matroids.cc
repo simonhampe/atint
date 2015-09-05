@@ -16,17 +16,11 @@
 
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( bool (perl::Object, pm::Vector<pm::Rational>) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Vector< Rational > > >() );
+   FunctionWrapper4perl( perl::Object (int, int, pm::Set<int, pm::operations::cmp>) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      IndirectWrapperReturn( arg0, arg1, arg2.get< perl::TryCanned< const Set< int > > >() );
    }
-   FunctionWrapperInstance4perl( bool (perl::Object, pm::Vector<pm::Rational>) );
-
-   FunctionWrapper4perl( pm::Array<pm::Integer, void> (int const&, int const&) ) {
-      perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0, arg1 );
-   }
-   FunctionWrapperInstance4perl( pm::Array<pm::Integer, void> (int const&, int const&) );
+   FunctionWrapperInstance4perl( perl::Object (int, int, pm::Set<int, pm::operations::cmp>) );
 
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }
