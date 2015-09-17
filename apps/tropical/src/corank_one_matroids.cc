@@ -34,6 +34,21 @@
 
 namespace polymake { namespace tropical {
 
+	//Defines the corank one matroid, defined by setting a list of elements to be
+	//coloops and the remaining matroid to be uniform
+	perl::Object corank_one_matroid(int n_elements, Set<int> coloops) {
+		Set<int> remaining = sequence(0,n_elements) - coloops;
+		Array<Set<int> > uniform_sets = all_subsets_of_k( remaining, n_elements - coloops.size()-1);
+		Vector<Set<int> > bases;
+		for(int us = 0; us < uniform_sets.size(); us++) {
+			bases |= (uniform_sets[us] + coloops);
+		}
+		perl::Object matroid("matroid::Matroid");
+		matroid.take("N_ELEMENTS") << n_elements;
+		matroid.take("BASES") << bases;
+		return matroid;
+	}
+
 	perl::ListReturn corank_one_matroids(int n_elements) {
 		perl::ListReturn result;
 		//Iterate the number of coloops
@@ -62,7 +77,7 @@ namespace polymake { namespace tropical {
 		int n_elements = matroid.give("N_ELEMENTS");
 		perl::Object lattice = matroid.give("LATTICE_OF_FLATS");
 		IncidenceMatrix<> flats = lattice.give("FACES");
-		
+
 		//Iterate flats
 		for(int f = 0; f < flats.rows(); f++) {
 			//Ignore the full set 
@@ -75,8 +90,8 @@ namespace polymake { namespace tropical {
 				bases |= (uniform_sets[us] + flats.row(f));
 			}
 			perl::Object matroid("matroid::Matroid");
-				matroid.take("N_ELEMENTS") << n_elements;
-				matroid.take("BASES") << bases;
+			matroid.take("N_ELEMENTS") << n_elements;
+			matroid.take("BASES") << bases;
 			result << matroid;
 		}//END iterate flats
 		return result;
@@ -94,5 +109,6 @@ namespace polymake { namespace tropical {
 	UserFunction4perl("",&flat_as_coloop_matroids, "flat_as_coloop_matroids(matroid::Matroid) : returns(@)");
 	UserFunction4perl("",&set_set_intersection,"set_set_intersection($,$)");
 	UserFunction4perl("",&set_set_difference,"set_set_difference($,$)");
+	UserFunction4perl("",&corank_one_matroid, "corank_one_matroid($,$)");
 
 }}
