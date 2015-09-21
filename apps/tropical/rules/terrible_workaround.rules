@@ -1,0 +1,5 @@
+
+
+function matroid_fan_max {
+	return matroid_fan<Max>(shift);
+}

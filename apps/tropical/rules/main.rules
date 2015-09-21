@@ -74,3 +74,4 @@ INCLUDE
 	visual_function.rules
 	intersection.rules
 	lines_in_cubic.rules
+	terrible_workaround.rules
