@@ -4,6 +4,7 @@ a-tint is an application for polymake (see [their webpage](http://www.polymake.o
 This project is part of and financed by the [DFG Priority Project SPP 1489](http://www.computeralgebra.de/index).
 
 **Current version:** 2.0
+
 **Important note:** As of polymake 2.15-beta3 a-tint is a bundled extension! I.e. if you download the newest perpetual beta, a-tint is already included!
 
 ## Getting started 
