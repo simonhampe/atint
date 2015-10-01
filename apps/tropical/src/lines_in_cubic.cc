@@ -50,9 +50,9 @@ namespace polymake { namespace tropical {
 		//First, we compute the divisor of f
 		perl::Object r3 = projective_torus<Max>(3,1); 
 		perl::Object ratfct = CallPolymakeFunction("rational_fct_from_affine_numerator",f);	
-		dbgtrace << "Computing divisor" << endl;
+		//dbgtrace << "Computing divisor" << endl;
 		perl::Object X = CallPolymakeFunction("divisor",r3,ratfct);
-		dbgtrace << "Done." << endl;
+		//dbgtrace << "Done." << endl;
 		perl::Object lindom = ratfct.give("DOMAIN");
 		Matrix<Rational> lindom_rays = lindom.give("VERTICES");
 			lindom_rays = tdehomog(lindom_rays);
