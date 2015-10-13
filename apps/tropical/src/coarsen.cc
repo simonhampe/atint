@@ -255,7 +255,12 @@ namespace polymake { namespace tropical {
 					for(Entire<Set<int> >::iterator r2 = entire(used_rays); !r2.at_end(); r2++) {
 						if(!keys(ray_index_conversion).contains(*r2)) {
 							//Check if both rays are equal mod lineality space
-							if( rank(newlin / (complete_matrix.row(*r1) - complete_matrix.row(*r2))) == linrank) {
+							/*cout << "Row r1 " << complete_matrix.row(*r1) << endl;
+							cout << "Row r2 " << complete_matrix.row(*r2) << endl;
+							cout << "Diff" << complete_matrix.row(*r1) - complete_matrix.row(*r2) << endl;
+							cout << "Concat" << newlin / (complete_matrix.row(*r1) - complete_matrix.row(*r2)) << endl;*/
+							Vector<Rational> diff_vector = complete_matrix.row(*r1) - complete_matrix.row(*r2);
+							if( rank(newlin / diff_vector) == linrank) {
 								ray_index_conversion[*r2] = next_index;
 							}
 						}//END if second not mapped yet

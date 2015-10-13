@@ -37,6 +37,10 @@ namespace polymake { namespace tropical {
 	//using namespace atintlog::dolog;
 	//using namespace atintlog::dotrace;
 
+	using namespace atintlog::donotlog;
+    //using namespace atintlog::dolog;
+//     using namespace atintlog::dotrace;
+	
 	//Documentation see perl wrapper
 	template <typename Addition>
 		bool check_cycle_equality(perl::Object X, perl::Object Y, bool check_weights = true) {
