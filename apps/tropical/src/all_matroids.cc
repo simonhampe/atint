@@ -37,6 +37,30 @@
 namespace polymake { namespace tropical {
 
 	/*
+	 * Computes all loopfree matroids of given rank on 0 .. n-1
+	 */
+	perl::ListReturn all_loopfree_of_rank(int n, int r) {
+		perl::ListReturn result;
+
+		Vector<Set<int> > r_sets(all_subsets_of_k(sequence(0,n),r));
+		Array<Set<int> > all_sets = all_subsets(sequence(0, r_sets.dim()));
+		//Iterate all possible subsets of r-sets
+		for(Entire<Array< Set<int> > >::iterator as = entire(all_sets); !as.at_end(); as++) {
+			Set<int> base_union = accumulate(r_sets.slice( *as), operations::add());
+			if(base_union.size() == n) {
+				if(matroid::check_basis_exchange_axiom_impl( r_sets.slice( *as))) {
+					perl::Object m("matroid::Matroid");
+					m.take("N_ELEMENTS") << n;
+					m.take("BASES") << r_sets.slice(*as);
+					result << m;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	/*
 	 * Computes all (not only non-isomorphic) matroids on 0 .. n-1
 	 */
 	perl::ListReturn all_loopfree_matroids_on_n(int n) {
@@ -107,6 +131,8 @@ namespace polymake { namespace tropical {
 		return ideal;
 	}
 
+
+	UserFunction4perl("", &all_loopfree_of_rank,"all_loopfree_of_rank($,$) : returns(@)");
 
 	UserFunction4perl("", &all_loopfree_matroids_on_n, "all_loopfree_matroids_on_n($) : returns(@)");
 

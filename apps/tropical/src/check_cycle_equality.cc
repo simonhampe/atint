@@ -33,6 +33,9 @@
 
 namespace polymake { namespace tropical {
 
+	using namespace atintlog::donotlog;
+	//using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
 
 	//Documentation see perl wrapper
 	template <typename Addition>

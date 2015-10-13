@@ -22,5 +22,11 @@ namespace polymake { namespace tropical { namespace {
    }
    FunctionWrapperInstance4perl( perl::Object (pm::Array<perl::Object, void>) );
 
+   FunctionWrapper4perl( pm::perl::ListReturn (int, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturnVoid( arg0, arg1 );
+   }
+   FunctionWrapperInstance4perl( pm::perl::ListReturn (int, int) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

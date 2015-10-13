@@ -35,7 +35,7 @@ namespace polymake { namespace tropical {
 
 	using namespace atintlog::donotlog;
 	//using namespace atintlog::dolog;
-	//   using namespace atintlog::dotrace;
+	 //  using namespace atintlog::dotrace;
 
 	///////////////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +170,7 @@ namespace polymake { namespace tropical {
 									if(facetInequality[*fct] * rays.row(additionalRay) < 0) {
 										facetInequality[*fct] = - facetInequality[*fct];
 									}		    
-									// 		    dbgtrace << "Right inequality is " << facetInequality[*fct] << endl;
+									 		    //dbgtrace << "Right inequality is " << facetInequality[*fct] << endl;
 									break;
 								}
 							}//END iterate equations of fct

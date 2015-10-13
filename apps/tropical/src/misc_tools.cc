@@ -37,6 +37,10 @@
 
 namespace polymake { namespace tropical { 
 
+	using namespace atintlog::donotlog;
+	//using namespace atintlog::dolog;
+	//using namespace atintlog::dotrace;
+	
 	typedef std::pair<Matrix<Rational>, Matrix<Rational> > matrix_pair;
 
 
