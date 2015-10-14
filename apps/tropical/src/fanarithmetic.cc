@@ -116,7 +116,8 @@ namespace polymake { namespace tropical {
 
 			return result;
 
-		}//END add_fans
+		}//END fan_system
+
 
 	UserFunctionTemplate4perl("","refined_hypersurface<Addition>(Cycle<Addition>, Polynomial<TropicalNumber<Addition> >)");
 	UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>, Cycle<Addition>+)");
