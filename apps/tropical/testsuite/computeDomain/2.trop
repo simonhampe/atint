@@ -49,6 +49,7 @@
       <property name="WEIGHTS">
         <v>0</v>
       </property>
+  <property name="PURE" value="true" />
     </object>
   </property>
   <property name="IS_GLOBALLY_DEFINED" value="true"/>
