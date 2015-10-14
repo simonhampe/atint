@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5565943c"?>
-
-<object name="div2" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<?xml version="1.0"?>
+<?pm chk="5565943c"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="div2" type="tropical::Cycle&lt;Min&gt;" version="2.14">
   <property name="PROJECTIVE_VERTICES">
     <m>
       <v>1 0 1/3 0 0</v>
@@ -34,7 +32,7 @@
     <v>1 1 1 1 1 1 1 1 1 1</v>
   </property>
   <property name="LINEALITY_SPACE">
-    <m />
+    <m/>
   </property>
   <property name="LATTICE_GENERATORS" ext="1=https://github.com/simonhampe/atint">
     <m>
@@ -60,4 +58,4 @@
       <v>2 5</v>
     </m>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

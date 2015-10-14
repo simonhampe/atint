@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="557588ea"?>
-
-<object name="m3b" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0"?>
+<?pm chk="557588ea"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="m3b" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="DOMAIN">
     <object name="d1">
       <property name="VERTICES">
@@ -31,26 +29,26 @@
         <v>1 1 1 1 1</v>
       </property>
       <property name="LINEALITY_SPACE">
-        <m />
+        <m/>
       </property>
-      <property name="LINEALITY_DIM" value="0" />
+      <property name="LINEALITY_DIM" value="0"/>
       <property name="INTERSECTION_COMPLEX">
         <object>
-          <property name="PURE" value="true" />
-          <property name="DIM" value="1" />
+          <property name="PURE" value="true"/>
+          <property name="DIM" value="1"/>
         </object>
       </property>
       <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
         <v>1 1 1 1 1</v>
       </property>
-      <property name="COMBINATORIAL_DIM" value="1" />
-      <property name="PURE" value="true" />
-      <property name="FAN_DIM" value="2" />
-      <property name="PROJECTIVE_DIM" value="1" />
+      <property name="COMBINATORIAL_DIM" value="1"/>
+      <property name="PURE" value="true"/>
+      <property name="FAN_DIM" value="2"/>
+      <property name="PROJECTIVE_DIM" value="1"/>
       <property name="FAR_VERTICES">
         <v>2 3 4 5</v>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="5" />
+      <property name="FAN_AMBIENT_DIM" value="5"/>
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 -1 0 0</v>
@@ -170,6 +168,6 @@
     </m>
   </property>
   <property name="LINEALITY_VALUES">
-    <m />
+    <m/>
   </property>
 </object>

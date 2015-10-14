@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55657650"?>
-
-<object name="linear" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<?xml version="1.0"?>
+<?pm chk="55657650"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="linear" type="tropical::Cycle&lt;Max&gt;" version="2.14">
   <property name="VERTICES">
     <m>
       <v>1 0 0 0 0</v>
@@ -22,6 +20,6 @@
     <v>1</v>
   </property>
   <property name="FAR_VERTICES">
-    <v />
+    <v/>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

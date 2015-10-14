@@ -1,15 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="556492aa"?>
-
-<object name="w" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="cdd"><![CDATA[
+<?xml version="1.0"?>
+<?pm chk="556492aa"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="w" type="tropical::Cycle&lt;Min&gt;" version="2.14">
+  <credit product="cdd">
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-]]></credit>
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+</credit>
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0</v>
@@ -30,18 +28,18 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
   </property>
   <property name="INTERSECTION_COMPLEX">
     <object>
-      <property name="PURE" value="true" />
-      <property name="DIM" value="1" />
+      <property name="PURE" value="true"/>
+      <property name="DIM" value="1"/>
     </object>
   </property>
   <property name="FAR_VERTICES">
     <v>1 2 3</v>
   </property>
   <property name="LINEALITY_SPACE">
-    <m />
+    <m/>
   </property>
-  <property name="LINEALITY_DIM" value="0" />
-  <property name="FAN_AMBIENT_DIM" value="4" />
+  <property name="LINEALITY_DIM" value="0"/>
+  <property name="FAN_AMBIENT_DIM" value="4"/>
   <property name="FACET_NORMALS">
     <m>
       <v>1 0 0 0</v>
@@ -97,7 +95,7 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       </t>
     </m>
   </property>
-  <property name="N_FACET_NORMALS" value="3" />
+  <property name="N_FACET_NORMALS" value="3"/>
   <property name="MAXIMAL_POLYTOPES_INCIDENCES">
     <m>
       <m cols="4">
@@ -114,14 +112,14 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       </m>
     </m>
   </property>
-  <property name="PROJECTIVE_AMBIENT_DIM" value="2" />
-  <property name="N_MAXIMAL_POLYTOPES" value="3" />
+  <property name="PROJECTIVE_AMBIENT_DIM" value="2"/>
+  <property name="N_MAXIMAL_POLYTOPES" value="3"/>
   <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
     <v>1 1 1</v>
   </property>
-  <property name="COMBINATORIAL_DIM" value="1" />
-  <property name="PURE" value="true" />
-  <property name="FAN_DIM" value="2" />
+  <property name="COMBINATORIAL_DIM" value="1"/>
+  <property name="PURE" value="true"/>
+  <property name="FAN_DIM" value="2"/>
   <property name="LATTICE_NORMALS">
     <m>
       <t>
@@ -138,7 +136,7 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       </t>
     </m>
   </property>
-  <property name="PROJECTIVE_DIM" value="1" />
+  <property name="PROJECTIVE_DIM" value="1"/>
   <property name="WEIGHT_SPACE" ext="1=https://github.com/simonhampe/atint">
     <m>
       <v>-1 -1 1</v>
@@ -167,5 +165,5 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       </property>
     </object>
   </property>
-  <property name="IS_IRREDUCIBLE" ext="1" value="true" />
-</object>
+  <property name="IS_IRREDUCIBLE" ext="1" value="true"/>
+<property name="PURE" value="true"/></object>

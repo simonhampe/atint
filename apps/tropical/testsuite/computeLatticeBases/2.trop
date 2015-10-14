@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5527caa9"?>
-
-<object name="2" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0"?>
+<?pm chk="5527caa9"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="2" type="tropical::Cycle&lt;Min&gt;" version="2.14">
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0</v>
@@ -28,12 +26,12 @@
     <v>1 1 1 1 1</v>
   </property>
   <property name="LINEALITY_SPACE">
-    <m />
+    <m/>
   </property>
   <property name="FAR_VERTICES">
     <v>2 3 4</v>
   </property>
-  <property name="FAN_AMBIENT_DIM" value="4" />
+  <property name="FAN_AMBIENT_DIM" value="4"/>
   <property name="FACET_NORMALS">
     <m>
       <v>1 0 -1 0</v>
@@ -112,13 +110,13 @@
   </property>
   <property name="INTERSECTION_COMPLEX">
     <object>
-      <property name="PURE" value="true" />
-      <property name="DIM" value="1" />
+      <property name="PURE" value="true"/>
+      <property name="DIM" value="1"/>
     </object>
   </property>
-  <property name="LINEALITY_DIM" value="0" />
-  <property name="N_MAXIMAL_POLYTOPES" value="5" />
-  <property name="N_FACET_NORMALS" value="4" />
+  <property name="LINEALITY_DIM" value="0"/>
+  <property name="N_MAXIMAL_POLYTOPES" value="5"/>
+  <property name="N_FACET_NORMALS" value="4"/>
   <property name="MAXIMAL_POLYTOPES_INCIDENCES">
     <m>
       <m cols="5">
@@ -146,9 +144,9 @@
   <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
     <v>1 1 1 1 1</v>
   </property>
-  <property name="COMBINATORIAL_DIM" value="1" />
-  <property name="PURE" value="true" />
-  <property name="FAN_DIM" value="2" />
+  <property name="COMBINATORIAL_DIM" value="1"/>
+  <property name="PURE" value="true"/>
+  <property name="FAN_DIM" value="2"/>
   <property name="LATTICE_NORMALS">
     <m>
       <t>
@@ -177,7 +175,7 @@
       </t>
     </m>
   </property>
-  <property name="PROJECTIVE_DIM" value="1" />
+  <property name="PROJECTIVE_DIM" value="1"/>
   <property name="LATTICE_BASES" ext="1=https://github.com/simonhampe/atint">
     <m cols="4">
       <v>0</v>
@@ -195,4 +193,4 @@
       <v>0 0 1 -1</v>
     </m>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

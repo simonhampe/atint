@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5534f7cc"?>
-
-<object name="3" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<?xml version="1.0"?>
+<?pm chk="5534f7cc"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="3" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
 	<property name="DOMAIN">
 		<object>
-			<credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+			<credit product="atint">  a-tint is an extension for tropical intersection theory.
 				(C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
 				See also: 
-				https://github.com/simonhampe/atint]]></credit>
+				https://github.com/simonhampe/atint</credit>
+  <property name="PURE" value="true" />
 			<property name="VERTICES">
 				<m>
 					<v>1 0 0 0 0</v>
@@ -29,9 +28,9 @@
 				</m>
 			</property>
 			<property name="FAR_VERTICES">
-				<v />
+				<v/>
 			</property>
-			<property name="FAN_AMBIENT_DIM" value="5" />
+			<property name="FAN_AMBIENT_DIM" value="5"/>
 			<property name="FACET_NORMALS">
 				<m>
 					<v>1 0 0 0 0</v>
@@ -53,13 +52,13 @@
 				</m>
 			</property>
 			<property name="CODIMENSION_ONE_POLYTOPES">
-				<m />
+				<m/>
 			</property>
 			<property name="MAXIMAL_AT_CODIM_ONE">
-				<m />
+				<m/>
 			</property>
 			<property name="FACET_NORMALS_BY_PAIRS">
-				<m />
+				<m/>
 			</property>
 			<property name="SEPARATED_VERTICES">
 				<m>
@@ -72,7 +71,7 @@
 				</m>
 			</property>
 			<property name="SEPARATED_CODIMENSION_ONE_POLYTOPES">
-				<m />
+				<m/>
 			</property>
 			<property name="SEPARATED_CONVERSION_VECTOR">
 				<v>0</v>

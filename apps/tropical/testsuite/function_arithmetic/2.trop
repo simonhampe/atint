@@ -1,17 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="559fba3c"?>
-
-<object name="2" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<?xml version="1.0"?>
+<?pm chk="559fba3c"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="2" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
   <property name="DOMAIN">
     <object>
-      <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+      <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
-      <credit product="cdd"><![CDATA[
+  https://github.com/simonhampe/atint</credit>
+      <credit product="cdd">
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-]]></credit>
+</credit>
+  <property name="PURE" value="true" />
       <property name="VERTICES">
         <m>
           <v>0 0 -1 0</v>
@@ -28,12 +27,12 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
         </m>
       </property>
       <property name="LINEALITY_SPACE">
-        <m />
+        <m/>
       </property>
       <property name="FAR_VERTICES">
         <v>0 2 3</v>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="4" />
+      <property name="FAN_AMBIENT_DIM" value="4"/>
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 0 0</v>
@@ -134,6 +133,6 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
     <v>0 1 1 2</v>
   </property>
   <property name="LINEALITY_VALUES">
-    <v />
+    <v/>
   </property>
 </object>

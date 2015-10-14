@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55657712"?>
-
-<object name="l32" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <description><![CDATA[Uniform linear space of dimension 2 in dimension 3]]></description>
+<?xml version="1.0"?>
+<?pm chk="55657712"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="l32" type="tropical::Cycle&lt;Max&gt;" version="2.14">
+  <description>Uniform linear space of dimension 2 in dimension 3</description>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0 0</v>
@@ -28,4 +26,4 @@
   <property name="FAR_VERTICES">
     <v>1 2 3 4</v>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

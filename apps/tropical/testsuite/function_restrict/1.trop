@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="559fbef2"?>
+<?pm chk="561e50a7"?>
 
 <object name="1" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="DOMAIN">
     <object>
+  <property name="PURE" value="true" />
       <property name="VERTICES">
         <m>
           <v>0 0 -1 -1</v>
