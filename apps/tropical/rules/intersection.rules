@@ -40,9 +40,15 @@ user_function degree<Addition>(Cycle<Addition>) {
 	}
 
 	my $ambient_dim = $X->PROJECTIVE_AMBIENT_DIM;
-	my $codim = $ambient_dim - $dim;
 
-	my $div = intersect($X, uniform_linear_space<Addition>($ambient_dim, $codim));
-	#FIXME: IS this actually faster than divisor(...)? See issue #827
+	my $ring = new Ring<TropicalNumber<Addition> >($ambient_dim+1);
+	my $num = new Polynomial<TropicalNumber<Addition> >($ring);
+	my @vars = $ring->variables;
+	for my $v (@vars) { 
+		$num = $num + $v;
+	}
+	my $rat_fct = new RationalFunction<Addition>(NUMERATOR=>$num, DENOMINATOR=>$vars[0]);
+
+	my $div = divisor( $X, $rat_fct^$dim);
 	return $div->WEIGHTS * ones_vector<Integer>($div->WEIGHTS->dim());
 }

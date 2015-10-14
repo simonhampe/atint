@@ -783,20 +783,6 @@
     <tr>
       <td>
         <b>
-          <a href="tropical.html#Hypersurface__DIM">DIM</a>
-        </b>
-      </td>
-      <td>property</td>
-      <td>
-        <a href="tropical.html#Hypersurface">Hypersurface</a>
-      </td>
-      <td>
-        <a href="tropical.html">tropical</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>
           <a href="tropical.html#discard_non_vertices">discard_non_vertices</a>
         </b>
       </td>
@@ -1007,7 +993,7 @@
     <tr>
       <td>
         <b>
-          <a href="tropical.html#evaluation_map__Int__Int__Matrix_Rational__Int">evaluation_map</a>
+          <a href="tropical.html#evaluation_map__Int__Matrix_Rational__Int">evaluation_map</a>
         </b>
       </td>
       <td>function</td>
@@ -1470,6 +1456,20 @@
       <td>
         <b>
           <a href="tropical.html#intersect_container">intersect_container</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="tropical.html">tropical</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="tropical.html#intersect_in_smooth_surface">intersect_in_smooth_surface</a>
         </b>
       </td>
       <td>function</td>
@@ -2393,6 +2393,20 @@
     <tr>
       <td>
         <b>
+          <a href="tropical.html#point_functions">point_functions</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="tropical.html">tropical</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
           <a href="tropical.html#poly2trop">poly2trop</a>
         </b>
       </td>
@@ -2539,6 +2553,20 @@
       <td>function</td>
       <td>
         <a/>
+      </td>
+      <td>
+        <a href="tropical.html">tropical</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
+          <a href="tropical.html#Cycle__PROJECTIVE_VERTICES">PROJECTIVE_VERTICES</a>
+        </b>
+      </td>
+      <td>property</td>
+      <td>
+        <a href="tropical.html#Cycle">Cycle</a>
       </td>
       <td>
         <a href="tropical.html">tropical</a>
@@ -3023,6 +3051,20 @@
     <tr>
       <td>
         <b>
+          <a href="tropical.html#set_theoretic_intersection">set_theoretic_intersection</a>
+        </b>
+      </td>
+      <td>function</td>
+      <td>
+        <a/>
+      </td>
+      <td>
+        <a href="tropical.html">tropical</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>
           <a href="tropical.html#shift_cycle">shift_cycle</a>
         </b>
       </td>
@@ -3191,7 +3233,7 @@
     <tr>
       <td>
         <b>
-          <a href="tropical.html#triangulateCycle">triangulateCycle</a>
+          <a href="tropical.html#triangulate_cycle">triangulate_cycle</a>
         </b>
       </td>
       <td>function</td>

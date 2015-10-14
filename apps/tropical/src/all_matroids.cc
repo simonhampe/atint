@@ -68,7 +68,7 @@ namespace polymake { namespace tropical {
 	
 		//Iterate ranks
 
-		for(int r = 1; r <= n; r++) {
+		for(int r = 1; r < n; r++) {
 			cout << "Finding rank " << r << " matroids." << endl;
 			Vector<Set<int> > r_sets(all_subsets_of_k(sequence(0,n),r));
 			Array<Set<int> > all_sets = all_subsets(sequence(0, r_sets.dim()));
@@ -159,24 +159,25 @@ namespace polymake { namespace tropical {
 		}
 		index_map[ Array<Set<int> >()] = matroids.size();
 
-		Array<Set<int> > pairs = all_subsets_of_k( sequence(0, matroids.size()), 2);
-		Array<Polynomial<Rational> > relations(pairs.size());
+		int n_pairs = Integer::binom(matroids.size(),2).to_int() + matroids.size();
+		Array<Polynomial<Rational> > relations(n_pairs);
 
 		int pindex = 0;
-		for(Entire<Array<Set<int> > >::iterator p = entire(pairs); !p.at_end(); p++, pindex++) {
-			cout << "Computing " << pindex+1 << " of " << pairs.size() << endl;
-			Vector<int> pvector( *p);
-			perl::Object fan_1 = CallPolymakeFunction("matroid_fan_max", matroids[ pvector[0]]);
-			perl::Object fan_2 = CallPolymakeFunction("matroid_fan_max", matroids[ pvector[1]]);
-			perl::Object inter = CallPolymakeFunction("intersect", fan_1, fan_2);
-			if(CallPolymakeFunction("is_empty",inter)) {
-				relations[pindex] = vars_vector[ pvector[0]] * vars_vector[ pvector[1]];
-			}
-			else {
-				perl::Object imatroid = CallPolymakeFunction("matroid_from_fan",inter);
-				Array<Set<int> > ibases = imatroid.give("BASES");
-				int iindex = index_map[ibases];
-				relations[pindex] = vars_vector[ pvector[0]] * vars_vector[ pvector[1]] - vars_vector[iindex];
+		for(int i = 0; i < matroids.size(); i++) {
+			for(int j = i; j < matroids.size(); j++, pindex++) {
+				cout << "Computing " << pindex+1 << " of " << n_pairs << endl;
+				perl::Object fan_1 = CallPolymakeFunction("matroid_fan_max", matroids[i]);
+				perl::Object fan_2 = CallPolymakeFunction("matroid_fan_max", matroids[j]);
+				perl::Object inter = CallPolymakeFunction("intersect", fan_1, fan_2);
+				if(CallPolymakeFunction("is_empty",inter)) {
+					relations[pindex] = vars_vector[i] * vars_vector[j];
+				}
+				else {
+					perl::Object imatroid = CallPolymakeFunction("matroid_from_fan",inter);
+					Array<Set<int> > ibases = imatroid.give("BASES");
+					int iindex = index_map[ibases];
+					relations[pindex] = vars_vector[i] * vars_vector[j] - vars_vector[iindex];
+				}
 			}
 		}
 
@@ -207,6 +208,7 @@ namespace polymake { namespace tropical {
 			result.take("BASES") << Array<Set<int> >(newbases);
 		return result;
 	}
+
 
 	UserFunction4perl("", &all_loopfree_of_rank,"all_loopfree_of_rank($,$) : returns(@)");
 

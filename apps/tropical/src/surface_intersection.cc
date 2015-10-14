@@ -383,6 +383,7 @@ namespace polymake { namespace tropical {
 
 			//The potential intersection points are the nonfar vertices of this 
 			Matrix<Rational> ab_vertices = ab_intersect.rays;
+			Matrix<Rational> ab_vertices_homog = thomog(ab_vertices);
 			IncidenceMatrix<> ab_vertices_by_cones = T(ab_intersect.cones);
 			Vector<Integer> ab_weights;
 			Set<int> nonfar_and_nonzero;
@@ -403,7 +404,7 @@ namespace polymake { namespace tropical {
 
 				//If it's a vertex, we need to compute the star of X at that point.
 				perl::Object surface_star = compute_surface_star<Addition>(
-						thomog_vec(Vector<Rational>(ab_vertices.row(point))), 
+						ab_vertices_homog.row(point), 
 						facet_normals, 
 						affine_hull, 
 						maximal_facets, 
