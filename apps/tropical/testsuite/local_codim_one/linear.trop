@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5565762c"?>
-
-<object name="linear" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0"?>
+<?pm chk="5565762c"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="linear" type="tropical::Cycle&lt;Max&gt;" version="2.14">
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="VERTICES">
     <m>
       <v>1 0 1 2 3</v>
@@ -31,12 +29,12 @@
     </m>
   </property>
   <property name="CODIMENSION_ONE_POLYTOPES">
-    <m />
+    <m/>
   </property>
   <property name="MAXIMAL_AT_CODIM_ONE">
-    <m />
+    <m/>
   </property>
   <property name="FACET_NORMALS_BY_PAIRS">
-    <m />
+    <m/>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

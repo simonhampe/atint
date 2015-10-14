@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="559fcfbf"?>
-
-<object name="3_2" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<?xml version="1.0"?>
+<?pm chk="559fcfbf"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="3_2" type="tropical::Cycle&lt;Min&gt;" version="2.14">
   <property name="PROJECTIVE_VERTICES">
     <m>
       <v>0 0 -2 0</v>
@@ -21,6 +19,6 @@
     <v>1 1 1</v>
   </property>
   <property name="LINEALITY_SPACE">
-    <m />
+    <m/>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

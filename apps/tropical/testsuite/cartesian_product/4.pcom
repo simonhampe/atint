@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55a8db1f"?>
-
-<object name="4" type="tropical::Cycle&lt;Max&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <description><![CDATA[Empty cycle in dimension 3]]></description>
+<?xml version="1.0"?>
+<?pm chk="55a8db1f"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="4" type="tropical::Cycle&lt;Max&gt;" version="2.14">
+  <description>Empty cycle in dimension 3</description>
   <property name="VERTICES">
-    <m />
+    <m/>
   </property>
   <property name="MAXIMAL_POLYTOPES">
-    <m />
+    <m/>
   </property>
   <property name="WEIGHTS">
-    <v />
+    <v/>
   </property>
-  <property name="PROJECTIVE_AMBIENT_DIM" value="3" />
-</object>
+  <property name="PROJECTIVE_AMBIENT_DIM" value="3"/>
+<property name="PURE" value="true"/></object>

@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55a4fb41"?>
-
-<object name="2" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <description><![CDATA[Moduli space of stable rational maps with 2 contracted ends, 2 non-contracted ends into the torus of dimension 2]]></description>
+<?xml version="1.0"?>
+<?pm chk="55a4fb41"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="2" type="tropical::Cycle&lt;Min&gt;" version="2.14">
+  <description>Moduli space of stable rational maps with 2 contracted ends, 2 non-contracted ends into the torus of dimension 2</description>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0 0</v>
@@ -26,4 +24,4 @@
   <property name="WEIGHTS">
     <v>1 1 1</v>
   </property>
-</object>
+<property name="PURE" value="true"/></object>
