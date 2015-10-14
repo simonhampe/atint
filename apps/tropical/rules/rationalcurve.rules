@@ -351,7 +351,7 @@ user_function rational_curve_from_rays<Addition>($) {
 	my $interior = new Vector<Rational>($rays->cols());
 	my $vertices = new Set<Int>();
 	for(my $r = 0; $r < $rays->rows(); $r++) {
-		if($rays->($r,0) == 1) {
+		if($rays->elem($r,0) == 1) {
 			$vertices = $vertices + $r;
 		}
 	}
