@@ -146,7 +146,6 @@
     <v>1 1 1 1 1</v>
   </property>
   <property name="COMBINATORIAL_DIM" value="1"/>
-  <property name="PURE" value="true"/>
   <property name="FAN_DIM" value="2"/>
   <property name="LATTICE_NORMALS">
     <m>

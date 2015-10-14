@@ -35,6 +35,7 @@
       <property name="WEIGHTS">
         <v>1</v>
       </property>
+  <property name="PURE" value="true" />
     </object>
   </property>
   <property name="IS_GLOBALLY_AFFINE_LINEAR" value="false"/>

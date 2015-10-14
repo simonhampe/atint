@@ -36,7 +36,6 @@
           <property name="DIM" value="1"/>
         </object>
       </property>
-      <property name="PURE" value="true"/>
       <property name="FAN_DIM" value="2"/>
       <property name="PROJECTIVE_DIM" value="1"/>
       <property name="FAR_VERTICES">
