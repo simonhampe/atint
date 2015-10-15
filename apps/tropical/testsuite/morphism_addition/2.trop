@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="557588b4"?>
+<?pm chk="561e7295"?>
 
 <object name="2" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="DOMAIN">
     <object>
+  <property name="PURE" value="true" />
       <property name="VERTICES">
         <m>
           <v>1 0 0 0 0</v>
@@ -30,18 +31,13 @@
         <v>1 1 1 1 1</v>
       </property>
       <property name="PROJECTIVE_AMBIENT_DIM" value="3" />
-		<property name="LINEALITY_DIM" value="0" />
+      <property name="LINEALITY_DIM" value="0" />
       <property name="INTERSECTION_COMPLEX">
         <object>
           <property name="PURE" value="true" />
           <property name="DIM" value="1" />
         </object>
       </property>
-      <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
-        <v>1 1 1 1 1</v>
-      </property>
-      <property name="COMBINATORIAL_DIM" value="1" />
-      <property name="PURE" value="true" />
       <property name="FAN_DIM" value="2" />
       <property name="PROJECTIVE_DIM" value="1" />
       <property name="FAR_VERTICES">

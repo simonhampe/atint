@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55718fb1"?>
+<?pm chk="561e7503"?>
 
 <object name="1" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
@@ -40,6 +40,7 @@
   </property>
   <property name="DOMAIN">
     <object>
+      <property name="PURE" value="true" />
       <property name="VERTICES">
         <m>
           <v>1 0 0 0</v>

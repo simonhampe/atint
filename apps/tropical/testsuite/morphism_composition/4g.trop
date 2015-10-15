@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55350b61"?>
-
-<object name="4g" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0"?>
+<?pm chk="55350b61"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="4g" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="MATRIX">
     <m>
       <v>6 0 0 0 0</v>
@@ -40,9 +38,9 @@
         <v>1</v>
       </property>
       <property name="FAR_VERTICES">
-        <v />
+        <v/>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="6" />
+      <property name="FAN_AMBIENT_DIM" value="6"/>
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 0 0 0 0</v>
@@ -64,13 +62,13 @@
         </m>
       </property>
       <property name="CODIMENSION_ONE_POLYTOPES">
-        <m />
+        <m/>
       </property>
       <property name="MAXIMAL_AT_CODIM_ONE">
-        <m />
+        <m/>
       </property>
       <property name="FACET_NORMALS_BY_PAIRS">
-        <m />
+        <m/>
       </property>
       <property name="SEPARATED_VERTICES">
         <m>
@@ -83,34 +81,34 @@
         </m>
       </property>
       <property name="SEPARATED_CODIMENSION_ONE_POLYTOPES">
-        <m />
+        <m/>
       </property>
       <property name="SEPARATED_CONVERSION_VECTOR">
         <v>0</v>
       </property>
       <property name="INTERSECTION_COMPLEX">
         <object>
-          <property name="PURE" value="true" />
-          <property name="DIM" value="0" />
+          <property name="PURE" value="true"/>
+          <property name="DIM" value="0"/>
         </object>
       </property>
-      <property name="LINEALITY_DIM" value="4" />
-      <property name="N_MAXIMAL_POLYTOPES" value="1" />
-      <property name="N_FACET_NORMALS" value="1" />
+      <property name="LINEALITY_DIM" value="4"/>
+      <property name="N_MAXIMAL_POLYTOPES" value="1"/>
+      <property name="N_FACET_NORMALS" value="1"/>
       <property name="MAXIMAL_POLYTOPES_INCIDENCES">
         <m>
           <m cols="1">
-            <v />
+            <v/>
           </m>
         </m>
       </property>
       <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
         <v>0</v>
       </property>
-      <property name="COMBINATORIAL_DIM" value="0" />
-      <property name="PURE" value="true" />
-      <property name="FAN_DIM" value="5" />
-      <property name="PROJECTIVE_DIM" value="4" />
+      <property name="COMBINATORIAL_DIM" value="0"/>
+      <property name="PURE" value="true"/>
+      <property name="FAN_DIM" value="5"/>
+      <property name="PROJECTIVE_DIM" value="4"/>
     </object>
   </property>
   <property name="VERTEX_VALUES">

@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5575533f"?>
-
-<object name="2" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0"?>
+<?pm chk="5575533f"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="2" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="TRANSLATE">
     <v>1 -10</v>
   </property>
@@ -35,7 +33,7 @@
       <property name="WEIGHTS">
         <v>1</v>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="3" />
+      <property name="FAN_AMBIENT_DIM" value="3"/>
       <property name="VERTICES">
         <m>
           <v>1 0 0</v>
@@ -43,7 +41,7 @@
       </property>
     </object>
   </property>
-  <property name="IS_GLOBALLY_AFFINE_LINEAR" value="true" />
+  <property name="IS_GLOBALLY_AFFINE_LINEAR" value="true"/>
   <property name="VERTEX_VALUES">
     <m>
       <v>1 -10</v>

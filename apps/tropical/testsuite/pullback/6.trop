@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55a52343"?>
-
-<object name="6" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<?xml version="1.0"?>
+<?pm chk="55a52343"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="6" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
   <property name="DOMAIN">
     <object>
+  <property name="PURE" value="true" />
       <property name="VERTICES">
         <m>
           <v>1 0 0 0</v>
@@ -15,12 +14,12 @@
         </m>
       </property>
       <property name="LINEALITY_SPACE">
-        <m />
+        <m/>
       </property>
       <property name="FAR_VERTICES">
-        <v />
+        <v/>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="4" />
+      <property name="FAN_AMBIENT_DIM" value="4"/>
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 0 0</v>
@@ -44,13 +43,13 @@
         </m>
       </property>
       <property name="CODIMENSION_ONE_POLYTOPES">
-        <m />
+        <m/>
       </property>
       <property name="MAXIMAL_AT_CODIM_ONE">
-        <m />
+        <m/>
       </property>
       <property name="FACET_NORMALS_BY_PAIRS">
-        <m />
+        <m/>
       </property>
       <property name="SEPARATED_VERTICES">
         <m>
@@ -63,7 +62,7 @@
         </m>
       </property>
       <property name="SEPARATED_CODIMENSION_ONE_POLYTOPES">
-        <m />
+        <m/>
       </property>
       <property name="SEPARATED_CONVERSION_VECTOR">
         <v>0</v>
@@ -74,6 +73,6 @@
     <v>3</v>
   </property>
   <property name="LINEALITY_VALUES">
-    <v />
+    <v/>
   </property>
 </object>

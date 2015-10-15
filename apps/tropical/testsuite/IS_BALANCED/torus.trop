@@ -1,15 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="555f4d36"?>
-
-<object name="torus" type="tropical::Cycle&lt;Min&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="cdd"><![CDATA[
+<?xml version="1.0"?>
+<?pm chk="555f4d36"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="torus" type="tropical::Cycle&lt;Min&gt;" version="2.14">
+  <credit product="cdd">
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-]]></credit>
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+</credit>
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0 0 0</v>
@@ -33,14 +31,14 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
   </property>
   <property name="INTERSECTION_COMPLEX">
     <object>
-      <property name="PURE" value="true" />
-      <property name="DIM" value="0" />
+      <property name="PURE" value="true"/>
+      <property name="DIM" value="0"/>
     </object>
   </property>
   <property name="FAR_VERTICES">
-    <v />
+    <v/>
   </property>
-  <property name="FAN_AMBIENT_DIM" value="6" />
+  <property name="FAN_AMBIENT_DIM" value="6"/>
   <property name="FACET_NORMALS">
     <m>
       <v>1 0 0 0 0 0</v>
@@ -62,35 +60,34 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
     </m>
   </property>
   <property name="CODIMENSION_ONE_POLYTOPES">
-    <m />
+    <m/>
   </property>
   <property name="MAXIMAL_AT_CODIM_ONE">
-    <m />
+    <m/>
   </property>
   <property name="FACET_NORMALS_BY_PAIRS">
-    <m />
+    <m/>
   </property>
-  <property name="N_FACET_NORMALS" value="1" />
+  <property name="N_FACET_NORMALS" value="1"/>
   <property name="MAXIMAL_POLYTOPES_INCIDENCES">
     <m>
       <m cols="1">
-        <v />
+        <v/>
       </m>
     </m>
   </property>
-  <property name="LINEALITY_DIM" value="4" />
-  <property name="N_MAXIMAL_POLYTOPES" value="1" />
+  <property name="LINEALITY_DIM" value="4"/>
+  <property name="N_MAXIMAL_POLYTOPES" value="1"/>
   <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
     <v>0</v>
   </property>
-  <property name="COMBINATORIAL_DIM" value="0" />
-  <property name="PURE" value="true" />
-  <property name="FAN_DIM" value="5" />
+  <property name="COMBINATORIAL_DIM" value="0"/>
+  <property name="FAN_DIM" value="5"/>
   <property name="LATTICE_NORMALS">
-    <m />
+    <m/>
   </property>
-  <property name="IS_BALANCED" ext="1=https://github.com/simonhampe/atint" value="true" />
+  <property name="IS_BALANCED" ext="1=https://github.com/simonhampe/atint" value="true"/>
   <property name="BALANCED_FACES" ext="1">
-    <v />
+    <v/>
   </property>
-</object>
+<property name="PURE" value="true"/></object>

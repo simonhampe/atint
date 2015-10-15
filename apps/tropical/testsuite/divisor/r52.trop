@@ -1,15 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<?pm chk="556c36a0"?>
-
-<object name="r52" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="cdd"><![CDATA[
+<?xml version="1.0"?>
+<?pm chk="556c36a0"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="r52" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
+  <credit product="cdd">
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-]]></credit>
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+</credit>
+  <credit product="atint">  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint]]></credit>
+  https://github.com/simonhampe/atint</credit>
   <property name="NUMERATOR">
     <t>
       <m>
@@ -39,7 +37,7 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
           <e>4</e>
         </t>
       </m>
-      <r />
+      <r/>
     </t>
   </property>
   <property name="DOMAIN">
@@ -68,22 +66,22 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       <property name="WEIGHTS">
         <v>0 0 0</v>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="6" />
-      <property name="PROJECTIVE_AMBIENT_DIM" value="4" />
-      <property name="LINEALITY_DIM" value="2" />
+      <property name="FAN_AMBIENT_DIM" value="6"/>
+      <property name="PROJECTIVE_AMBIENT_DIM" value="4"/>
+      <property name="LINEALITY_DIM" value="2"/>
       <property name="INTERSECTION_COMPLEX">
         <object>
-          <property name="PURE" value="true" />
-          <property name="DIM" value="2" />
+          <property name="PURE" value="true"/>
+          <property name="DIM" value="2"/>
         </object>
       </property>
       <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
         <v>2 2 2</v>
       </property>
-      <property name="COMBINATORIAL_DIM" value="2" />
-      <property name="PURE" value="true" />
-      <property name="FAN_DIM" value="5" />
-      <property name="PROJECTIVE_DIM" value="4" />
+      <property name="COMBINATORIAL_DIM" value="2"/>
+      <property name="PURE" value="true"/>
+      <property name="FAN_DIM" value="5"/>
+      <property name="PROJECTIVE_DIM" value="4"/>
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 0 0 0 0</v>
@@ -183,7 +181,7 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       </property>
     </object>
   </property>
-  <property name="IS_GLOBALLY_DEFINED" value="true" />
+  <property name="IS_GLOBALLY_DEFINED" value="true"/>
   <property name="VERTEX_VALUES">
     <v>-4 -1/2 0 0</v>
   </property>
