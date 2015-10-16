@@ -40,7 +40,9 @@ compare_object("2morph",$s2[2])
 	and
 compare_object("3morph",$s3[2])
 	and
-compare_object("4morph",$s4[2])
-	and
+# The matrix is not unique in this particular case and writing an appropriate 
+# comaprison function is too involved for general cycles.
+#compare_object("4morph",$s4[2])
+#	and
 compare_object("5morph",$s5[2]);
 

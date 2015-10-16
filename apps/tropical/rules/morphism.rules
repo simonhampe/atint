@@ -190,20 +190,28 @@ object Morphism {
 		return add_morphisms($f,$g);
 	}
 
+	function mult_m(Morphism, RationalFunction) {
+		return pullback(@_);
+	}
+
+	function mult_m(Morphism, Morphism) {
+		return morphism_composition(@_);
+	}
+
+	function mult_m(Morphism, $) {
+			my ($f,$r) = @_;
+			if(defined($f->lookup("MATRIX"))) {
+				return new Morphism<Addition>(DOMAIN=>$f->DOMAIN, VERTEX_VALUES=>($r * ($f->VERTEX_VALUES)), LINEALITY_VALUES=>$r * ($f->LINEALITY_VALUES), MATRIX=> $r*$f->MATRIX, TRANSLATE=>$r*$f->TRANSLATE);
+			}
+			else {
+				return new Morphism<Addition>(DOMAIN=>$f->DOMAIN, VERTEX_VALUES=>($r * ($f->VERTEX_VALUES)), LINEALITY_VALUES=>$r * ($f->LINEALITY_VALUES));
+			}
+	}
+	
+
 	sub mult {
 		my ($f,$r ) = @_;
-		if($r->isa("RationalFunction") ) {
-			return pullback($f,$r);
-		}
-		if($r->isa("Morphism")) {
-			return morphism_composition($r,$f);
-		}
-		if(defined($f->lookup("MATRIX"))) {
-			return new Morphism<Addition>(DOMAIN=>$f->DOMAIN, VERTEX_VALUES=>($r * ($f->VERTEX_VALUES)), LINEALITY_VALUES=>$r * ($f->LINEALITY_VALUES), MATRIX=> $r*$f->MATRIX, TRANSLATE=>$r*$f->TRANSLATE);
-		}
-		else {
-			return new Morphism<Addition>(DOMAIN=>$f->DOMAIN, VERTEX_VALUES=>($r * ($f->VERTEX_VALUES)), LINEALITY_VALUES=>$r * ($f->LINEALITY_VALUES));
-		}
+		return mult_m($f,$r);
 	}
 
 
