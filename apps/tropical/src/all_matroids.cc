@@ -186,26 +186,36 @@ namespace polymake { namespace tropical {
 		return ideal;
 	}
 
-	perl::Object matroid_intersection(perl::Object m1, perl::Object m2) {
-		Array<Set<int> > b1 = m1.give("BASES");
-		Array<Set<int> > b2 = m2.give("BASES");
-		int r1 = m1.give("RANK");
-		int r2 = m2.give("RANK");
-		int n = m1.give("N_ELEMENTS");
-
-		int inter_rank = r1 + r2 - n;
-
+	//Computes all pairwise intersections that have a given size.
+	Array<Set<int> > intersections_of_size( const Array<Set<int> >&a, const Array<Set<int> > &b, int size) {
 		Set<Set<int> > newbases;
-		for(int i1 = 0; i1 < b1.size(); i1++) {
-			for(int i2 = 0; i2 < b2.size(); i2++) {
-				Set<int> c = b1[i1] * b2[i2];
-				if(c.size() == inter_rank) newbases += c;
+		for(int i1 = 0; i1 < a.size(); i1++) {
+			for(int i2 =0; i2 < b.size(); i2++) {
+				Set<int> c = a[i1] * b[i2];
+				if(c.size() == size) newbases += c;
 			}
+		}
+		return Array<Set<int> >(newbases);
+	}
+
+	perl::Object matroid_intersection(Array<perl::Object> matroids) {
+		if(matroids.size() == 0) throw std::runtime_error("No matroid given");
+		
+		int n_elements = matroids[0].give("N_ELEMENTS");
+		int current_rank = matroids[0].give("RANK");
+		Array<Set<int> > current_bases = matroids[0].give("BASES");
+		
+		for(int m = 1; m < matroids.size(); m++) {
+			int mrank = matroids[m].give("RANK");
+			Array<Set<int> > m_bases = matroids[m].give("BASES");
+			int new_rank = mrank + current_rank - n_elements;
+			current_bases = intersections_of_size(current_bases, m_bases, new_rank);
+			current_rank = new_rank;
 		}
 
 		perl::Object result("matroid::Matroid");
-			result.take("N_ELEMENTS") << n;
-			result.take("BASES") << Array<Set<int> >(newbases);
+			result.take("N_ELEMENTS") << n_elements;
+			result.take("BASES") << current_bases; 
 		return result;
 	}
 
@@ -218,6 +228,6 @@ namespace polymake { namespace tropical {
 
 	UserFunction4perl("", &matroid_intersection_ideal, "matroid_intersection_ideal(Cycle+)");
 
-	UserFunction4perl("", &matroid_intersection, "matroid_intersection(matroid::Matroid, matroid::Matroid)");
+	UserFunction4perl("", &matroid_intersection, "matroid_intersection(matroid::Matroid+)");
 
 }}

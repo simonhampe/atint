@@ -1,0 +1,45 @@
+###################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
+#
+#####################################################################
+
+user_function chain_matroid {
+	my ($n, $list) = @_;
+	my @matroids = map { coloop_uniform_matroid($n,$n-1,$_) } @{$list};
+	return matroid_intersection(@matroids);
+}
+
+user_function matroid_fan_system {
+	my ($n,$r) = @_;
+	my @a = all_loopfree_of_rank($n,$r);
+	my @fans = map {matroid_fan_from_flats<Max>($_)} @a;
+	my $sk = skeleton_complex( (matroid_fan_from_flats<Max>(matroid::uniform_matroid($n,$n))), $r-1);
+	return fan_system($sk,@fans);
+}
+
+user_function set_complement {
+	my ($allsets, $setlist) = @_;
+	my @newsets = ();
+	for my $s (@{$setlist}) {
+		if(!$allsets->contains($s)) {
+			push @newsets, $s;
+		}
+	}
+	return new Array<Set<Int> >(@newsets);
+}

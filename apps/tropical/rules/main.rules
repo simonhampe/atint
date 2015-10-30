@@ -75,3 +75,4 @@ INCLUDE
 	intersection.rules
 	lines_in_cubic.rules
 	terrible_workaround.rules
+	matroid_stuff.rules
