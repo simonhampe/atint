@@ -219,6 +219,39 @@ namespace polymake { namespace tropical {
 		return result;
 	}
 
+   Array<Set<int> > maximal_unions( const Array<Set<int> > &a, const Array<Set<int> > &b) {
+      Set<Set<int> > newbases;
+      int current_max_size = 0;
+      for(Entire<Array<Set<int> > >::const_iterator a_it = entire(a); !a_it.at_end(); a_it++) {
+         for(Entire<Array<Set<int> > >::const_iterator b_it = entire(b); !b_it.at_end(); b_it++) {
+            Set<int> un = *a_it + *b_it;
+            if(un.size() == current_max_size) newbases += un;
+            if(un.size() > current_max_size) {
+               newbases.clear();
+               newbases += un;
+               current_max_size = un.size();
+            }
+         }
+      }
+      return Array<Set<int> >(newbases);
+   }
+
+   perl::Object matroid_union(Array<perl::Object> matroids) {
+      if(matroids.size() == 0) throw std::runtime_error("No matroid given.");
+
+      int n_elements = matroids[0].give("N_ELEMENTS");
+
+      Array<Set<int> > result = matroids[0].give("BASES");
+      for(int j = 1; j < matroids.size(); j++) {
+         Array<Set<int> > mbases = matroids[j].give("BASES");
+         result = maximal_unions(result, mbases);
+      }
+      perl::Object rmatroid("matroid::Matroid");
+         rmatroid.take("N_ELEMENTS") << n_elements;
+         rmatroid.take("BASES") << result;
+      return rmatroid;
+   }
+
 
 	UserFunction4perl("", &all_loopfree_of_rank,"all_loopfree_of_rank($,$) : returns(@)");
 
@@ -229,5 +262,7 @@ namespace polymake { namespace tropical {
 	UserFunction4perl("", &matroid_intersection_ideal, "matroid_intersection_ideal(Cycle+)");
 
 	UserFunction4perl("", &matroid_intersection, "matroid_intersection(matroid::Matroid+)");
+
+   UserFunction4perl("", &matroid_union, "matroid_union(matroid::Matroid+)");
 
 }}

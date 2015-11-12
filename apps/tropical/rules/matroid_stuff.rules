@@ -43,3 +43,16 @@ user_function set_complement {
 	}
 	return new Array<Set<Int> >(@newsets);
 }
+
+user_function share_parallels {
+   my ($m1,$m2) = @_;
+   my $p1 = $m1->LATTICE_OF_FLATS->nodes_of_dim(1);
+   my $p2 = $m2->LATTICE_OF_FLATS->nodes_of_dim(1);
+   for my $i (@{$p1}) {
+      for my $j (@{$p2}) {
+         my $inter = $m1->LATTICE_OF_FLATS->FACES->[$i] * $m2->LATTICE_OF_FLATS->FACES->[$j];
+         if($inter->size() > 1) { return 1;}
+      }
+   }
+   return 0;
+}
