@@ -7,12 +7,12 @@ my $f = new Hypersurface<Max>(POLYNOMIAL=>toTropicalPolynomial("max(-49/1000+3*x
 my $g = affine_linear_space<Min>([[0,1,1,0,0],[0,1,0,1,0]]);
 my $h = affine_linear_space<Min>([[0,1,-1,0,0],[0,0,0,0,1]]);
 
-compare_object("1", intersect($a,$b))
-	and
-compare_object("2", intersect($c,$c))
-	and
-compare_object("3", intersect($a,$d))
-	and
-compare_object("4", intersect($e,$f))
-	and
+compare_object("1", intersect($a,$b));
+
+compare_object("2", intersect($c,$c));
+
+compare_object("3", intersect($a,$d));
+
+compare_object("4", intersect($e,$f));
+
 compare_object("5", intersect($g,$h));

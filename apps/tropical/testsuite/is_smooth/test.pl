@@ -12,37 +12,36 @@ my @s4 = is_smooth($d);
 my @s5 = is_smooth($e);
 my @s6 = is_smooth($f);
 
-compare_values("1b",1,$s1[0])
-	and
-compare_values("2b",1,$s2[0])
-	and
-compare_values("3b",1,$s3[0])
-	and
-compare_values("4b",1,$s4[0])
-	and
-compare_values("5b",1,$s5[0])
-	and
-compare_values("6b",0,$s6[0])
-	and
-compare_object("1mat",$s1[1])
-	and
-compare_object("2mat",$s2[1])
-	and
-compare_object("3mat",$s3[1])
-	and
-compare_object("4mat",$s4[1])
-	and
-compare_object("5mat",$s5[1])
-	and
-compare_object("1morph",$s1[2])
-	and
-compare_object("2morph",$s2[2])
-	and
-compare_object("3morph",$s3[2])
-	and
-# The matrix is not unique in this particular case and writing an appropriate 
-# comaprison function is too involved for general cycles.
-#compare_object("4morph",$s4[2])
-#	and
-compare_object("5morph",$s5[2]);
+compare_values("1b",1,$s1[0]);
 
+compare_values("2b",1,$s2[0]);
+
+compare_values("3b",1,$s3[0]);
+
+compare_values("4b",1,$s4[0]);
+
+compare_values("5b",1,$s5[0]);
+
+compare_values("6b",0,$s6[0]);
+
+compare_object("1mat",$s1[1]);
+
+compare_object("2mat",$s2[1]);
+
+compare_object("3mat",$s3[1]);
+
+compare_object("4mat",$s4[1]);
+
+compare_object("5mat",$s5[1]);
+
+compare_object("1morph",$s1[2]);
+
+compare_object("2morph",$s2[2]);
+
+compare_object("3morph",$s3[2]);
+
+# The matrix is not unique in this particular case and writing an appropriate 
+# comparison function is too involved for general cycles.
+#compare_object("4morph",$s4[2]);
+
+compare_object("5morph",$s5[2]);
