@@ -1,6 +1,7 @@
-compare_output {
-	for my $i (qw(empty ptcoll linear torus l32 c42 planarcurve)) {
-		my $x = load("$i");
-		print $x->name(), ": ",$x->is_fan(),"\n";
-	}
-} 'out'
+for my $ID (qw(empty linear torus l32)) {
+   check_boolean($ID, load($ID)->is_fan());
+}
+
+for my $ID (qw(ptcoll c42 planarcurve)) {
+   check_boolean($ID, !load($ID)->is_fan());
+}

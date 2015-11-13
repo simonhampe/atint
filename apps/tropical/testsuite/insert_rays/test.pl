@@ -8,10 +8,10 @@ my $r2 = new Matrix<Rational>([[1,0,1,1,0]]);
 my $r3 = new Matrix<Rational>([[0,0,1,-1,0],[1,0,2,-2,1]]);
 my $r4 = new Matrix<Rational>([[1,0,1,1,2]]);
 
-compare_object("1", insert_rays($c1,$r1))
-	and
-compare_object("2", insert_rays($c2,$r2))
-	and
-compare_object("3", insert_rays($c3,$r3))
-	and
+compare_object("1", insert_rays($c1,$r1));
+
+compare_object("2", insert_rays($c2,$r2));
+
+compare_object("3", insert_rays($c3,$r3));
+
 compare_object("4", insert_rays($c4,$r4));
