@@ -14,27 +14,13 @@
 --------------------------------------------------------------------------------
 */
 
-#include "polymake/Integer.h"
-#include "polymake/Matrix.h"
-#include "polymake/TropicalNumber.h"
-#include "polymake/Vector.h"
-
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   template <typename T0, typename T1>
-   FunctionInterface4perl( new_X, T0,T1 ) {
-      perl::Value arg0(stack[1]);
-      WrapperReturnNew(T0, (arg0.get<T1>()) );
-   };
+   FunctionWrapper4perl( pm::Vector<pm::Set<int, pm::operations::cmp> > (int, int, perl::Object) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
+      IndirectWrapperReturn( arg0, arg1, arg2 );
+   }
+   FunctionWrapperInstance4perl( pm::Vector<pm::Set<int, pm::operations::cmp> > (int, int, perl::Object) );
 
-   template <typename T0>
-   FunctionInterface4perl( matroid_fan_from_flats_T_x, T0 ) {
-      perl::Value arg0(stack[0]);
-      WrapperReturn( (matroid_fan_from_flats<T0>(arg0)) );
-   };
-
-   FunctionInstance4perl(matroid_fan_from_flats_T_x, Max);
-   FunctionInstance4perl(matroid_fan_from_flats_T_x, Min);
-   FunctionInstance4perl(new_X, Vector< Integer >, perl::Canned< const pm::SameElementVector<pm::Integer const&> >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

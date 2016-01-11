@@ -56,3 +56,8 @@ user_function share_parallels {
    }
    return 0;
 }
+
+user_function ufan_max {
+   my $n = shift;
+   return matroid_fan_from_flats<Max>(matroid::uniform_matroid($n,$n));
+}

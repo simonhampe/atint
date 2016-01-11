@@ -252,6 +252,30 @@ namespace polymake { namespace tropical {
       return rmatroid;
    }
 
+   Set<int> cyclic_flats(perl::Object matroid) {
+      perl::Object fl = matroid.give("LATTICE_OF_FLATS");
+      IncidenceMatrix<> faces = fl.give("FACES");
+      Array<Set<int> > circuits = matroid.give("CIRCUITS");
+
+      Set<int> result;
+      for(int i = 0; i < faces.rows(); i++) {
+         Set<int> circuit_union;
+         for(Entire<Array<Set<int> > >::iterator c = entire(circuits); !c.at_end(); c++) {
+            if( (*c * faces.row(i)).size() == (*c).size()) {
+               circuit_union += *c;
+            }
+         }
+         if(circuit_union.size() == faces.row(i).size()) result += i;
+      }
+      return result;
+   }
+
+   IncidenceMatrix<> cyclic_flats_set(perl::Object matroid) {
+      perl::Object fl = matroid.give("LATTICE_OF_FLATS");
+      IncidenceMatrix<> faces = fl.give("FACES");
+      return faces.minor( cyclic_flats(matroid), All);
+   }
+
 
 	UserFunction4perl("", &all_loopfree_of_rank,"all_loopfree_of_rank($,$) : returns(@)");
 
@@ -264,5 +288,9 @@ namespace polymake { namespace tropical {
 	UserFunction4perl("", &matroid_intersection, "matroid_intersection(matroid::Matroid+)");
 
    UserFunction4perl("", &matroid_union, "matroid_union(matroid::Matroid+)");
+
+   UserFunction4perl("", &cyclic_flats, "cyclic_flats(matroid::Matroid)");
+
+   UserFunction4perl("", &cyclic_flats_set, "cyclic_flats_set(matroid::Matroid)");
 
 }}

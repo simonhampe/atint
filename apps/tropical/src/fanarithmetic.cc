@@ -95,7 +95,7 @@ namespace polymake { namespace tropical {
 	}
 
 
-	template <typename Addition>
+/*	template <typename Addition>
 		Matrix<Rational> fan_system(perl::Object container, Array<perl::Object> fans) {
 			Matrix<Rational> ref_rays = container.give("VERTICES");
 			IncidenceMatrix<> ref_cones = container.give("MAXIMAL_POLYTOPES");
@@ -116,10 +116,80 @@ namespace polymake { namespace tropical {
 
 			return result;
 
-		}//END fan_system
+		}//END fan_system*/
 
+   int find_index(const Vector<Rational> &v, const Matrix<Rational> &m) {
+      int i = 0;
+      for(Entire<Rows<Matrix<Rational> > >::const_iterator r = entire(rows(m)); !r.at_end(); r++, i++) {
+         if(*r == v) return i;
+      }
+      throw std::runtime_error("Vertex not found");
+   }
+
+   template <typename Addition>
+      perl::ListReturn fan_system(Array<perl::Object> fans) {
+         Array<Matrix<Rational> > vertices(fans.size());
+         Matrix<Rational> vertex_union;
+         Array<IncidenceMatrix<> > cones(fans.size());
+         Array<Vector<Integer> > weights(fans.size());
+         for(int i =0; i < fans.size(); i++) {
+              fans[i].give("VERTICES") >> vertices[i];
+              vertex_union /= vertices[i]; 
+              fans[i].give("MAXIMAL_POLYTOPES") >> cones[i];
+              fans[i].give("WEIGHTS") >> weights[i];
+         }
+         Set<Vector<Rational> > vset (rows(Matrix<Rational>(vertex_union)));
+         Matrix<Rational> vertices_total(vset);
+         
+         //Renumber vertices and map cones
+         Map< Set<int>, int> new_cone_indices;
+         int next_index = 0;
+         Array<Map<int,Integer> > new_cone_weights(fans.size());
+         for(int i = 0; i < fans.size(); i++) {
+            Map<int,int> vmap;
+            for(int r =0; r < vertices[i].rows(); r++) {
+               vmap[r] = find_index(vertices[i].row(r), vertices_total);
+            }
+            int cindex = 0;
+            Map<int,Integer> iwmap;
+            for(Entire<Rows<IncidenceMatrix<> > >::iterator c = entire(rows(cones[i])); !c.at_end(); c++, cindex++) {
+               Set<int> mapped_cone = 
+                  attach_operation( *c, pm::operations::associative_access<Map<int,int>,int>(&vmap));
+               Integer cw = (weights[i])[cindex];
+               if(!new_cone_indices.contains(mapped_cone)) {
+                  new_cone_indices[mapped_cone] = next_index; 
+                  iwmap[next_index] = cw;
+                  next_index++;
+               }
+               else {
+                  iwmap[ new_cone_indices[mapped_cone] ] = cw;
+               }
+            }
+            new_cone_weights[i] = iwmap;
+         }
+
+         
+
+         //Convert to matrix
+         Matrix<Rational> result(fans.size(), new_cone_indices.size()); 
+         for(int f = 0; f < fans.size(); f++) {
+            for(Entire<Map<int,Integer> >::iterator w = entire(new_cone_weights[f]); !w.at_end(); w++) {
+               result(f, (*w).first) = (*w).second;
+            }
+         }
+         perl::ListReturn r;
+         r << result;
+         r << vertices_total;
+         Vector<Set<int> > ncones(new_cone_indices.size());
+         for(Entire<Map<Set<int>, int> >::iterator nc = entire(new_cone_indices); !nc.at_end(); nc++) {
+            ncones[ (*nc).second] = (*nc).first;
+         }
+         r << IncidenceMatrix<>(ncones);
+
+         return r;         
+      }
 
 	UserFunctionTemplate4perl("","refined_hypersurface<Addition>(Cycle<Addition>, Polynomial<TropicalNumber<Addition> >)");
-	UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>, Cycle<Addition>+)");
+	UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>+)");
 
 }}
