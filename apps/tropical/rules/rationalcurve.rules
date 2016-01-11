@@ -23,7 +23,7 @@
 
 object RationalCurve {
 
-	use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'subtract', '""' => 'to_string', "fallback" => TRUE);
+	use overload('+' => 'add','*' => 'scalar_multiplication','-' => 'subtract', '""' => 'to_string', "fallback" => 1);
 
 	# @category Combinatorics
 	# A list of partitions of [n] that define the tree of the curve: For each bounded edge we have 

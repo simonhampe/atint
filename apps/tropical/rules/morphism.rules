@@ -23,7 +23,7 @@
 
 object Morphism {
 
-	use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool', '+' => 'sum','-' => 'minus','neg'=>'neg', "fallback" => TRUE);
+	use overload('*' => 'mult','""' => 'to_string', 'bool' => 'bool', '+' => 'sum','-' => 'minus','neg'=>'neg', "fallback" => 1);
 
 	# @category Defining morphisms and functions
 	# This property describes the domain of the morphism. I.e. the morphism is
@@ -95,7 +95,7 @@ object Morphism {
 	}
 
 	rule IS_GLOBALLY_AFFINE_LINEAR : {
-		$this->IS_GLOBALLY_AFFINE_LINEAR = FALSE;
+		$this->IS_GLOBALLY_AFFINE_LINEAR = 0;
 	}
 	precondition : defined(DOMAIN);
 	weight 0.10;

@@ -24,7 +24,7 @@
 object Cycle {
 
 	#Operator overload 
-	use overload('*' => 'mult',"fallback" => TRUE);
+	use overload('*' => 'mult',"fallback" => 1);
 
 	## PROPERTIES ###########################################
 	
