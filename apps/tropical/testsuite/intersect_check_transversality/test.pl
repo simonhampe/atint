@@ -8,14 +8,14 @@ my @i1 = intersect_check_transversality($a,$b);
 my @i2 = intersect_check_transversality($c,$d);
 my @i3 = intersect_check_transversality($a,$e);
 
-compare_values("1b",0,$i1[1])
-	and
-compare_values("2b",0,$i2[1])
-	and
-compare_values("3b",1,$i3[1])
-	and
-compare_object("1", $i1[0])
-	and
-compare_object("2", $i2[0])
-	and
+compare_values("1b",0,$i1[1]);
+
+compare_values("2b",0,$i2[1]);
+
+compare_values("3b",1,$i3[1]);
+
+compare_object("1", $i1[0]);
+
+compare_object("2", $i2[0]);
+
 compare_object("3",$i3[0]);

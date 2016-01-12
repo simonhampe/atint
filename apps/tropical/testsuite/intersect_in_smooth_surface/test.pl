@@ -13,14 +13,14 @@ my $curveinplane = new Cycle<Max>(VERTICES=>[[1,0,0,0],[1,0,1,0],[0,0,0,1],[0,0,
 my $stdline = uniform_linear_space<Max>(2,1);
 my $lineinplane = affine_linear_space<Max>([[0,1,1,]]);
 
-compare_object("1", intersect_in_smooth_surface( $stdplane, $bisector,$bisector))
-	and
-compare_object("2", intersect_in_smooth_surface( $linetimesline, $lineinspace, $lineinspace))
-	and
-compare_object("3", intersect_in_smooth_surface( $linetimesline, $actualline, $actualline))
-	and
-compare_object("4", intersect_in_smooth_surface( $linetimesline, $lineinspace, $actualline))
-	and
-compare_object("5", intersect_in_smooth_surface( $plane, $curveinplane, $stdline)) 
-	and
+compare_object("1", intersect_in_smooth_surface( $stdplane, $bisector,$bisector));
+
+compare_object("2", intersect_in_smooth_surface( $linetimesline, $lineinspace, $lineinspace));
+
+compare_object("3", intersect_in_smooth_surface( $linetimesline, $actualline, $actualline));
+
+compare_object("4", intersect_in_smooth_surface( $linetimesline, $lineinspace, $actualline));
+
+compare_object("5", intersect_in_smooth_surface( $plane, $curveinplane, $stdline));
+
 compare_object("6", intersect_in_smooth_surface( $plane, $lineinplane, $lineinplane));

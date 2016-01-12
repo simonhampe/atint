@@ -405,14 +405,14 @@ namespace polymake { namespace tropical {
 			"# @param Cycle Y A tropical cycle, living in the same space as X"
 			"# @param Bool ensure_transversality Whether non-transversal intersections should not be computed. Optional and false by default. If true,"
 			"# returns the zero cycle if it detects a non-transversal intersection"
-			"# @return A tuple containing:"
-			"# A Cycle: The intersection product. Zero cycle if ensure_transversality is true and the intersection is not transversal."
-			"# A Bool: Whether the intersection is transversal. This is always false, if the codimensions of the varieties add up to more than the ambient dimension.",
+			"# @return List( Cycle intersection product, Bool is_transversal)."
+                        "#  Intersection product is a zero cycle if ensure_transversality is true and the intersection is not transversal."
+			"#  //is_transversal// is false if the codimensions of the varieties add up to more than the ambient dimension.",
 			"intersect_check_transversality<Addition>(Cycle<Addition>,Cycle<Addition>; $=0)");
 
 	InsertEmbeddedRule("# @category Intersection theory"
 			"# Computes the intersection product of two tropical cycles in the projective torus"
-			"# Use [[intersection_check_transversality]] to check for transversal intersections"
+			"# Use [[intersect_check_transversality]] to check for transversal intersections"
 			"# @param Cycle X A tropical cycle"
 			"# @param Cycle Y A tropical cycle, living in the same ambient space as X"
 			"# @return Cycle The intersection product\n"

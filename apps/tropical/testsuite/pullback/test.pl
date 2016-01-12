@@ -20,15 +20,14 @@ my $m6 = morphism_from_affine<Min>([[1,0],[0,1]],[0,0]);
 my $d6 = point_collection<Min>([[0,0,0]],[1]);
 my $r6 = new RationalFunction<Min>(DOMAIN=>$d6,VERTEX_VALUES=>[3]);
 
-compare_object("1", pullback($m1,$r1))
-	and
-compare_object("2", pullback($m2,$r2))
-	and
-compare_object("3", pullback($m3,$r3))
-	and
-compare_object("4", pullback($m2,$r4))
-	and
-compare_object("5", pullback($m5,$r5))
-	and
-compare_object("6", pullback($m6, $r6));
+compare_object("1", pullback($m1,$r1));
 
+compare_object("2", pullback($m2,$r2));
+
+compare_object("3", pullback($m3,$r3));
+
+compare_object("4", pullback($m2,$r4));
+
+compare_object("5", pullback($m5,$r5));
+
+compare_object("6", pullback($m6, $r6));

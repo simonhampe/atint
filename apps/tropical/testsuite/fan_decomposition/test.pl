@@ -6,20 +6,20 @@ my @dec1 = fan_decomposition($f1);
 my @dec2 = fan_decomposition($f2);
 my @dec3 = fan_decomposition($f3);
 
-compare_values("1n",0,scalar(@dec1))
-	and
-compare_values("2n",2,scalar(@dec2))
-	and
-compare_values("3n",4,scalar(@dec3))
-	and
-compare_object("2_1",$dec2[0])
-	and
-compare_object("2_2",$dec2[1])
-	and
-compare_object("3_1",$dec3[0])
-	and
-compare_object("3_2",$dec3[1])
-	and
-compare_object("3_3",$dec3[2])
-	and
+compare_values("1n",0,scalar(@dec1));
+
+compare_values("2n",2,scalar(@dec2));
+
+compare_values("3n",4,scalar(@dec3));
+
+compare_object("2_1",$dec2[0]);
+
+compare_object("2_2",$dec2[1]);
+
+compare_object("3_1",$dec3[0]);
+
+compare_object("3_2",$dec3[1]);
+
+compare_object("3_3",$dec3[2]);
+
 compare_object("3_4",$dec3[3]);
