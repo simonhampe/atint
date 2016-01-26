@@ -211,8 +211,8 @@ namespace polymake { namespace tropical {
 			"# Note that this algorithm is not optimal for real randomness:"
 			"# If you change the range parameter and then change it back, you will"
 			"# usually get the exact same sequence as the first time"
-			"# @param int max_arg The upper bound for the random integers"
-			"# @param int n The number of integers to be created"
+			"# @param Int max_arg The upper bound for the random integers"
+			"# @param Int n The number of integers to be created"
 			"# @return Array<Integer>",
 			&randomInteger,"randomInteger($, $)");
 
@@ -222,7 +222,7 @@ namespace polymake { namespace tropical {
 			"# @param Cycle A weighted complex"
 			"# @param Vector<Rational> point An arbitrary vector in the same ambient"
 			"# dimension as complex. Given in tropical projective coordinates with leading coordinate."
-			"# @return bool Whether the point lies in the support of complex",
+			"# @return Bool Whether the point lies in the support of complex",
 			&contains_point,"contains_point(Cycle,$)");
 
 	Function4perl(&computeFunctionLabels, "computeFunctionLabels(Cycle, Matrix,Matrix,$)");
