@@ -95,8 +95,8 @@ namespace polymake { namespace tropical {
 	}
 
 
-/*	template <typename Addition>
-		Matrix<Rational> fan_system(perl::Object container, Array<perl::Object> fans) {
+	template <typename Addition>
+		Matrix<Rational> fan_system_container(perl::Object container, Array<perl::Object> fans) {
 			Matrix<Rational> ref_rays = container.give("VERTICES");
 			IncidenceMatrix<> ref_cones = container.give("MAXIMAL_POLYTOPES");
 
@@ -116,7 +116,7 @@ namespace polymake { namespace tropical {
 
 			return result;
 
-		}//END fan_system*/
+		}//END fan_system
 
    int find_index(const Vector<Rational> &v, const Matrix<Rational> &m) {
       int i = 0;
@@ -188,6 +188,8 @@ namespace polymake { namespace tropical {
 
          return r;         
       }
+
+   UserFunctionTemplate4perl("","fan_system_container<Addition>(Cycle<Addition>, Cycle<Addition>+)");
 
 	UserFunctionTemplate4perl("","refined_hypersurface<Addition>(Cycle<Addition>, Polynomial<TropicalNumber<Addition> >)");
 	UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>+)");

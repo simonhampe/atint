@@ -43,9 +43,9 @@ namespace polymake { namespace tropical {
 		perl::ListReturn result;
 
 		Vector<Set<int> > r_sets(all_subsets_of_k(sequence(0,n),r));
-		Array<Set<int> > all_sets = all_subsets(sequence(0, r_sets.dim()));
+		//Array<Set<int> > all_sets = all_subsets(sequence(0, r_sets.dim()));
 		//Iterate all possible subsets of r-sets
-		for(Entire<Array< Set<int> > >::iterator as = entire(all_sets); !as.at_end(); as++) {
+		for(Entire<AllSubsets<const Series<int,true>& > >::const_iterator as = entire(all_subsets(sequence(0,r_sets.dim()))); !as.at_end(); as++) {
 			Set<int> base_union = accumulate(r_sets.slice( *as), operations::add());
 			if(base_union.size() == n) {
 				if(matroid::check_basis_exchange_axiom_impl( r_sets.slice( *as))) {
