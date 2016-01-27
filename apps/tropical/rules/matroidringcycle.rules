@@ -1,0 +1,52 @@
+###################################################################
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor,
+#  Boston, MA  02110-1301, USA.
+#  
+#  ---
+#  Copyright (C) 2011-2015, Simon Hampe <simon.hampe@googlemail.com>
+#  
+#  This file describes the type MatroidRingCycle.
+#####################################################################
+
+object MatroidRingCycle {
+  
+   # @category Matroid data
+   # Every matroid (and hence every element of the matroid ring) has a presentation 
+   # as a linear combination of nested matroids (which form a basis).
+   # Each entry in this list represents a nested matroid whose coefficient is not 0
+   # in the presentation of this cycle. A nested matroid is represented
+   # by its maximal transversal presentation. You can use the method
+   # [[nested_matroids]] to retrieve them as actual [[matroid::Matroid]] objects.
+   property NESTED_PRESENTATIONS : Array<IncidenceMatrix>;
+
+   # @category Matroid data
+   # These are the linear coefficients of this cycle in its nested matroids representation.
+   # They correspond to the entries in [[NESTED_PRESENTATIONS]].
+   property NESTED_COEFFICIENTS : Array<Integer>;
+
+   # @category Matroid data
+   # Describes the ground set of the matroid ring in which this cycle lives. 
+   # Same as [[PROJECTIVE_AMBIENT_DIM]]+1.
+   property N_ELEMENTS : Int;
+
+   # @category Matroid data
+   # This returns the nested matroids represented by [[NESTED_PRESENTATIONS]]
+   # as a list of [[matroid::Matroid]] objects.
+   user_method nested_matroids {
+      my $this = shift;
+      return map {new matroid::Matroid(N_ELEMENTS=>$this->N_ELEMENTS, TRANSVERSAL_PRESENTATION=>rows($_))} @{$this->NESTED_PRESENTATIONS};
+   }
+
+}

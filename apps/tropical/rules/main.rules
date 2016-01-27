@@ -60,6 +60,11 @@ declare object RationalCurve;
 # The different (lists of) lines can be visualized nicely with [[visualize_in_surface]].
 declare object LinesInCubic<Addition>;
 
+# A matroid ring cycle is a tropical cycle which lies in the intersection ring of matroids fans.
+# I.e. it is a linear combination of matroids fans (of the same dimension).
+# Cycle sum and intersection are implemented through the combinatorics of the underlying matroids.
+declare object MatroidRingCycle<Addition> : Cycle<Addition>;
+
 INCLUDE
 	help.rules
 	cycle.rules
@@ -74,3 +79,4 @@ INCLUDE
 	visual_function.rules
 	intersection.rules
 	lines_in_cubic.rules
+   matroidringcycle.rules
