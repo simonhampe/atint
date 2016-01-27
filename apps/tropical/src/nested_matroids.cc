@@ -74,6 +74,17 @@ namespace polymake { namespace tropical {
       //Determine orientation of flats 
       bool flipped = cyclic_flats.row(0).size() > cyclic_flats.row(cyclic_flats.rows()-1).size();
 
+      //Map node indices to ranks
+      int cflats_dim = matroid.give("RANK");
+      Map<int,int> rank_map;
+      rank_map[flipped? cyclic_flats.rows()-1 : 0] = 0;
+      for(int i = 0; i < cflats_dim; i++) {
+         Set<int> n_of_dim = flats.CallPolymakeMethod("nodes_of_dim", i);
+         for(Entire<Set<int> >::iterator nd = entire(n_of_dim); !nd.at_end(); nd++){
+            rank_map[*nd] = i+1;
+         }
+      }
+
       HasseDiagram chains = chain_lattice(flats); 
       IncidenceMatrix<> chain_faces = chains.faces();
       Vector<int> coefficients = top_moebius_function(chains);
@@ -86,15 +97,17 @@ namespace polymake { namespace tropical {
       for(Entire<Set<int> >::iterator s = entire(supp); !s.at_end(); s++, current_index++) {
          final_coefficients[current_index] = coefficients[*s];
          IncidenceMatrix<> current_faces = cyclic_flats.minor(chains.face( *s),All);
+         //Read out flat indices and map them to their ranks
+         Array<int> slist(chains.face(*s));
+         slist = attach_operation(slist, pm::operations::associative_access<Map<int,int>,int>(&rank_map));
          IncidenceMatrix<> ordered_faces = flipped? 
             IncidenceMatrix<>(current_faces.rows(), current_faces.cols(), rentire(rows(current_faces))) : 
             current_faces;
-         
-
-
+         Array<int> ordered_ranks = flipped?
+            Array<int>(slist.size(), rentire(slist)) :
+            slist;
+         nested_presentations[current_index] = presentation_from_chain(n, ordered_faces, ordered_ranks);
       }
-
-      
 
       perl::ListReturn result;
          result << nested_presentations;
@@ -106,5 +119,7 @@ namespace polymake { namespace tropical {
 
 
    Function4perl(&presentation_from_chain, "presentation_from_chain($, $,$)");
+
+   UserFunction4perl("",&matroid_nested_decomposition, "matroid_nested_decomposition(matroid::Matroid)");
 
 }}
