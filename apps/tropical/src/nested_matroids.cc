@@ -120,6 +120,6 @@ namespace polymake { namespace tropical {
 
    Function4perl(&presentation_from_chain, "presentation_from_chain($, $,$)");
 
-   UserFunction4perl("",&matroid_nested_decomposition, "matroid_nested_decomposition(matroid::Matroid)");
+   Function4perl(&matroid_nested_decomposition, "matroid_nested_decomposition(matroid::Matroid)");
 
 }}

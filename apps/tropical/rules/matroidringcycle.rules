@@ -22,6 +22,9 @@
 
 object MatroidRingCycle {
   
+   #Operator overload 
+	use overload('*' => 'mult', '+' => 'sum', fallback => 1);
+
    # @category Matroid data
    # Every matroid (and hence every element of the matroid ring) has a presentation 
    # as a linear combination of nested matroids (which form a basis).
@@ -34,12 +37,17 @@ object MatroidRingCycle {
    # @category Matroid data
    # These are the linear coefficients of this cycle in its nested matroids representation.
    # They correspond to the entries in [[NESTED_PRESENTATIONS]].
-   property NESTED_COEFFICIENTS : Array<Integer>;
+   property NESTED_COEFFICIENTS : Array<Int>;
 
    # @category Matroid data
    # Describes the ground set of the matroid ring in which this cycle lives. 
    # Same as [[PROJECTIVE_AMBIENT_DIM]]+1.
    property N_ELEMENTS : Int;
+
+   # @category Matroid data
+   # Describes the ranks of the matroids, of which this cycle is a linear combination.
+   # Same as [[PROJECTIVE_DIM]]+1
+   property RANK : Int;
 
    # @category Matroid data
    # This returns the nested matroids represented by [[NESTED_PRESENTATIONS]]
@@ -49,4 +57,83 @@ object MatroidRingCycle {
       return map {new matroid::Matroid(N_ELEMENTS=>$this->N_ELEMENTS, TRANSVERSAL_PRESENTATION=>rows($_))} @{$this->NESTED_PRESENTATIONS};
    }
 
+   # Construct a MatroidRingCycle from a matroid. An optional linear coefficient can be 
+   # given and is 1 by default.
+   method construct(matroid::Matroid; $=1) {
+      my ($this, $m, $c) = @_;
+      my @np = matroid_nested_decomposition($m);
+      Polymake::Core::Object::new_filled($this, "", N_ELEMENTS=>$m->N_ELEMENTS, RANK=>$m->RANK, NESTED_PRESENTATIONS=>$np[0], NESTED_COEFFICIENTS=>$c * new Vector<Int>($np[1]));
+   }
+
+   rule N_ELEMENTS, RANK : NESTED_PRESENTATIONS {
+      $this->N_ELEMENTS = $this->NESTED_PRESENTATIONS->[0]->cols();
+      $this->RANK = $this->NESTED_PRESENTATIONS->[0]->rows();
+   }
+   precondition : NESTED_PRESENTATIONS {
+      $this->NESTED_PRESENTATIONS->size() > 0;
+   }
+ 
+
+   sub sum {
+      my ($a,$b) = @_;
+      return matroid_ring_cycle_sum($a,$b); 
+   }
+
+   sub mult {
+      my ($a,$b) = @_;
+      #If it's two ring cycles, compute the product
+      if(ref $a eq ref $b) {
+         return matroid_ring_cycle_product($a,$b);
+      }
+      #otherwise assume one is a scalar
+      else {
+         return new MatroidRingCycle<Addition>(N_ELEMENTS=>$a->N_ELEMENTS, RANK=>$a->RANK, 
+                                                NESTED_PRESENTATIONS=>$a->NESTED_PRESENTATIONS,
+                                                NESTED_COEFFICIENTS=>$b * (new Vector<Int>($a->NESTED_COEFFICIENTS)));
+
+      }
+   }
+
 }
+
+# @category Matroid ring cycle arithmetics
+# Constructs the zero element of the matroid ring.
+# @param Int n The size of the ground set.
+# @tparam Addition The tropical Addition, either Min or Max.
+# @return MatroidRingCycle
+user_function zero_in_matroid_ring<Addition>($) {
+   return new MatroidRingCycle<Addition>(N_ELEMENTS=>shift, RANK=>0, NESTED_PRESENTATIONS=>(new Array<IncidenceMatrix>()), NESTED_COEFFICIENTS=>(new Array<Int>()));
+}
+
+
+# @category Matroid ring cycle arithmetics
+# Computes the product of two matroid ring cycles.
+# @param MatroidRingCycle A
+# @param MatroidRingCycle B
+# @return MatroidRingCycle A * B
+user_function matroid_ring_cycle_product<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>) {
+   my ($A,$B) = @_;
+
+   my $base = zero_in_matroid_ring<Addition>($A->N_ELEMENTS);
+   #Exclude trivial case 
+   if($A->RANK + $B->RANK - $A->N_ELEMENTS <= 0) {
+     return $base;
+   }
+   
+   my @alist = $A->nested_matroids();
+   my @blist = $B->nested_matroids();
+   my $acoeffs = $A->NESTED_COEFFICIENTS;
+   my $bcoeffs = $B->NESTED_COEFFICIENTS;
+
+   for my $i (0 .. scalar(@alist)-1) {
+      for my $j (0 .. scalar(@blist)-1) {
+         my $inter = matroid::intersection($alist[$i], $blist[$j]);
+         if($inter->LOOPS->size() == 0) {
+            $base = $base + (new MatroidRingCycle<Addition>($inter, $acoeffs->[$i] * $bcoeffs->[$j] ));
+         }
+      }
+   }
+   return $base;
+}
+
+

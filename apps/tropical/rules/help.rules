@@ -80,6 +80,9 @@
 # These +++ are concerned with the underlying matroid combinatorics of a 
 # [[MatroidRingCycle]].
 
+# @topic category any/Matroid ring cycle arithmetics
+# These +++ deal with the arithmetics of [[MatroidRingCycle]] objects.
+
 # @topic category any/Inverse problems
 # These +++ deal with finding rational functions to given divisors.
 
