@@ -88,14 +88,14 @@ namespace polymake { namespace tropical {
       HasseDiagram chains = chain_lattice(flats); 
       IncidenceMatrix<> chain_faces = chains.faces();
       Vector<int> coefficients = top_moebius_function(chains);
-      Set<int> supp = support( coefficients);
+      Set<int> supp = support( coefficients) - chains.top_node();
 
       Array<IncidenceMatrix<> > nested_presentations(supp.size());
       Array<int> final_coefficients(supp.size());
 
       int current_index = 0;
       for(Entire<Set<int> >::iterator s = entire(supp); !s.at_end(); s++, current_index++) {
-         final_coefficients[current_index] = coefficients[*s];
+         final_coefficients[current_index] = -coefficients[*s];
          IncidenceMatrix<> current_faces = cyclic_flats.minor(chains.face( *s),All);
          //Read out flat indices and map them to their ranks
          Array<int> slist(chains.face(*s));
