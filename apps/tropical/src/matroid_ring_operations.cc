@@ -120,6 +120,7 @@ namespace polymake { namespace tropical {
                   if(result.rows() == 0) result = Matrix<Rational>(1,1);
                   else result |= zero_vector<Rational>(result.rows());
                   result( result.rows()-1, result.cols()-1) = coeff[repindex];
+                  existing_nested |= *r_it;
                }
             }
          }
