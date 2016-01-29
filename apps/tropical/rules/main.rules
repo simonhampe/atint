@@ -63,6 +63,11 @@ declare object LinesInCubic<Addition>;
 # A matroid ring cycle is a tropical cycle which lies in the intersection ring of matroids fans.
 # I.e. it is a linear combination of matroids fans (of the same dimension).
 # Cycle sum and intersection are implemented through the combinatorics of the underlying matroids.
+# Note that the set of loopfree nested matroids is a basis for this ring (e.g. as a Z-module). 
+# Hence every MatroidRingCycle is represented as a linear combination of nested matroids.
+# The nested matroids are encoded via their maximal transversal presentations in 
+# [[MatroidRingCycle::NESTED_PRESENTATIONS]]. The corresponding coefficients are found
+# in [[MatroidRingCycle::NESTED_COEFFICIENTS]].
 declare object MatroidRingCycle<Addition> : Cycle<Addition>;
 
 INCLUDE

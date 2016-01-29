@@ -76,6 +76,8 @@ namespace polymake { namespace tropical {
 
       //Map node indices to ranks
       int cflats_dim = matroid.give("RANK");
+      int n_coloops = matroid.give("N_COLOOPS");
+         cflats_dim -= n_coloops;
       Map<int,int> rank_map;
       rank_map[flipped? cyclic_flats.rows()-1 : 0] = 0;
       for(int i = 0; i < cflats_dim; i++) {
