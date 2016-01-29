@@ -1,93 +1,95 @@
-<?xml version="1.0"?>
-<?pm chk="5534f7cc"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="3" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
-	<property name="DOMAIN">
-		<object>
-			<credit product="atint">  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab1786"?>
+
+<object name="3" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="DOMAIN">
+    <object>
+      <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
 				(C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
 				See also: 
-				https://github.com/simonhampe/atint</credit>
-  <property name="PURE" value="true" />
-			<property name="VERTICES">
-				<m>
-					<v>1 0 0 0 0</v>
-				</m>
-			</property>
-			<property name="MAXIMAL_POLYTOPES">
-				<m cols="1">
-					<v>0</v>
-				</m>
-			</property>
-			<property name="WEIGHTS">
-				<v>1</v>
-			</property>
-			<property name="LINEALITY_SPACE">
-				<m>
-					<v>0 0 1 0 0</v>
-					<v>0 0 0 1 0</v>
-					<v>0 0 0 0 1</v>
-				</m>
-			</property>
-			<property name="FAR_VERTICES">
-				<v/>
-			</property>
-			<property name="FAN_AMBIENT_DIM" value="5"/>
-			<property name="FACET_NORMALS">
-				<m>
-					<v>1 0 0 0 0</v>
-				</m>
-			</property>
-			<property name="MAXIMAL_POLYTOPES_FACETS">
-				<m cols="1">
-					<v> <e i="0">1</e> </v>
-				</m>
-			</property>
-			<property name="AFFINE_HULL">
-				<m>
-					<v>0 1 0 0 0</v>
-				</m>
-			</property>
-			<property name="MAXIMAL_POLYTOPES_AFFINE_HULL_NORMALS">
-				<m cols="1">
-					<v>0</v>
-				</m>
-			</property>
-			<property name="CODIMENSION_ONE_POLYTOPES">
-				<m/>
-			</property>
-			<property name="MAXIMAL_AT_CODIM_ONE">
-				<m/>
-			</property>
-			<property name="FACET_NORMALS_BY_PAIRS">
-				<m/>
-			</property>
-			<property name="SEPARATED_VERTICES">
-				<m>
-					<v>1 0 0 0 0</v>
-				</m>
-			</property>
-			<property name="SEPARATED_MAXIMAL_POLYTOPES">
-				<m cols="1">
-					<v>0</v>
-				</m>
-			</property>
-			<property name="SEPARATED_CODIMENSION_ONE_POLYTOPES">
-				<m/>
-			</property>
-			<property name="SEPARATED_CONVERSION_VECTOR">
-				<v>0</v>
-			</property>
-		</object>
-	</property>
-	<property name="VERTEX_VALUES">
-		<m>
-			<v>0 1 2</v>
-		</m>
-	</property>
-	<property name="LINEALITY_VALUES">
-		<m>
-			<v>0 0 0</v>
-			<v>0 0 0</v>
-			<v>0 0 0</v>
-		</m>
-	</property>
+				https://github.com/simonhampe/atint]]></credit>
+      <property name="PURE" value="true" />
+      <property name="VERTICES">
+        <m>
+          <v>1 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="MAXIMAL_POLYTOPES">
+        <m cols="1">
+          <v>0</v>
+        </m>
+      </property>
+      <property name="WEIGHTS">
+        <v>1</v>
+      </property>
+      <property name="LINEALITY_SPACE">
+        <m>
+          <v>0 0 1 0 0</v>
+          <v>0 0 0 1 0</v>
+          <v>0 0 0 0 1</v>
+        </m>
+      </property>
+      <property name="FAR_VERTICES">
+        <v />
+      </property>
+      <property name="FAN_AMBIENT_DIM" value="5" />
+      <property name="FACET_NORMALS">
+        <m>
+          <v>1 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="MAXIMAL_POLYTOPES_FACETS">
+        <m cols="1">
+          <v> <e i="0">1</e> </v>
+        </m>
+      </property>
+      <property name="AFFINE_HULL">
+        <m>
+          <v>0 1 0 0 0</v>
+        </m>
+      </property>
+      <property name="MAXIMAL_POLYTOPES_AFFINE_HULL_NORMALS">
+        <m cols="1">
+          <v>0</v>
+        </m>
+      </property>
+      <property name="CODIMENSION_ONE_POLYTOPES">
+        <m />
+      </property>
+      <property name="MAXIMAL_AT_CODIM_ONE">
+        <m />
+      </property>
+      <property name="FACET_NORMALS_BY_PAIRS">
+        <m />
+      </property>
+      <property name="SEPARATED_VERTICES">
+        <m>
+          <v>1 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="SEPARATED_MAXIMAL_POLYTOPES">
+        <m cols="1">
+          <v>0</v>
+        </m>
+      </property>
+      <property name="SEPARATED_CODIMENSION_ONE_POLYTOPES">
+        <m />
+      </property>
+      <property name="SEPARATED_CONVERSION_VECTOR">
+        <v>0</v>
+      </property>
+    </object>
+  </property>
+  <property name="VERTEX_VALUES">
+    <m>
+      <v>0 1 2</v>
+    </m>
+  </property>
+  <property name="LINEALITY_VALUES">
+    <m>
+      <v>0 0 0</v>
+      <v>0 0 0</v>
+      <v>0 0 0</v>
+    </m>
+  </property>
 </object>

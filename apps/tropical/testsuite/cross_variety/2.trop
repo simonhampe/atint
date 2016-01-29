@@ -1,5 +1,7 @@
-<?xml version="1.0"?>
-<?pm chk="55719758"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="2" type="tropical::Cycle&lt;Max&gt;" version="2.14">
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab1cfa"?>
+
+<object name="2" type="tropical::Cycle&lt;Max&gt;" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="VERTICES">
     <m>
       <v>1 0 -5 -5</v>
@@ -27,4 +29,5 @@
   <property name="WEIGHTS">
     <v>10 10 10 10 10 10 10 10</v>
   </property>
-<property name="PURE" value="true"/></object>
+  <property name="PURE" value="true" />
+</object>

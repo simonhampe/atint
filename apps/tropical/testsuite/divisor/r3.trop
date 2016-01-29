@@ -1,9 +1,11 @@
-<?xml version="1.0"?>
-<?pm chk="5565af74"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="r3" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
-  <credit product="atint">  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab0d56"?>
+
+<object name="r3" type="tropical::RationalFunction&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint</credit>
+  https://github.com/simonhampe/atint]]></credit>
   <property name="DOMAIN">
     <object>
       <property name="VERTICES">
@@ -27,7 +29,7 @@
         </m>
       </property>
       <property name="LINEALITY_SPACE">
-        <m/>
+        <m />
       </property>
       <property name="WEIGHTS">
         <v>2 2 2 2 2 2</v>
@@ -35,7 +37,7 @@
       <property name="FAR_VERTICES">
         <v>2 3 5</v>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="4"/>
+      <property name="FAN_AMBIENT_DIM" value="4" />
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 -1 0</v>
@@ -156,14 +158,15 @@
       <property name="SEPARATED_CONVERSION_VECTOR">
         <v>0 1 4 2 2 3 5</v>
       </property>
-      <property name="PROJECTIVE_AMBIENT_DIM" value="2"/>
+      <property name="PROJECTIVE_AMBIENT_DIM" value="2" />
+      <property name="PURE" value="true" />
     </object>
   </property>
   <property name="VERTEX_VALUES">
     <v>0 1 1 1 1 0 1</v>
   </property>
   <property name="LINEALITY_VALUES">
-    <v/>
+    <v />
   </property>
   <property name="NUMERATOR">
     <t>
@@ -194,8 +197,8 @@
           <e>0</e>
         </t>
       </m>
-      <r/>
+      <r />
     </t>
   </property>
-  <property name="IS_GLOBALLY_DEFINED" value="false"/>
+  <property name="IS_GLOBALLY_DEFINED" value="false" />
 </object>

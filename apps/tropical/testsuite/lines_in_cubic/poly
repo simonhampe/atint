@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="561e562e"?>
+<?pm chk="56ab1720"?>
 
-<data type="common::Polynomial&lt;TropicalNumber&lt;Max, Rational&gt;, Int&gt;" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<data type="common::Polynomial&lt;TropicalNumber&lt;Max, Rational&gt;, Int&gt;" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <t>
     <m>
       <t>
@@ -45,36 +45,36 @@
         <e>-7919/1000</e>
       </t>
       <t>
-        <v dim="4"> <e i="0">1</e> <e i="2">1</e> <e i="3">1</e> </v>
-        <e>-5981/1000</e>
+        <v dim="4"> <e i="1">1</e> <e i="2">2</e> </v>
+        <e>-12091/1000</e>
       </t>
       <t>
         <v dim="4"> <e i="1">2</e> <e i="3">1</e> </v>
         <e>-1759/125</e>
       </t>
       <t>
-        <v dim="4"> <e i="1">1</e> <e i="2">2</e> </v>
-        <e>-12091/1000</e>
-      </t>
-      <t>
-        <v dim="4"> <e i="0">1</e> <e i="3">2</e> </v>
-        <e>-799/100</e>
-      </t>
-      <t>
-        <v dim="4"> <e i="1">1</e> <e i="2">1</e> <e i="3">1</e> </v>
-        <e>-2761/250</e>
+        <v dim="4"> <e i="0">1</e> <e i="2">1</e> <e i="3">1</e> </v>
+        <e>-5981/1000</e>
       </t>
       <t>
         <v dim="4"> <e i="2">3</e> </v>
         <e>-17933/1000</e>
       </t>
       <t>
-        <v dim="4"> <e i="1">1</e> <e i="3">2</e> </v>
-        <e>-6983/500</e>
+        <v dim="4"> <e i="1">1</e> <e i="2">1</e> <e i="3">1</e> </v>
+        <e>-2761/250</e>
+      </t>
+      <t>
+        <v dim="4"> <e i="0">1</e> <e i="3">2</e> </v>
+        <e>-799/100</e>
       </t>
       <t>
         <v dim="4"> <e i="2">2</e> <e i="3">1</e> </v>
         <e>-6979/500</e>
+      </t>
+      <t>
+        <v dim="4"> <e i="1">1</e> <e i="3">2</e> </v>
+        <e>-6983/500</e>
       </t>
       <t>
         <v dim="4"> <e i="2">1</e> <e i="3">2</e> </v>

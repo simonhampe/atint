@@ -1,5 +1,7 @@
-<?xml version="1.0"?>
-<?pm chk="55a622e6"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="2a" type="tropical::RationalCurve" ext="0=https://github.com/simonhampe/atint" version="2.14">
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab1b47"?>
+
+<object name="2a" type="tropical::RationalCurve" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="SETS">
     <m cols="5">
       <v>1 2</v>
@@ -10,10 +12,10 @@
   <property name="COEFFS">
     <v>1 1 1</v>
   </property>
-  <property name="N_LEAVES" value="6"/>
+  <property name="N_LEAVES" value="6" />
   <property name="GRAPH">
     <object>
-      <property name="N_NODES" value="10"/>
+      <property name="N_NODES" value="10" />
       <property name="ADJACENCY">
         <m>
           <v>6</v>
@@ -31,7 +33,7 @@
       <property name="NODE_LABELS">
         <v>1 2 3 4 5 6 '' '' '' ''</v>
       </property>
-      <property name="N_EDGES" value="9"/>
+      <property name="N_EDGES" value="9" />
     </object>
   </property>
   <property name="GRAPH_EDGE_LENGTHS">
@@ -41,7 +43,7 @@
     <m cols="7">
       <v>1 2</v>
       <v>3 4</v>
-      <v/>
+      <v />
       <v>5 6</v>
     </m>
   </property>

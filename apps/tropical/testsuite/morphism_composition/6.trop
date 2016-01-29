@@ -1,12 +1,14 @@
-<?xml version="1.0"?>
-<?pm chk="55350435"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="6" type="tropical::Morphism&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="2.14">
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab11a4"?>
+
+<object name="6" type="tropical::Morphism&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="DOMAIN">
     <object>
-      <credit product="atint">  a-tint is an extension for tropical intersection theory.
+      <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint</credit>
-  <property name="PURE" value="true" />
+  https://github.com/simonhampe/atint]]></credit>
+      <property name="PURE" value="true" />
       <property name="VERTICES">
         <m>
           <v>1 0 0 0</v>
@@ -25,16 +27,16 @@
           <v>1 4</v>
         </m>
       </property>
-    <property name="WEIGHTS">
+      <property name="WEIGHTS">
         <v>1 1 1 1 1</v>
       </property>
-  <property name="LINEALITY_SPACE">
-        <m/>
+      <property name="LINEALITY_SPACE">
+        <m />
       </property>
       <property name="FAR_VERTICES">
         <v>2 3 4</v>
       </property>
-      <property name="FAN_AMBIENT_DIM" value="4"/>
+      <property name="FAN_AMBIENT_DIM" value="4" />
       <property name="FACET_NORMALS">
         <m>
           <v>1 0 -1 0</v>
@@ -152,6 +154,6 @@
     </m>
   </property>
   <property name="LINEALITY_VALUES">
-    <m/>
+    <m />
   </property>
 </object>
