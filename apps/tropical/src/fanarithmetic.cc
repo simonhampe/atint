@@ -33,7 +33,7 @@
 #include "polymake/tropical/specialcycles.h"
 
 namespace polymake { namespace tropical {
-
+/*
 	template <typename Addition>
 		perl::Object refined_hypersurface(perl::Object skeleton, Polynomial<TropicalNumber<Addition> > p) {
 			Matrix<Rational> skel_rays = skeleton.give("VERTICES");
@@ -193,5 +193,5 @@ namespace polymake { namespace tropical {
 
 	UserFunctionTemplate4perl("","refined_hypersurface<Addition>(Cycle<Addition>, Polynomial<TropicalNumber<Addition> >)");
 	UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>+)");
-
+*/
 }}
