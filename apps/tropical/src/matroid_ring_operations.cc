@@ -30,6 +30,7 @@
 
 namespace polymake { namespace tropical {
 
+   /*
    //Checks whether two incidence matrices are the same up to permutation.
    bool is_same_presentation(const IncidenceMatrix<> &i1, const IncidenceMatrix<> &i2) {
       if(i1.rows() != i2.rows() || i1.cols() != i2.cols()) return false;
@@ -46,7 +47,7 @@ namespace polymake { namespace tropical {
          if(!found_it) return false;
       }
       return true;
-   }
+   }*/
 
    /*
     * @brief Computes the sum of two matroid ring cycles 
@@ -69,7 +70,7 @@ namespace polymake { namespace tropical {
             int other_index =0;
             for(Entire<Array<IncidenceMatrix<> > >::iterator other_p = entire(np1); 
                   !other_p.at_end(); other_p++, other_index++) {
-               if(is_same_presentation(*p,*other_p)) {
+               if(*p == *other_p) {
                   //If no exception is thrown, they're equal
                   found_it = true;
                   result_coefficients[other_index] += nc2[index];
@@ -110,7 +111,7 @@ namespace polymake { namespace tropical {
                bool found_it = false;
                for(Entire<Vector<IncidenceMatrix<> > >::iterator en = entire(existing_nested);
                      index < max_index; index++, en++) {
-                  if(is_same_presentation( *r_it, *en)) {
+                  if(*r_it == *en) {
                      found_it = true;
                      result(result.rows()-1, index) = coeff[repindex];
                      break;

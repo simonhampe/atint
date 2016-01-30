@@ -28,5 +28,17 @@ namespace polymake { namespace tropical { namespace {
    }
    FunctionWrapperInstance4perl( pm::IncidenceMatrix<pm::NonSymmetric> (int, pm::Array<pm::Set<int, pm::operations::cmp>, void> const&, pm::Array<int, void>) );
 
+   FunctionWrapper4perl( pm::Map<pm::Set<int, pm::operations::cmp>, int, pm::operations::cmp> (pm::IncidenceMatrix<pm::NonSymmetric> const&) ) {
+      perl::Value arg0(stack[0]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >() );
+   }
+   FunctionWrapperInstance4perl( pm::Map<pm::Set<int, pm::operations::cmp>, int, pm::operations::cmp> (pm::IncidenceMatrix<pm::NonSymmetric> const&) );
+
+   FunctionWrapper4perl( perl::Object (pm::IncidenceMatrix<pm::NonSymmetric> const&, int) ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      IndirectWrapperReturn( arg0.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg1 );
+   }
+   FunctionWrapperInstance4perl( perl::Object (pm::IncidenceMatrix<pm::NonSymmetric> const&, int) );
+
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

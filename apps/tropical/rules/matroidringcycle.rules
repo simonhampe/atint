@@ -32,6 +32,11 @@ object MatroidRingCycle {
    # in the presentation of this cycle. A nested matroid is represented
    # by its maximal transversal presentation. You can use the method
    # [[nested_matroids]] to retrieve them as actual [[matroid::Matroid]] objects.
+   # Note that the implementation will assume that the nested presentations are
+   # each given in such a way that the sets are ordered from smallest to largest.
+   # It is not recommended to specify this property directly. Rather use the
+   # constructor to convert a matroid into a ring cycle, then use the overloaded
+   # operators to construct linear combinations.
    property NESTED_PRESENTATIONS : Array<IncidenceMatrix>;
 
    # @category Matroid data
@@ -60,7 +65,7 @@ object MatroidRingCycle {
    # as a list of [[matroid::Matroid]] objects.
    user_method nested_matroids {
       my $this = shift;
-      return map {new matroid::Matroid(N_ELEMENTS=>$this->N_ELEMENTS, TRANSVERSAL_PRESENTATION=>rows($_))} @{$this->NESTED_PRESENTATIONS};
+      return map { nested_matroid_from_presentation($_, $this->N_ELEMENTS) } @{$this->NESTED_PRESENTATIONS};
    }
 
    # Construct a MatroidRingCycle from a matroid. An optional linear coefficient can be 
@@ -183,5 +188,7 @@ user_function matroid_ring_cycle_product<Addition>(MatroidRingCycle<Addition>, M
    }
    return $base;
 }
+
+
 
 
