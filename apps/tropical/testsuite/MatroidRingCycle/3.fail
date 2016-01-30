@@ -1,0 +1,1 @@
+ERROR: Can't call method "property" on unblessed reference at /store/appolonios/hampe/git/polymake/perllib/Polymake/Test/Object.pm line 95.

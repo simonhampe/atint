@@ -31,30 +31,11 @@
 namespace polymake { namespace tropical {
 
    /*
-   //Checks whether two incidence matrices are the same up to permutation.
-   bool is_same_presentation(const IncidenceMatrix<> &i1, const IncidenceMatrix<> &i2) {
-      if(i1.rows() != i2.rows() || i1.cols() != i2.cols()) return false;
-      Set<int> used_indices;
-      for(Entire<Rows<IncidenceMatrix<> > >::const_iterator r1 = entire(rows(i1)); !r1.at_end(); r1++) {
-         bool found_it = false;
-         int index =0;
-         for(Entire<Rows<IncidenceMatrix<> > >::const_iterator r2 = entire(rows(i2)); !r2.at_end(); 
-               r2++, index++) {
-            if(*r1 == *r2 && !used_indices.contains(index)) {
-               found_it = true; used_indices += index; break;
-            }
-         }
-         if(!found_it) return false;
-      }
-      return true;
-   }*/
-
-   /*
     * @brief Computes the sum of two matroid ring cycles 
     * 
     */
    template <typename Addition>
-      perl::Object matroid_ring_cycle_sum(perl::Object c1, perl::Object c2) {
+      perl::Object matroid_ring_sum(perl::Object c1, perl::Object c2) {
          Array<IncidenceMatrix<> > np1 = c1.give("NESTED_PRESENTATIONS");
          Array<IncidenceMatrix<> > np2 = c2.give("NESTED_PRESENTATIONS");
          Array<int> nc1 = c1.give("NESTED_COEFFICIENTS");
@@ -136,7 +117,7 @@ namespace polymake { namespace tropical {
          "# @param MatroidRingCycle A"
          "# @param MatroidRingCycle B"
          "# @return MatroidRingCycle A + B",
-         "matroid_ring_cycle_sum<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>)");
+         "matroid_ring_sum<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>)");
 
    UserFunctionTemplate4perl("# @category Matroid ring cycle arithmetics"
          "# Given a list of MatroidRingCycle objects (of the same rank r,"

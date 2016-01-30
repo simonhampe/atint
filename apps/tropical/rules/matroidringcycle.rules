@@ -63,6 +63,13 @@ object MatroidRingCycle {
    # @category Matroid data
    # This returns the nested matroids represented by [[NESTED_PRESENTATIONS]]
    # as a list of [[matroid::Matroid]] objects.
+   # @example The following computes the matroid ring cycle of the matroid corresponding to 
+   # the complete graph on 4 vertices. It then returns a list of the nested matroids in its
+   # basis presentation.
+   # > $r = new MatroidRingCycle<Max>(matroid::matroid_from_graph(complete(4)));
+   # > @n = $r->nested_matroids();
+   # > print $n[0]->BASES->size;
+   # | 20
    user_method nested_matroids {
       my $this = shift;
       return map { nested_matroid_from_presentation($_, $this->N_ELEMENTS) } @{$this->NESTED_PRESENTATIONS};
@@ -119,7 +126,7 @@ object MatroidRingCycle {
 
    sub sum {
       my ($a,$b) = @_;
-      return matroid_ring_cycle_sum($a,$b); 
+      return matroid_ring_sum($a,$b); 
    }
 
    sub diff {
@@ -136,7 +143,7 @@ object MatroidRingCycle {
       my ($a,$b) = @_;
       #If it's two ring cycles, compute the product
       if(ref $a eq ref $b) {
-         return matroid_ring_cycle_product($a,$b);
+         return matroid_ring_product($a,$b);
       }
       #otherwise assume one is a scalar
       else {
@@ -149,11 +156,32 @@ object MatroidRingCycle {
 
 }
 
+# @category Creation functions for specific cycles
+# This creates the cycle corresponding to a given matroid. It automatically computes
+# its representation in the basis of nested matroids.
+# This is equivalent to using the constructor of MatroidRingCycle.
+# @param matroid::Matroid M A matroid
+# @param Int scale An optional linear coefficient. The resulting cycle will be scale*B(M)
+# in the ring of matroids.
+# @tparam Addition The tropical addition. Either Min or Max.
+# @return MatroidRingCycle<Addition>
+# @example Computes the matroid ring cycle of the uniform matroid of rank 2 on 3 elements in two 
+# equivalent ways:
+# > $r = matroid_ring_cycle<Max>(matroid::uniform_matroid(2,3));
+# > $s = new MatroidRingCycle<Max>(matroid::uniform_matroid(2,3));
+user_function matroid_ring_cycle<Addition>(matroid::Matroid; $=1) {
+   return new MatroidRingCycle<Addition>(@_);
+}
+
 # @category Matroid ring cycle arithmetics
 # Constructs the zero element of the matroid ring.
 # @param Int n The size of the ground set.
 # @tparam Addition The tropical Addition, either Min or Max.
 # @return MatroidRingCycle
+# @example Computes the zero element of the matroid ring on 17 elements.
+# > $z = zero_in_matroid_ring<Max>(17);
+# > print $z->RANK;
+# | 0
 user_function zero_in_matroid_ring<Addition>($) {
    return new MatroidRingCycle<Addition>(N_ELEMENTS=>shift, RANK=>0, NESTED_PRESENTATIONS=>(new Array<IncidenceMatrix>()), NESTED_COEFFICIENTS=>(new Array<Int>()));
 }
@@ -164,7 +192,7 @@ user_function zero_in_matroid_ring<Addition>($) {
 # @param MatroidRingCycle A
 # @param MatroidRingCycle B
 # @return MatroidRingCycle A * B
-user_function matroid_ring_cycle_product<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>) {
+user_function matroid_ring_product<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>) {
    my ($A,$B) = @_;
 
    my $base = zero_in_matroid_ring<Addition>($A->N_ELEMENTS);
