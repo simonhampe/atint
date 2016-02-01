@@ -30,30 +30,12 @@
 
 namespace polymake { namespace tropical {
 
-   //Checks whether two incidence matrices are the same up to permutation.
-   bool is_same_presentation(const IncidenceMatrix<> &i1, const IncidenceMatrix<> &i2) {
-      if(i1.rows() != i2.rows() || i1.cols() != i2.cols()) return false;
-      Set<int> used_indices;
-      for(Entire<Rows<IncidenceMatrix<> > >::const_iterator r1 = entire(rows(i1)); !r1.at_end(); r1++) {
-         bool found_it = false;
-         int index =0;
-         for(Entire<Rows<IncidenceMatrix<> > >::const_iterator r2 = entire(rows(i2)); !r2.at_end(); 
-               r2++, index++) {
-            if(*r1 == *r2 && !used_indices.contains(index)) {
-               found_it = true; used_indices += index; break;
-            }
-         }
-         if(!found_it) return false;
-      }
-      return true;
-   }
-
    /*
     * @brief Computes the sum of two matroid ring cycles 
     * 
     */
    template <typename Addition>
-      perl::Object matroid_ring_cycle_sum(perl::Object c1, perl::Object c2) {
+      perl::Object matroid_ring_sum(perl::Object c1, perl::Object c2) {
          Array<IncidenceMatrix<> > np1 = c1.give("NESTED_PRESENTATIONS");
          Array<IncidenceMatrix<> > np2 = c2.give("NESTED_PRESENTATIONS");
          Array<int> nc1 = c1.give("NESTED_COEFFICIENTS");
@@ -69,7 +51,7 @@ namespace polymake { namespace tropical {
             int other_index =0;
             for(Entire<Array<IncidenceMatrix<> > >::iterator other_p = entire(np1); 
                   !other_p.at_end(); other_p++, other_index++) {
-               if(is_same_presentation(*p,*other_p)) {
+               if(*p == *other_p) {
                   //If no exception is thrown, they're equal
                   found_it = true;
                   result_coefficients[other_index] += nc2[index];
@@ -110,7 +92,7 @@ namespace polymake { namespace tropical {
                bool found_it = false;
                for(Entire<Vector<IncidenceMatrix<> > >::iterator en = entire(existing_nested);
                      index < max_index; index++, en++) {
-                  if(is_same_presentation( *r_it, *en)) {
+                  if(*r_it == *en) {
                      found_it = true;
                      result(result.rows()-1, index) = coeff[repindex];
                      break;
@@ -120,6 +102,7 @@ namespace polymake { namespace tropical {
                   if(result.rows() == 0) result = Matrix<Rational>(1,1);
                   else result |= zero_vector<Rational>(result.rows());
                   result( result.rows()-1, result.cols()-1) = coeff[repindex];
+                  existing_nested |= *r_it;
                }
             }
          }
@@ -134,7 +117,7 @@ namespace polymake { namespace tropical {
          "# @param MatroidRingCycle A"
          "# @param MatroidRingCycle B"
          "# @return MatroidRingCycle A + B",
-         "matroid_ring_cycle_sum<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>)");
+         "matroid_ring_sum<Addition>(MatroidRingCycle<Addition>, MatroidRingCycle<Addition>)");
 
    UserFunctionTemplate4perl("# @category Matroid ring cycle arithmetics"
          "# Given a list of MatroidRingCycle objects (of the same rank r,"
@@ -145,7 +128,20 @@ namespace polymake { namespace tropical {
          "# all basis presentations of the cycles. Entries are linear coefficients."
          "# @param MatroidRingCycle L A list of matroid ring cycles."
          "# @return Matrix<Rational> A matrix representation of the linear space"
-         "# spanned by L",
+         "# spanned by L"
+         "# @example The following computes 4 cycles of matroids of rank 2 on 4 elements."
+         "# It then computes the corresponding linear space representation, which shows "
+         "# immediately that M1 + M2 = M3 + M4"
+         "# > $m1 = new matroid::Matroid(N_ELEMENTS=>4,BASES=>[[0,1],[0,2],[1,3],[2,3]]);"
+         "# > $m2 = matroid::uniform_matroid(2,4);"
+         "# > $m3 = new matroid::Matroid(N_ELEMENTS=>4,BASES=>[[0,1],[0,2],[0,3],[1,3],[2,3]]);"
+         "# > $m4 = new matroid::Matroid(N_ELEMENTS=>4,BASES=>[[0,1],[0,2],[1,2],[1,3],[2,3]]);"
+         "# > @r = map { matroid_ring_cycle<Min>($_)} ($m1,$m2,$m3,$m4);"
+         "# > print matroid_ring_linear_space(@r);"
+         "# | -1 1 1"
+         "# | 1 0 0 "
+         "# | 0 0 1"
+         "# | 0 1 0",
          "matroid_ring_linear_space<Addition>(MatroidRingCycle<Addition>+)");
 
 

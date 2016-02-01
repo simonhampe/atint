@@ -1,13 +1,15 @@
-<?xml version="1.0"?>
-<?pm chk="555f44a9"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="linear" type="tropical::Cycle&lt;Max&gt;" version="2.14">
-  <credit product="atint">  a-tint is an extension for tropical intersection theory.
-  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
-  See also: 
-  https://github.com/simonhampe/atint</credit>
-  <credit product="cdd">
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab122e"?>
+
+<object name="linear" type="tropical::Cycle&lt;Max&gt;" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <credit product="cdd"><![CDATA[
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-</credit>
+]]></credit>
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+  See also: 
+  https://github.com/simonhampe/atint]]></credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0 0</v>
@@ -29,14 +31,14 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
   </property>
   <property name="INTERSECTION_COMPLEX">
     <object>
-      <property name="PURE" value="true"/>
-      <property name="DIM" value="0"/>
+      <property name="PURE" value="true" />
+      <property name="DIM" value="0" />
     </object>
   </property>
   <property name="FAR_VERTICES">
-    <v/>
+    <v />
   </property>
-  <property name="FAN_AMBIENT_DIM" value="5"/>
+  <property name="FAN_AMBIENT_DIM" value="5" />
   <property name="FACET_NORMALS">
     <m>
       <v>1 0 0 0 0</v>
@@ -59,13 +61,13 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
     </m>
   </property>
   <property name="CODIMENSION_ONE_POLYTOPES">
-    <m/>
+    <m />
   </property>
   <property name="MAXIMAL_AT_CODIM_ONE">
-    <m/>
+    <m />
   </property>
   <property name="FACET_NORMALS_BY_PAIRS">
-    <m/>
+    <m />
   </property>
   <property name="SEPARATED_VERTICES" ext="1=https://github.com/simonhampe/atint">
     <m>
@@ -78,28 +80,28 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
     </m>
   </property>
   <property name="SEPARATED_CODIMENSION_ONE_POLYTOPES" ext="1">
-    <m/>
+    <m />
   </property>
   <property name="SEPARATED_CONVERSION_VECTOR" ext="1">
     <v>0</v>
   </property>
-  <property name="N_FACET_NORMALS" value="1"/>
+  <property name="N_FACET_NORMALS" value="1" />
   <property name="MAXIMAL_POLYTOPES_INCIDENCES">
     <m>
       <m cols="1">
-        <v/>
+        <v />
       </m>
     </m>
   </property>
-  <property name="PROJECTIVE_AMBIENT_DIM" value="3"/>
-  <property name="LINEALITY_DIM" value="2"/>
-  <property name="N_MAXIMAL_POLYTOPES" value="1"/>
+  <property name="PROJECTIVE_AMBIENT_DIM" value="3" />
+  <property name="LINEALITY_DIM" value="2" />
+  <property name="N_MAXIMAL_POLYTOPES" value="1" />
   <property name="MAXIMAL_POLYTOPES_COMBINATORIAL_DIMS">
     <v>0</v>
   </property>
-  <property name="COMBINATORIAL_DIM" value="0"/>
-  <property name="FAN_DIM" value="3"/>
-  <property name="PROJECTIVE_DIM" value="2"/>
+  <property name="COMBINATORIAL_DIM" value="0" />
+  <property name="FAN_DIM" value="3" />
+  <property name="PROJECTIVE_DIM" value="2" />
   <property name="LATTICE_BASES" ext="1">
     <m cols="2">
       <v>0 1</v>
@@ -111,6 +113,7 @@ http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
       <v>0 0 0 0 1</v>
     </m>
   </property>
-  <property name="PROJECTIVE_CODIMENSION" value="1"/>
-  <property name="DEGREE" ext="1" value="1"/>
-<property name="PURE" value="true"/></object>
+  <property name="PROJECTIVE_CODIMENSION" value="1" />
+  <property name="DEGREE" ext="1" value="1" />
+  <property name="PURE" value="true" />
+</object>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56acd662"?>
+
+<object name="1" type="tropical::MatroidRingCycle&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="N_ELEMENTS" value="8" />
+  <property name="RANK" value="4" />
+  <property name="NESTED_PRESENTATIONS">
+    <m>
+      <m cols="8">
+        <v>4 5 6 7</v>
+        <v>4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+      <m cols="8">
+        <v>4 5 6 7</v>
+        <v>4 5 6 7</v>
+        <v>2 3 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+      <m cols="8">
+        <v>4 5 6 7</v>
+        <v>4 5 6 7</v>
+        <v>0 1 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+      <m cols="8">
+        <v>6 7</v>
+        <v>4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+      <m cols="8">
+        <v>4 5</v>
+        <v>4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+      <m cols="8">
+        <v>6 7</v>
+        <v>4 5 6 7</v>
+        <v>2 3 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+      <m cols="8">
+        <v>4 5</v>
+        <v>4 5 6 7</v>
+        <v>2 3 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+          <m cols="8">
+        <v>4 5</v>
+        <v>4 5 6 7</v>
+        <v>0 1 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m><m cols="8">
+        <v>6 7</v>
+        <v>4 5 6 7</v>
+        <v>0 1 4 5 6 7</v>
+        <v>0 1 2 3 4 5 6 7</v>
+      </m>
+  
+    </m>
+  </property>
+  <property name="NESTED_COEFFICIENTS">
+    <v>1 -1 -1 -1 -1 1 1 1 1</v>
+  </property>
+  <property name="PURE" value="true" />
+</object>

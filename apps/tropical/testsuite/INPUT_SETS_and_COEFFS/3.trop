@@ -1,11 +1,13 @@
-<?xml version="1.0"?>
-<?pm chk="55916112"?><object xmlns="http://www.math.tu-berlin.de/polymake/#3" name="3" type="tropical::RationalCurve" ext="0=https://github.com/simonhampe/atint" version="2.14">
-  <credit product="atint">  a-tint is an extension for tropical intersection theory.
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56ab1db8"?>
+
+<object name="3" type="tropical::RationalCurve" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
-  https://github.com/simonhampe/atint</credit>
-  <property name="N_LEAVES" value="5"/>
-  <property name="INPUT_STRING" value="'(1,2) + (1,2) + (3,4,5) + (3,4)'"/>
+  https://github.com/simonhampe/atint]]></credit>
+  <property name="N_LEAVES" value="5" />
+  <property name="INPUT_STRING" value="'(1,2) + (1,2) + (3,4,5) + (3,4)'" />
   <property name="INPUT_SETS">
     <m cols="6">
       <v>1 2</v>

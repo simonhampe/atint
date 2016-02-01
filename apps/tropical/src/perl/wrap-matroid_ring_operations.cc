@@ -14,13 +14,31 @@
 --------------------------------------------------------------------------------
 */
 
+#include "polymake/TropicalNumber.h"
+
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
+   template <typename T0>
+   FunctionInterface4perl( matroid_ring_linear_space_T_x, T0 ) {
+      perl::Value arg0(stack[0]);
+      WrapperReturn( (matroid_ring_linear_space<T0>(arg0)) );
+   };
+
+   template <typename T0>
+   FunctionInterface4perl( matroid_ring_sum_T_x_x, T0 ) {
+      perl::Value arg0(stack[0]), arg1(stack[1]);
+      WrapperReturn( (matroid_ring_sum<T0>(arg0, arg1)) );
+   };
+
    FunctionWrapper4perl( bool (pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
       IndirectWrapperReturn( arg0.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >(), arg1.get< perl::TryCanned< const IncidenceMatrix< NonSymmetric > > >() );
    }
    FunctionWrapperInstance4perl( bool (pm::IncidenceMatrix<pm::NonSymmetric> const&, pm::IncidenceMatrix<pm::NonSymmetric> const&) );
 
+   FunctionInstance4perl(matroid_ring_sum_T_x_x, Max);
+   FunctionInstance4perl(matroid_ring_sum_T_x_x, Min);
+   FunctionInstance4perl(matroid_ring_linear_space_T_x, Min);
+   FunctionInstance4perl(matroid_ring_linear_space_T_x, Max);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="55a4f46f"?>
+<?pm chk="56ab1f64"?>
 
-<object name="1" type="matroid::Matroid" version="2.14" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="1" type="matroid::Matroid" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="N_ELEMENTS" value="4" />
   <property name="BASES">
     <m>
