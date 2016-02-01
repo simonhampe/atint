@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="56acd595"?>
+
+<object name="3in" type="matroid::Matroid" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[Uniform matroid of rank 2 on 3 elements.
+]]></description>
+  <property name="N_ELEMENTS" value="3" />
+  <property name="RANK" value="2" />
+  <property name="N_BASES" value="3" />
+  <property name="BASES">
+    <m>
+      <v>0 1</v>
+      <v>0 2</v>
+      <v>1 2</v>
+    </m>
+  </property>
+  <property name="CIRCUITS">
+    <m>
+      <v>0 1 2</v>
+    </m>
+  </property>
+  <property name="MATROID_HYPERPLANES">
+    <m>
+      <v>0</v>
+      <v>1</v>
+      <v>2</v>
+    </m>
+  </property>
+  <property name="LATTICE_OF_FLATS">
+    <object>
+      <property name="ADJACENCY">
+        <m cols="5">
+          <v>1 2 3</v>
+          <v>4</v>
+          <v>4</v>
+          <v>4</v>
+          <v />
+        </m>
+      </property>
+      <property name="FACES">
+        <m>
+          <v />
+          <v>0</v>
+          <v>1</v>
+          <v>2</v>
+          <v>0 1 2</v>
+        </m>
+      </property>
+      <property name="DIMS">
+        <v>0 1 4 5</v>
+      </property>
+    </object>
+  </property>
+  <property name="LOOPS">
+    <v />
+  </property>
+  <property name="COLOOPS">
+    <v />
+  </property>
+  <property name="N_COLOOPS" value="0" />
+  <property name="LATTICE_OF_CYCLIC_FLATS">
+    <object>
+      <property name="ADJACENCY">
+        <m cols="2">
+          <v>1</v>
+          <v />
+        </m>
+      </property>
+      <property name="FACES">
+        <m>
+          <v />
+          <v>0 1 2</v>
+        </m>
+      </property>
+      <property name="DIMS">
+        <v>1 1</v>
+      </property>
+    </object>
+  </property>
+</object>
