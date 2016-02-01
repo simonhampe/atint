@@ -5,13 +5,13 @@ This project is part of and financed by the [DFG Priority Project SPP 1489](http
 
 **Current version:** 2.0
 
-**Important note:** As of polymake 2.15-beta3 a-tint is a bundled extension! I.e. if you download the newest perpetual beta, a-tint is already included!
+**Important note:** As of polymake 2.15-beta3 a-tint is a bundled extension! I.e. if you download the newest perpetual beta or release, a-tint is already included!
 
 ## Getting started 
 
 You can find a user manual in the [wiki pages](https://github.com/simonhampe/atint/wiki), as well as installation instructions and a list of features.
 
-**Important note:** You will need a recent version of polymake (perpetual beta, preferably) to run a-tint. 
+**Important note:** You will need a recent version of polymake (Release 3.0, preferably) to run a-tint. 
 
 ## More credit 
 
