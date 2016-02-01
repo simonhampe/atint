@@ -11,7 +11,7 @@ my $result3 = - (3*$r3) * $r4;
 my $r5 = zero_in_matroid_ring<Max>(4);
 my $result4 = $result1 + 17*$r5;
 
-compare_object("1", $result1);
-compare_object("2", $result2);
-compare_object("3", $result3);
-compare_object("4", $result4);
+compare_object("1", $result1, permuted=>[qw(NESTED_PRESENTATIONS NESTED_COEFFICIENTS)]);
+compare_object("2", $result2, permuted=>[qw(NESTED_PRESENTATIONS NESTED_COEFFICIENTS)]);
+compare_object("3", $result3, permuted=>[qw(NESTED_PRESENTATIONS NESTED_COEFFICIENTS)]);
+compare_object("4", $result4, permuted=>[qw(NESTED_PRESENTATIONS NESTED_COEFFICIENTS)]);
