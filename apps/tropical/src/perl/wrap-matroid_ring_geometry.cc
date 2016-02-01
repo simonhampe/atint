@@ -25,5 +25,6 @@ namespace polymake { namespace tropical { namespace {
    };
 
    FunctionInstance4perl(add_refined_cycles_T_x, Max);
+   FunctionInstance4perl(add_refined_cycles_T_x, Min);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

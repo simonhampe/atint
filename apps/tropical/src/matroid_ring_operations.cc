@@ -128,7 +128,20 @@ namespace polymake { namespace tropical {
          "# all basis presentations of the cycles. Entries are linear coefficients."
          "# @param MatroidRingCycle L A list of matroid ring cycles."
          "# @return Matrix<Rational> A matrix representation of the linear space"
-         "# spanned by L",
+         "# spanned by L"
+         "# @example The following computes 4 cycles of matroids of rank 2 on 4 elements."
+         "# It then computes the corresponding linear space representation, which shows "
+         "# immediately that M1 + M2 = M3 + M4"
+         "# > $m1 = new matroid::Matroid(N_ELEMENTS=>4,BASES=>[[0,1],[0,2],[1,3],[2,3]]);"
+         "# > $m2 = matroid::uniform_matroid(2,4);"
+         "# > $m3 = new matroid::Matroid(N_ELEMENTS=>4,BASES=>[[0,1],[0,2],[0,3],[1,3],[2,3]]);"
+         "# > $m4 = new matroid::Matroid(N_ELEMENTS=>4,BASES=>[[0,1],[0,2],[1,2],[1,3],[2,3]]);"
+         "# > @r = map { matroid_ring_cycle<Min>($_)} ($m1,$m2,$m3,$m4);"
+         "# > print matroid_ring_linear_space(@r);"
+         "# | -1 1 1"
+         "# | 1 0 0 "
+         "# | 0 0 1"
+         "# | 0 1 0",
          "matroid_ring_linear_space<Addition>(MatroidRingCycle<Addition>+)");
 
 
