@@ -117,8 +117,8 @@ namespace polymake { namespace tropical {
 			return result;
 
 		}//END fan_system
-
-   int find_index(const Vector<Rational> &v, const Matrix<Rational> &m) {
+*/
+   int find_my_index(const Vector<Rational> &v, const Matrix<Rational> &m) {
       int i = 0;
       for(Entire<Rows<Matrix<Rational> > >::const_iterator r = entire(rows(m)); !r.at_end(); r++, i++) {
          if(*r == v) return i;
@@ -148,7 +148,7 @@ namespace polymake { namespace tropical {
          for(int i = 0; i < fans.size(); i++) {
             Map<int,int> vmap;
             for(int r =0; r < vertices[i].rows(); r++) {
-               vmap[r] = find_index(vertices[i].row(r), vertices_total);
+               vmap[r] = find_my_index(vertices[i].row(r), vertices_total);
             }
             int cindex = 0;
             Map<int,Integer> iwmap;
@@ -189,9 +189,10 @@ namespace polymake { namespace tropical {
          return r;         
       }
 
-   UserFunctionTemplate4perl("","fan_system_container<Addition>(Cycle<Addition>, Cycle<Addition>+)");
+   //UserFunctionTemplate4perl("","fan_system_container<Addition>(Cycle<Addition>, Cycle<Addition>+)");
 
-	UserFunctionTemplate4perl("","refined_hypersurface<Addition>(Cycle<Addition>, Polynomial<TropicalNumber<Addition> >)");
-	UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>+)");
-*/
+	//UserFunctionTemplate4perl("","refined_hypersurface<Addition>(Cycle<Addition>, Polynomial<TropicalNumber<Addition> >)");
+
+   UserFunctionTemplate4perl("","fan_system<Addition>(Cycle<Addition>+)");
+
 }}
