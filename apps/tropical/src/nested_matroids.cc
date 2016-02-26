@@ -193,9 +193,79 @@ namespace polymake { namespace tropical {
       return result;
    }
 
+   typedef std::pair<IncidenceMatrix<>, Array<int> > nested_pair;
+
+   nested_pair uniform_pair(int r, int n) {
+      Array<Set<int> > um_faces(2);
+      Array<int> um_ranks(r < n? 2 : 1);
+      if(r < n) {
+         um_faces[1] = sequence(0,n);
+         um_ranks[1] = r;
+      }
+      return std::make_pair(IncidenceMatrix<>(um_faces), um_ranks);
+   }
+
+   std::list< nested_pair > all_nested(int r, int n) {
+      if( r < 1 || r > n || n < 1)
+         return std::list< nested_pair >(); 
+
+      std::list<nested_pair> return_list;
+
+      return_list.push_back( uniform_pair(r,n));
+
+      if(r == 1) return return_list; 
+
+      for(int k = 1; k < r; k++) {
+         for(int s = k+1; s <= k+n-r; s++) {
+            std::list<nested_pair> recursive_list = all_nested(r-k,n-s);
+            Array<Set<int> > recursive_ground_sets = all_subsets_of_k( sequence(0,n), n-s);
+            for(Entire<std::list<nested_pair> >::iterator rl = entire(recursive_list); !rl.at_end(); rl++) {
+
+               for(Entire<Array<Set<int> > >::iterator rgs = entire(recursive_ground_sets); !rgs.at_end();
+                        rgs++) {
+                  Map<int,int> converter;
+                  Array<int> rgs_sorted(*rgs);
+                  Set<int> complement = sequence(0,n) - (*rgs);
+                  for(int rgs_index = 0; rgs_index < rgs_sorted.size(); rgs_index++) {
+                     converter[rgs_index] = rgs_sorted[rgs_index];
+                  }
+
+                  Array<Set<int> > converted_flats((*rl).first.rows()+1);
+                  Array<int> converted_ranks(converted_flats.size());
+
+                  for(int cf = 1; cf < converted_flats.size(); cf++) {
+                     converted_flats[cf] = complement + Set<int>( 
+                        attach_operation( (*rl).first.row(cf-1), pm::operations::associative_access<Map<int,int>,int>(&converter)));
+                     converted_ranks[cf] = (*rl).second[cf-1] + k;
+                  }
+
+                  return_list.push_back(std::make_pair(IncidenceMatrix<>(converted_flats), converted_ranks));
+               }
+            }
+         }
+      }
+      
+      return return_list;
+   }
+
+   perl::ListReturn all_nested_wrapper(int r, int n) {
+
+      perl::ListReturn result;
+
+      std::list<nested_pair> list = all_nested(r,n);
+      for(Entire<std::list<nested_pair> >::iterator l = entire(list); !l.at_end(); l++) {
+         result << nested_matroid_from_presentation(presentation_from_chain(n,(*l).first, (*l).second),n);
+      }
+
+      return result;
+
+   }
+
    Function4perl(&presentation_from_chain, "presentation_from_chain($, $,$)");
 
    Function4perl(&matroid_nested_decomposition, "matroid_nested_decomposition(matroid::Matroid)");
 
    Function4perl(&nested_matroid_from_presentation, "nested_matroid_from_presentation(IncidenceMatrix, $)");
+
+   UserFunction4perl("", &all_nested_wrapper, "all_nested($,$)");
 }}
