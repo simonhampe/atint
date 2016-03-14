@@ -27,6 +27,7 @@
 #include "polymake/Map.h"
 #include "polymake/graph/HasseDiagram.h"
 #include "polymake/tropical/cyclic_chains.h"
+#include "polymake/Bitset.h"
 
 namespace polymake { namespace tropical {
 
@@ -117,10 +118,10 @@ namespace polymake { namespace tropical {
 
 
    //Computes the set of indices of nodes that lie above a given node
-   Set<int> nodes_above(const HasseDiagram& HD, int node) {
-      Set<int> result(HD.out_adjacent_nodes( node));
+   Bitset nodes_above(const HasseDiagram& HD, int node) {
+      Bitset result(HD.out_adjacent_nodes( node));
       std::list<int> queue;
-      for(Entire<Set<int> >::iterator oa = entire(result); !oa.at_end(); oa++) queue.push_back(*oa);
+      for(Entire<Bitset >::iterator oa = entire(result); !oa.at_end(); oa++) queue.push_back(*oa);
 
       while(queue.size() > 0) {
          int next = queue.front();
@@ -147,10 +148,10 @@ namespace polymake { namespace tropical {
 
       for(int r = HD_dim-1; r >= 0; r--) {
          Set<int> n_of_dim = HD.nodes_of_dim(r);
-         for(Entire<Set<int> >::iterator nr = entire(n_of_dim); !nr.at_end(); nr++) {
+         for(Entire<Set<int> >::const_iterator nr = entire(n_of_dim); !nr.at_end(); nr++) {
             int value = 0;
-            Set<int> above = nodes_above(HD, *nr);
-            for(Entire<Set<int> >::iterator ab = entire(above); !ab.at_end(); ab++) {
+            Bitset above = nodes_above(HD, *nr);
+            for(Entire<Bitset>::const_iterator ab = entire(above); !ab.at_end(); ab++) {
                value -= result[ *ab];
             }
             result[*nr] = value;

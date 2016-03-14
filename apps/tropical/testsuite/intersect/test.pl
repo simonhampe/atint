@@ -13,6 +13,6 @@ compare_object("2", intersect($c,$c));
 
 compare_object("3", intersect($a,$d));
 
-compare_object("4", intersect($e,$f));
+compare_object("4", intersect($e,$f), permuted=>[qw(VERTICES MAXIMAL_POLYTOPES)]);
 
 compare_object("5", intersect($g,$h));
