@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="56ab1a5d"?>
+<?pm chk="56e6dc57"?>
 
-<object name="m2b" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="m2b" type="tropical::Morphism&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0.2" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="DOMAIN">
     <object name="d1">
       <property name="VERTICES">

@@ -495,7 +495,7 @@ namespace polymake { namespace tropical {
 		Array<Set<int> > bases_array = matroid.give("BASES");
 		IncidenceMatrix<>	bases = IncidenceMatrix<>(bases_array);
 		//First we check for loops and coloops
-		Set<int> coloops = matroid.give("COLOOPS");
+		Set<int> coloops = matroid.CallPolymakeMethod("COLOOPS");
 		Set<int> loops = matroid.give("LOOPS");
 		//If it has any loops, the fan is empty
 		if(loops.size() > 0) {

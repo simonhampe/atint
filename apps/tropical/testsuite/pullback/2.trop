@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="56ab1070"?>
+<?pm chk="56e6d677"?>
 
-<object name="2" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="2" type="tropical::RationalFunction&lt;Min&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0.2" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="DOMAIN">
     <object>
       <property name="PURE" value="true" />

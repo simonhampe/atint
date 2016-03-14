@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="56acd595"?>
+<?pm chk="56e6dd5f"?>
 
-<object name="3in" type="matroid::Matroid" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="3in" type="matroid::Matroid&lt;HasDual&gt;" version="3.0.2" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <description><![CDATA[Uniform matroid of rank 2 on 3 elements.
 ]]></description>
   <property name="N_ELEMENTS" value="3" />
@@ -54,10 +54,6 @@
   <property name="LOOPS">
     <v />
   </property>
-  <property name="COLOOPS">
-    <v />
-  </property>
-  <property name="N_COLOOPS" value="0" />
   <property name="LATTICE_OF_CYCLIC_FLATS">
     <object>
       <property name="ADJACENCY">

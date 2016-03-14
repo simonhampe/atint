@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="56ab17f0"?>
+<?pm chk="56e6d1e7"?>
 
-<object name="torus" type="tropical::Cycle&lt;Min&gt;" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
-  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
-  See also: 
-  https://github.com/simonhampe/atint]]></credit>
+<object name="torus" type="tropical::Cycle&lt;Min&gt;" version="3.0.2" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="cdd"><![CDATA[
 Copyright by Komei Fukuda.
 http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
 ]]></credit>
+  <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
+  (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
+  See also: 
+  https://github.com/simonhampe/atint]]></credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0 0 0</v>

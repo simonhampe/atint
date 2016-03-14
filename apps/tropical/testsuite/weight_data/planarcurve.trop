@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="56ab0d79"?>
+<?pm chk="56e6cb7a"?>
 
-<object name="planarcurve" type="tropical::Cycle&lt;Max&gt;" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="cdd"><![CDATA[
-Copyright by Komei Fukuda.
-http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-]]></credit>
+<object name="planarcurve" type="tropical::Cycle&lt;Max&gt;" version="3.0.2" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
   https://github.com/simonhampe/atint]]></credit>
+  <credit product="cdd"><![CDATA[
+Copyright by Komei Fukuda.
+http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
+]]></credit>
   <property name="VERTICES">
     <m>
       <v>1 0 0 0</v>

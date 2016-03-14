@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="56af3006"?>
+<?pm chk="56e6ddfc"?>
 
-<object name="4" type="tropical::MatroidRingCycle&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="4" type="tropical::MatroidRingCycle&lt;Max&gt;" ext="0=https://github.com/simonhampe/atint" version="3.0.2" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <credit product="atint"><![CDATA[  a-tint is an extension for tropical intersection theory.
   (C) 2011 - 2015 Simon Hampe, simon.hampe@googlemail.com
   See also: 
