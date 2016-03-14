@@ -213,7 +213,7 @@ namespace polymake { namespace tropical {
 
       return_list.push_back( uniform_pair(r,n));
 
-      if(r == 1) return return_list; 
+      if(r == 1 || r == n) return return_list; 
 
       for(int k = 1; k < r; k++) {
          for(int s = k+1; s <= k+n-r; s++) {
