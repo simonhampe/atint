@@ -1,4 +1,0 @@
-check_rules <<'---';
-DOMAIN, IS_GLOBALLY_AFFINE_LINEAR : MATRIX, TRANSLATE
-*
----
