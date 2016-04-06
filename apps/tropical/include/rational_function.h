@@ -74,7 +74,7 @@ namespace polymake { namespace tropical {
 					ineq /= Addition::orientation()*(Rational(coefs[i])|monoms[i]);
 			}
 
-			perl::Object dome(perl::ObjectType::construct<Rational>("polytope::Polytope"));
+			perl::Object dome("polytope::Polytope<Rational>");
 			dome.take("INEQUALITIES") << ineq;
 			dome.take("FEASIBLE") << true;
 			dome.take("BOUNDED") << false;

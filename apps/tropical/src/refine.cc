@@ -58,12 +58,14 @@ namespace polymake { namespace tropical {
 
 		//Sanity check 
 		if(CallPolymakeFunction("is_empty", X)) {
+                  int ambient_dim=X.give("PROJECTIVE_AMBIENT_DIM");
+                  ambient_dim+=2;
 			RefinementResult r;
 				r.complex = X;
-				r.rayRepFromX = Matrix<Rational>();
-				r.linRepFromX = Matrix<Rational>();
-				r.rayRepFromY = Matrix<Rational>();
-				r.linRepFromY = Matrix<Rational>();
+				r.rayRepFromX = Matrix<Rational>(0, ambient_dim);
+				r.linRepFromX = Matrix<Rational>(0, ambient_dim);
+				r.rayRepFromY = Matrix<Rational>(0, ambient_dim);
+				r.linRepFromY = Matrix<Rational>(0, ambient_dim);
 				r.associatedRep = Vector<int>();
 			return r;
 		}
@@ -77,13 +79,16 @@ namespace polymake { namespace tropical {
 		Matrix<Rational> x_rays = X.give("VERTICES");
 		x_rays = tdehomog(x_rays);
 		IncidenceMatrix<> x_cones = X.give("MAXIMAL_POLYTOPES");
-		Matrix<Rational> x_cmplx_rays = repFromX? X.give("SEPARATED_VERTICES") : Matrix<Rational>();
-		x_cmplx_rays = tdehomog(x_cmplx_rays);
+		Matrix<Rational> x_cmplx_rays(0, x_rays.cols());
+                if (repFromX) {
+                  X.give("SEPARATED_VERTICES") >> x_cmplx_rays;
+                  x_cmplx_rays = tdehomog(x_cmplx_rays);
+                }
 		IncidenceMatrix<> x_cmplx_cones = repFromX? X.give("SEPARATED_MAXIMAL_POLYTOPES") : IncidenceMatrix<>();
 		Matrix<Rational> x_lineality = X.give("LINEALITY_SPACE");
 		x_lineality = tdehomog(x_lineality);
 		int x_lineality_dim = X.give("LINEALITY_DIM");
-		int ambient_dim = std::max(x_lineality.cols(),x_rays.cols());
+		int ambient_dim = x_rays.cols();
 		int x_dimension = X.give("PROJECTIVE_DIM");	
 		Vector<Integer> weights; bool weightsExist = false;
 		if(X.exists("WEIGHTS")) {
@@ -107,8 +112,11 @@ namespace polymake { namespace tropical {
 		//Extract values of the container
 		Matrix<Rational> y_rays = Y.give("VERTICES");
 		y_rays = tdehomog(y_rays);
-		Matrix<Rational> y_cmplx_rays = repFromY? Y.give("SEPARATED_VERTICES") : Matrix<Rational>();
-		y_cmplx_rays = tdehomog(y_cmplx_rays);
+		Matrix<Rational> y_cmplx_rays(0, y_rays.cols());
+                if (repFromY) {
+                  Y.give("SEPARATED_VERTICES") >> y_cmplx_rays;
+                  y_cmplx_rays = tdehomog(y_cmplx_rays);
+                }
 		IncidenceMatrix<> y_cmplx_cones = repFromY? Y.give("SEPARATED_MAXIMAL_POLYTOPES") : IncidenceMatrix<>();
 		IncidenceMatrix<> y_cones = Y.give("MAXIMAL_POLYTOPES");
 		Matrix<Rational> y_lineality = Y.give("LINEALITY_SPACE");
@@ -242,7 +250,7 @@ namespace polymake { namespace tropical {
 						interrays = sv.enumerate_vertices(x_equations.first / y_equations[yc].first,
 							x_equations.second / y_equations[yc].second,false,true).first;
 					}
-					catch(...) {
+					catch(const infeasible&) {
 						//This just means the polyhedron is empty
 						interrays = Matrix<Rational>(0,ambient_dim);
 					}

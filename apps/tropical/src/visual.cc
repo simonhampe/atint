@@ -138,7 +138,7 @@ namespace polymake { namespace tropical {
 
 		//This will contain the cell centers with the weight labels
 		perl::Object weightCenters("polytope::PointConfiguration");
-		Matrix<Rational> centermatrix(0,ambient_dim);
+		Matrix<Rational> centermatrix(0,ambient_dim+1);
 		Vector<std::string> centerlabels;
 
 		solver<Rational> sv;
@@ -167,8 +167,8 @@ namespace polymake { namespace tropical {
 			try {
 				polyRays = solver<Rational>().enumerate_vertices(facets, linspan, false,true).first;
 			}
-			catch(...) {
-				polyRays = Matrix<Rational>(0,ambient_dim);
+			catch(const infeasible&) {
+				polyRays = Matrix<Rational>(0,ambient_dim+1);
 			}
 			//Normalize
 			for(int r = 0; r < polyRays.rows(); r++) {
