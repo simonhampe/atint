@@ -82,7 +82,7 @@ object RationalFunction {
 		$this->IS_GLOBALLY_DEFINED = !(defined($this->lookup("VERTEX_VALUES")) || defined($this->lookup("LINEALITY_VALUES")));
 	}
 	weight 2.10;
-	permutation : DOMAIN.RaysPerm;
+	incurs DOMAIN.RaysPerm;
 	#FIXME: THis property should maybe be used in some arithmetic functions...
 
 	rule IS_GLOBALLY_DEFINED : {
