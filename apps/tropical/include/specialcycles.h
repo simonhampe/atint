@@ -46,7 +46,7 @@ namespace polymake { namespace tropical {
 	template <typename Addition>
 		perl::Object empty_cycle(int ambient_dim) {
 			perl::Object cycle(perl::ObjectType::construct<Addition>("Cycle"));
-				cycle.take("VERTICES") << Matrix<Rational>(0,ambient_dim);
+				cycle.take("VERTICES") << Matrix<Rational>(0,ambient_dim+2);
 				cycle.take("MAXIMAL_POLYTOPES") << Array<Set<int> >();
 				cycle.take("WEIGHTS") << Vector<Integer>();
 				cycle.take("PROJECTIVE_AMBIENT_DIM") << ambient_dim;

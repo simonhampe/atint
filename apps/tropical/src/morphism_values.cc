@@ -157,8 +157,7 @@ namespace polymake { namespace tropical {
 		Vector<Rational> translate = morphism.give("TRANSLATE");
 
 		Matrix<Rational> vertex_values = T(matrix * T(rays.minor(All,~scalar2set(0))));
-		Matrix<Rational> lineality_values = lineality.rows() > 0 ? 
-			T(matrix * T(lineality.minor(All,~scalar2set(0)))) : Matrix<Rational>(0,0);
+		Matrix<Rational> lineality_values = T(matrix * T(lineality.minor(All,~scalar2set(0))));
 
 		//For each nonfar vertex, we have to add the translate
 		for(int r = 0; r < rays.rows(); r++) {

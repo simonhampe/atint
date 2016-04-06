@@ -44,12 +44,15 @@ namespace polymake { namespace tropical {
 	Matrix<Rational> cycle_weight_space(perl::Object C) {
 
 		//Extract values
+		Matrix<Rational> rays = C.give("VERTICES");
+                if (rays.rows()==0)
+                  return Matrix<Rational>();
+                rays = tdehomog(rays);
+		Matrix<Rational> linspace = C.give("LINEALITY_SPACE");
+                linspace = tdehomog(linspace);
+
 		int ambient_dim = C.give("PROJECTIVE_AMBIENT_DIM");
 		int dim = C.give("PROJECTIVE_DIM");
-		Matrix<Rational> rays = C.give("VERTICES");
-			rays = tdehomog(rays);
-		Matrix<Rational> linspace = C.give("LINEALITY_SPACE");
-			linspace = tdehomog(linspace);
 		IncidenceMatrix<> maximal_cones = C.give("MAXIMAL_POLYTOPES");
 
 		//If there is only one maximal polytope, this is (possibly locally) only a linear space
@@ -63,8 +66,8 @@ namespace polymake { namespace tropical {
 		IncidenceMatrix<> maximal_to_codim = T(codim_in_maximal);
 		Map<std::pair<int,int>, Vector<Integer> > lattice_normals = C.give("LATTICE_NORMALS");
 		//Dehomogenize lattice normals as well
-		for(Entire<Map<std::pair<int,int>, Vector<Integer> > >::iterator ln = entire(lattice_normals); !ln.at_end(); ln++) {
-			lattice_normals[ (*ln).first] = tdehomog_vec( (*ln).second);
+		for (auto& ln : lattice_normals) {
+                  lattice_normals[ln.first] = tdehomog_vec(ln.second);
 		}
 
 		if(dim == 0) {
