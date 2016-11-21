@@ -17,7 +17,7 @@
 	---
 	Copyright (C) 2011 - 2015, Simon Hampe <simon.hampe@googlemail.com>
 
-	Contains functions to compute the lattice of chains of cyclic flats and the corresponding 
+	Contains functions to compute the lattice of chains of cyclic flats and the corresponding
    Moebius function.
 	*/
 
@@ -25,23 +25,26 @@
 #define POLYMAKE_ATINT_CYCLIC_CHAINS_H
 
 #include "polymake/client.h"
-#include "polymake/graph/HasseDiagram.h"
+#include "polymake/graph/Lattice.h"
+#include "polymake/graph/Decoration.h"
 
 namespace polymake { namespace tropical {
- 
-   /*
-    * Takes a face lattice and computes the lattice of all chains, which contain the
-    * top and bottom node. This adds an artificial top node. 
-    */
-   polymake::graph::HasseDiagram chain_lattice(perl::Object facelattice);
+
+   using graph::Lattice;
+   using graph::lattice::BasicDecoration;
 
    /*
+    * @brief Computes the lattice of all chains which include the bottom and top node.
+    */
+   Lattice<BasicDecoration> cyclic_chains(const Lattice<BasicDecoration>& lattice);
+
+    /*
     * @brief Takes a Hasse diagram and computes for each node n the value of the moebius function
     * mu(n,1), where 1 is the maximal element.
     * @return Vector<int> Each entry corresponds to the node of the same index.
     */
-   Vector<int> top_moebius_function(polymake::graph::HasseDiagram HD);
-   
+   Vector<int> top_moebius_function(const Lattice<BasicDecoration>& HD);
+
 }}
 
 #endif

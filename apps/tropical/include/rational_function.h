@@ -35,7 +35,6 @@
 #include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/linear_algebra_tools.h"
 #include "polymake/tropical/polynomial_tools.h"
-#include "polymake/tropical/LoggingPrinter.h"
 
 #ifndef POLYMAKE_ATINT_RATIONAL_FUNCTION_H
 #define POLYMAKE_ATINT_RATIONAL_FUNCTION_H

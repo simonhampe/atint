@@ -27,13 +27,22 @@
 #include "polymake/Vector.h"
 #include "polymake/linalg.h"
 #include "polymake/Map.h"
-#include "polymake/graph/HasseDiagram.h"
+#include "polymake/graph/LatticeTools.h"
+#include "polymake/graph/Decoration.h"
 #include "polymake/PowerSet.h"
 #include "polymake/tropical/cyclic_chains.h"
 
 namespace polymake { namespace tropical {
 
-   using polymake::graph::HasseDiagram;
+   using graph::Lattice;
+   using graph::lattice::BasicDecoration;
+
+   class CompareBySize {
+      public:
+         pm::cmp_value operator() (const Set<int>&a, const Set<int>&b) const {
+            return operations::cmp()(a.size(), b.size());
+         }
+   };
 
    /*
     * @brief Computes the maximal transversal presentation of a nested matroid from its chain of
@@ -65,7 +74,7 @@ namespace polymake { namespace tropical {
       return result;
    }
 
-   /* 
+   /*
     * @brief Converts a loopfree nested matroid, given in terms of its maximal
     * transversal presentation, into a list of cyclic flats and their ranks.
     * The presentation is assumed to be ordered from smallest to largest set.
@@ -80,12 +89,12 @@ namespace polymake { namespace tropical {
       int r = presentation.rows();
       int current_row_index = 0;
       Vector<Set<int> > flats;
-      Vector<int> occurences; 
+      Vector<int> occurences;
 
       while(current_row_index < r) {
          Set<int> current_set = presentation.row(current_row_index);
          int current_count = 1;
-         //Count how many times this row occurs 
+         //Count how many times this row occurs
          while( current_set == (current_row_index < r-1? presentation.row(current_row_index+1) : Set<int>())) {
             current_count++;
             current_row_index++;
@@ -95,7 +104,7 @@ namespace polymake { namespace tropical {
          current_row_index++;
       }
 
-      //If there are no coloops the full set is missing as a cyclic flat 
+      //If there are no coloops the full set is missing as a cyclic flat
       if(occurences[0] < presentation.row(0).size()) {
          flats = ( sequence(0,n) ) | flats;
          occurences = 0 | occurences;
@@ -117,27 +126,19 @@ namespace polymake { namespace tropical {
    perl::ListReturn matroid_nested_decomposition(perl::Object matroid) {
       int n = matroid.give("N_ELEMENTS");
       perl::Object flats = matroid.give("LATTICE_OF_CYCLIC_FLATS");
+      Lattice<BasicDecoration> flats_lattice(flats);
       IncidenceMatrix<> cyclic_flats = flats.give("FACES");
-      //Determine orientation of flats 
-      bool flipped = cyclic_flats.row(0).size() > cyclic_flats.row(cyclic_flats.rows()-1).size();
-
-      //Map node indices to ranks
-      int cflats_dim = matroid.give("RANK");
-      int n_coloops = matroid.CallPolymakeMethod("N_COLOOPS");
-         cflats_dim -= n_coloops;
-      Map<int,int> rank_map;
-      rank_map[flipped? cyclic_flats.rows()-1 : 0] = 0;
-      for(int i = 0; i < cflats_dim; i++) {
-         Set<int> n_of_dim = flats.CallPolymakeMethod("nodes_of_dim", i);
-         for(Entire<Set<int> >::iterator nd = entire(n_of_dim); !nd.at_end(); nd++){
-            rank_map[*nd] = i+1;
-         }
-      }
-
-      HasseDiagram chains = chain_lattice(flats); 
-      IncidenceMatrix<> chain_faces = chains.faces();
+      Lattice<BasicDecoration> chains = cyclic_chains(flats_lattice);
       Vector<int> coefficients = top_moebius_function(chains);
       Set<int> supp = support( coefficients) - chains.top_node();
+
+      //If it has loops, it's the zero element
+      if( flats_lattice.face(flats_lattice.bottom_node()).size() > 0) {
+         perl::ListReturn result;
+         result << Array<IncidenceMatrix<> >();
+         result << Array<int>();
+         return result;
+      }
 
       Array<IncidenceMatrix<> > nested_presentations(supp.size());
       Array<int> final_coefficients(supp.size());
@@ -145,16 +146,17 @@ namespace polymake { namespace tropical {
       int current_index = 0;
       for(Entire<Set<int> >::iterator s = entire(supp); !s.at_end(); s++, current_index++) {
          final_coefficients[current_index] = -coefficients[*s];
-         IncidenceMatrix<> current_faces = cyclic_flats.minor(chains.face( *s),All);
-         //Read out flat indices and map them to their ranks
-         Array<int> slist(chains.face(*s));
-         slist = attach_operation(slist, pm::operations::associative_access<Map<int,int>,int>(&rank_map));
-         IncidenceMatrix<> ordered_faces = flipped? 
-            IncidenceMatrix<>(current_faces.rows(), current_faces.cols(), rentire(rows(current_faces))) : 
-            current_faces;
-         Array<int> ordered_ranks = flipped?
-            Array<int>(slist.size(), rentire(slist)) :
-            slist;
+         auto chain_nodes = select(flats_lattice.decoration(), chains.face(*s));
+         Set<Set<int>, CompareBySize> ordered_faces_list( entire(
+                  attach_member_accessor( chain_nodes,
+                     ptr2type< BasicDecoration, Set<int>, &BasicDecoration::face>())
+                  ));
+         Set<int> ordered_ranks_list( entire(
+                  attach_member_accessor( chain_nodes,
+                     ptr2type< BasicDecoration, int, &BasicDecoration::rank>())
+                  ));
+         IncidenceMatrix<> ordered_faces( ordered_faces_list.size(), n, entire(ordered_faces_list));
+         Array<int> ordered_ranks( ordered_ranks_list.size(), entire(ordered_ranks_list));
          nested_presentations[current_index] = presentation_from_chain(n, ordered_faces, ordered_ranks);
       }
 
@@ -167,15 +169,15 @@ namespace polymake { namespace tropical {
 
    /*
     * @brief Constructs a loopfree nested matroid from its maximal transversal presentation
-    * @param IncidenceMatrix<> The maximal transversal presentation. Assumed to be 
+    * @param IncidenceMatrix<> The maximal transversal presentation. Assumed to be
     * ordered from smallest to largest set. Also, the largest set has to be the full set.
-    * @param int n Size of the ground set. 
+    * @param int n Size of the ground set.
     * @return matroid::Matroid
     */
    perl::Object nested_matroid_from_presentation(const IncidenceMatrix<> &presentation, int n) {
       int r = presentation.rows();
 
-      Map<Set<int>, int> cyclic_flats = cyclic_flats_from_presentation(presentation); 
+      Map<Set<int>, int> cyclic_flats = cyclic_flats_from_presentation(presentation);
       Vector<Set<int> > bases(all_subsets_of_k( sequence(0,n),r));
 
       //Remove bases that contain too much of a cyclic flat

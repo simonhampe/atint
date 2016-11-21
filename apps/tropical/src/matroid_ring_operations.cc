@@ -26,7 +26,6 @@
 #include "polymake/Vector.h"
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
-#include "polymake/tropical/LoggingPrinter.h"
 
 namespace polymake { namespace tropical {
 
@@ -77,31 +76,33 @@ namespace polymake { namespace tropical {
       }
 
    template <typename Addition>
-      Matrix<Rational> matroid_ring_linear_space(Array<perl::Object> cycles) {
+      Matrix<Rational> matroid_ring_linear_space(const Array<perl::Object>& cycles) {
          Matrix<Rational> result;
-         Vector<IncidenceMatrix<> > existing_nested;
-         for(Entire<Array<perl::Object> >::iterator c = entire(cycles); !c.at_end(); c++) {
+         // FIXME: misuse of vector concatenation
+         Vector<IncidenceMatrix<>> existing_nested;
+         for (const perl::Object& c : cycles) {
             result /= zero_vector<Rational>(result.cols());
-            Array<IncidenceMatrix<> > rep = (*c).give("NESTED_PRESENTATIONS");
-            Array<int> coeff = (*c).give("NESTED_COEFFICIENTS");
+            Array<IncidenceMatrix<> > rep = c.give("NESTED_PRESENTATIONS");
+            Array<int> coeff = c.give("NESTED_COEFFICIENTS");
             int repindex =0;
-            for(Entire<Array<IncidenceMatrix<> > >::iterator r_it = entire(rep); !r_it.at_end(); 
-                  r_it++,repindex++) {
+            for (auto r_it = entire(rep); !r_it.at_end(); ++r_it, ++repindex) {
                int index = 0; int max_index = existing_nested.dim();
                //Check if it already exists
                bool found_it = false;
-               for(Entire<Vector<IncidenceMatrix<> > >::iterator en = entire(existing_nested);
+               for (Entire<Vector<IncidenceMatrix<> > >::iterator en = entire(existing_nested);
                      index < max_index; index++, en++) {
-                  if(*r_it == *en) {
+                  if (*r_it == *en) {
                      found_it = true;
                      result(result.rows()-1, index) = coeff[repindex];
                      break;
                   }
                }
-               if(!found_it) {
-                  if(result.rows() == 0) result = Matrix<Rational>(1,1);
-                  else result |= zero_vector<Rational>(result.rows());
-                  result( result.rows()-1, result.cols()-1) = coeff[repindex];
+               if (!found_it) {
+                  if (result.rows() == 0)
+                    result = Matrix<Rational>(1,1);
+                  else
+                    result |= zero_vector<Rational>(result.rows());
+                  result(result.rows()-1, result.cols()-1) = coeff[repindex];
                   existing_nested |= *r_it;
                }
             }

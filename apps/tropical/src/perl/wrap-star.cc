@@ -14,19 +14,28 @@
 --------------------------------------------------------------------------------
 */
 
+#include "polymake/Matrix.h"
+#include "polymake/Rational.h"
+#include "polymake/TropicalNumber.h"
+#include "polymake/Vector.h"
+
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( bool (perl::Object, pm::Vector<pm::Rational>) ) {
+   template <typename T0>
+   FunctionInterface4perl( star_at_vertex_T_x_x, T0 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Vector< Rational > > >() );
-   }
-   FunctionWrapperInstance4perl( bool (perl::Object, pm::Vector<pm::Rational>) );
+      WrapperReturn( (star_at_vertex<T0>(arg0, arg1)) );
+   };
 
-   FunctionWrapper4perl( pm::Array<pm::Integer> (int const&, int const&) ) {
+   template <typename T0, typename T1>
+   FunctionInterface4perl( star_at_point_T_x_X, T0,T1 ) {
       perl::Value arg0(stack[0]), arg1(stack[1]);
-      IndirectWrapperReturn( arg0, arg1 );
-   }
-   FunctionWrapperInstance4perl( pm::Array<pm::Integer> (int const&, int const&) );
+      WrapperReturn( (star_at_point<T0>(arg0, arg1.get<T1>())) );
+   };
 
+   FunctionInstance4perl(star_at_vertex_T_x_x, Max);
+   FunctionInstance4perl(star_at_point_T_x_X, Max, perl::Canned< const Vector< Rational > >);
+   FunctionInstance4perl(star_at_vertex_T_x_x, Min);
+   FunctionInstance4perl(star_at_point_T_x_X, Min, perl::Canned< const Vector< Rational > >);
 ///==== Automatically generated contents end here.  Please do not delete this line. ====
 } } }

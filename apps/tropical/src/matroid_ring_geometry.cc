@@ -26,7 +26,6 @@
 #include "polymake/Vector.h"
 #include "polymake/linalg.h"
 #include "polymake/IncidenceMatrix.h"
-#include "polymake/tropical/LoggingPrinter.h"
 #include "polymake/tropical/misc_tools.h"
 #include "polymake/tropical/thomog.h"
 #include "polymake/tropical/specialcycles.h"
@@ -50,13 +49,13 @@ namespace polymake { namespace tropical {
     */
    template <typename Addition>
       perl::Object add_refined_cycles(Array<perl::Object> cycles) {
-         Array<Matrix<Rational> > vertices(cycles.size());
+         Array<Matrix<Rational>> vertices(cycles.size());
          Matrix<Rational> vertex_union;
-         Array<IncidenceMatrix<> > cones(cycles.size());
+         Array<IncidenceMatrix<>> cones(cycles.size());
          Array<Vector<Integer> > weights(cycles.size());
          for(int i =0; i < cycles.size(); i++) {
             cycles[i].give("VERTICES") >> vertices[i];
-            vertex_union /= vertices[i]; 
+            vertex_union /= vertices[i];
             cycles[i].give("MAXIMAL_POLYTOPES") >> cones[i];
             cycles[i].give("WEIGHTS") >> weights[i];
          }
@@ -67,21 +66,20 @@ namespace polymake { namespace tropical {
          Vector<Set<int> > new_cones;
          Map< Set<int>, int> new_cone_indices;
          int next_index = 0;
-         Vector<Integer> new_weights; 
+         Vector<Integer> new_weights;
          for(int i = 0; i < cycles.size(); i++) {
             Map<int,int> vmap;
-            for(int r =0; r < vertices[i].rows(); r++) {
+            for (int r =0; r < vertices[i].rows(); r++) {
                vmap[r] = find_index(vertices[i].row(r), vertices_total);
             }
             int cindex = 0;
-            for(Entire<Rows<IncidenceMatrix<> > >::iterator c = entire(rows(cones[i])); !c.at_end(); c++, cindex++) {
-               Set<int> mapped_cone = 
-                  attach_operation( *c, pm::operations::associative_access<Map<int,int>,int>(&vmap));
+            for (auto c = entire(rows(cones[i])); !c.at_end(); ++c, ++cindex) {
+               Set<int> mapped_cone{ vmap.map(*c) };
                Integer cw = (weights[i])[cindex];
                if(!new_cone_indices.contains(mapped_cone)) {
-                  new_cone_indices[mapped_cone] = next_index; 
+                  new_cone_indices[mapped_cone] = next_index;
                   new_cones |= mapped_cone;
-                  new_weights |= cw; 
+                  new_weights |= cw;
                   next_index++;
                }
                else {

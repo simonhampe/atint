@@ -16,17 +16,17 @@
 
 namespace polymake { namespace tropical { namespace {
 ///==== Automatically generated contents follow.    Please do not delete this line. ====
-   FunctionWrapper4perl( pm::Array<pm::Set<int, pm::operations::cmp>, void> (int, pm::Array<pm::Set<int, pm::operations::cmp>, void> const&, pm::Array<int, void>) ) {
+   FunctionWrapper4perl( pm::Array<pm::Set<int, pm::operations::cmp>> (int, pm::Array<pm::Set<int, pm::operations::cmp>> const&, pm::Array<int>) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
       IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Array< Set< int > > > >(), arg2.get< perl::TryCanned< const Array< int > > >() );
    }
-   FunctionWrapperInstance4perl( pm::Array<pm::Set<int, pm::operations::cmp>, void> (int, pm::Array<pm::Set<int, pm::operations::cmp>, void> const&, pm::Array<int, void>) );
+   FunctionWrapperInstance4perl( pm::Array<pm::Set<int, pm::operations::cmp>> (int, pm::Array<pm::Set<int, pm::operations::cmp>> const&, pm::Array<int>) );
 
-   FunctionWrapper4perl( pm::IncidenceMatrix<pm::NonSymmetric> (int, pm::Array<pm::Set<int, pm::operations::cmp>, void> const&, pm::Array<int, void>) ) {
+   FunctionWrapper4perl( pm::IncidenceMatrix<pm::NonSymmetric> (int, pm::Array<pm::Set<int, pm::operations::cmp>> const&, pm::Array<int>) ) {
       perl::Value arg0(stack[0]), arg1(stack[1]), arg2(stack[2]);
       IndirectWrapperReturn( arg0, arg1.get< perl::TryCanned< const Array< Set< int > > > >(), arg2.get< perl::TryCanned< const Array< int > > >() );
    }
-   FunctionWrapperInstance4perl( pm::IncidenceMatrix<pm::NonSymmetric> (int, pm::Array<pm::Set<int, pm::operations::cmp>, void> const&, pm::Array<int, void>) );
+   FunctionWrapperInstance4perl( pm::IncidenceMatrix<pm::NonSymmetric> (int, pm::Array<pm::Set<int, pm::operations::cmp>> const&, pm::Array<int>) );
 
    FunctionWrapper4perl( pm::Map<pm::Set<int, pm::operations::cmp>, int, pm::operations::cmp> (pm::IncidenceMatrix<pm::NonSymmetric> const&) ) {
       perl::Value arg0(stack[0]);
